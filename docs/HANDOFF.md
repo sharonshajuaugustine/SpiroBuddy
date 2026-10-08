@@ -6,7 +6,7 @@
 - Project folder, git repo, Python venv (`.venv`) and docs are created.
 - No application code yet.
 - Hardware: **nothing bought yet**. The user will confirm on hackathon day what they can get. Design for: any ESP32/Arduino + VL53L0X/VL53L1X over USB, plus Camera and Simulator modes.
-- Python 3.12.13, Node 22 and Git are installed on this laptop. Python packages aren't installed yet: run `scripts\setup.ps1`, or `.venv\Scripts\python -m pip install -r backend\requirements.txt`.
+- Python 3.12.13, Node 22 and Git are installed on this laptop. **The Python packages are installed in `.venv`** (done by `scripts\setup.ps1`, which also created `.env` from `.env.example`).
 
 ## Next steps (in order)
 1. Create `backend/requirements.txt`, `scripts/setup.ps1` and `scripts/run.ps1`, and install the packages.
