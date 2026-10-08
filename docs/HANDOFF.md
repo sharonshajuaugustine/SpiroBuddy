@@ -1,26 +1,31 @@
 # Handoff – read this first in every new session
 
-**Last updated:** 9 Oct 2026, project setup session (before any code)
+**Last updated:** 9 Oct 2026, lead session – 5 subagents started
+
+## Scope (decided by the user, 9 Oct 2026)
+- **Everything is DEMO for now:** fake patients, no login, demo control buttons.
+- **Focus:** the nurse & doctor **website** (FastAPI serves `web/`; hosted on **Render**; data in **Supabase**, with a local SQLite demo store as default/fallback) and the **3D showroom + videos** (backup in case the hardware isn't ready).
+- **Patient mobile app: set aside.** The user builds it separately against the same `/api`.
+- **3D model rule:** every size must come from a cited web source (`docs/3D_SOURCES.md`); anything unpublished is flagged "measure with caliper".
 
 ## Where we are
-- Project folder, git repo, Python venv (`.venv`) and docs are created.
-- No application code yet.
-- Hardware: **nothing bought yet**. The user will confirm on hackathon day what they can get. Design for: any ESP32/Arduino + VL53L0X/VL53L1X over USB, plus Camera and Simulator modes.
-- Python 3.12.13, Node 22 and Git are installed on this laptop. **The Python packages are installed in `.venv`** (done by `scripts\setup.ps1`, which also created `.env` from `.env.example`).
+- Docs updated for the new scope: ARCHITECTURE (contracts D, §9–§12), ROLES (5 agents), REQUIREMENTS (demo story), START_PROMPT, `.env.example`.
+- 5 subagents started in parallel (see docs/ROLES.md): firmware, backend & data, ML, web (nurse site), 3D & video. Their code may be partly written – check each folder.
+- Python packages are installed in `.venv`. `.env` exists (copied from `.env.example`; add the new DEMO_MODE / DATA_BACKEND / SUPABASE_* lines if missing).
 
 ## Next steps (in order)
-1. Create `backend/requirements.txt`, `scripts/setup.ps1` and `scripts/run.ps1`, and install the packages.
-2. Start the 4 subagents from docs/ROLES.md **in parallel** (firmware, backend, ML, frontend).
-3. Integrate: run the server, test the demo story in Simulator mode, fix the seams.
-4. Nice-to-haves (REQUIREMENTS §4) only after the MVP passes.
-5. Keep this file and PROGRESS.md updated, and commit after each milestone.
+1. When the agents finish: start the server (`scripts\run.ps1`), test every endpoint, walk the demo story (REQUIREMENTS §3) in the browser, open `/showcase/`, play the videos. Fix the seams.
+2. Update PROGRESS.md and this file, commit.
+3. Deploy: follow `docs/DEPLOY.md` (Supabase project + Render Blueprint) – needs the user's accounts.
+4. Nice-to-haves, then `docs/DEMO_GUIDE.md`.
 
 ## Waiting on the user
-- Which hardware they can get (hackathon day).
-- API keys in `.env`: Anthropic, and Twilio (WhatsApp sandbox joined from the demo phones). The app works without them using fallbacks.
+- Supabase account + project (URL and service_role key) and a Render account linked to a GitHub repo. (The Supabase connector in Claude also needs authorising in claude.ai connector settings if we want Claude to set it up directly.)
+- API keys in `.env`: Anthropic, Twilio (optional; fallbacks work).
+- Which hardware they can get (hackathon day), and caliper measurements of the spirometer for any 3D dimension flagged in `docs/3D_SOURCES.md`.
 
 ## Known decisions
-- Plain HTML/JS frontend (no build step), served by FastAPI at http://localhost:8000.
-- USB serial instead of Bluetooth for the hackathon.
-- ML model runs on the server; the browser uses rules if the server isn't reachable.
+- Plain HTML/JS frontend, no build step. Browser only calls `/api`; Supabase keys stay on the server.
+- Backend runs as `backend.app.main:app` from the repo root (same command locally and on Render).
+- USB serial instead of Bluetooth for the hackathon. ML model runs on the server; rules fallback.
 - LLM: `claude-opus-5-5` with effort low, plus a template fallback.
