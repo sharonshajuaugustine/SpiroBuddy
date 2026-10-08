@@ -79,7 +79,10 @@ States: `IDLE → INHALING → HOLDING → FALLING → IDLE`
 }
 ```
 - `smoothness` = standard deviation of the first difference of the rising segment ÷ its mean (lower = smoother).
-- `hold_s` = time with vol ≥ 0.9 × peak.
+- `hold_s` = time with vol ≥ 0.9 × peak (summed time between consecutive points both ≥ 0.9 × peak).
+- Breath start = first point ≥ 10 % of peak; the rising segment runs from there to the peak; `duration_s` = start → last point ≥ 10 % of peak.
+- `max_rise_ml_s` = fastest rise over any 0.3 s window of the rising segment (if the rise lasts < 0.3 s, use its average rate).
+- Times are in seconds (ml/features.py converts ms automatically). Real `smoothness` values are about 0.3–1.0 at 30 Hz; it isn't used by the rules or the score.
 
 **Score** (0–10, one decimal):
 - depth = 4 × min(peak / target, 1)

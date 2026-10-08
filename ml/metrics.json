@@ -1,0 +1,99 @@
+{
+  "created_at": "2026-10-08T22:02:31+00:00",
+  "model": "RandomForestClassifier(n_estimators=200, min_samples_leaf=2)",
+  "feature_keys": [
+    "peak_ml",
+    "pct_target",
+    "time_to_peak_s",
+    "mean_rise_ml_s",
+    "max_rise_ml_s",
+    "hold_s",
+    "smoothness",
+    "duration_s"
+  ],
+  "labels": [
+    "good",
+    "too_fast",
+    "too_shallow",
+    "no_hold"
+  ],
+  "n_samples": 2400,
+  "n_synthetic": 2400,
+  "n_real": 0,
+  "n_real_people": 0,
+  "n_test": 480,
+  "accuracy": 0.9583,
+  "accuracy_synthetic_test": 0.9583,
+  "rules_accuracy_on_test": 0.9271,
+  "per_class": {
+    "good": {
+      "precision": 0.9737,
+      "recall": 0.925,
+      "f1-score": 0.9487,
+      "support": 120.0
+    },
+    "too_fast": {
+      "precision": 0.9576,
+      "recall": 0.9417,
+      "f1-score": 0.9496,
+      "support": 120.0
+    },
+    "too_shallow": {
+      "precision": 0.9916,
+      "recall": 0.9833,
+      "f1-score": 0.9874,
+      "support": 120.0
+    },
+    "no_hold": {
+      "precision": 0.9147,
+      "recall": 0.9833,
+      "f1-score": 0.9478,
+      "support": 120.0
+    }
+  },
+  "confusion_matrix": {
+    "labels": [
+      "good",
+      "too_fast",
+      "too_shallow",
+      "no_hold"
+    ],
+    "matrix": [
+      [
+        111,
+        4,
+        0,
+        5
+      ],
+      [
+        2,
+        113,
+        1,
+        4
+      ],
+      [
+        0,
+        0,
+        118,
+        2
+      ],
+      [
+        1,
+        1,
+        0,
+        118
+      ]
+    ]
+  },
+  "feature_importance": {
+    "peak_ml": 0.1006,
+    "pct_target": 0.2155,
+    "time_to_peak_s": 0.0553,
+    "mean_rise_ml_s": 0.1156,
+    "max_rise_ml_s": 0.2025,
+    "hold_s": 0.1812,
+    "smoothness": 0.0265,
+    "duration_s": 0.1028
+  },
+  "leave_one_person_out": null
+}
