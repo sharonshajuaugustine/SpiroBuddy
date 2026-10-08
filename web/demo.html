@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpiroBuddy Demo Panel</title>
+  <meta name="description" content="Presenter controls for the SpiroBuddy live demo.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b6e8a'/%3E%3Crect x='9' y='13' width='6' height='13' rx='3' fill='%23fff'/%3E%3Cpath d='M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4' stroke='%237fe0c8' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header id="app-header"></header>
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Demo control panel</h1>
+        <div class="muted">For the presenter. Open the <a href="index.html" id="dash-link" target="_blank" rel="noopener">dashboard in a second tab ↗</a> – it updates within 2 seconds.</div>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn danger" id="btn-reset" type="button">↺ Reset demo data</button>
+    </div>
+
+    <section class="card" style="margin-bottom:1rem">
+      <div class="row">
+        <b>Shortcuts for Ravi (live demo patient):</b>
+        <span><span class="kbd">G</span> good session</span>
+        <span><span class="kbd">M</span> mixed</span>
+        <span><span class="kbd">P</span> poor</span>
+        <span><span class="kbd">X</span> 2 missed slots</span>
+        <span><span class="kbd">S</span> send summary to family</span>
+      </div>
+    </section>
+
+    <section class="demo-grid" id="cards" aria-live="polite"><div class="muted">Loading patients…</div></section>
+
+    <div class="grid grid-2" style="margin-top:1rem">
+      <section class="card">
+        <div class="card-head"><h2>Message log</h2><span class="muted small">WhatsApp – every attempt</span><div class="spacer"></div><span class="updated"><span class="live-dot"></span>live</span></div>
+        <div class="msgs" id="msgs"><div class="muted">No messages yet.</div></div>
+      </section>
+      <section class="card">
+        <div class="card-head"><h2>3D showroom</h2><div class="spacer"></div><a class="btn sm" href="showcase/" target="_blank" rel="noopener">Open full screen ↗</a><button class="btn sm" id="btn-embed" type="button">Show here</button></div>
+        <p class="muted small" style="margin-top:0">How the device works: the disc rises, the laser measures it, coaching and the score.</p>
+        <div id="embed"></div>
+        <div class="card-head" style="margin-top:1rem"><h3 style="margin:0">Activity</h3></div>
+        <div class="log" id="log" aria-live="polite"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+  (function () {
+    const { esc, $, $$, link, statusPill, fmtMl, labelChips, dateTimeLabel, toast, busy, poll, hourLabel } = SB.ui;
+    $('#dash-link').href = link('index.html');
+    const results = {};
+    let patients = [], lastMsgIds = null;
+
+    function log(text) {
+      const d = document.createElement('div');
+      d.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + '  ' + text;
+      $('#log').prepend(d);
+    }
+
+    function renderCards() {
+      const box = $('#cards');
+      box.innerHTML = patients.map((p) => {
+        const r = results[p.id];
+        return `<article class="card dcard ${esc(p.status)}${String(p.id) === '1' ? ' star' : ''}" data-id="${esc(p.id)}">
+          <div class="row"><b style="font-size:1.1rem">${esc(p.name)}</b>${String(p.id) === '1' ? '<span class="chip">★ live demo patient</span>' : ''}<span style="margin-left:auto">${statusPill(p.status)}</span></div>
+          <div class="muted small">Done ${p.done_today ?? 0} / ${p.due_today ?? 0} due · best today ${fmtMl(p.best_today)} · target ${fmtMl(p.target_ml)}</div>
+          <div class="btns">
+            <button class="btn good" data-act="good">Simulate<br>good</button>
+            <button class="btn mixed" data-act="mixed">Simulate<br>mixed</button>
+            <button class="btn poor" data-act="poor">Simulate<br>poor</button>
+            <button class="btn danger wide" data-act="miss">Simulate 2 missed slots</button>
+            <button class="btn wide" data-act="wa">Send summary to family (WhatsApp)</button>
+            <a class="btn wide" href="${link('patient.html?id=' + encodeURIComponent(p.id))}" target="_blank" rel="noopener">Open patient page ↗</a>
+          </div>
+          ${r ? `<div class="result">${r}</div>` : ''}
+        </article>`;
+      }).join('') || '<div class="empty">No patients. Press "Reset demo data".</div>';
+    }
+
+    $('#cards').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-act]');
+      if (!btn) return;
+      const id = btn.closest('[data-id]').dataset.id;
+      act(id, btn.dataset.act, btn);
+    });
+
+    async function act(id, what, btn) {
+      const p = patients.find((x) => String(x.id) === String(id));
+      const name = p ? p.name : 'Patient ' + id;
+      return busy(btn, async () => {
+        if (['good', 'mixed', 'poor'].includes(what)) {
+          const r = await SB.api.simulate(id, what, 10);
+          const b = r.breaths || [];
+          const counts = {}; b.forEach((x) => (counts[x.label] = (counts[x.label] || 0) + 1));
+          const avg = r.avg_score != null ? Number(r.avg_score).toFixed(1) : b.length ? (b.reduce((a, x) => a + (Number(x.score) || 0), 0) / b.length).toFixed(1) : '—';
+          const best = r.best_ml != null ? r.best_ml : b.length ? Math.max(...b.map((x) => (x.features && x.features.peak_ml) || 0)) : null;
+          const withIntent = b.filter((x) => x.intended);
+          const agree = withIntent.filter((x) => x.intended === x.label).length;
+          const src = b.length && b[0].source ? (b[0].source === 'model' ? 'our ML model' : 'rules') : '';
+          results[id] = `✅ <b>${esc(what)}</b> session saved – slot ${r.slot_hour != null ? hourLabel(r.slot_hour) : '?'} ${esc(r.slot_status || '')}<br>${b.length} breaths · avg score <b>${avg}</b>/10 · best ${fmtMl(best)}<br>${labelChips(r.label_counts || counts)}${withIntent.length ? `<br>Labelled by ${esc(src || 'the server')}: agreed with the simulator on <b>${agree}/${withIntent.length}</b> breaths` : ''}`;
+          log(`${name}: simulated ${what} session → slot ${r.slot_hour != null ? hourLabel(r.slot_hour) : '?'} ${r.slot_status || ''}, avg ${avg}/10`);
+          toast(`✅ ${name}: ${what} session saved`, 'good');
+        } else if (what === 'miss') {
+          const r = await SB.api.miss(id);
+          const hrs = r && Array.isArray(r.missed) ? r.missed.map((m) => hourLabel(m.slot_hour)) : r && r.missed_hours ? r.missed_hours.map(hourLabel) : [];
+          results[id] = `⚠ ${hrs.length ? 'Slots ' + esc(hrs.join(', ')) : '2 slots'} marked missed – missed-session alert logged${r && r.status ? ' · status now <b>' + esc(r.status) + '</b>' : ''}.`;
+          log(`${name}: 2 slots marked missed${hrs.length ? ' (' + hrs.join(', ') + ')' : ''}`);
+          toast(`⚠ ${name}: 2 missed slots`, 'bad');
+        } else if (what === 'wa') {
+          const r = await SB.api.whatsapp(id, 'summary', 'family');
+          results[id] = `${r.sent ? '✅ Sent' : r.dry_run ? '<b>DRY RUN – would send:</b>' : '✖ Failed:'} ${esc(r.text || '')}`;
+          log(`${name}: WhatsApp summary ${r.sent ? 'sent' : r.dry_run ? 'dry run (would send)' : 'failed'}`);
+        }
+        await refresh();
+      }).then(() => { refresh.sig = null; renderCards(); }).catch((e) => log(`${name}: ${what} failed – ${e.message}`));
+    }
+
+    $('#btn-reset').addEventListener('click', (e) => {
+      if (!confirm('Reset all demo data? This wipes sessions and messages and re-creates the fake patients.')) return;
+      busy(e.currentTarget, async () => {
+        const r = await SB.api.reset();
+        Object.keys(results).forEach((k) => delete results[k]);
+        lastMsgIds = null;
+        log(`Demo data reset (${r && r.patients != null ? (Array.isArray(r.patients) ? r.patients.length : r.patients) : '?'} patients)`);
+        toast('Demo data reset', 'good');
+        await refresh();
+      }).catch(() => {});
+    });
+
+    $('#btn-embed').addEventListener('click', (e) => {
+      const box = $('#embed');
+      if (box.firstChild) { box.innerHTML = ''; e.currentTarget.textContent = 'Show here'; return; }
+      box.innerHTML = '<iframe class="showcase-frame" src="showcase/" title="SpiroBuddy 3D showroom" loading="lazy" allow="fullscreen"></iframe>';
+      e.currentTarget.textContent = 'Hide';
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey || /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+      const map = { g: 'good', m: 'mixed', p: 'poor', x: 'miss', s: 'wa' };
+      const what = map[e.key.toLowerCase()];
+      if (!what) return;
+      e.preventDefault();
+      const btn = $(`[data-id="1"] button[data-act="${what}"]`);
+      if (btn && !btn.disabled) act('1', what, btn);
+    });
+
+    function renderMsgs(all) {
+      const ids = new Set(all.map((m) => m.id));
+      $('#msgs').innerHTML = all.length ? all.map((m) => `<div class="msg${lastMsgIds && !lastMsgIds.has(m.id) ? ' new' : ''}">
+        <div class="head"><b>${esc(m.patient_name || 'Patient ' + m.patient_id)}</b><span class="tag ${esc(m.kind)}">${esc(m.kind)}</span><span>to ${esc(m.to_role || '')}</span>
+        <span class="tag ${m.sent ? 'sent' : 'dry'}">${m.sent ? 'sent' : m.dry_run ? 'would send' : 'failed'}</span><span>${esc(dateTimeLabel(m.created_at))}</span></div>
+        <div class="text">${esc(m.text)}</div></div>`).join('') : '<div class="muted">No messages yet.</div>';
+      lastMsgIds = ids;
+    }
+
+    async function refresh() {
+      const [list, msgs] = await Promise.all([SB.api.patients(), SB.api.messages(50)]);
+      // Ravi (id 1) first, then by id
+      patients = list.slice().sort((a, b) => (String(a.id) === '1' ? -1 : String(b.id) === '1' ? 1 : Number(a.id) - Number(b.id)));
+      // don't re-render cards while a button is busy (keeps the spinner state)
+      if (!document.querySelector('#cards .busy')) {
+        const sig = JSON.stringify(patients) + JSON.stringify(results);
+        if (sig !== refresh.sig) { refresh.sig = sig; renderCards(); }
+      }
+      const msig = JSON.stringify(msgs);
+      if (msig !== refresh.msig) { refresh.msig = msig; renderMsgs(msgs || []); }
+    }
+
+    SB.ui.boot('demo').then(() => { log('Panel ready' + (SB.api.state.mock ? ' (MOCK mode)' : '')); poll(refresh, 2000); });
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpiroBuddy Breath Recorder</title>
+  <meta name="description" content="Record labelled breaths for training the SpiroBuddy ML model.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b6e8a'/%3E%3Crect x='9' y='13' width='6' height='13' rx='3' fill='%23fff'/%3E%3Cpath d='M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4' stroke='%237fe0c8' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header id="app-header"></header>
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Record labelled breaths</h1>
+        <div class="muted">Training data for the ML model. Each breath is cut out automatically; you give it a label with <span class="kbd">G</span> good, <span class="kbd">F</span> too fast, <span class="kbd">S</span> too shallow, <span class="kbd">N</span> no hold.</div>
+      </div>
+    </div>
+
+    <section class="card" style="margin-bottom:1rem">
+      <div class="form-grid">
+        <div class="field"><label>Input source</label>
+          <div class="seg" role="group" aria-label="Input source" id="src-seg">
+            <button type="button" data-src="sim" aria-pressed="true">Simulator</button>
+            <button type="button" data-src="serial" aria-pressed="false">USB serial</button>
+          </div></div>
+        <div class="field"><label>&nbsp;</label><button class="btn primary" id="btn-connect" type="button">Start</button></div>
+        <div class="field"><label for="person">Person (who is breathing)</label><input id="person" placeholder="e.g. volunteer1" maxlength="40"></div>
+        <div class="field"><label for="target">Target (mL)</label><input id="target" type="number" value="2000" min="250" max="5000" step="50"></div>
+        <div class="field"><label for="holdt">Hold target (s)</label><input id="holdt" type="number" value="3" min="1" max="10" step="0.5"></div>
+      </div>
+      <div class="muted small" style="margin-top:.5rem" id="src-status">Simulator selected. Press Start.</div>
+    </section>
+
+    <div class="grid grid-3">
+      <section class="card span-2">
+        <div class="card-head">
+          <h2>Live volume</h2><div class="spacer"></div>
+          <span id="fast-warn" class="warn-fast hidden">SLOWER!</span>
+          <span class="state-badge IDLE" id="state">IDLE</span>
+        </div>
+        <div class="row" style="align-items:baseline;margin-bottom:.5rem"><span class="big-num" id="vol">0</span><span class="muted">mL</span><span class="muted small" style="margin-left:auto" id="raw-now">raw: –</span></div>
+        <canvas class="live" id="live" aria-label="Live breath volume graph"></canvas>
+        <div id="sim-box" style="margin-top:.75rem">
+          <div class="row" style="margin-bottom:.4rem"><b>Simulate a breath:</b>
+            <label class="row" style="margin-left:auto;font-weight:600"><input type="checkbox" id="autolabel" checked> Auto-label with the simulated type (keys then make breaths)</label></div>
+          <div class="label-btns">
+            <button class="btn good" data-sim="good" type="button">Good<span class="kbd">G</span></button>
+            <button class="btn poor" data-sim="too_fast" type="button">Too fast<span class="kbd">F</span></button>
+            <button class="btn mixed" data-sim="too_shallow" type="button">Too shallow<span class="kbd">S</span></button>
+            <button class="btn" data-sim="no_hold" type="button">No hold<span class="kbd">N</span></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>Last breath</h2><div class="spacer"></div><span id="lb-status" class="muted small"></span></div>
+        <div id="last-breath" class="muted">Breathe (or simulate) to capture a breath.</div>
+        <div class="label-btns" style="margin-top:.75rem;grid-template-columns:repeat(2,1fr)" id="label-btns">
+          <button class="btn good" data-label="good" type="button" disabled>Good<span class="kbd">G</span></button>
+          <button class="btn poor" data-label="too_fast" type="button" disabled>Too fast<span class="kbd">F</span></button>
+          <button class="btn mixed" data-label="too_shallow" type="button" disabled>Too shallow<span class="kbd">S</span></button>
+          <button class="btn" data-label="no_hold" type="button" disabled>No hold<span class="kbd">N</span></button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>Saved by label</h2></div>
+        <div class="counts" id="counts">
+          <div><b id="c-good">0</b>Good</div><div><b id="c-too_fast">0</b>Too fast</div><div><b id="c-too_shallow">0</b>Shallow</div><div><b id="c-no_hold">0</b>No hold</div>
+        </div>
+        <div class="muted small" style="margin-top:.4rem">Counts on the server (all people). Aim for 20+ of each label.</div>
+        <div class="row" style="margin-top:.75rem"><button class="btn primary" id="btn-train" type="button">Train model</button><span class="muted small" id="train-status"></span></div>
+        <div class="metrics hidden" id="metrics" style="margin-top:.6rem"></div>
+      </section>
+
+      <section class="card" id="calib-card">
+        <div class="card-head"><h2>Calibration</h2><span class="muted small" id="calib-mode"></span></div>
+        <p class="muted small" style="margin-top:0">USB serial only: the sensor gives a distance in mm. Hold the disc at each printed mark (e.g. 0, 500, 1000… mL), type the mL and press <b>Capture</b>. 2+ points needed. Saved in this browser.</p>
+        <div class="row"><input id="cal-ml" type="number" placeholder="mL at this mark" style="width:150px" min="0" max="5000" step="50">
+          <button class="btn" id="btn-cap" type="button">Capture current raw</button></div>
+        <div class="row" style="margin-top:.4rem"><input id="cal-raw" type="number" placeholder="or type raw (mm)" style="width:150px">
+          <button class="btn sm" id="btn-addraw" type="button">Add point</button><button class="btn sm danger" id="btn-calclear" type="button">Clear</button></div>
+        <table style="margin-top:.5rem"><thead><tr><th class="num">Raw (mm)</th><th class="num">mL</th><th></th></tr></thead><tbody id="cal-rows"></tbody></table>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>This session</h2></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Time</th><th>Label</th><th class="num">Peak</th><th class="num">Score</th></tr></thead>
+          <tbody id="saved-rows"><tr><td colspan="4" class="muted">Nothing saved yet.</td></tr></tbody>
+        </table></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/breath.js"></script>
+  <script src="js/sources.js"></script>
+  <script>
+  (function () {
+    const { esc, $, $$, toast, busy, LABEL_TEXT } = SB.ui;
+    const B = SB.breath;
+    const CAL_KEY = 'sb_calibration_serial';
+    const KEY_LABEL = { g: 'good', f: 'too_fast', s: 'too_shallow', n: 'no_hold' };
+
+    let srcKind = 'sim', source = null, calib = B.Calibration.load(CAL_KEY), identity = new B.Calibration([]);
+    let median = new B.MedianFilter(5), detector = null, lastRaw = null, lastBreath = null, intended = [];
+    const chart = new SB.charts.LiveChart($('#live'), { target: 2000, maxMl: 3000 });
+    const savedRows = [];
+
+    try { $('#person').value = localStorage.getItem('sb_person') || ''; } catch (_) { /* ignore */ }
+    $('#person').addEventListener('change', () => { try { localStorage.setItem('sb_person', $('#person').value.trim()); } catch (_) { /* ignore */ } });
+
+    const target = () => Number($('#target').value) || 2000;
+    const holdT = () => Number($('#holdt').value) || 3;
+
+    function makeDetector() {
+      detector = new B.BreathDetector({
+        targetMl: target(), holdTargetS: holdT(),
+        onState: (s) => { const el = $('#state'); el.textContent = s; el.className = 'state-badge ' + s; if (s === 'INHALING') $('#fast-warn').classList.add('hidden'); },
+        onEvent: (ev) => {
+          if (ev.type === 'too_fast_live') { $('#fast-warn').classList.remove('hidden'); chart.mark(ev.t, 'too fast ' + ev.rate + ' mL/s', getComputedStyle(document.documentElement).getPropertyValue('--red')); }
+          if (ev.type === 'ignored') chart.mark(ev.t, 'ignored (too small/short)');
+          if (ev.type === 'reset') chart.mark(ev.t, 'reset (timeout)');
+        },
+        onBreath: onBreath,
+      });
+    }
+    makeDetector();
+    $('#target').addEventListener('change', () => { chart.target = target(); chart.maxMl = Math.max(3000, SB.charts.niceMax(target() * 1.3)); if (source && source.targetMl) source.targetMl = target(); makeDetector(); });
+    $('#holdt').addEventListener('change', makeDetector);
+
+    function onSample(s) {
+      lastRaw = s.raw;
+      const cal = srcKind === 'sim' ? identity : calib;
+      const ml = cal.toMl(s.raw);
+      const sm = median.push(ml);
+      detector.push({ t: s.t, ml: sm });
+      chart.push(s.t, sm, detector.state);
+      onSample.n = (onSample.n || 0) + 1;
+      if (onSample.n % 3 === 0) { $('#vol').textContent = Math.round(sm); $('#raw-now').textContent = 'raw: ' + Math.round(s.raw) + (srcKind === 'serial' ? ' mm' : ' (mL)'); }
+    }
+
+    async function onBreath(b) {
+      const t0 = b.samples[0].t;
+      lastBreath = Object.assign({}, b, { saved: null, model: null, rel: b.samples.map((s) => ({ t: Math.round((s.t - t0)) / 1000, ml: Math.round(s.ml * 10) / 10 })) });
+      chart.mark(b.samples[b.samples.length - 1].t, `${b.features.peak_ml} mL · ${b.score}/10`);
+      renderLast();
+      setLabelBtns(true);
+      const want = intended.shift();
+      try { lastBreath.model = await B.classify(b.features); renderLast(); } catch (_) { /* rules shown */ }
+      if (srcKind === 'sim' && $('#autolabel').checked && want) saveLabel(want);
+    }
+
+    function renderLast() {
+      const b = lastBreath; if (!b) return;
+      const f = b.features;
+      const m = b.model;
+      $('#last-breath').innerHTML = `
+        <div class="row" style="align-items:baseline"><span class="big-num">${b.score}</span><span class="muted">/ 10</span>
+          <span style="margin-left:auto">${m ? `<span class="lbl-chip lbl-${esc(m.label)}">${esc(LABEL_TEXT[m.label] || m.label)}</span><span class="source-tag ${m.source === 'model' ? 'llm' : ''}">${m.source === 'model' ? 'ML model' : 'rules'}</span>` : `<span class="lbl-chip lbl-${esc(b.rule_label)}">${esc(LABEL_TEXT[b.rule_label])}</span><span class="source-tag">rules</span>`}</span></div>
+        <table class="small" style="margin-top:.4rem"><tbody>
+          ${B.FEATURE_KEYS.map((k) => `<tr><td class="mono">${k}</td><td class="num">${esc(f[k])}</td></tr>`).join('')}
+        </tbody></table>`;
+      $('#lb-status').innerHTML = b.saved ? `Saved as <b>${esc(LABEL_TEXT[b.saved])}</b>` : 'Not saved – pick a label';
+    }
+    function setLabelBtns(on) { $$('#label-btns button').forEach((x) => (x.disabled = !on)); }
+
+    async function saveLabel(label) {
+      if (!lastBreath) { toast('No breath to label yet'); return; }
+      const b = lastBreath;
+      const person = $('#person').value.trim() || 'anonymous';
+      try {
+        const r = await SB.api.collect({ person, label, samples: b.rel, features: b.features });
+        b.saved = label;
+        renderLast();
+        if (r && r.count_by_label) renderCounts(r.count_by_label);
+        savedRows.unshift({ at: new Date(), label, peak: b.features.peak_ml, score: b.score });
+        $('#saved-rows').innerHTML = savedRows.slice(0, 30).map((s) => `<tr><td>${s.at.toLocaleTimeString()}</td><td><span class="lbl-chip lbl-${s.label}">${LABEL_TEXT[s.label]}</span></td><td class="num">${s.peak} mL</td><td class="num">${s.score}</td></tr>`).join('');
+        toast(`Saved as ${LABEL_TEXT[label]}`, 'good', 1800);
+      } catch (e) { toast('Save failed: ' + e.message, 'bad'); }
+    }
+    function renderCounts(c) { ['good', 'too_fast', 'too_shallow', 'no_hold'].forEach((k) => ($('#c-' + k).textContent = c[k] || 0)); }
+
+    $$('#label-btns button').forEach((x) => x.addEventListener('click', () => saveLabel(x.dataset.label)));
+    function simulate(label) {
+      if (srcKind !== 'sim') return;
+      if (!source || !source.connected) startSource();
+      intended.push(label);
+      source.breathe(label);
+    }
+    $$('[data-sim]').forEach((x) => x.addEventListener('click', () => simulate(x.dataset.sim)));
+
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey || /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+      const label = KEY_LABEL[e.key.toLowerCase()];
+      if (!label) return;
+      e.preventDefault();
+      if (srcKind === 'sim' && $('#autolabel').checked) simulate(label);
+      else saveLabel(label);
+    });
+
+    /* ---------- sources ---------- */
+    async function stopSource() { if (source) { try { await source.stop(); } catch (_) { /* ignore */ } } source = null; $('#btn-connect').textContent = srcKind === 'sim' ? 'Start' : 'Connect device'; }
+    async function startSource() {
+      median = new B.MedianFilter(5); makeDetector(); chart.clear(); intended = [];
+      source = srcKind === 'sim' ? new SB.sources.SimulatorSource({ targetMl: target() }) : new SB.sources.SerialSource();
+      source.onSample = onSample;
+      source.onStatus = (t) => ($('#src-status').textContent = t);
+      source.onError = (e) => toast(e.message, 'bad');
+      try {
+        await source.start();
+        $('#btn-connect').textContent = srcKind === 'sim' ? 'Stop' : 'Disconnect';
+      } catch (e) {
+        source = null;
+        $('#src-status').textContent = e.name === 'NotFoundError' ? 'No port chosen.' : 'Could not connect: ' + e.message;
+        if (e.name !== 'NotFoundError') toast(e.message, 'bad', 7000);
+      }
+    }
+    $('#btn-connect').addEventListener('click', () => (source && source.connected ? stopSource() : startSource()));
+    $$('#src-seg button').forEach((x) => x.addEventListener('click', async () => {
+      if (x.dataset.src === srcKind) return;
+      await stopSource();
+      srcKind = x.dataset.src;
+      $$('#src-seg button').forEach((y) => y.setAttribute('aria-pressed', String(y === x)));
+      $('#sim-box').classList.toggle('hidden', srcKind !== 'sim');
+      $('#btn-connect').textContent = srcKind === 'sim' ? 'Start' : 'Connect device';
+      $('#src-status').textContent = srcKind === 'sim' ? 'Simulator selected. Press Start.' :
+        (SB.sources.SerialSource.supported ? 'Plug in the SpiroBuddy unit by USB, press "Connect device" and pick its port. Calibrate first (right).' : '⚠ Web Serial is not available in this browser – use Chrome or Edge on a laptop.');
+      renderCal();
+    }));
+
+    /* ---------- calibration ---------- */
+    function renderCal() {
+      $('#calib-mode').textContent = srcKind === 'sim' ? '(not used by the simulator)' : calib.isIdentity ? '⚠ needs 2+ points' : `${calib.points.length} points`;
+      $('#cal-rows').innerHTML = calib.points.length ? calib.points.map((p, i) => `<tr><td class="num">${p.raw}</td><td class="num">${p.ml}</td><td><button class="btn sm" data-del="${i}" type="button" aria-label="Delete point">✕</button></td></tr>`).join('') : '<tr><td colspan="3" class="muted">No points – raw values are used as mL.</td></tr>';
+    }
+    function addPoint(raw, ml) {
+      if (!isFinite(raw) || !isFinite(ml)) { toast('Enter both the raw value and the mL', 'bad'); return; }
+      const pts = calib.points.filter((p) => p.raw !== raw).concat([{ raw, ml }]);
+      calib.setPoints(pts); calib.save(CAL_KEY); renderCal();
+    }
+    $('#btn-cap').addEventListener('click', () => {
+      if (lastRaw == null || srcKind !== 'serial') { toast('Connect the USB device first – capture reads its current distance', 'bad'); return; }
+      addPoint(Math.round(lastRaw), Number($('#cal-ml').value));
+    });
+    $('#btn-addraw').addEventListener('click', () => addPoint(Number($('#cal-raw').value), Number($('#cal-ml').value)));
+    $('#btn-calclear').addEventListener('click', () => { if (confirm('Clear all calibration points?')) { calib.setPoints([]); calib.save(CAL_KEY); renderCal(); } });
+    $('#cal-rows').addEventListener('click', (e) => { const d = e.target.closest('[data-del]'); if (!d) return; const pts = calib.points.slice(); pts.splice(Number(d.dataset.del), 1); calib.setPoints(pts); calib.save(CAL_KEY); renderCal(); });
+    renderCal();
+
+    /* ---------- training ---------- */
+    function showMetrics(m) {
+      const el = $('#metrics'); el.classList.remove('hidden');
+      const acc = m && (m.accuracy ?? m.test_accuracy ?? (m.metrics && m.metrics.accuracy));
+      $('#train-status').innerHTML = acc != null ? `Accuracy <b>${(Number(acc) * (acc <= 1 ? 100 : 1)).toFixed(1)}%</b>` : '';
+      el.textContent = JSON.stringify(m, null, 2);
+    }
+    $('#btn-train').addEventListener('click', (e) => busy(e.currentTarget, async () => {
+      $('#train-status').innerHTML = '<span class="live-dot"></span>Training… (about 10 s)'; e.currentTarget.textContent = 'Training…';
+      const m = await SB.api.train();
+      showMetrics(m);
+      toast('Model trained and reloaded', 'good');
+    }).catch(() => ($('#train-status').textContent = 'Training failed')));
+
+    SB.ui.boot('collect').then(async () => {
+      try { const m = await SB.api.model(); if (m) showMetrics(m); } catch (_) { /* no model yet */ }
+      startSource();
+    });
+  })();
+  </script>
+</body>
+</html>

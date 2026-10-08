@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpiroBuddy Dashboard</title>
+  <meta name="description" content="SpiroBuddy nurse and doctor dashboard (demo, fake patients).">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b6e8a'/%3E%3Crect x='9' y='13' width='6' height='13' rx='3' fill='%23fff'/%3E%3Cpath d='M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4' stroke='%237fe0c8' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header id="app-header"></header>
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Patients today</h1>
+        <div class="muted" id="today-label"></div>
+      </div>
+      <div class="spacer"></div>
+      <div class="updated" aria-live="off"><span class="live-dot"></span><span id="updated">Loading…</span></div>
+    </div>
+
+    <section class="summary" aria-label="Summary">
+      <button class="stat red" data-filter="red" type="button"><div class="num" id="n-red">–</div><div class="lbl" id="l-red">need a call</div></button>
+      <button class="stat yellow" data-filter="yellow" type="button"><div class="num" id="n-yellow">–</div><div class="lbl">to watch</div></button>
+      <button class="stat green" data-filter="green" type="button"><div class="num" id="n-green">–</div><div class="lbl">on track</div></button>
+      <button class="stat info" data-filter="all" type="button"><div class="num" id="n-sessions">–</div><div class="lbl" id="l-sessions">sessions done today</div></button>
+    </section>
+
+    <div class="toolbar">
+      <label class="sr-only" for="search">Search patients</label>
+      <input type="search" id="search" placeholder="Search name, surgery…" autocomplete="off">
+      <div class="seg" role="group" aria-label="Filter by status" id="filter">
+        <button type="button" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" data-filter="red" aria-pressed="false">Red</button>
+        <button type="button" data-filter="yellow" aria-pressed="false">Yellow</button>
+        <button type="button" data-filter="green" aria-pressed="false">Green</button>
+      </div>
+      <label class="sr-only" for="sort">Sort</label>
+      <select id="sort">
+        <option value="status">Sort: red first</option>
+        <option value="name">Sort: name</option>
+        <option value="last">Sort: last session</option>
+        <option value="adherence">Sort: lowest done/due</option>
+      </select>
+    </div>
+
+    <section class="patients" id="patients" aria-live="polite" aria-busy="true"></section>
+    <p class="footer-note">Demo data – fake patients only. SpiroBuddy coaches and summarises; it does not diagnose. Status colours come from fixed rules.</p>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+  (function () {
+    const { esc, $, $$, link, statusPill, trendHTML, STATUS_RANK, ago, timeLabel, fmtMl, toast, poll } = SB.ui;
+    let patients = [];
+    let prev = new Map();
+    let filter = 'all';
+    let first = true;
+
+    $('#today-label').textContent = new Date().toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · slots 08:00–21:00';
+
+    function setFilter(f) {
+      filter = f;
+      $$('#filter button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === f)));
+      $$('.stat').forEach((b) => b.setAttribute('aria-pressed', String(f !== 'all' && b.dataset.filter === f)));
+      render();
+    }
+    $$('#filter button, .stat').forEach((b) => b.addEventListener('click', () => setFilter(b.dataset.filter === filter && b.classList.contains('stat') ? 'all' : b.dataset.filter)));
+    $('#search').addEventListener('input', render);
+    $('#sort').addEventListener('change', render);
+
+    function pips(p, animateFrom) {
+      const due = Math.max(0, p.due_today || 0), done = Math.max(0, Math.min(p.done_today || 0, 14));
+      let html = '';
+      for (let i = 0; i < 14; i++) {
+        let cls = 'pip';
+        if (i < done) cls += ' done' + (animateFrom != null && i >= animateFrom ? ' new' : '');
+        else if (i < Math.max(due, done) && i < due) cls += ' miss';
+        html += `<span class="${cls}"></span>`;
+      }
+      return html;
+    }
+
+    function card(p, changes) {
+      const st = ['red', 'yellow', 'green'].includes(p.status) ? p.status : 'green';
+      const best = p.best_today ? p.best_today : null;
+      const pct = best != null && p.target_ml ? Math.round((best / p.target_ml) * 100) : null;
+      const animateFrom = changes && changes.doneUp ? changes.prevDone : null;
+      const reasons = Array.isArray(p.status_reasons) && p.status_reasons.length && st !== 'green' ? p.status_reasons.join(' · ') : '';
+      const alertTxt = reasons ? (st === 'red' ? reasons + ' – please call' : reasons) : st === 'red' ? (p.due_today && p.done_today / p.due_today < 0.4 ? 'Few sessions done today – please call' : 'Missed sessions in a row – please call') : '';
+      return `<a class="pcard ${st}" href="${link('patient.html?id=' + encodeURIComponent(p.id))}" data-id="${esc(p.id)}" aria-label="${esc(p.name)}, status ${esc(SB.ui.STATUS_TEXT[st])}">
+        <div class="top">
+          <div><div class="name">${esc(p.name)}</div>
+          <div class="meta">${esc(p.age)} ${esc(p.sex || '')} · ${esc(p.surgery || '')}</div></div>
+          ${statusPill(st)}
+        </div>
+        ${alertTxt ? `<div class="alert" style="${st === 'yellow' ? 'color:var(--yellow)' : ''}">${st === 'red' ? '⚠ ' : ''}${esc(alertTxt)}</div>` : ''}
+        <div class="kv">
+          <div title="Sessions done / due so far today"><div class="k">Done</div><div class="v">${p.done_today ?? 0}<span class="muted small"> / ${p.due_today ?? 0}</span></div></div>
+          <div title="Best breath today (target ${esc(p.target_ml)} mL)"><div class="k">Best</div><div class="v">${best != null ? Math.round(best) + '<span class="muted small"> mL</span>' : '—'}</div></div>
+          <div><div class="k">Trend</div><div class="v small">${trendHTML(p.trend)}</div></div>
+        </div>
+        <div class="pips" aria-hidden="true">${pips(p, animateFrom)}</div>
+        <div class="pips-label"><span>${pct != null ? pct + '% of ' + esc(p.target_ml) + ' mL target' : 'No breath recorded today'}</span><span title="${esc(p.last_session_at || '')}">Last: ${p.last_session_at ? timeLabel(p.last_session_at) + ' (' + ago(p.last_session_at) + ')' : 'none'}</span></div>
+      </a>`;
+    }
+
+    let pendingChanges = new Map();
+    function render() {
+      const q = $('#search').value.trim().toLowerCase();
+      const sort = $('#sort').value;
+      let list = patients.filter((p) => (filter === 'all' || p.status === filter) && (!q || [p.name, p.surgery, p.id].join(' ').toLowerCase().includes(q)));
+      const ratio = (p) => (p.due_today ? p.done_today / p.due_today : 1);
+      list.sort((a, b) => {
+        if (sort === 'name') return String(a.name).localeCompare(b.name);
+        if (sort === 'last') return String(b.last_session_at || '').localeCompare(String(a.last_session_at || ''));
+        if (sort === 'adherence') return ratio(a) - ratio(b);
+        return (STATUS_RANK[a.status] ?? 3) - (STATUS_RANK[b.status] ?? 3) || ratio(a) - ratio(b) || String(a.name).localeCompare(b.name);
+      });
+      const box = $('#patients');
+      box.setAttribute('aria-busy', 'false');
+      box.innerHTML = list.length ? list.map((p) => card(p, pendingChanges.get(String(p.id)))).join('') : '<div class="empty">No patients match this filter.</div>';
+      // flash animations for changes
+      pendingChanges.forEach((c, id) => {
+        const el = box.querySelector(`.pcard[data-id="${CSS.escape(id)}"]`);
+        if (!el) return;
+        el.classList.add(c.doneUp ? 'flash-green' : 'flash-change');
+      });
+      pendingChanges = new Map();
+    }
+
+    function counts() {
+      const n = { red: 0, yellow: 0, green: 0 };
+      let sessions = 0, due = 0;
+      patients.forEach((p) => { if (n[p.status] != null) n[p.status]++; sessions += p.done_today || 0; due += p.due_today || 0; });
+      $('#n-red').textContent = n.red; $('#n-yellow').textContent = n.yellow; $('#n-green').textContent = n.green;
+      $('#l-red').textContent = n.red === 1 ? 'needs a call' : 'need a call';
+      $('#n-sessions').textContent = sessions;
+      $('#l-sessions').textContent = `sessions done today (of ${due} due)`;
+      const basis = patients.some((p) => p.status_basis === 'yesterday');
+      $('#today-label').textContent = new Date().toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · slots 08:00–21:00' + (basis ? ' · before 08:00 – colours show yesterday' : '');
+      document.title = (n.red ? `(${n.red}) ` : '') + 'SpiroBuddy Dashboard';
+    }
+
+    async function refresh() {
+      const list = await SB.api.patients();
+      const next = new Map(list.map((p) => [String(p.id), p]));
+      if (!first) {
+        next.forEach((p, id) => {
+          const o = prev.get(id);
+          if (!o) return;
+          const c = {};
+          if ((p.done_today || 0) > (o.done_today || 0)) { c.doneUp = true; c.prevDone = o.done_today || 0; toast(`✅ ${p.name} completed a session${p.best_today ? ' – best ' + fmtMl(p.best_today) : ''}`, 'good'); }
+          if (p.status !== o.status) { c.status = true; if (p.status === 'red') toast(`⚠ ${p.name} now needs a call`, 'bad', 6000); else toast(`${p.name}: ${SB.ui.STATUS_TEXT[o.status] || o.status} → ${SB.ui.STATUS_TEXT[p.status] || p.status}`); }
+          if (p.last_session_at !== o.last_session_at && !c.doneUp) c.status = true;
+          if (c.doneUp || c.status) pendingChanges.set(id, c);
+        });
+      }
+      first = false;
+      prev = next;
+      patients = list;
+      counts();
+      // avoid re-rendering (and losing hover) when nothing changed, except the "ago" labels every ~30 s
+      const sig = JSON.stringify(list);
+      const now = Date.now();
+      if (sig !== refresh.sig || pendingChanges.size || now - (refresh.at || 0) > 30000) { refresh.sig = sig; refresh.at = now; render(); }
+      $('#updated').textContent = 'Live · updated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    SB.ui.boot('dashboard').then(() => poll(refresh, 2000));
+  })();
+  </script>
+</body>
+</html>

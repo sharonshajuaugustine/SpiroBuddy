@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpiroBuddy Patient</title>
+  <meta name="description" content="SpiroBuddy patient detail (demo, fake patient).">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b6e8a'/%3E%3Crect x='9' y='13' width='6' height='13' rx='3' fill='%23fff'/%3E%3Cpath d='M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4' stroke='%237fe0c8' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header id="app-header"></header>
+  <main>
+    <p><a href="index.html" id="back">← All patients</a></p>
+
+    <section class="card" id="profile-card">
+      <div class="profile" id="profile"><div class="muted">Loading patient…</div></div>
+    </section>
+
+    <div class="grid grid-2" style="margin-top:1rem">
+      <section class="card span-2">
+        <div class="card-head"><h2>Today's sessions</h2><span class="muted small">one session per hour, 08:00–21:00</span><div class="spacer"></div><span class="updated"><span class="live-dot"></span><span id="updated">–</span></span></div>
+        <div class="slots" id="slots"></div>
+        <div class="legend"><span class="l-done">Done</span><span class="l-missed">Missed</span><span class="l-pending">Due now</span><span class="l-upcoming">Upcoming</span></div>
+      </section>
+
+      <section class="card span-2">
+        <div class="card-head"><h2>Last 7 days</h2><div class="spacer"></div>
+          <div class="chart-legend"><span><i style="background:var(--brand)"></i>Best breath (mL)</span><span><i style="background:var(--yellow-dot)"></i>Under 80% of target</span><span><i style="background:none;border-top:2px dashed var(--red);height:0"></i>Target</span><span><i style="background:var(--green-dot);height:3px"></i>Sessions done</span></div>
+        </div>
+        <div id="week"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>AI summary</h2><div class="spacer"></div><span id="summary-source"></span></div>
+        <div class="row" style="margin-bottom:.6rem">
+          <label for="sum-lang">Language</label>
+          <select id="sum-lang"><option value="">Patient's language</option><option value="en">English</option><option value="hi">Hindi</option><option value="ta">Tamil</option></select>
+          <button class="btn primary" id="btn-summary" type="button">✨ Generate AI summary</button>
+        </div>
+        <div class="summary-box" id="summary-text" aria-live="polite"><span class="muted">Press "Generate AI summary" for a 3-sentence update for the family. The AI only summarises – it never diagnoses.</span></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>WhatsApp</h2></div>
+        <div class="row">
+          <button class="btn primary" id="btn-wa-family" type="button">Send summary to family</button>
+          <button class="btn" id="btn-wa-nurse" type="button">Send summary to nurse</button>
+          <button class="btn danger" id="btn-wa-missed" type="button">Send missed alert to nurse</button>
+        </div>
+        <div id="wa-result" aria-live="polite"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>Targets &amp; settings</h2></div>
+        <form id="settings" class="form-grid" autocomplete="off">
+          <div class="field"><label for="f-target">Target volume (mL)</label><input id="f-target" name="target_ml" type="number" min="250" max="5000" step="50" required></div>
+          <div class="field"><label for="f-hold">Hold target (s)</label><input id="f-hold" name="hold_target_s" type="number" min="1" max="10" step="0.5"></div>
+          <div class="field"><label for="f-lang">Language</label><select id="f-lang" name="language"><option value="en">English</option><option value="hi">Hindi</option><option value="ta">Tamil</option></select></div>
+          <div class="field"><label for="f-phone">Family WhatsApp</label><input id="f-phone" name="family_phone" type="tel" placeholder="+91…"></div>
+          <div class="field"><button class="btn primary" type="submit" id="btn-save">Save</button></div>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>Messages</h2><span class="muted small">for this patient</span></div>
+        <div class="msgs" id="msgs"><div class="muted">No messages yet.</div></div>
+      </section>
+
+      <section class="card span-2">
+        <div class="card-head"><h2>Recent sessions</h2></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Time</th><th>Slot</th><th class="num">Breaths</th><th class="num">Best</th><th class="num">Avg score</th><th>Breath quality</th></tr></thead>
+          <tbody id="sessions"><tr><td colspan="6" class="muted">Loading…</td></tr></tbody>
+        </table></div>
+      </section>
+    </div>
+    <p class="footer-note">Demo data – fake patient. SpiroBuddy coaches and summarises; it does not diagnose. For breathing trouble, chest pain or fever, the patient is told to contact their nurse or call 112.</p>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/charts.js"></script>
+  <script>
+  (function () {
+    const { esc, $, link, hourLabel, statusPill, trendHTML, dateTimeLabel, ago, timeLabel, initials, labelChips, fmtMl, LANG, toast, busy, poll } = SB.ui;
+    const id = new URLSearchParams(location.search).get('id') || '1';
+    $('#back').href = link('index.html');
+    let patient = null, prevSlots = null, formFilled = false, lastMsgIds = null;
+
+    function renderProfile(p) {
+      const sd = p.surgery_date ? new Date(p.surgery_date + (String(p.surgery_date).length <= 10 ? 'T00:00:00' : '')) : null;
+      const pod = sd && !isNaN(sd) ? Math.max(0, Math.round((Date.now() - sd.getTime()) / 86400000)) : null;
+      $('#profile').innerHTML = `
+        <div class="avatar" aria-hidden="true">${esc(initials(p.name))}</div>
+        <div style="flex:1;min-width:220px">
+          <h1 style="margin:0">${esc(p.name)} ${statusPill(p.status)}</h1>
+          <div class="muted">${esc(p.age)} y · ${esc(p.sex || '')} · ${esc(p.surgery || '')}${pod != null ? ` · day ${pod} after surgery` : ''} · ${esc(LANG[p.language] || p.language || '')}</div>
+          ${Array.isArray(p.status_reasons) && p.status_reasons.length ? `<div class="small"><b>Status:</b> ${esc(p.status_reasons.join(' · '))}${p.status_basis === 'yesterday' ? ' (based on yesterday – before 08:00)' : ''}</div>` : ''}
+        </div>
+        <div class="kv" style="flex:2;min-width:300px;margin:0;grid-template-columns:repeat(4,minmax(0,1fr))">
+          <div><div class="k">Done / due</div><div class="v">${p.done_today ?? 0} / ${p.due_today ?? 0}</div></div>
+          <div><div class="k">Best today</div><div class="v">${fmtMl(p.best_today)}</div></div>
+          <div><div class="k">Target</div><div class="v">${fmtMl(p.target_ml)}</div></div>
+          <div><div class="k">Trend</div><div class="v small">${trendHTML(p.trend)}</div></div>
+        </div>`;
+      document.title = p.name + ' – SpiroBuddy';
+    }
+
+    const SLOT_TEXT = { done: ['✅', 'Done'], missed: ['✖', 'Missed'], pending: ['⏳', 'Due now'], upcoming: ['·', 'Upcoming'] };
+    function renderSlots(today) {
+      const box = $('#slots');
+      box.innerHTML = (today || []).map((s) => {
+        const [ic, txt] = SLOT_TEXT[s.status] || ['·', s.status];
+        const changed = prevSlots && prevSlots[s.hour] && prevSlots[s.hour] !== s.status;
+        return `<div class="slot ${esc(s.status)}${changed ? ' changed' : ''}" title="${hourLabel(s.hour)} – ${esc(txt)}"><div class="h">${hourLabel(s.hour)}</div><div class="ic" aria-hidden="true">${ic}</div><div class="s">${esc(txt)}</div></div>`;
+      }).join('') || '<div class="muted">No slots.</div>';
+      const map = {}; (today || []).forEach((s) => (map[s.hour] = s.status));
+      if (prevSlots) Object.keys(map).forEach((h) => { if (prevSlots[h] && prevSlots[h] !== map[h] && map[h] === 'done') toast(`✅ ${hourLabel(h)} session done`, 'good'); });
+      prevSlots = map;
+    }
+
+    function renderSessions(list) {
+      $('#sessions').innerHTML = list.length ? list.map((s) => `<tr>
+        <td>${esc(dateTimeLabel(s.started_at))}</td><td>${s.slot_hour != null ? hourLabel(s.slot_hour) : '—'}</td>
+        <td class="num">${esc(s.breaths_count)}</td><td class="num">${fmtMl(s.best_ml)}</td>
+        <td class="num"><b>${s.avg_score != null ? Number(s.avg_score).toFixed(1) : '—'}</b> / 10</td><td>${labelChips(s.label_counts)}</td></tr>`).join('')
+        : '<tr><td colspan="6" class="muted">No sessions yet.</td></tr>';
+    }
+
+    function fillForm(p) {
+      $('#f-target').value = p.target_ml ?? '';
+      $('#f-hold').value = p.hold_target_s ?? 3;
+      $('#f-lang').value = p.language || 'en';
+      $('#f-phone').value = p.family_phone || '';
+      formFilled = true;
+    }
+
+    function renderMsgs(all) {
+      const mine = all.filter((m) => String(m.patient_id) === String(id));
+      const ids = new Set(mine.map((m) => m.id));
+      $('#msgs').innerHTML = mine.length ? mine.map((m) => `<div class="msg${lastMsgIds && !lastMsgIds.has(m.id) ? ' new' : ''}">
+        <div class="head"><span class="tag ${esc(m.kind)}">${esc(m.kind)}</span><span>to ${esc(m.to_role || '')}</span>
+        <span class="tag ${m.sent ? 'sent' : 'dry'}">${m.sent ? 'sent' : m.dry_run ? 'would send (dry run)' : 'failed'}</span><span>${esc(dateTimeLabel(m.created_at))}</span></div>
+        <div class="text">${esc(m.text)}</div></div>`).join('') : '<div class="muted">No messages yet.</div>';
+      lastMsgIds = ids;
+    }
+
+    async function refresh() {
+      const [p, sessions, msgs] = await Promise.all([SB.api.patient(id), SB.api.sessions(id, 20), SB.api.messages(50).catch(() => [])]);
+      patient = p;
+      renderProfile(p);
+      renderSlots(p.today);
+      SB.charts.weekChart($('#week'), p.history || [], p.target_ml);
+      renderSessions(sessions || []);
+      renderMsgs(msgs || []);
+      if (!formFilled) fillForm(p);
+      $('#updated').textContent = 'Live · ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    $('#settings').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const body = {
+        target_ml: Number($('#f-target').value) || undefined,
+        hold_target_s: Number($('#f-hold').value) || undefined,
+        language: $('#f-lang').value || undefined,
+        family_phone: $('#f-phone').value.trim() || undefined,
+      };
+      busy($('#btn-save'), async () => {
+        const p = await SB.api.updatePatient(id, body);
+        toast('Saved', 'good');
+        fillForm(Object.assign({}, patient, p));
+        await refresh();
+      }).catch(() => {});
+    });
+
+    $('#btn-summary').addEventListener('click', (e) => busy(e.currentTarget, async () => {
+      $('#summary-text').innerHTML = '<span class="muted">Writing summary…</span>';
+      const r = await SB.api.summary(id, $('#sum-lang').value || undefined);
+      $('#summary-text').textContent = r.text || '';
+      $('#summary-source').innerHTML = r.source === 'llm' ? '<span class="source-tag llm" title="Written by Claude">AI (Claude)</span>' : '<span class="source-tag" title="No AI key or the AI call failed – fixed template used">Template</span>';
+    }).catch(() => { $('#summary-text').innerHTML = '<span class="muted">Could not create a summary.</span>'; }));
+
+    function wa(kind, to, btn) {
+      return busy(btn, async () => {
+        const r = await SB.api.whatsapp(id, kind, to);
+        const who = to === 'nurse' ? 'nurse' : 'family';
+        const head = r.sent ? `✅ Sent on WhatsApp to the ${who}` : r.dry_run ? `DRY RUN – would send to the ${who} (no Twilio keys, nothing was sent)` : `✖ Not sent – WhatsApp failed (logged)`;
+        $('#wa-result').innerHTML = `<div class="drybox${r.sent ? ' sent' : ''}"><div class="t">${esc(head)}</div><div class="text" style="white-space:pre-wrap">${esc(r.text || '')}</div></div>`;
+        toast(r.sent ? 'WhatsApp sent' : r.dry_run ? 'Dry run – message logged as "would send"' : 'WhatsApp failed', r.sent ? 'good' : r.dry_run ? '' : 'bad');
+        renderMsgs(await SB.api.messages(50));
+      }).catch(() => {});
+    }
+    $('#btn-wa-family').addEventListener('click', (e) => wa('summary', 'family', e.currentTarget));
+    $('#btn-wa-nurse').addEventListener('click', (e) => wa('summary', 'nurse', e.currentTarget));
+    $('#btn-wa-missed').addEventListener('click', (e) => wa('missed', 'nurse', e.currentTarget));
+
+    SB.ui.boot('patient').then(() => poll(async () => {
+      try { await refresh(); }
+      catch (e) {
+        if (e.status === 404) { $('#profile').innerHTML = `<div><h1>Patient not found</h1><p class="muted">There is no patient with id ${esc(id)}. <a href="${link('index.html')}">Back to all patients</a></p></div>`; }
+        throw e;
+      }
+    }, 2000));
+  })();
+  </script>
+</body>
+</html>
