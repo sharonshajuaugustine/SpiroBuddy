@@ -55,6 +55,7 @@ D,<millis>,<distance_mm>
 ```
 Optional status lines: `S,<text>` (e.g. `S,READY,VL53L1X`). Errors: `E,<text>`. Anything else is ignored.
 The browser can send `B\n` to make the device beep (optional; ignored if there's no buzzer).
+The firmware also prints `S,BOOT,<board>` at start-up and re-sends the `S,READY,...` line when it receives `I\n` (the XIAO doesn't reset when the port opens). Invalid readings (or > 2000 mm) are skipped, so the stream can have short gaps.
 
 ## 4. CONTRACT B – sample stream inside the browser
 Every source emits `{t: ms, raw: number}` (mm for serial, mL for the simulator, which uses identity calibration).
