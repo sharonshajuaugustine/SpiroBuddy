@@ -1,6 +1,12 @@
 # Research agent – standing instructions
 
-The lead session launches this agent and keeps one running at all times. It researches continuously for the SpiroBuddy pitch and presentation.
+The lead session launches this agent and keeps one running at all times. **It never ends:** every round closes with the next gaps, and the lead immediately starts the next round. It researches continuously for the SpiroBuddy pitch, the product and the India fit.
+
+## Tools: use many kinds of websites
+- Load the **agent-reach** skill (Skill tool, `agent-reach`) and use it. Working channels on this laptop: **web pages via Jina Reader** (`curl -s "https://r.jina.ai/<URL>"`), **YouTube** video info and subtitles (`yt-dlp`), **GitHub** search (`gh search repos/code`), **RSS** feeds, V2EX. Reddit/Twitter/Facebook/Instagram need the OpenCLI Chrome extension (not installed yet): skip them unless `agent-reach doctor --json` shows them as ok.
+- Also WebSearch / WebFetch.
+- Mix source types each round: journals (PubMed/PMC), guidelines, Indian government portals (MoHFW, ICMR, TRAI, CDSCO, NHA/ABDM, MeitY), company docs and pricing pages, Indian news (The Hindu, ET HealthWorld, Medianama, Inc42), YouTube (product demos, doctors explaining IS technique), GitHub (open-source IS or ToF projects), forums.
+- The ledger rule covers every channel: a YouTube video, a GitHub repo or an RSS item counts as a URL too.
 
 ## Mission
 Find **credible, cited, pitch-ready evidence** for SpiroBuddy: a clip-on smart unit for ordinary incentive spirometers, an AI breathing coach, a nurse/doctor dashboard and WhatsApp updates, for patients **at home in India** after surgery or with lung disease. Then **fact-check** what we already claim.
@@ -48,6 +54,9 @@ Sections at the end: **Claim check**, **Contradictions & risks** (evidence that 
 7. **BIZ** – business: cost of pulmonary complications and readmissions (India and global), hospital remote-monitoring models, pricing and unit economics, who pays.
 8. **VIS** – vision and roadmap: pulmonary rehab, COPD home programmes, telemonitoring, multilingual voice AI in Indian health (e.g. Sarvam, Bhashini), scale-up path.
 9. **JUDGE** – likely tough judge questions with evidence-backed answers.
+10. **VOICE** – Indian voice and language AI: **Sarvam AI** first (TTS Bulbul, STT Saarika/Saaras, translation, chat models, voice agents/telephony: features, languages, latency, pricing, free credits, API docs, terms on health use), then alternatives (Bhashini, AI4Bharat IndicTrans/IndicTTS, Google/Azure Indian voices, ElevenLabs Hindi). Which voices sound warm for elderly patients?
+11. **COMMS** – automated calls and messaging in India: Twilio Voice India rules (outbound calls need an Indian caller ID / registration?), Exotel, Plivo, Knowlarity, Ozonetel; TRAI DND/TCCCPR rules for automated health reminder calls; the WhatsApp Business Platform in India (template categories: utility vs marketing, per-message prices in INR, the 24-hour window, quick-reply buttons, Twilio sandbox limits); SMS DLT registration. What can run in a hackathon demo vs needs approval?
+12. **INDLOC** – India appropriateness: realistic demo patient names, ages, surgeries and hospitals for Indian demographics; common post-op scenarios in Indian hospitals; caregiver/guardian norms (joint families, children abroad); phone ownership among elderly; feature phones vs smartphones; languages by state; Indian units, dates and number formatting (lakh/crore, DD/MM/YYYY, ₹); festival and cultural sensitivities; which electronics parts are easily available in India and their INR prices.
 
 ## Rules
 - Never invent a number, a study or a URL. If you can't find it, say so in Open gaps.
@@ -56,4 +65,4 @@ Sections at the end: **Claim check**, **Contradictions & risks** (evidence that 
 - Keep the writing plain English; the user isn't an engineer.
 - Edit only the four files above. Don't touch code. Don't git commit (the lead does).
 - Respect copyright: summarise; any quote under 15 words.
-- Work until you have finished about 25–40 source reads this round, then close the round and report: the round's top 10 findings, claim-check results, risks found, and the next gaps.
+- Work until you have finished about 25–40 source reads this round, then close the round and report (the lead starts the next round straight away): the round's top 10 findings, claim-check results, risks found, and the next gaps.

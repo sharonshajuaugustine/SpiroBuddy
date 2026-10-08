@@ -321,6 +321,16 @@ def demo_reset():
     return {"ok": True, "patients": n}
 
 
+# Feature modules plug in here (each owns its own file). Must stay above the /api 404 catch-all.
+for _mod in ("routes_voice", "routes_comms"):
+    try:
+        app.include_router(__import__(f"{__package__}.{_mod}", fromlist=["router"]).router)
+    except ModuleNotFoundError as e:
+        if e.name != f"{__package__}.{_mod}":
+            raise
+        log.info("optional module %s not present yet", _mod)
+
+
 @app.get("/api/{rest:path}", include_in_schema=False)
 def api_404(rest: str):
     raise HTTPException(404, f"no such API endpoint: /api/{rest}")
