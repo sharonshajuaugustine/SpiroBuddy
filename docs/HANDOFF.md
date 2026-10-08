@@ -13,6 +13,10 @@
 - 5 subagents started in parallel (see docs/ROLES.md): firmware, backend & data, ML, web (nurse site), 3D & video. Their code may be partly written – check each folder.
 - Python packages are installed in `.venv`. `.env` exists (copied from `.env.example`; add the new DEMO_MODE / DATA_BACKEND / SUPABASE_* lines if missing).
 
+## Standing rule from the user
+- **Always keep one research subagent running** (docs/research/RESEARCH_PROMPT.md). If none is running at session start, launch one with the next gaps from docs/research/FINDINGS.md. It must never re-read a URL in docs/research/SOURCES_LEDGER.md.
+- Code is on GitHub: https://github.com/sharonshajuaugustine/SpiroBuddy (branch `main`; local `master` tracks `origin/main`). gh's active account is sharonshajuaugustine.
+
 ## Next steps (in order)
 1. When the agents finish: start the server (`scripts\run.ps1`), test every endpoint, walk the demo story (REQUIREMENTS §3) in the browser, open `/showcase/`, play the videos. Fix the seams.
 2. Update PROGRESS.md and this file, commit.
