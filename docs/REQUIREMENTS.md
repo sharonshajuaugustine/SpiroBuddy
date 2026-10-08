@@ -12,12 +12,13 @@ Patients get an incentive spirometer after surgery (or for lung disease). At hom
 | Hackathon judges | A live demo that works, a clear story, honest limits |
 
 ## 3. The demo story (acceptance test – everything serves this)
-1. Breathe into the spirometer → a live gauge rises in mL.
-2. Too fast → the voice says "Slower…" and the screen goes amber. Good breath → "Great breath!", a beep, a score out of 10.
-3. The label (good / too_fast / too_shallow / no_hold) comes from **our own trained ML model**.
-4. After 10 breaths, the current hour's reminder slot ticks itself ✅.
-5. The nurse dashboard updates live; a red patient is visible.
-6. Pressing **Send summary** sends an AI-written WhatsApp message (Hindi or English).
+**Scope update (9 Oct 2026):** everything is DEMO for now. Focus is the **nurse & doctor website** (hosted on Render, data in Supabase, with a local demo fallback) and the **3D showroom + videos**. The patient mobile app is set aside: the user builds it separately against the same API.
+1. The 3D showroom/video shows how the device works: the disc rises, the laser measures it, coaching, the score.
+2. On the website's demo panel, "Simulate session" for Ravi → a realistic 10-breath session is created, labelled by **our own trained ML model**, scored out of 10.
+3. The current hour's slot for Ravi ticks itself ✅ and the dashboard updates live (within 2 s).
+4. A red patient is visible; "Simulate missed slots" turns a patient red and logs a missed-session alert.
+5. Pressing **Send summary** produces an AI-written WhatsApp message (Hindi or English); without keys it shows "would send".
+6. (When hardware arrives) `collect.html` records real breaths over USB serial for training.
 
 ## 4. Functional requirements
 ### Must have (MVP)
@@ -31,11 +32,13 @@ Patients get an incentive spirometer after surgery (or for lung disease). At hom
 - **FR5 Score 0–10:** depth (4) + speed (3) + hold (3), as specified in ARCHITECTURE.md.
 - **FR6 Live coaching:** instant "slower" warning while breathing in; spoken result after each breath. Languages: English + Hindi (Tamil optional). Voice: pre-recorded clips if present, otherwise the browser's speechSynthesis.
 - **FR7 Session:** 10 breaths = one completed session, which ticks the current hour's slot.
-- **FR8 Patient app:** home (today's checklist 8:00–21:00, streak, Start), session (gauge, speed meter, counter, hold countdown), results, progress chart, settings (language, input source, calibration, target).
+- **FR8 Patient app (set aside – the user builds it separately):** home (today's checklist 8:00–21:00, streak, Start), session (gauge, speed meter, counter, hold countdown), results, progress chart, settings (language, input source, calibration, target).
 - **FR9 Nurse dashboard:** patient list with colour status (rules), patient detail with a 7-day chart, AI summary, set target, Send summary, live updates (poll every 2 s).
 - **FR10 AI summary:** Claude writes 3 sentences in the chosen language from the day's stats, with a template fallback.
 - **FR11 WhatsApp:** send via Twilio (sandbox). If no credentials, log "would send" and show it in the UI. Also a missed-session alert after 2 missed slots in a row.
 - **FR12 Data collection & training:** a page for recording labelled breaths (keys g/f/s/n) → saved to the server → a training script → model file → the server reloads it. A synthetic data generator gives a first model before real data exists.
+- **FR14 Hosting & data:** Supabase (Postgres) for data, Render for hosting, with a local SQLite demo store as the default and fallback. Demo mode: no login, a DEMO badge, demo controls.
+- **FR15 3D showroom & videos:** an accurate 3D model of the spirometer + SpiroBuddy unit, built only from dimensions cited from the web; interactive page + MP4 videos as the hardware backup.
 - **FR13 Demo data:** a seed script creates 6 fake patients with 7 days of history (mixed colours), plus the live demo patient "Ravi".
 
 ### Nice to have (only after the MVP works)
