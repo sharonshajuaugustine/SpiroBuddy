@@ -1,0 +1,37 @@
+# Render Blueprint for SpiroBuddy (spec: https://render.com/docs/blueprint-spec)
+# One Python web service: FastAPI API + the nurse & doctor website (web/) + 3D showroom.
+services:
+  - type: web
+    name: spirobuddy
+    runtime: python
+    plan: free
+    region: singapore
+    buildCommand: pip install -r backend/requirements.txt && (python ml/train.py || echo "ML training skipped - server will use the rule fallback")
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: DEMO_MODE
+        value: "1"
+      - key: DATA_BACKEND
+        value: supabase          # falls back to demo SQLite if the Supabase keys are missing
+      - key: TZ_NAME
+        value: Asia/Kolkata
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_WHATSAPP_FROM
+        value: whatsapp:+14155238886
+      - key: DEMO_FAMILY_WHATSAPP
+        sync: false
+      - key: DEMO_NURSE_WHATSAPP
+        sync: false

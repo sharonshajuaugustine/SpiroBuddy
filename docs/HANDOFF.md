@@ -20,6 +20,7 @@
 4. Nice-to-haves, then `docs/DEMO_GUIDE.md`.
 
 ## Waiting on the user
+- **Deferred to 10 Oct by the user:** connect the Supabase + Render connectors in claude.ai (they weren't logged in to Claude on the web), and say yes/no to a private GitHub repo (`gh` is logged in as hellocoyot; no remote yet). Until then everything runs locally in demo mode.
 - Supabase account + project (URL and service_role key) and a Render account linked to a GitHub repo. (The Supabase connector in Claude also needs authorising in claude.ai connector settings if we want Claude to set it up directly.)
 - API keys in `.env`: Anthropic, Twilio (optional; fallbacks work).
 - Which hardware they can get (hackathon day), and caliper measurements of the spirometer for any 3D dimension flagged in `docs/3D_SOURCES.md`.
