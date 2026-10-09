@@ -330,6 +330,9 @@ Kept by the research agent; saved by the lead for round 1. Grades: **A** = peer-
 | C24 (round 5) | Judge answers J8/J17: "we'll get an official ruling first" | NEEDS WORDING CHANGE | Keep the ruling step, but lead with the fact: the base device is already Class A (F-REG-5); measuring and alerts take us out of the non-measuring exemption (F-REG-4). |
 | C25 (round 5) | Implied: SpiroBuddy reduces readmissions | NOT SUPPORTED | Only an international CABG baseline exists (12.9%, F-BIZ-8); no Indian figure; knee-replacement readmission is ~1% in Ludhiana. Say "we'll measure readmissions in a pilot". |
 | C26 (round 5) | J22 / pitch: "TB survivors are a large next market" | CONFIRMED (rough) | ~26 lakh notified a year, 90% success (PIB 2026); 59% lung impairment at completion in Madurai (F-VIS-4). Say "lakhs of people a year", labelled as our estimate. |
+| C27 (round 6) | F-VIS-4 caveat / pitch: "No guideline names incentive spirometry for post-TB rehab" | WRONG (now answered) | The RBIPMT 2024 pulmonary-rehab guidance on ntep.in lists the incentive spirometer among breathing exercises (F-VIS-5). Say: "India's own TB rehab guidance (RBIPMT 2024, draft) includes the incentive spirometer", and add "in supervised sessions". |
+| C28 (round 6) | F-BIZ-8 / J27: "No Indian 30-day readmission figure" | NEEDS WORDING CHANGE | For major abdominal (GI cancer) surgery there is one: 4.7% in 30 Indian centres (F-BIZ-10); about 5% after Whipple. For CABG there is still none. Say: "about 1 in 20 after major abdominal surgery in India; for bypass, about 1 in 8 worldwide". |
+| C29 (round 6) | Post-TB sizing "about 23 lakh finish treatment, roughly half impaired" (F-VIS-4 team estimate) | NEEDS WORDING CHANGE | Over 20% of India's TB is outside the lungs (WHO, F-VIS-6). Use "fewer than about 19 lakh finish treatment for lung TB each year (our estimate)", still "lakhs of people a year". |
 
 ## Contradictions & risks
 1. Cochrane 2014 found no proof incentive spirometry works, and AARC advises against using it alone. Our answer: the trials never recorded adherence, and we measure it. **Never say "prevents pneumonia".**
@@ -363,8 +366,21 @@ Kept by the research agent; saved by the lead for round 1. Grades: **A** = peer-
 28. **(Round 5)** Digital adherence tools in TB showed only a modest, low-certainty effect (F-ADH-8), and the Indian caregiver-WhatsApp pilot changed visits, not complications (F-ADH-7). Don't promise clinical outcomes; promise visibility and earlier escalation.
 29. **(Round 5)** Knee-replacement readmission in India can be ~1% (F-BIZ-8). A "readmission savings" story for knee patients would fall apart; use CABG and abdominal surgery for that argument.
 30. **(Round 5)** We still have no evidence that older Indians prefer voice or IVR (F-INDLOC-5). The voice-first case rests on literacy and vision data only.
+31. **(Round 6)** Indian 30-day readmission after major abdominal surgery is low (4.7% in 30 cancer centres, F-BIZ-10), and none of the Indian papers names lung problems as a cause. A readmission-savings story for abdominal surgery in India is weak; lead with length of stay and adherence instead.
+32. **(Round 6)** 29% of over-60s (35% of older women) have difficulty making a phone call (LASI, F-INDLOC-7). A design that asks the patient to dial, type or navigate menus will fail for many; keep the patient's part to "answer and listen" or "breathe into the device".
+33. **(Round 6)** Kilkari, India's biggest voice-message programme, had **no effect on its main outcome** in an RCT, and only half of calls are answered on the first try (F-INDLOC-6). Voice reminders alone are not enough; don't present "AI calls" as the thing that changes behaviour.
+34. **(Round 6)** The RBIPMT guidance that names the incentive spirometer is a **draft** for **supervised centre** rehab, not home use (F-VIS-5). Don't say "the TB programme recommends SpiroBuddy at home".
 
-## Open gaps (priority order, after round 5)
+## Open gaps (priority order, after round 6)
+1. **TECH (hands-on, team):** caliper measurements of the Breazer 2500 and a 4x4-window bench test inside the tube (the web has nothing).
+2. **REG:** Romsons Chapter IIIB registration for the Breazer (needs a person on cdscomdonline.gov.in or the box label); CDSCO class for a *measuring* incentive-spirometer accessory.
+3. **COMMS:** TRAI Third Amendment Gazette date; whether "human-assisted" calls are excluded (search our local copy of #106).
+4. **ADH:** Indian incentive-spirometer use **after discharge** is still missing after 3 rounds. Only a person can search CTRI (ctri.nic.in → Search trials → "incentive spirometer", "spirometry", "breathing exercise"); or try the WHO ICTRP portal by hand. Otherwise accept the gap and say "no Indian home data exists; our pilot would create it".
+5. **BIZ:** Indian 30-day readmission after **CABG** (still none; try Indian J Thorac Cardiovasc Surg conference abstracts, SCTIMST/AIIMS cohorts, or ask a cardiac surgeon). Home-physio price: stop web searching; get a phone quote.
+6. **INDLOC/VOICE:** mMitra (ARMMAN) call-pickup and listening data; WhatsApp voice-note use among older Indians; a personal (not household) phone-ownership figure for 60+ (LASI Wave 2 when published, or NSS 78th round "mobile phone use" tables).
+7. **VIS:** the exact India pulmonary vs extrapulmonary split (India TB Report 2024/2025 PDF table, by hand on tbcindia.mohfw.gov.in); check whether the RBIPMT guidance has a final (non-draft) version.
+
+## Open gaps (priority order, after round 5; kept for history)
 1. **TECH (hands-on, team):** caliper measurements of the Breazer 2500 and a 4x4-window bench test inside the tube (unchanged from round 4; the web has nothing).
 2. **REG:** does Romsons hold a Chapter IIIB registration for the Breazer? Needs a person on the CDSCO registration portal (cdscomdonline.gov.in) or a look at the box label. Also: which class does CDSCO give a *measuring* incentive-spirometer accessory (ask via the classification portal / a regulatory consultant).
 3. **COMMS:** TRAI Third Amendment Gazette date and whether "human-assisted" calls are excluded (search our local copy of #106).
@@ -985,3 +1001,63 @@ About 30 reads (ledger #106–#134). Note: the imported Sarvam/InSee section abo
 | J29 | "Does putting the family on WhatsApp actually help?" | "An Indian pilot at a Tata Memorial unit supported caregivers via WhatsApp. Unplanned follow-up visits halved and family stress fell. And two in three older Indians live with their children." | F-ADH-7, F-INDLOC-3 |
 | J30 | "Digital reminders for TB barely worked. Why would yours?" | "Right: on average they help only modestly. Two differences: our sensor records each breath, so there's no self-reporting, and digital follow-up reliably brings problems to the nurse earlier, which is what our alerts do." | F-ADH-8, F-ADH-1 |
 | J31 | "How big can this get?" | "Surgery first. Then TB survivors: about 23 lakh people finish TB treatment each year, and in one Tamil Nadu district 59% of them still had impaired lungs. That's our rough estimate, but it's lakhs of people a year." | F-VIS-4, F-VIS-2 |
+
+# Round 6 additions (10 Oct 2026)
+
+## BIZ (round 6)
+
+### F-BIZ-10: Indian readmission numbers after major abdominal surgery are found, and they are modest: 4.7% within 30 days after major GI cancer surgery (30 centres) and about 5% after Whipple surgery. Still no Indian 30-day figure after CABG
+- Detail: **I-INFUSE** (Tata Memorial–led, 810 patients, 30 Indian cancer centres, 3 months, CTRI-registered): 30-day readmission 38/810 = **4.7%**; serious complications (Clavien-Dindo grade 3 or higher) 7.9%; mean stay 9.3 days. Causes of readmission not reported. **SGPGIMS Lucknow**, 997 Whipple (pancreaticoduodenectomy) patients 1989–2021: 10.3% ever readmitted; 53 of 997 (about **5.3%**) within 30 days, half of those within 7 days; top cause intra-abdominal fluid collection, not the lungs. **CMC Vellore**, 1,711 cardiac-surgery patients: 3.1% had to go back to the ICU before discharge; **lung complications after surgery were an independent risk factor**; those patients stayed 17.6 vs 7.6 days and 7.4% died (vs 1.4% overall).
+- Source: *Indian J Anaesth* 2026, PMID 41788757 (ledger #170) – Grade A. *Cureus* 2024, PMID 39176340 (#168) – Grade A (single centre, 32 years of data). *Ann Card Anaesth* 2024, PMID 39365131 (#169) – Grade A (single centre; ICU readmission, not 30-day hospital readmission).
+- Use in pitch: honest Indian anchor: "in 30 Indian cancer centres, about 1 in 20 major abdominal-surgery patients was back within a month". The CMC data supports "a lung complication after heart surgery is linked to going back to ICU, and those patients stay more than twice as long".
+- Caveat: none of these names lung problems as a cause of 30-day readmission. An Indian 30-day readmission rate after CABG is **still not found** (searched in rounds 5 and 6). The lower Indian figures may partly reflect patients readmitted at other hospitals and not counted.
+
+### F-BIZ-11 (weak): Apollo HomeCare sells home physiotherapy packages (7, 14 and 30 days) and a "Chest Physiotherapy" package, but publishes no prices
+- Detail: Apollo's page lists the packages with "Enquire Now" only. An unnamed Delhi aggregator page (snippet, not opened) claims ₹700–2,000 per home visit.
+- Source: Apollo HomeCare (ledger #178) – Grade B (that the packages exist); snippet (#179) – Grade C (price).
+- Use in pitch: a big Indian chain already sells **chest physiotherapy at home**, so there is a paying market for home breathing care. Keep the price as "roughly ₹500–2,000 a visit (approximate)".
+- Caveat: still no official published rupee price from Portea, Apollo or Max@Home (searched in rounds 4, 5 and 6). Stop searching the web; get a phone quote if a number is needed.
+
+## ADH (round 6)
+
+### F-ADH-9: Home breathing rehab by phone works in rural India: in the Thar Desert, 76% of older COPD patients were still exercising after 8 weeks of Hindi video rehab sent over social media, and 58% a year later
+- Detail: Jodhpur, 45 COPD patients (mean age 64, 87% men), Hindi rehab videos sent to smartphones via social media for 8 weeks. Usability score 81.5/100; breathlessness, quality of life and walking test improved. 75.5% exercising at 8 weeks, 58% at 1 year; the authors call it feasible "even in low-literacy populations". A second rural study (peer-led community rehab, 30 patients, median age 57.5): 70% attended at least 12 of 16 sessions; walking distance rose from 263 to 320 m.
+- Source: *Lung India* 2025, PMID 40296389 (ledger #171) – Grade A (feasibility, no control group). *J Glob Health* 2025, PMID 40340958 (#172) – Grade A (feasibility).
+- Use in pitch: older, rural, low-literacy Indians do keep up home breathing exercise when guided by phone in Hindi. Supports the voice + WhatsApp design.
+- Caveat: COPD rehab, not incentive spirometry after surgery; adherence self-reported; small. **We still have no Indian data on incentive-spirometer use after discharge.** CTRI can't be keyword-searched from here, and Europe PMC finds no CTRI-registered incentive-spirometer trial (0 hits).
+
+## INDLOC / VOICE (round 6)
+
+### F-INDLOC-6: India's government voice-call programme (Kilkari) reaches people only with retries: 50% answer the first call, 76% by the third, 99.5% by the ninth. Once answered, about half listen to most of the message
+- Detail: Kilkari (MoHFW with BBC Media Action) sends recorded health calls to over 10 million subscribers, about 1.2 million calls a day. Of answered calls, 48% were heard for at least half their length and 43% for at least three-quarters. Its RCT (5,095 pregnant women, Madhya Pradesh) found 65% listened to at least half the content, but **no effect on the main outcome** (exclusive breastfeeding) and only small gains elsewhere (modern contraception up 3.7 points, immunisation up 2.8 points), largest among the poorest.
+- Source: *BMJ Glob Health* 2021, PMID 34312148 (ledger #173) – Grade A. *BMJ Glob Health* 2022, PMID 35835477 (#174) – Grade A (RCT).
+- Use in pitch: (1) design rule: retry a reminder call up to 3 times and send a WhatsApp backup; (2) honest framing: one-way voice messages alone change behaviour only a little, which is why we add a sensor, live feedback and a nurse.
+- Caveat: young mothers, not older patients. mMitra was not checked this round.
+
+### F-INDLOC-7: Most Indian homes have a mobile phone (87% of households), but 29% of people aged 60+ have difficulty making a phone call: 35% of older women and 38% of those who never went to school
+- Detail: LASI Wave 1 (2017–18), India Report: the mobile phone is the most common household durable, 87% of households (94% urban, 84% rural). Table 11.9, aged 60+ (n = 31,336): difficulty "making telephone calls" 28.6% overall; rural 32.8%, urban 18.2%; men 21.5%, women 34.8%; no schooling 37.7%; widowed 38.0%; living alone 35.4%.
+- Source: LASI Wave 1 India Report 2020, IIPS / MoHFW (ledger #175) – Grade A. (The household figure is quoted from the report text, because the table layout came out garbled in the PDF text.)
+- Use in pitch: "the phone is in the house, but 1 in 3 older women struggles to use it". So the patient only has to answer or listen, never dial or type; the family member gets the WhatsApp.
+- Caveat: 2017–18 data; household ownership, not personal ownership. This report gives no personal mobile-phone ownership figure for 60+.
+
+## VIS (round 6)
+
+### F-VIS-5: India's 2024 RBIPMT guidance for TB pulmonary rehabilitation explicitly lists the incentive spirometer as one of the breathing exercises
+- Detail: "Guidance Document on Pulmonary Rehabilitation for People affected with Tuberculosis", Rajan Babu Institute of Pulmonary Medicine and TB (RBIPMT), Delhi, July 2024, published on the national TB portal ntep.in (marked "Draft" and "live document"). Breathing exercises listed: pursed-lip breathing, deep diaphragmatic breathing, **incentive spirometer**, postural drainage positions, huffing/coughing. Programme: 6–12 weeks, 3 supervised sessions a week, groups of 5, at DR-TB centres; in-patients may come back after discharge to complete 3 months. The essential equipment list includes a spirometer; an inspiratory muscle trainer is "desirable".
+- Source: RBIPMT / NTEP, ntep.in/node/6610 (ledger #176) – Grade A (official guidance, draft).
+- Use in pitch: answers "does any Indian TB guidance use your device?" Yes: incentive spirometry is in India's own post-TB rehab guidance. Strengthens the TB-survivor roadmap (F-VIS-2, F-VIS-4).
+- Caveat: a draft from one institute, written for **supervised centre sessions**, not home use. It gives no incentive-spirometer dose.
+
+### F-VIS-6: WHO says India's share of extrapulmonary TB is above 20%, so under 80% of notified TB is in the lungs
+- Detail: WHO Global TB Report 2025: worldwide, 84% of new and recurrent notified cases were pulmonary and 16% extrapulmonary (2024); South-East Asia Region 25% extrapulmonary; India is named among countries with a "particularly high (>20%)" extrapulmonary share. The exact India split is not on this page.
+- Source: WHO Global TB Report 2025, section 2.1 (ledger #177) – Grade A.
+- Use in pitch: tightens the post-TB estimate in F-VIS-4. **Team estimate (not a source):** about 26 lakh notified × under 80% pulmonary × 90% success ≈ fewer than about 19 lakh people a year finishing treatment for lung TB. Still "lakhs of people a year".
+- Caveat: the exact Indian pulmonary percentage needs the India TB Report table (the PDF was not found by search).
+
+## JUDGE – round 6 additions (J32–J35)
+| # | Question | Short answer | Evidence |
+|---|---|---|---|
+| J32 | "What's the readmission rate in India?" | "In 30 Indian cancer centres, about 1 in 20 major abdominal-surgery patients was back within a month (4.7%). For bypass we found no Indian number; worldwide it's about 1 in 8. We'd measure it in our pilot." | F-BIZ-10, F-BIZ-8 |
+| J33 | "Will older people even pick up a phone call?" | "The government's Kilkari service shows half pick up on the first try and three in four by the third. And 29% of over-60s find making a call hard. So we retry, the patient only has to listen, and the family gets WhatsApp." | F-INDLOC-6, F-INDLOC-7 |
+| J34 | "Is incentive spirometry used for TB survivors in India?" | "Yes. The 2024 RBIPMT pulmonary-rehab guidance on the national TB portal lists the incentive spirometer among the breathing exercises." | F-VIS-5 |
+| J35 | "Do older rural patients keep up home exercise?" | "In the Thar Desert, 76% of older COPD patients were still exercising after 8 weeks of phone-guided Hindi rehab, and 58% after a year." | F-ADH-9 |

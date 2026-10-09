@@ -166,3 +166,29 @@ Every query run by the research agent, with date and usefulness, so no query is 
 | 2026-10-09 | curl + pdftotext | CDSCO Class A (non-sterile, non-measuring) list – grep "incentive" | High: item 496 |
 | 2026-10-09 | Europe PMC | (readmission OR rehospitalization) AND (CABG OR cardiac surgery) AND India 2012–2026 | None (no Indian rate) |
 | 2026-10-09 | Europe PMC | post-TB obstructive/restrictive spirometry systematic review 2019–2026 | Medium: Madurai |
+
+## Round 6 plan (10 Oct 2026, capped at ~15 sources)
+1. BIZ: an Indian 30-day readmission rate after CABG or major abdominal surgery (pulmonary causes if any).
+2. ADH: Indian post-discharge incentive-spirometer adherence (CTRI, Indian journals).
+3. INDLOC/VOICE: Kilkari / mMitra evaluations; LASI phone ownership and use among 60+.
+4. VIS: pulmonary share of TB in India; RBIPMT 2024 post-TB rehab guidance PDF.
+5. BIZ (only if budget remains): published home-physio / home-nursing prices.
+
+| date | channel | query | useful? |
+|---|---|---|---|
+| 2026-10-10 | Europe PMC | (readmission OR readmitted OR rehospitalisation) AND (India OR Indian) AND (CABG OR "cardiac surgery" OR laparotomy OR "abdominal surgery" OR gastrointestinal OR pancreaticoduodenectomy OR esophagectomy) 2014–2026 | High: SGPGI Whipple, CMC ICU recidivism, I-INFUSE (4.7%) |
+| 2026-10-10 | WebSearch | "readmission" after off-pump CABG Indian patients 30 days rate "India" cohort Indian Heart Journal OR "Indian J Thorac" | None (no Indian CABG rate) |
+| 2026-10-10 | WebSearch | ctri.nic.in incentive spirometer trial home discharge | None (CTRI not indexed; only #5 again) |
+| 2026-10-10 | Europe PMC | "incentive spirometr*" AND (CTRI OR "Clinical Trials Registry-India") 2016–2026 | None (0 hits) |
+| 2026-10-10 | Europe PMC | (spirometer OR spirometry OR "breathing exercise*") AND (CTRI OR "Clinical Trials Registry") AND India AND (home OR discharge) AND (adherence OR compliance) 2016–2026 | Medium: Thar Desert tele-rehab, rural peer-led PR (no IS data) |
+| 2026-10-10 | WebSearch | LASI older adults India mobile phone ownership percent aged 60 "mobile phone" use study | Low (snippets: DAHLIA 50%) |
+| 2026-10-10 | Europe PMC | (LASI) AND ("mobile phone" OR "internet use" OR digital OR ICT) 2020–2026 | None |
+| 2026-10-10 | Europe PMC | TITLE:(mobile phone OR smartphone OR internet use OR digital divide/literacy) AND India AND (elderly OR older adults) 2020–2026 | None useful |
+| 2026-10-10 | curl + pdftotext | LASI Wave 1 India Report 2020 – grep "mobile phone", "telephone" | High: 87% households own a mobile; 28.6% of 60+ have difficulty making phone calls |
+| 2026-10-10 | Europe PMC | (Kilkari OR mMitra) 2018–2026 | High: Kilkari exposure + RCT |
+| 2026-10-10 | Jina | ntep.in/node/6610 and book/export/html/6610 – grep spirometer/breathing/home | High: incentive spirometer listed in RBIPMT 2024 breathing exercises |
+| 2026-10-10 | WebSearch | India TB Report 2024 notified pulmonary extrapulmonary percentage of total notified TB patients | Medium: WHO pages |
+| 2026-10-10 | WebSearch | "India TB Report" extrapulmonary TB share of notifications "per cent" pulmonary 2023 OR 2024 tbcindia.mohfw.gov.in pdf | Low (India TB Report PDF not found) |
+| 2026-10-10 | WebFetch | WHO GTB 2025 case notifications – India / SEAR extrapulmonary share | Medium: India EPTB ">20%" |
+| 2026-10-10 | WebSearch | physiotherapy at home per session charges ₹ 2026 Apollo HomeCare OR Portea OR "Max@Home" OR "Care24" price | Low (aggregator snippet only) |
+| 2026-10-10 | Jina | apollohomecare.com/physiotherapy-at-home – grep ₹/price | Low: packages incl. "Chest Physiotherapy", no prices |
