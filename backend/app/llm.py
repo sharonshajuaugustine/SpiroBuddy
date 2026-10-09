@@ -31,7 +31,7 @@ SYSTEM = (
 # Words that must never appear in an AI summary -> use the template instead.
 _DIAGNOSIS_WORDS = re.compile(
     r"diagnos|pneumonia|atelectasis|infection|embolism|copd|asthma|fever|antibiotic|"
-    r"medicine|medication|dose|disease", re.I)
+    r"tuberculosis|\btb\b|cancer|medicine|medication|dose|disease", re.I)
 
 
 def llm_enabled() -> bool:
@@ -66,7 +66,8 @@ def _prompt(stats: dict, language: str) -> str:
     return (
         f"Write the update in {LANG_NAMES.get(language, 'English')}.\n"
         f"Patient first name: {stats['first_name']}\n"
-        f"Surgery: {stats.get('surgery') or 'not given'}\n"
+        # The operation/condition is deliberately NOT sent: family-facing text never names it (Q-23).
+        "Context: recovering at home, doing a daily breathing exercise\n"
         f"Sessions done today: {stats['done']} of {stats['due']} due so far\n"
         f"Best breath today: {int(stats['best_ml'])} mL (target {int(stats['target_ml'])} mL, "
         f"personal best {int(stats['personal_best_ml'])} mL)\n"

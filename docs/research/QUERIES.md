@@ -133,3 +133,36 @@ Every query run by the research agent, with date and usefulness, so no query is 
 | 2026-10-09 | Europe PMC | "incentive spirometer(s)" AND (accuracy OR bench OR calibration OR "inspired volume") | None new |
 | 2026-10-09 | WebSearch | CDSCO classification "incentive spirometer" OR "respiratory exerciser" OR "lung exerciser" risk class A notified medical device list | Low: no Indian entry; US Class II |
 | 2026-10-09 | WebSearch | "Third Amendment" TCCCPR 2026 notified gazette "September 2026" effective "October 2026" A2P declaration deadline | None |
+
+## Round 5 plan (9 Oct 2026, task Q-24)
+1. REG: CDSCO respiratory list (2021) and Jan 2025 self-notified list: is "incentive spirometer" named, which class; Romsons registration for the Breazer.
+2. BIZ: Indian 30-day readmission after CABG / abdominal / joint replacement. 3. BIZ: 2025–26 home-care prices (Portea, Apollo, Max@Home, Tata 1mg).
+4. ADH: Indian IS adherence at home / after discharge. 5. VIS: post-TB sizing (TB completions, lung impairment). 6. INDLOC: voice/IVR evidence for older Indians. 7. JUDGE: 5+ new questions.
+
+| date | channel | query | useful? |
+|---|---|---|---|
+| 2026-10-09 | WebSearch | CDSCO notification respiratory devices risk classification 2021 list "spirometer" class A B incentive | Low: consultancy pages only |
+| 2026-10-09 | WebSearch | 30-day readmission rate after cardiac surgery CABG India study tertiary hospital | Medium: meta-analysis (international) |
+| 2026-10-09 | WebSearch | India TB Report 2025 number of patients successfully treated treatment success rate notified 2024 | Medium: 90% success (news) |
+| 2026-10-09 | WebSearch | elderly India IVR voice-based health intervention older adults usability study mHealth | Low: no Indian study |
+| 2026-10-09 | WebSearch | CDSCO "self notified" class A medical devices list January 2025 respiratory devices PDF MED-16014 | Medium: Morulaa list |
+| 2026-10-09 | WebSearch | Romsons Scientific CDSCO manufacturing licence MD-5 respiratory exerciser Breazer registration | None: no licence data |
+| 2026-10-09 | Jina | Morulaa Class A self-notified list (grep spiro/exerciser) | Medium: "Pulmonary exerciser" only |
+| 2026-10-09 | Europe PMC | TITLE readmission AND India AND (surgery OR CABG OR arthroplasty OR laparotomy) 2015–2026 | Low |
+| 2026-10-09 | Europe PMC | ABSTRACT readmission AND AFF:India AND 30-day AND surgery 2016–2026 | High: Amrita protocol, Ludhiana TKA, Tata caregiver pilot |
+| 2026-10-09 | WebSearch | Portea post-operative care at home price nursing attendant per visit 2025 | None |
+| 2026-10-09 | WebSearch | incentive spirometer adherence after discharge India patients home compliance study physiotherapy | Low: no home data |
+| 2026-10-09 | WebSearch | India TB Report 2026 MoHFW released patients notified 2025 treatment completed lakh | Low: no 2026 report |
+| 2026-10-09 | WebSearch (pib.gov.in) | pib.gov.in TB Mukt Bharat 2025 notified TB cases treatment success rate Ni-kshay press release | High: PIB Mar 2026 PDF |
+| 2026-10-09 | Europe PMC | post-tuberculosis lung disease India prevalence/spirometry 2019–2026 | Medium: Mullana |
+| 2026-10-09 | Europe PMC | "incentive spirometry/spirometer" AND AFF:India AND (adherence OR compliance OR knowledge OR practice) 2015–2026 | Medium: Chennai practice study |
+| 2026-10-09 | WebSearch | "Max@Home" OR "Apollo HomeCare" nursing care at home charges per day rupees 2025 2026 | Low |
+| 2026-10-09 | WebSearch | India hospital remote patient monitoring post-discharge program price per month rupees subscription 2025 | None |
+| 2026-10-09 | WebSearch (portea.com) | portea nursing attendant physiotherapy at home price ₹ | Low (old snippets) |
+| 2026-10-09 | Europe PMC | (IVR OR "voice call" OR "voice message" OR "voice-based") AND India AND (elderly OR older adults OR low literacy …) 2016–2026 | Medium: Virtual Baithak protocol |
+| 2026-10-09 | Europe PMC | TITLE:"99DOTS" AND (accuracy OR adherence OR acceptability) AND (review OR cohort …) | None (non-India) |
+| 2026-10-09 | Europe PMC | 99DOTS AND India AND (urine OR accuracy OR sensitivity) | High: DAT systematic review |
+| 2026-10-09 | WebSearch (cdsco.gov.in) | cdsco.gov.in pdf "Respiratory" risk classification medical devices 2021 "Intended use" "Risk Class" annexure | High: Class A non-measuring list PDF |
+| 2026-10-09 | curl + pdftotext | CDSCO Class A (non-sterile, non-measuring) list – grep "incentive" | High: item 496 |
+| 2026-10-09 | Europe PMC | (readmission OR rehospitalization) AND (CABG OR cardiac surgery) AND India 2012–2026 | None (no Indian rate) |
+| 2026-10-09 | Europe PMC | post-TB obstructive/restrictive spirometry systematic review 2019–2026 | Medium: Madurai |

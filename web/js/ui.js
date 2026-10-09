@@ -22,9 +22,11 @@
     if (SB.api && SB.api.state.forcedMock && !/^https?:/.test(href)) return href + (href.includes('?') ? '&' : '?') + 'mock=1';
     return href;
   }
-  function hourLabel(h) { return String(h).padStart(2, '0') + ':00'; }
+  // 12-hour clock as used in India: 8 → "8 am", 13 → "1 pm", 12 → "12 pm" (API keeps 24-hour numbers).
+  function hourLabel(h) { const n = ((Number(h) % 24) + 24) % 24; return (n % 12 || 12) + (n < 12 ? ' am' : ' pm'); }
+  function hourRange(a, b) { return hourLabel(a) + '–' + hourLabel(b); }
   function parseDate(v) { if (!v) return null; const d = new Date(v); return isNaN(d) ? null : d; }
-  function timeLabel(v) { const d = parseDate(v); return d ? d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '—'; }
+  function timeLabel(v) { const d = parseDate(v); return d ? d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true }) : '—'; }
   function dateTimeLabel(v) {
     const d = parseDate(v); if (!d) return '—';
     const today = new Date().toDateString() === d.toDateString();
@@ -49,11 +51,17 @@
     if (['down', 'worse', 'falling', 'declining', '-'].includes(s)) return 'down';
     return 'flat';
   }
-  function trendHTML(t) {
+  // Breath volume over the last 3 days vs the 3 days before (not an overall "getting better" verdict).
+  // Pass the patient object: when today is due but nothing is done, no arrow is shown, so the card
+  // never says "▲ Higher" next to "Needs a call".
+  function trendHTML(t, p) {
+    if (p && typeof p === 'object' && (p.due_today || 0) > 0 && !(p.done_today > 0)) return '<span class="trend-flat" title="No sessions done yet today">— none today</span>';
     const n = normTrend(t);
-    return n === 'up' ? '<span class="trend-up" title="Improving">▲ Improving</span>' : n === 'down' ? '<span class="trend-down" title="Getting worse">▼ Falling</span>' : '<span class="trend-flat" title="Steady">→ Steady</span>';
+    const tip = 'Best-breath volume, last 3 days vs the 3 days before';
+    return n === 'up' ? `<span class="trend-up" title="${tip}">▲ Higher</span>` : n === 'down' ? `<span class="trend-down" title="${tip}">▼ Lower</span>` : `<span class="trend-flat" title="${tip}">→ Steady</span>`;
   }
-  const LANG = { en: 'English', hi: 'Hindi', ta: 'Tamil' };
+  const TREND_LABEL = 'Volume (3 days)';
+  const LANG = { en: 'English', hi: 'Hindi', ta: 'Tamil', ml: 'Malayalam', te: 'Telugu', kn: 'Kannada', bn: 'Bengali', mr: 'Marathi', gu: 'Gujarati', pa: 'Punjabi', or: 'Odia' };
   const LABEL_TEXT = { good: 'Good', too_fast: 'Too fast', too_shallow: 'Too shallow', no_hold: 'No hold' };
   function labelChips(counts) {
     if (!counts) return '—';
@@ -173,5 +181,5 @@
     return () => { stopped = true; clearTimeout(timer); };
   }
 
-  SB.ui = { esc, $, $$, link, hourLabel, timeLabel, dateTimeLabel, ago, initials, statusPill, trendHTML, normTrend, STATUS_RANK, STATUS_TEXT, LANG, LABEL_TEXT, labelChips, fmtMl, toast, busy, boot, poll, LOGO };
+  SB.ui = { esc, $, $$, link, hourLabel, hourRange, TREND_LABEL, timeLabel, dateTimeLabel, ago, initials, statusPill, trendHTML, normTrend, STATUS_RANK, STATUS_TEXT, LANG, LABEL_TEXT, labelChips, fmtMl, toast, busy, boot, poll, LOGO };
 })();

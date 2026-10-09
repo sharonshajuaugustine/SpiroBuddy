@@ -390,6 +390,51 @@ def send_guardian_alert(patient: dict, guardian: dict, missed: int, patient_answ
                                              "2": first_name(patient["name"])})
 
 
+def care_update_recipient(patient: dict, to_role: str) -> tuple[dict | None, str, str | None, str | None]:
+    """For /api/whatsapp/{pid}: -> (guardian, lang, stored number, blocked_reason).
+
+    'family' goes to the primary guardian in the care circle, in the guardian's language, and
+    only with their recorded consent (a guardian who replied STOP is blocked). 'nurse' is
+    hospital staff (not an automated message to a patient/family), so no consent is needed.
+    """
+    from .common import has_consent
+    from .guardians import guardian_label, primary_guardian
+    if to_role == "nurse":
+        return None, "en", patient.get("nurse_phone"), None
+    g = primary_guardian(int(patient["id"]))
+    if not g:
+        return None, "en", patient.get("family_phone"), "no guardian with recorded consent in the care circle"
+    lang = lang_of(g.get("language"), "en")
+    if not has_consent(g):
+        return g, lang, g.get("phone"), (f"{guardian_label(g)} has not given consent or replied STOP – "
+                                         "no automated WhatsApp sent")
+    return g, lang, g.get("phone") or patient.get("family_phone"), None
+
+
+def send_care_update(patient: dict, kind: str, to_role: str, text: str, lang: str,
+                     guardian: dict | None = None, stored_number: str | None = None,
+                     blocked_reason: str | None = None) -> dict:
+    """The nurse dashboard's 'send summary / missed alert' (CONTRACT D: {sent, dry_run, text, to_role}).
+
+    Goes through `send` (AI disclosure in the recipient's language, footer, shared ≥3 s throttle,
+    logging). When consent blocks it nothing is sent: sent=false, dry_run=false + error.
+    """
+    if blocked_reason:
+        from .guardians import guardian_label
+        name = guardian_label(guardian) if guardian else "family"
+        log_event(patient["id"], "guardian_whatsapp", f"WhatsApp to {name}: {kind} blocked – no consent",
+                  detail=blocked_reason, channel="whatsapp", actor="guardian", to_name=name,
+                  status="skipped")
+        return {"sent": False, "dry_run": False, "text": text, "to_role": to_role,
+                "blocked": True, "blocked_reason": blocked_reason, "error": blocked_reason}
+    to_name = None
+    if guardian:
+        to_name = f"{first_name(guardian['name'])} ({guardian.get('relation') or 'family'})"
+    out = send(patient, to_role, stored_number, text, kind, lang, to_name=to_name)
+    out["to_role"] = to_role
+    return out
+
+
 # ----------------------------------------------------------------------------- inbound
 
 def identify(from_number: str | None) -> tuple[dict | None, str | None, dict | None]:

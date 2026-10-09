@@ -38,7 +38,7 @@
       callSub: { en: 'Several exercises were missed. The nurse has been told.', hi: 'कई व्यायाम छूट गए हैं। नर्स को बता दिया गया है।', ta: 'பல பயிற்சிகள் தவறின. செவிலியருக்குத் தெரிவிக்கப்பட்டது.' },
       done: { en: 'done today', hi: 'आज पूरे', ta: 'இன்று முடிந்தவை' },
       of: { en: '{a} of {b}', hi: '{b} में से {a}', ta: '{b} இல் {a}' },
-      notYet: { en: "Today's exercises start at 8:00.", hi: 'आज के व्यायाम सुबह 8 बजे शुरू होंगे।', ta: 'இன்றைய பயிற்சிகள் காலை 8 மணிக்குத் தொடங்கும்.' },
+      notYet: { en: "Today's exercises start at 8 am.", hi: 'आज के व्यायाम सुबह 8 बजे शुरू होंगे।', ta: 'இன்றைய பயிற்சிகள் காலை 8 மணிக்குத் தொடங்கும்.' },
       streak: { en: 'good days in a row', hi: 'दिन लगातार अच्छे', ta: 'நல்ல நாட்கள் தொடர்ச்சியாக' },
       last: { en: 'Last breath', hi: 'आख़िरी साँस', ta: 'கடைசி மூச்சு' },
       minAgo: { en: '{n} min ago', hi: '{n} मिनट पहले', ta: '{n} நிமிடம் முன்' },
@@ -67,7 +67,7 @@
     const P = () => (d && (d.patient['calls_patient_' + lang] || d.patient.calls_patient)) || '';
 
     function setLang(l) {
-      lang = ['en', 'hi', 'ta'].includes(l) ? l : 'hi';
+      lang = ['en', 'hi', 'ta'].includes(l) ? l : (l ? 'en' : 'hi');   // no Malayalam page text yet → English, not Hindi
       document.documentElement.lang = lang;
       document.querySelectorAll('#g-lang button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.l === lang)));
       try { localStorage.setItem('sb_g_lang', lang); } catch (_) { /* ignore */ }
@@ -96,7 +96,10 @@
           <button class="g-btn listen" type="button" data-back>${esc(t('back'))}</button>`;
         return;
       }
-      const ticks = d.today.map((s) => `<div class="g-tick ${esc(s.status)}" title="${s.hour}:00"><span class="i">${{ done: '✓', missed: '✗', pending: '⏳', upcoming: '·' }[s.status] || '·'}</span>${s.hour}</div>`).join('');
+      // 12-hour clock: "8 am", "9 pm" (the API sends 24-hour numbers)
+      const hm12 = (v) => { const [h, m] = String(v || '').split(':').map(Number); if (isNaN(h)) return v || ''; const [n, ap] = h12(h); return m ? `${n}:${String(m).padStart(2, '0')} ${ap}` : `${n} ${ap}`; };
+      const h12 = (h) => { const n = ((Number(h) % 24) + 24) % 24; return [n % 12 || 12, n < 12 ? 'am' : 'pm']; };
+      const ticks = d.today.map((s) => { const [n, ap] = h12(s.hour); return `<div class="g-tick ${esc(s.status)}" title="${n} ${ap}"><span class="i">${{ done: '✓', missed: '✗', pending: '⏳', upcoming: '·' }[s.status] || '·'}</span>${n}<span class="ap">${ap}</span></div>`; }).join('');
       const tel = d.call.tel ? `tel:${d.call.tel}` : '#';
       main.innerHTML = `
         <section class="g-card g-status ${esc(d.status)}" aria-label="Status"><div class="ic" aria-hidden="true">${ic}</div><div><h1>${esc(st.h)}</h1><p>${esc(st.p)}</p></div></section>
@@ -110,8 +113,8 @@
         <div class="g-card"><div class="g-label">${esc(t('last'))}</div><div class="g-big" style="font-size:2rem">${d.last ? esc(agoText(d.last.minutes_ago)) : esc(t('none'))}</div>${d.last && d.last.best_ml ? `<div class="g-label">${Math.round(d.last.best_ml).toLocaleString('en-IN')} mL</div>` : ''}</div>
         <div class="g-card"><div class="g-label">${esc(t('ticks'))}</div><div class="g-ticks">${ticks}</div></div>
         ${d.cheers_queued ? `<p class="g-label" style="text-align:center">💛 ${esc(t('queued', { n: d.cheers_queued }))}</p>` : ''}
-        ${d.quiet ? `<div class="g-card"><div class="g-label"><b>${esc(t('quietT'))}</b></div><div class="g-big" style="font-size:2rem">${esc(d.quiet.start)} – ${esc(d.quiet.end)}</div><div class="g-label">${esc(t('quietSub'))}</div>
-          <div class="g-choices">${(d.quiet.presets || []).map(([a, b]) => `<button type="button" data-quiet="${esc(a)}|${esc(b)}" aria-pressed="${a === d.quiet.start && b === d.quiet.end}">${esc(a)} – ${esc(b)}${a === d.quiet.start && b === d.quiet.end ? ' ✓' : ''}</button>`).join('')}</div></div>` : ''}
+        ${d.quiet ? `<div class="g-card"><div class="g-label"><b>${esc(t('quietT'))}</b></div><div class="g-big" style="font-size:2rem">${esc(hm12(d.quiet.start))} – ${esc(hm12(d.quiet.end))}</div><div class="g-label">${esc(t('quietSub'))}</div>
+          <div class="g-choices">${(d.quiet.presets || []).map(([a, b]) => `<button type="button" data-quiet="${esc(a)}|${esc(b)}" aria-pressed="${a === d.quiet.start && b === d.quiet.end}">${esc(hm12(a))} – ${esc(hm12(b))}${a === d.quiet.start && b === d.quiet.end ? ' ✓' : ''}</button>`).join('')}</div></div>` : ''}
         <button class="g-btn listen" type="button" data-listen>${esc(t('listen'))}</button>`;
     }
 

@@ -59,13 +59,14 @@
   <script src="js/comms-dashboard.js"></script><!-- COMMS -->
   <script>
   (function () {
-    const { esc, $, $$, link, statusPill, trendHTML, STATUS_RANK, ago, timeLabel, fmtMl, toast, poll } = SB.ui;
+    const { esc, $, $$, link, statusPill, trendHTML, TREND_LABEL, hourRange, STATUS_RANK, ago, timeLabel, fmtMl, toast, poll } = SB.ui;
+    let redFlags = new Set();   // patient ids with an open red-flag alert
     let patients = [];
     let prev = new Map();
     let filter = 'all';
     let first = true;
 
-    $('#today-label').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · slots 08:00–21:00';
+    $('#today-label').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · slots ' + hourRange(8, 21);
 
     function setFilter(f) {
       filter = f;
@@ -96,17 +97,17 @@
       const animateFrom = changes && changes.doneUp ? changes.prevDone : null;
       const reasons = Array.isArray(p.status_reasons) && p.status_reasons.length && st !== 'green' ? p.status_reasons.join(' · ') : '';
       const alertTxt = reasons ? (st === 'red' ? reasons + ' – please call' : reasons) : st === 'red' ? (p.due_today && p.done_today / p.due_today < 0.4 ? 'Few sessions done today – please call' : 'Missed sessions in a row – please call') : '';
-      return `<a class="pcard ${st}" href="${link('patient.html?id=' + encodeURIComponent(p.id))}" data-id="${esc(p.id)}" aria-label="${esc(p.name)}, status ${esc(SB.ui.STATUS_TEXT[st])}">
+      return `<a class="pcard ${st}" href="${link('patient.html?id=' + encodeURIComponent(p.id))}" data-id="${esc(p.id)}" aria-label="${esc(p.name)}, status ${esc(SB.ui.STATUS_TEXT[st])}${redFlags.has(String(p.id)) ? ', open red-flag alert' : ''}">
         <div class="top">
           <div><div class="name">${esc(p.name)}</div>
           <div class="meta">${esc(p.age)} ${esc(p.sex || '')} · ${esc(p.surgery || '')}</div></div>
-          ${statusPill(st)}
+          <div class="pills">${redFlags.has(String(p.id)) ? '<span class="status-pill status-red redflag-badge" title="Open red-flag alert – see the alerts inbox">🚨 Red flag</span>' : ''}${statusPill(st)}</div>
         </div>
         ${alertTxt ? `<div class="alert" style="${st === 'yellow' ? 'color:var(--yellow)' : ''}">${st === 'red' ? '⚠ ' : ''}${esc(alertTxt)}</div>` : ''}
         <div class="kv">
           <div title="Sessions done / due so far today"><div class="k">Done</div><div class="v">${p.done_today ?? 0}<span class="muted small"> / ${p.due_today ?? 0}</span></div></div>
           <div title="Best breath today (target ${esc(p.target_ml)} mL)"><div class="k">Best</div><div class="v">${best != null ? Math.round(best) + '<span class="muted small"> mL</span>' : '—'}</div></div>
-          <div><div class="k">Trend</div><div class="v small">${trendHTML(p.trend)}</div></div>
+          <div title="Best-breath volume, last 3 days vs the 3 days before"><div class="k">${TREND_LABEL}</div><div class="v small">${trendHTML(p.trend, p)}</div></div>
         </div>
         <div class="pips" aria-hidden="true">${pips(p, animateFrom)}</div>
         <div class="pips-label"><span>${pct != null ? pct + '% of ' + esc(p.target_ml) + ' mL target' : 'No breath recorded today'}</span><span title="${esc(p.last_session_at || '')}">Last: ${p.last_session_at ? timeLabel(p.last_session_at) + ' (' + ago(p.last_session_at) + ')' : 'none'}</span></div>
@@ -123,7 +124,8 @@
         if (sort === 'name') return String(a.name).localeCompare(b.name);
         if (sort === 'last') return String(b.last_session_at || '').localeCompare(String(a.last_session_at || ''));
         if (sort === 'adherence') return ratio(a) - ratio(b);
-        return (STATUS_RANK[a.status] ?? 3) - (STATUS_RANK[b.status] ?? 3) || ratio(a) - ratio(b) || String(a.name).localeCompare(b.name);
+        const rf = (p) => (redFlags.has(String(p.id)) ? 0 : 1);   // open red flag first
+        return rf(a) - rf(b) || (STATUS_RANK[a.status] ?? 3) - (STATUS_RANK[b.status] ?? 3) || ratio(a) - ratio(b) || String(a.name).localeCompare(b.name);
       });
       const box = $('#patients');
       box.setAttribute('aria-busy', 'false');
@@ -146,11 +148,27 @@
       $('#n-sessions').textContent = sessions;
       $('#l-sessions').textContent = `sessions done today (of ${due} due)`;
       const basis = patients.some((p) => p.status_basis === 'yesterday');
-      $('#today-label').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · slots 08:00–21:00' + (basis ? ' · before 08:00 – colours show yesterday' : '');
+      $('#today-label').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · slots ' + hourRange(8, 21) + (basis ? ' · before 8 am – colours show yesterday' : '');
       document.title = (n.red ? `(${n.red}) ` : '') + 'SpiroBuddy Dashboard';
     }
 
+    // Open red-flag alerts → a badge on the card (checked every ~6 s; the inbox has the details).
+    async function refreshRedFlags() {
+      if (!SB.comms || !SB.comms.api) return false;
+      if (Date.now() - (refreshRedFlags.at || 0) < 6000) return false;
+      refreshRedFlags.at = Date.now();
+      try {
+        const res = await SB.comms.api.alerts('open');
+        const rows = Array.isArray(res) ? res : (res && res.alerts) || [];
+        const next = new Set(rows.filter((a) => a.kind === 'red_flag').map((a) => String(a.patient_id)));
+        const changed = next.size !== redFlags.size || [...next].some((id) => !redFlags.has(id));
+        redFlags = next;
+        return changed;
+      } catch (e) { return false; }
+    }
+
     async function refresh() {
+      const flagsChanged = await refreshRedFlags();
       const list = await SB.api.patients();
       const next = new Map(list.map((p) => [String(p.id), p]));
       if (!first) {
@@ -171,7 +189,7 @@
       // avoid re-rendering (and losing hover) when nothing changed, except the "ago" labels every ~30 s
       const sig = JSON.stringify(list);
       const now = Date.now();
-      if (sig !== refresh.sig || pendingChanges.size || now - (refresh.at || 0) > 30000) { refresh.sig = sig; refresh.at = now; render(); }
+      if (flagsChanged || sig !== refresh.sig || pendingChanges.size || now - (refresh.at || 0) > 30000) { refresh.sig = sig; refresh.at = now; render(); }
       $('#updated').textContent = 'Live · updated ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }
 

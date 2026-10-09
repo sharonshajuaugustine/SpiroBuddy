@@ -19,7 +19,7 @@
 
     <div class="grid grid-2" style="margin-top:1rem">
       <section class="card span-2">
-        <div class="card-head"><h2>Today's sessions</h2><span class="muted small">one session per hour, 08:00–21:00</span><div class="spacer"></div><span class="updated"><span class="live-dot"></span><span id="updated">–</span></span></div>
+        <div class="card-head"><h2>Today's sessions</h2><span class="muted small">one session per hour, 8 am–9 pm</span><div class="spacer"></div><span class="updated"><span class="live-dot"></span><span id="updated">–</span></span></div>
         <div class="slots" id="slots"></div>
         <div class="legend"><span class="l-done">Done</span><span class="l-missed">Missed</span><span class="l-pending">Due now</span><span class="l-upcoming">Upcoming</span></div>
       </section>
@@ -110,13 +110,13 @@
         <div style="flex:1;min-width:220px">
           <h1 style="margin:0">${esc(p.name)} ${statusPill(p.status)}</h1>
           <div class="muted">${esc(p.age)} y · ${esc(p.sex || '')} · ${esc(p.surgery || '')}${pod != null ? ` · day ${pod} after surgery` : ''} · ${esc(LANG[p.language] || p.language || '')}</div>
-          ${Array.isArray(p.status_reasons) && p.status_reasons.length ? `<div class="small"><b>Status:</b> ${esc(p.status_reasons.join(' · '))}${p.status_basis === 'yesterday' ? ' (based on yesterday – before 08:00)' : ''}</div>` : ''}
+          ${Array.isArray(p.status_reasons) && p.status_reasons.length ? `<div class="small"><b>Status:</b> ${esc(p.status_reasons.join(' · '))}${p.status_basis === 'yesterday' ? ' (based on yesterday – before 8 am)' : ''}</div>` : ''}
         </div>
         <div class="kv" style="flex:2;min-width:300px;margin:0;grid-template-columns:repeat(4,minmax(0,1fr))">
           <div><div class="k">Done / due</div><div class="v">${p.done_today ?? 0} / ${p.due_today ?? 0}</div></div>
           <div><div class="k">Best today</div><div class="v">${fmtMl(p.best_today)}</div></div>
           <div><div class="k">Target</div><div class="v">${fmtMl(p.target_ml)}</div></div>
-          <div><div class="k">Trend</div><div class="v small">${trendHTML(p.trend)}</div></div>
+          <div title="Best-breath volume, last 3 days vs the 3 days before"><div class="k">${SB.ui.TREND_LABEL}</div><div class="v small">${trendHTML(p.trend, p)}</div></div>
         </div>`;
       document.title = p.name + ' – SpiroBuddy';
     }

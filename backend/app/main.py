@@ -243,14 +243,18 @@ def send_whatsapp(pid: int, body: dict | None = Body(None)):
     d = service.patient_detail(pid)
     if d is None:
         raise HTTPException(404, f"patient {pid} not found")
-    lang = d.get("language") if d.get("language") in ("en", "hi") else "en"
+    # Through the comms sender: consent/STOP check, AI disclosure in the recipient's language,
+    # footer, shared ≥3 s throttle (QA Review 1, Q-01). whatsapp.send stays the transport.
+    from .comms import messages as comms_messages
+    guardian, lang, number, blocked = comms_messages.care_update_recipient(d, to_role)
     if kind == "summary":
         s = llm.summarize(service.summary_stats(d), lang)
         text = f"SpiroBuddy - {d['name']}: {s['text']}"
     else:
         missed = [s["hour"] for s in d["today"] if s["status"] == "missed"][-2:]
-        text = whatsapp.missed_text(d, missed, lang)
-    return _send(d, kind, to_role, text)
+        text = whatsapp.missed_text(d, missed, lang if lang in ("en", "hi") else "en")
+    return comms_messages.send_care_update(d, kind, to_role, text, lang, guardian=guardian,
+                                           stored_number=number, blocked_reason=blocked)
 
 
 @app.get("/api/messages")

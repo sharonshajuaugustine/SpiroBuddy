@@ -12,6 +12,7 @@
     el.innerHTML = `
       <div class="card-head">
         <h2 style="margin:0">🔔 Alerts inbox</h2>
+        <span class="chip" title="Care-team mode: these alerts are for nurses and doctors only – patients and families never see them">👩‍⚕️ Care-team mode</span>
         <span class="chip bad" id="ai-red" title="Red alerts: a person is needed now"><span class="dot"></span><b>–</b>&nbsp;red</span>
         <span class="chip warn" id="ai-amber" title="Amber alerts: watch"><span class="dot"></span><b>–</b>&nbsp;amber</span>
         <span class="chip" id="ai-mine" title="Assigned to you"><b>–</b>&nbsp;mine</span>

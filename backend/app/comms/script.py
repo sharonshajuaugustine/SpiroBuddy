@@ -28,7 +28,7 @@ SYSTEM = (
     "never suggest medicines or doses. No markdown other than the bullets, no emojis."
 )
 _BAD = re.compile(r"diagnos|pneumonia|atelectasis|embolism|infection|antibiotic|medication|"
-                  r"medicine|dose|mg\b|tablet", re.I)
+                  r"tuberculosis|\btb\b|medicine|dose|mg\b|tablet", re.I)
 
 
 def facts(pid: int) -> dict | None:

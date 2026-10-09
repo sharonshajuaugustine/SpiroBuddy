@@ -267,7 +267,10 @@
             <select id="cd-style" class="sm-select" title="How the ladder's automated call to the patient works">
               <option value="ivr">⌨ Keypad menu (press 1 / 2 / 3)</option>
               <option value="agent">🗣 AI conversation (Sarvam-style)</option></select>
-            <button class="btn" id="cd-checkin" type="button" title="Ring the patient now with the AI check-in call">🗣 AI check-in call now</button>
+          </div>
+          <div class="row" style="margin-bottom:.6rem">
+            <button class="btn primary" id="cd-nurse" type="button" title="A person calls: the nurse's phone rings first, then the patient (click-to-call)">☎ Nurse calls patient</button>
+            <button class="btn sm" id="cd-checkin" type="button" title="Backup: ring the patient now with the automated AI check-in call (needs consent; some reminder calls need consent renewed weekly)">🗣 Automated check-in call (backup)</button>
           </div>
           <div class="row" style="margin-bottom:.6rem">
             <select id="cd-sample" class="sm-select" aria-label="Saved Sarvam call result"><option value="pain">Loading samples…</option></select>
@@ -320,6 +323,11 @@
     $('#cd-play', el).addEventListener('click', run(async () => {
       const r = await C.api.demoLadder(pid, !$('#cd-quiet', el).checked);
       toast('▶ Ladder playing – watch the phones', 'good');
+      return r;
+    }));
+    $('#cd-nurse', el).addEventListener('click', run(async () => {
+      const r = await C.api.callPatient(pid, C.me());
+      toast(r.dry_run ? `Dry run – would ring ${C.me()}'s phone first, then connect the patient` : r.error ? '✖ Call failed: ' + r.error : '📞 Calling – the nurse’s phone rings first', r.error ? 'bad' : 'good', 6000);
       return r;
     }));
     $('#cd-stop', el).addEventListener('click', run(async () => { if (curRun) await C.api.stopRun(curRun.id, 'presenter'); }));

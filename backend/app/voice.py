@@ -88,10 +88,22 @@ def translate_model() -> str:
 
 
 def default_pace() -> float:
+    """0.85 = Sarvam's "relaxed" range (0.8-0.9) for elderly listeners (KNOWLEDGE_BASE F-VOICE-11)."""
     try:
-        return min(2.0, max(0.5, float(env("SARVAM_TTS_PACE", "0.9"))))
+        return min(2.0, max(0.5, float(env("SARVAM_TTS_PACE", "0.85"))))
     except ValueError:
-        return 0.9
+        return 0.85
+
+
+def default_temperature() -> float | None:
+    """Bulbul v3 / v4-flash `temperature` (0.01-1.0, API default 0.6; docs/VOICE.md 1.1).
+    0.7 = Sarvam's "warm" range for wellness content. None for models without it (v2)."""
+    if not tts_model().startswith(("bulbul:v3", "bulbul:v4")):
+        return None
+    try:
+        return min(1.0, max(0.01, float(env("SARVAM_TTS_TEMPERATURE", "0.7"))))
+    except ValueError:
+        return 0.7
 
 
 def default_codec() -> str:
@@ -141,7 +153,7 @@ def status() -> dict:
         "enabled": enabled(),
         "provider": "sarvam" if enabled() else "browser",
         "tts_model": tts_model(), "stt_model": stt_model(), "translate_model": translate_model(),
-        "pace": default_pace(), "codec": default_codec(),
+        "pace": default_pace(), "temperature": default_temperature(), "codec": default_codec(),
         "languages": [{"lang": k, "code": v["code"], "name": v["name"], "native": v["native"],
                        "speaker": speaker_for(k)} for k, v in LANGS.items()],
         "voices": {k: {"female": v["female"], "male": v["male"]} for k, v in LANGS.items()},
@@ -209,8 +221,9 @@ def _join_wavs(blobs: list[bytes]) -> bytes:
 
 def cache_key(text: str, lang: str, speaker: str, pace: float, codec: str,
               sample_rate: int | None = None) -> str:
+    temp = default_temperature()
     raw = "|".join([tts_model(), bcp47(lang), speaker, f"{pace:.2f}", codec,
-                    str(sample_rate or ""), text.strip()])
+                    str(sample_rate or ""), "" if temp is None else f"t{temp:.2f}", text.strip()])
     return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:24]
 
 
@@ -243,6 +256,9 @@ def tts(text: str, lang: str, speaker: str | None = None, pace: float | None = N
                     "model": tts_model(), "output_audio_codec": codec}
             if sample_rate:
                 body["speech_sample_rate"] = int(sample_rate)
+            temp = default_temperature()
+            if temp is not None:
+                body["temperature"] = temp
             res = _post("/text-to-speech", json_body=body)
             audios = res.get("audios") or []
             if not audios:

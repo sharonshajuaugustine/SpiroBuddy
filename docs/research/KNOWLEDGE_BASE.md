@@ -326,6 +326,10 @@ Kept by the research agent; saved by the lead for round 1. Grades: **A** = peer-
 | C20 (round 4) | "Spirometers for monitoring are Class B; wellness tools are outside" | CONFIRMED FROM PRIMARY TEXT | CDSCO PDF (F-REG-4): wellness software must not mention any disease; software that *alerts* about a condition is not wellness. Standalone software that only *informs* clinical management of a *serious* condition sits in Class A in Table 2. |
 | C21 (round 4) | "No Indian complication-cost figure exists" (PITCH_FACTS never-say list) | UPDATE | Still no direct rupee cost of a post-surgery lung complication. We now have Indian cost anchors: ₹2,307 per ward bed-day (CHSI, F-BIZ-4) and ₹25,927 per ICU bed-day (PGIMER 2024, F-BIZ-5). Use them as "what a day costs", not as "what we save". |
 | C22 (round 4) | Plans: piston mL can be computed from the cylinder size | WRONG APPROACH | No Romsons drawing exists publicly (F-TECH-4). Calibrate against the printed marks on each spirometer model instead. |
+| C23 (round 5) | Plans (Complete Plan §633, Final Research §47/§89): "We couldn't confirm the CDSCO class for incentive spirometers" | WRONG (now answered) | CDSCO's Class A (non-sterile, non-measuring) list names "Incentive spirometer" (item 496) and says it is not a diagnostic (F-REG-5). Say: "The plastic spirometer is Class A, the lowest risk. Our measuring clip-on will need its own registration, probably Class A measuring or Class B." |
+| C24 (round 5) | Judge answers J8/J17: "we'll get an official ruling first" | NEEDS WORDING CHANGE | Keep the ruling step, but lead with the fact: the base device is already Class A (F-REG-5); measuring and alerts take us out of the non-measuring exemption (F-REG-4). |
+| C25 (round 5) | Implied: SpiroBuddy reduces readmissions | NOT SUPPORTED | Only an international CABG baseline exists (12.9%, F-BIZ-8); no Indian figure; knee-replacement readmission is ~1% in Ludhiana. Say "we'll measure readmissions in a pilot". |
+| C26 (round 5) | J22 / pitch: "TB survivors are a large next market" | CONFIRMED (rough) | ~26 lakh notified a year, 90% success (PIB 2026); 59% lung impairment at completion in Madurai (F-VIS-4). Say "lakhs of people a year", labelled as our estimate. |
 
 ## Contradictions & risks
 1. Cochrane 2014 found no proof incentive spirometry works, and AARC advises against using it alone. Our answer: the trials never recorded adherence, and we measure it. **Never say "prevents pneumonia".**
@@ -354,7 +358,23 @@ Kept by the research agent; saved by the lead for round 1. Grades: **A** = peer-
 24. **(Round 4)** TRAI's Gazette date is still unknown. If it was published around 18 Sep 2026, the main rules start about 18 Oct 2026 and the A2P declaration rule about 17 Nov 2026, so they may be in force on hackathon day (F-COMMS-12).
 25. **(Round 4)** Our rupee cost numbers come from different hospitals and years (a trauma ICU, a multi-state costing study). They are anchors, not a savings claim (F-BIZ-4, F-BIZ-5).
 
-## Open gaps (priority order, after round 4)
+26. **(Round 5)** The CDSCO exemption covers only *non-measuring* incentive spirometers (F-REG-5). Adding our sensor makes it a measuring device, so we must not say "no licence needed". Plan for registration and a licence.
+27. **(Round 5)** An Indian group (Amrita, Kochi) is already running an RCT of an LLM nurse chatbot after CABG (F-COMP-12). Don't say "first AI follow-up for Indian surgery patients".
+28. **(Round 5)** Digital adherence tools in TB showed only a modest, low-certainty effect (F-ADH-8), and the Indian caregiver-WhatsApp pilot changed visits, not complications (F-ADH-7). Don't promise clinical outcomes; promise visibility and earlier escalation.
+29. **(Round 5)** Knee-replacement readmission in India can be ~1% (F-BIZ-8). A "readmission savings" story for knee patients would fall apart; use CABG and abdominal surgery for that argument.
+30. **(Round 5)** We still have no evidence that older Indians prefer voice or IVR (F-INDLOC-5). The voice-first case rests on literacy and vision data only.
+
+## Open gaps (priority order, after round 5)
+1. **TECH (hands-on, team):** caliper measurements of the Breazer 2500 and a 4x4-window bench test inside the tube (unchanged from round 4; the web has nothing).
+2. **REG:** does Romsons hold a Chapter IIIB registration for the Breazer? Needs a person on the CDSCO registration portal (cdscomdonline.gov.in) or a look at the box label. Also: which class does CDSCO give a *measuring* incentive-spirometer accessory (ask via the classification portal / a regulatory consultant).
+3. **COMMS:** TRAI Third Amendment Gazette date and whether "human-assisted" calls are excluded (search our local copy of #106).
+4. **COMP:** InPASS search (CAPTCHA, needs a person): "incentive spirometer", "spirometer", "respiratory exerciser"; applicant "Tidal". Check Amrita's Smart CABGuard results when published.
+5. **ADH/CLIN:** still no Indian data on spirometer use *after discharge*; try CTRI (ctri.nic.in) for trials on home breathing exercise or post-discharge physiotherapy adherence; any Indian family-involved breathing-exercise trial.
+6. **BIZ:** an Indian 30-day readmission rate after CABG or major abdominal surgery (try Indian J Thorac Cardiovasc Surg full texts, AIIMS/SCTIMST cohorts); a current official home-physio price (call or app quote).
+7. **VOICE/INDLOC:** Indian evidence on voice or IVR use by older adults (Kilkari/mMitra reach data, LASI phone-use tables); WhatsApp voice-note use among older Indians.
+8. **VIS:** RBIPMT July 2024 pulmonary-rehab guidance PDF (ntep.in/node/6610, not yet opened); share of pulmonary vs extrapulmonary TB in notifications to tighten the post-TB estimate.
+
+## Open gaps (priority order, after round 4; kept for history)
 1. **TECH (hands-on, needs the team, not the web):** with calipers, measure the Breazer 2500's inner cylinder diameter, piston travel from 0 to 2500 mL and the mm between printed marks; check whether the floor under the piston is open. Bench-test the VL53L1X at 4x4 sensing window inside the tube at the top of travel. The web has no drawing (F-TECH-4).
 2. **COMMS:** exact Gazette date of the TRAI Third Amendment (try egazette.gov.in by hand); whether the final text excludes "human-assisted" calls (search our local copy of #106 for "human"); a telecom lawyer's view on type (i) vs type (ii) for post-discharge reminders.
 3. **COMP:** InPASS (Indian patent office) search needs a CAPTCHA, so a person must do it: iprsearch.ipindia.gov.in → Patent Search → title/abstract "incentive spirometer", "spirometer", "respiratory exerciser"; applicant "Tidal".
@@ -886,3 +906,82 @@ About 30 reads (ledger #106–#134). Note: the imported Sarvam/InSee section abo
 | J23 | "What are your unit economics?" | "About ₹1,000–1,700 of parts for a reusable clip-on, so roughly ₹150 a patient over 10 uses, plus about ₹5 of WhatsApp per recovery. We'd charge the hospital ₹500–1,000 per patient, less than half a ward day." | F-BIZ-7, F-BIZ-4 |
 | J24 | "After TRAI's new rules, can you still call patients?" | "Yes, if done right: an Indian registered sender, declared A2P caller IDs, and consent recorded at discharge. Our escalation is a nurse-to-patient call, so a human is on the line." | F-COMMS-8, F-COMMS-12, F-COMMS-13 |
 | J25 | "Do Indian patients even want home programmes?" | "In Pune, 87% of chronic lung patients wanted rehab and 84% liked a home-based digital programme. Hospital-referred users of a WhatsApp rehab bot finished more often." | F-VIS-3, F-COMP-9 |
+
+# Round 5 additions (9 Oct 2026)
+
+## REG (round 5)
+
+### F-REG-5: CDSCO's own Class A list names "Incentive spirometer" (item 496) as a low-risk, non-sterile, non-measuring device that "is not a diagnostic device". Such devices only need a simple registration, not a licence
+- Detail: CDSCO list F. No. MED-16014(12)/1/2024-eoffice-Part(2), "Risk classification list of Class A (non-sterile and non-measuring) medical devices" (about 1,069 items; news reports date it to 3 Nov 2025). Item 496 describes a hand-held mechanical breathing-muscle exerciser that encourages deep breaths after surgery to prevent lung collapse. Item 810, "Pulmonary exerciser" (breathing-muscle trainers), is on the same list. The note on page 1 says these devices are exempt from Chapters IV, V, VII, VIII and XI of the Medical Devices Rules 2017 (the licensing chapters), provided the maker or importer registers them under Chapter IIIB. A consultancy copy of the January 2025 "Class A self-notified" list also includes "Pulmonary exerciser" (#432) but not "incentive spirometer".
+- Source: CDSCO PDF "Risk based classification list of Class A (non-sterile and non-measuring) medical device" – https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2018/UploadPublic_NoticesFiles/Risk%20based%20classification%20list%20of%20Class%20A(non-sterile%20and%20non-measuring)%20medical%20device.pdf (ledger #150) – Grade A. Supporting: Morulaa Class A self-notified page (#151) – Grade B.
+- Use in pitch: answers "is the spirometer itself regulated?" The plastic spirometer is in the lowest-risk class and isn't a diagnostic. SpiroBuddy clips onto a device CDSCO already treats as low-risk.
+- Caveat: the exemption is for **non-measuring** devices. Our clip-on measures volume and alerts nurses, so SpiroBuddy itself is very likely **not** covered by this exemption. Under the July 2026 software guidance (F-REG-1, F-REG-4), it would probably be Class A *measuring* or Class B and need a licence. We did not find whether Romsons has registered the Breazer under Chapter IIIB (the CDSCO registration portal can't be searched from here).
+
+## BIZ (round 5)
+
+### F-BIZ-8: About 1 in 8 heart-bypass (CABG) patients worldwide is readmitted within 30 days (12.9%), and lung problems are among the main causes. We found no Indian 30-day figure for CABG. After knee replacement in Ludhiana it was only 1.1%
+- Detail: Meta-analysis of 53 studies, 8.9 million CABG patients (to June 2020): pooled 30-day readmission 12.9% (95% CI 11.3–14.4%). Causes: infection/sepsis, irregular heartbeat, heart failure, **respiratory complications (1–20% of readmissions)** and fluid around the lung (0.4–22.5%). Most readmissions were for non-cardiac causes. An Indian 2026 trial protocol (Amrita, Kochi) puts it at 10–20%, "particularly in LMICs". Knee replacement, Fortis Ludhiana, 609 patients 2017–22: 1.1% readmitted at 30 days, 1.8% at 90 days; unplanned visits 2.6% at 30 days.
+- Source: Shawon et al., *J Cardiothorac Surg* 2021, PMID 34112216, doi 10.1186/s13019-021-01556-1, alias PMC8194115 (ledger #152) – Grade A. Ludhiana: *World J Orthop* 2024, PMID 39165878 (#153) – Grade A (single centre). Amrita protocol: #154.
+- Use in pitch: bypass patients are the strongest readmission story; knee patients are not. For knee patients, talk about recovery and adherence, not readmissions.
+- Caveat: the 12.9% is mostly US/Western data. No Indian CABG readmission number was found (two Europe PMC searches). Don't claim SpiroBuddy reduces readmissions; say "we'll measure it in a pilot".
+
+### F-BIZ-9 (weak, Grade C/B): Home-care price anchors, 2026: the big providers don't publish prices; older figures and directories suggest a home physio visit from about ₹500 and a home attendant at ₹1,800–3,200 a shift
+- Detail: Max@Home's Delhi "cost" page and Portea's Bangalore physiotherapy page (both opened Oct 2026) show no rupee prices ("depends on needs"). Search snippets only (not opened): an old Portea landing page (©2022) priced 12/24-hour trained attendants at ₹1,800–3,200 by city; Portea page metadata shows physiotherapy "from ₹499"; a 2026 elder-care directory gives ₹24,000–40,000/month for a 12-hour qualified nurse in Chennai and ₹12,000–18,000/month for a Delhi attendant.
+- Source: Max@Home (#155), Portea (#156) – Grade B (no price found); snippets (#160) – Grade C.
+- Use in pitch: "One home physiotherapy visit costs about what we'd charge for a whole two-week recovery (₹500–1,000)." Label as approximate.
+- Caveat: no current, official, published price. Don't put a specific Portea price on a slide.
+
+## COMP (round 5)
+
+### F-COMP-12: An Indian hospital is already testing an AI nurse chatbot after heart bypass: Amrita's "Smart CABGuard" (Kochi), with an LLM and a single-lead ECG. It requires a smartphone and doesn't track breathing exercise
+- Detail: *JMIR Research Protocols* 2026: a nurse-led clinical decision-support chatbot (fine-tuned Mistral-7B with a risk score and explainable AI) plus continuous single-lead ECG from Amrita's own device, to predict and prevent complications and 30-day readmission after isolated CABG. Phase III is an open-label RCT; adults with **smartphone access** only. Usability target ≥80%.
+- Source: *JMIR Res Protoc* 2026, PMID 42550966, doi 10.2196/103717 (ledger #154) – Grade A (protocol, no results yet).
+- Use in pitch: proves Indian hospitals want AI-assisted, nurse-led follow-up after surgery. We are complementary: breathing-exercise tracking, voice for patients without smartphones, family WhatsApp. A possible partner, not just a competitor.
+- Caveat: it's a protocol; no outcomes yet. Judges from Kerala may know it.
+
+## ADH (round 5)
+
+### F-ADH-6: In a Chennai hospital, only 6% of 60 post-surgery patients used their spirometer adequately on day 1 after surgery; 54% did it inadequately. By day 3, with teaching, 72% did it adequately
+- Detail: Descriptive study, general-surgery inpatients, flow-type (ball) incentive spirometer, Saveetha (Chennai), 2024. Day 1: 6% adequate, 40% moderately adequate, 54% inadequate. Day 2: 40% adequate. Day 3: 72% adequate. No link to age, sex or education.
+- Source: *J Pharm Bioallied Sci* 2024, PMID 39346353, doi 10.4103/jpbs.jpbs_565_24 (ledger #157) – Grade A (small, descriptive).
+- Use in pitch: technique is poor right when it matters most (day 1), and it improves with coaching. That's what our technique feedback does at home, when the nurse isn't there.
+- Caveat: in hospital, not at home; 60 patients; scoring tool not described in the abstract. We still have **no Indian data on spirometer use after discharge** (searched twice).
+
+### F-ADH-7: An Indian randomised pilot that supported family caregivers (Hindi website, booklet and a moderated WhatsApp group) after cancer surgery halved unplanned follow-up visits and lowered caregiver burden
+- Detail: Tata Memorial Centre unit, Muzaffarpur (Bihar), 75 oral-cancer surgery patients and their main caregivers. Intervention vs standard care: unplanned follow-ups 1.23 vs 2.64 (mean); caregiver burden (Zarit) 12.3 vs 17.5 (p=0.021). 30-day complications and swallowing recovery were the same in both arms.
+- Source: *Indian J Cancer* 2026, PMID 42301659, doi 10.4103/ijc.ijc_109_25 (ledger #158) – Grade A (pilot RCT, small).
+- Use in pitch: evidence from rural India that bringing the family in through WhatsApp reduces unplanned hospital trips and family stress. Supports the guardian WhatsApp update.
+- Caveat: different surgery; no difference in complications. Say "fewer unplanned visits", not "fewer complications".
+
+### F-ADH-8: Across 76 TB studies (86,586 people), digital adherence tools gave a modest, uncertain boost to treatment success (OR 1.14). Smartphone apps did better (OR 2.17), and digital tools made side-effects get reported more often (OR 1.57)
+- Detail: Systematic review to March 2024: SMS (18 studies), feature-phone (8), 99DOTS pill sleeves with calls (6), video-observed therapy (18), apps (7), digital pillboxes (21). Treatment success in RCTs OR 1.14 (0.99–1.30, very low certainty). Apps OR 2.17 (1.07–4.4, 3 RCTs, low certainty). Adverse-event reporting in RCTs OR 1.57 (1.25–1.97, moderate certainty).
+- Source: *BMC Infect Dis* 2025, PMID 41087928, doi 10.1186/s12879-025-11503-3 (ledger #159) – Grade A.
+- Use in pitch: honest answer to "do digital reminders work?": on their own, modestly. What digital follow-up reliably does is bring problems to the care team earlier, which is our nurse-alert design.
+- Caveat: TB medicines, not breathing exercise. Low certainty overall.
+
+## VIS (round 5)
+
+### F-VIS-4: Post-TB market size: India notified about 26 lakh TB patients in 2024 and 90% are treated successfully. In Madurai, 59% of patients finishing treatment had impaired lung function, mostly the "stiff lung" (restrictive) type
+- Detail: PIB (24 Mar 2026): treatment success under TB Mukt Bharat 90% (global 88%); 28 lakh+ diagnosed since Dec 2024. PIB also states 25.5 lakh (2023) and 26.07 lakh (2024) notified, the highest ever (search snippet). Madurai NTEP centres, 132 adults at treatment completion: lung function impairment 59% (95% CI 51–67%), restrictive pattern 55%. Mullana (Haryana) hospital study, 150 TB survivors: 48% restrictive and 34% mixed on spirometry; mean age 50.
+- **Team estimate (not a source):** about 26 lakh × 90% ≈ 23 lakh people finish TB treatment each year. If roughly half have lung impairment, that's on the order of 10 lakh people a year who could need breathing rehab.
+- Source: PIB "India Speeding Towards TB Elimination", 24 Mar 2026 (ledger #161) – Grade A. Madurai: *Cureus* 2026, PMID 41873289, doi 10.7759/cureus.103941 (#162) – Grade A (single district). Mullana: *Indian J Tuberc* 2025, PMID 42031463 (#163) – Grade A (hospital sample, likely sicker patients).
+- Use in pitch: "the next market after surgery may be bigger than surgery". Deep-breathing exercise suits stiff (restrictive) lungs.
+- Caveat: the 26 lakh includes TB outside the lungs; 59% is one district. Say "lakhs of people a year", not an exact figure. No guideline names incentive spirometry for post-TB rehab (NTEP lists breathing exercise and inspiratory muscle training, F-VIS-2).
+
+## INDLOC (round 5)
+
+### F-INDLOC-5: We found no peer-reviewed Indian study of voice or IVR health tools for older adults. A PGIMER trial (381 rural adults aged 60+) is testing IVR now and calls such evidence "scarce". A UK WhatsApp AI coach saw 28% of chats sent as voice notes
+- Detail: PGIMER Chandigarh "Virtual Baithak" RCT protocol: 3 arms (IVR + nurse-moderated group calls, IVR only, usual care), weekly for 3 months, rural adults ≥60; outcomes: digital health literacy, technology acceptance. UK ophthalmology pilot E.M.M.A (WhatsApp AI coach, 83 users, 446 chats): 28% of chats were audio; 88% of 66 respondents satisfied; 9% reported mild-to-moderate anxiety.
+- Source: *BMJ Open* 2026, PMID 41922061 (ledger #164) – Grade A (protocol). *Indian J Ophthalmol* 2026, PMID 41884918 (#165) – Grade A (pilot, UK).
+- Use in pitch: voice-first for older Indians is justified by literacy and vision data (F-INDLOC-3), not by a voice trial. Say "voice-first because 3 in 4 older women can't read", and accept WhatsApp voice notes.
+- Caveat: absence of evidence. Don't claim "proven that elderly Indians prefer voice".
+
+## JUDGE – round 5 additions (J26–J31)
+| # | Question | Short answer | Evidence |
+|---|---|---|---|
+| J26 | "Is an incentive spirometer even a regulated device in India?" | "Yes, at the lowest level. CDSCO lists it as Class A, non-sterile and non-measuring, and says it isn't a diagnostic. Because our clip-on measures and alerts, we expect to need our own registration and licence, probably Class A measuring or Class B. We'll apply before selling." | F-REG-5, F-REG-4 |
+| J27 | "Will you cut readmissions?" | "We don't claim that yet. Worldwide, about 1 in 8 bypass patients is readmitted within a month, and lung problems are one of the main causes. Our pilot would measure it. For knee replacement, readmissions are already low, so there we help recovery, not readmissions." | F-BIZ-8 |
+| J28 | "Amrita already has an AI chatbot for bypass patients. Why you?" | "It shows hospitals want this. Smart CABGuard watches the heart and needs a smartphone. We check the breathing exercise and work by voice for patients without one. We'd plug in alongside it." | F-COMP-12 |
+| J29 | "Does putting the family on WhatsApp actually help?" | "An Indian pilot at a Tata Memorial unit supported caregivers via WhatsApp. Unplanned follow-up visits halved and family stress fell. And two in three older Indians live with their children." | F-ADH-7, F-INDLOC-3 |
+| J30 | "Digital reminders for TB barely worked. Why would yours?" | "Right: on average they help only modestly. Two differences: our sensor records each breath, so there's no self-reporting, and digital follow-up reliably brings problems to the nurse earlier, which is what our alerts do." | F-ADH-8, F-ADH-1 |
+| J31 | "How big can this get?" | "Surgery first. Then TB survivors: about 23 lakh people finish TB treatment each year, and in one Tamil Nadu district 59% of them still had impaired lungs. That's our rough estimate, but it's lakhs of people a year." | F-VIS-4, F-VIS-2 |

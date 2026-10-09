@@ -4,7 +4,10 @@ The mix is chosen so the dashboard always shows green, yellow AND red patients:
   1 Ravi Kumar    – live demo patient, green, current hour left pending for the live demo
   2 Priya Sharma  – green          3 Abdul Rahman – red (very few sessions)
   4 Lakshmi Iyer  – yellow         5 Mohan Das    – red (last 2 slots missed, breathes too fast)
-  6 Sunita Patel  – green          7 Arjun Reddy  – yellow (best breath well below personal best)
+  6 Sreedevi Nair – green (Malayalam)  7 Arjun Reddy – yellow (best breath well below personal best)
+Ages/operations follow the India-fit list (docs/HANDOFF.md): CABG man in his 60s, knee replacement
+woman in her 60s, gallbladder (cholecystectomy) woman in her 40s, man ~50 in post-TB lung rehab.
+All people and hospitals are fictional.
 Before ~9:00 the colour is judged on yesterday, which follows the same patterns.
 
 The demo "autopilot" keeps the green/yellow patients (and Ravi's past hours) ticking as the
@@ -35,23 +38,23 @@ PROFILES = {
     1: dict(name="Ravi Kumar", age=58, sex="M", surgery="Abdominal surgery (open hernia repair)",
             surgery_days_ago=8, language="hi", target_ml=2000, ramp=(0.62, 0.88), today=0.90,
             err=0.25, errs=["no_hold", "too_fast", "too_shallow"], miss={13}, auto=True),
-    2: dict(name="Priya Sharma", age=45, sex="F", surgery="Laparoscopic gallbladder removal",
+    2: dict(name="Priya Sharma", age=44, sex="F", surgery="Laparoscopic cholecystectomy (gallbladder)",
             surgery_days_ago=5, language="en", target_ml=2500, ramp=(0.75, 0.95), today=0.97,
             err=0.10, errs=["no_hold", "too_fast"], miss=set(), auto=True),
-    3: dict(name="Abdul Rahman", age=67, sex="M", surgery="Heart bypass surgery (CABG)",
+    3: dict(name="Abdul Rahman", age=63, sex="M", surgery="Heart bypass surgery (CABG)",
             surgery_days_ago=9, language="en", target_ml=1500, ramp=(0.50, 0.65), today=0.62,
             err=0.40, errs=["too_shallow", "no_hold"], only={10, 14}, auto=False),
-    4: dict(name="Lakshmi Iyer", age=72, sex="F", surgery="Hip fracture surgery",
+    4: dict(name="Lakshmi Iyer", age=66, sex="F", surgery="Total knee replacement",
             surgery_days_ago=6, language="ta", target_ml=1500, ramp=(0.60, 0.85), today=0.62,
             err=0.30, errs=["too_shallow", "no_hold"], miss={10, 13, 15, 18, 20}, auto=True),
-    5: dict(name="Mohan Das", age=61, sex="M", surgery="Lung lobectomy",
+    5: dict(name="Mohan Das", age=50, sex="M", surgery="Lung rehab after TB treatment (post-TB)",
             surgery_days_ago=7, language="hi", target_ml=1750, ramp=(0.55, 0.80), today=0.75,
             err=0.45, errs=["too_fast", "too_fast", "no_hold"],
             only={8, 9, 11, 13, 15, 17, 19, 21}, lag=2, auto=False),
-    6: dict(name="Sunita Patel", age=54, sex="F", surgery="Hysterectomy",
-            surgery_days_ago=4, language="en", target_ml=2250, ramp=(0.70, 0.92), today=0.93,
+    6: dict(name="Sreedevi Nair", age=54, sex="F", surgery="Hysterectomy",
+            surgery_days_ago=4, language="ml", target_ml=2250, ramp=(0.70, 0.92), today=0.93,
             err=0.15, errs=["no_hold", "too_fast"], miss={14}, auto=True),
-    7: dict(name="Arjun Reddy", age=39, sex="M", surgery="Appendix removal (appendectomy)",
+    7: dict(name="Arjun Reddy", age=41, sex="M", surgery="Appendix removal (appendectomy)",
             surgery_days_ago=3, language="en", target_ml=3000, ramp=(0.70, 0.95), today=0.60,
             err=0.20, errs=["no_hold", "too_shallow"], miss=set(), auto=True),
 }

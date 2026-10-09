@@ -76,6 +76,9 @@ The demo story works end to end in dry-run mode. No 🔴 blockers. Five 🟠 ite
 4. `web/css/styles.css:159`: `.seg` gets `max-width:100%; overflow-x:auto` (dashboard tabs no longer push the page wider than a phone).
 5. `web/css/styles.css:503–534`: guardian header, language buttons, ticks, choices and footer at 20 px; language buttons 64 px.
 6. `web/collect.html:40` + `docs/TEST_PLAN.md:66`: "SLOWER!" → "⚠ Slower…".
+7. (After research round 4, lead's request) `firmware/spirobuddy_serial/spirobuddy_serial.ino:29`: `VL53L1X_ROI_SIZE` default 8 → 4 (4×4 centred, centre 199 unchanged); `docs/HARDWARE.md:194,225` updated, matte target added. Not compiled (no toolchain/hardware); a constant change only.
+
+Round 4 items folded into WORK_QUEUE as Q-22 (done), Q-23 calibration table, Q-24 CDSCO "care-team mode" wording, Q-25 human-call-first wording, Q-26 capped research round 5, Q-27 deferred research; hands-on checks added to "Waiting on the user" (7, 10, 11). Quick grep: no disease/complication names in patient- or guardian-facing text (guardian page, voice cues, WhatsApp, call scripts).
 
 ### Tests
 `pytest tests -q` re-run after the fixes (backend file changed): **61 passed in 4 min 30 s.** ML not re-trained (`ml/` unchanged).

@@ -47,14 +47,16 @@ CIRCLES = {
              channel="call", phone="+91 94450 4XXXX"),
     ]},
     5: {"phone": "+91 98300 5XXXX", "guardians": [
-        dict(name="Rakesh Das", relation="son", city="Kolkata", language="hi", channel="both",
-             phone="+91 98310 6XXXX", is_primary=True),
-        dict(name="Rina Das", relation="daughter", city="Delhi", language="en", channel="whatsapp",
-             phone="+91 98990 7XXXX"),
+        dict(name="Rakesh Das", relation="son", city="Bengaluru (works away)", language="hi",
+             channel="both", phone="+91 98310 6XXXX", is_primary=True),
+        dict(name="Rina Das", relation="wife", city="Kolkata (at home)", language="hi",
+             channel="call", phone="+91 98990 7XXXX"),
     ]},
-    6: {"phone": "+91 98250 8XXXX", "guardians": [
-        dict(name="Kiran Patel", relation="husband", city="Ahmedabad (at home)", language="hi",
-             channel="both", phone="+91 98240 9XXXX", is_primary=True),
+    6: {"phone": "+91 94470 8XXXX", "guardians": [
+        dict(name="Gopakumar Nair", relation="husband", city="Kochi (at home)", language="ml",
+             channel="both", phone="+91 94460 9XXXX", is_primary=True),
+        dict(name="Aswathy Nair", relation="daughter", city="Dubai (lives abroad)", language="en",
+             channel="whatsapp", phone="+971 55 234 XXXX", quiet_start="23:00", quiet_end="07:30"),
     ]},
     7: {"phone": "+91 98490 1XXXX", "guardians": [
         dict(name="Divya Reddy", relation="wife", city="Hyderabad (at home)", language="en",
@@ -224,7 +226,7 @@ def seed(st, t: datetime | None = None) -> None:
           actor="patient", status="ok", run_key="ravi")
         E(1, y.replace(hour=19, minute=40), "inbound", "Amit replied “status”",
           "Understood as: status", "whatsapp", "guardian", "Amit")
-        E(1, y.replace(hour=20, minute=5), "cheer", "Cheer from Pooja played to the patient after the 20:00 session",
+        E(1, y.replace(hour=20, minute=5), "cheer", "Cheer from Pooja played to the patient after the 8 pm session",
           "आप कर सकते हैं! दस धीमी साँसें – हमें आप पर गर्व है। 💪", "device", "patient", status="ok")
 
     # Arjun Reddy (7): lower than usual (observation)

@@ -164,7 +164,7 @@ def render_card(pid: int, lang: str = "hi") -> bytes | None:
     except Exception:
         rng = ""
     _text(d, (56, 230), f"{p['name']}", 60, C["text"], "bold")
-    _text(d, (58, 312), rng + (f"  ·  day {_pod(p)} after surgery" if _pod(p) else ""), 30, C["text2"])
+    _text(d, (58, 312), rng + (f"  ·  recovery day {_pod(p)}" if _pod(p) else ""), 30, C["text2"])
 
     # stat tiles
     tiles = [

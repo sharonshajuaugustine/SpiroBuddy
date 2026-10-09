@@ -420,6 +420,30 @@ def test_stop_word_any_language(fresh, word):
     assert g["consent_ok"] is False
 
 
+def test_whatsapp_summary_endpoint_respects_consent_and_discloses(fresh):
+    """Q-01: /api/whatsapp/{pid} goes through the comms sender (consent/STOP, disclosure, footer)."""
+    from backend.app.comms.messages import FOOTER
+    from backend.app.comms.common import lang_of
+    g = fresh.get(f"{C}/care/1").json()["guardians"][0]
+    glang = lang_of(g.get("language"), "en")
+    ok = fresh.post("/api/whatsapp/1", json={"kind": "summary", "to": "family"}).json()
+    assert {"sent", "dry_run", "text", "to_role"} <= set(ok)            # CONTRACT D shape
+    assert ok["sent"] is False and ok["dry_run"] is True and ok["to_role"] == "family"
+    marker = {"en": "automated", "hi": "स्वचालित", "ta": "தானியங்கி"}[glang]
+    assert marker in ok["text"] and FOOTER[glang] in ok["text"]
+    # guardian replies STOP -> the next summary is blocked, nothing logged as sent
+    fresh.post(f"{C}/wa/reply", json={"patient_id": 1, "role": "guardian", "text": "STOP"})
+    n_before = len(fresh.get("/api/messages?limit=500").json())
+    blocked = fresh.post("/api/whatsapp/1", json={"kind": "summary", "to": "family"}).json()
+    assert {"sent", "dry_run", "text", "to_role"} <= set(blocked)
+    assert blocked["sent"] is False and blocked["dry_run"] is False
+    assert blocked["blocked"] is True and "consent" in blocked["error"]
+    assert len(fresh.get("/api/messages?limit=500").json()) == n_before
+    # the nurse is staff, not covered by the family's STOP
+    nurse = fresh.post("/api/whatsapp/1", json={"kind": "missed", "to": "nurse"}).json()
+    assert nurse["dry_run"] is True and nurse["to_role"] == "nurse" and "automated" in nurse["text"]
+
+
 def test_consent_text_itemised_in_language(client):
     r = client.get(f"{C}/consent-text/1?lang=hi").json()
     assert r["language"] == "hi" and len(r["items"]) == 5 and "STOP" in r["text"]

@@ -31,7 +31,13 @@ def to_dt(v) -> datetime | None:
 
 def lang_of(value, default: str = "en") -> str:
     v = str(value or "").lower()[:2]
-    return v if v in LANGS else default
+    if v in LANGS:
+        return v
+    # A real language we have no comms text for yet (e.g. Malayalam "ml") -> English, never
+    # another Indian language: a Malayali should not get Hindi. Empty/unknown -> `default`.
+    if v.isalpha() and len(v) == 2:
+        return "en"
+    return default
 
 
 def first_name(name: str | None) -> str:
@@ -93,26 +99,30 @@ def quiet_end_after(dt: datetime, end: str) -> datetime:
 # ----------------------------------------------------------------------------- names
 
 def honorific(patient: dict, lang: str = "en") -> str:
-    """'Ravi ji' (Hindi/English, respectful Indian usage); Tamil: 'Lakshmi amma' / 'Mohan ayya'."""
+    """'Ravi ji' (Hindi/English, respectful Indian usage); Tamil: 'Lakshmi amma' / 'Mohan ayya';
+    Malayalam: 'Sreedevi chechi' / '<name> chettan' (needs a native speaker's check)."""
     fn = first_name(patient.get("name"))
+    female = (patient.get("sex") or "").upper() == "F"
     if lang == "ta":
-        return f"{fn} {'amma' if (patient.get('sex') or '').upper() == 'F' else 'ayya'}"
+        return f"{fn} {'amma' if female else 'ayya'}"
+    if lang == "ml":                       # Malayalam: 'Sreedevi chechi' / 'Gopan chettan'
+        return f"{fn} {'chechi' if female else 'chettan'}"
     return f"{fn} ji"
 
 
 _CALL_NAMES = {
     # relation -> (male patient, female patient) per language
-    "son": {"en": ("Papa", "Maa"), "hi": ("पापा", "माँ"), "ta": ("Appa", "Amma")},
-    "daughter": {"en": ("Papa", "Maa"), "hi": ("पापा", "माँ"), "ta": ("Appa", "Amma")},
+    "son": {"en": ("Papa", "Maa"), "hi": ("पापा", "माँ"), "ta": ("Appa", "Amma"), "ml": ("Achan", "Amma")},
+    "daughter": {"en": ("Papa", "Maa"), "hi": ("पापा", "माँ"), "ta": ("Appa", "Amma"), "ml": ("Achan", "Amma")},
     "daughter-in-law": {"en": ("Papa ji", "Mummy ji"), "hi": ("पापा जी", "मम्मी जी"),
-                        "ta": ("Mama", "Athai")},
+                        "ta": ("Mama", "Athai"), "ml": ("Achan", "Amma")},
     "son-in-law": {"en": ("Papa ji", "Mummy ji"), "hi": ("पापा जी", "मम्मी जी"),
-                   "ta": ("Mama", "Athai")},
-    "grandson": {"en": ("Dadaji", "Dadi"), "hi": ("दादाजी", "दादी"), "ta": ("Thatha", "Paati")},
+                   "ta": ("Mama", "Athai"), "ml": ("Achan", "Amma")},
+    "grandson": {"en": ("Dadaji", "Dadi"), "hi": ("दादाजी", "दादी"), "ta": ("Thatha", "Paati"), "ml": ("Appooppan", "Ammoomma")},
     "granddaughter": {"en": ("Dadaji", "Dadi"), "hi": ("दादाजी", "दादी"),
-                      "ta": ("Thatha", "Paati")},
-    "brother": {"en": ("Bhaiya", "Didi"), "hi": ("भैया", "दीदी"), "ta": ("Anna", "Akka")},
-    "sister": {"en": ("Bhaiya", "Didi"), "hi": ("भैया", "दीदी"), "ta": ("Anna", "Akka")},
+                      "ta": ("Thatha", "Paati"), "ml": ("Appooppan", "Ammoomma")},
+    "brother": {"en": ("Bhaiya", "Didi"), "hi": ("भैया", "दीदी"), "ta": ("Anna", "Akka"), "ml": ("Chettan", "Chechi")},
+    "sister": {"en": ("Bhaiya", "Didi"), "hi": ("भैया", "दीदी"), "ta": ("Anna", "Akka"), "ml": ("Chettan", "Chechi")},
 }
 
 

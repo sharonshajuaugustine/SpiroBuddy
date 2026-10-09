@@ -147,7 +147,8 @@ Source of truth: `backend/app/voice_cues.py` (31 cues × 11 languages): ready, b
 | `SARVAM_TTS_MODEL` | `bulbul:v3` | v3 covers all 11 languages. `bulbul:v4-flash` has no Malayalam/Odia voices. |
 | `SARVAM_TTS_SPEAKER` | (empty) | Empty = the calm voice Sarvam recommends for each language (table in §1.1). |
 | `VOICE_GENDER` | `female` | `male` switches to the recommended male voices. |
-| `SARVAM_TTS_PACE` | `0.9` | A little slower than normal for elderly listeners (0.5–2.0). |
+| `SARVAM_TTS_PACE` | `0.85` | A little slower than normal for elderly listeners (0.5–2.0); Sarvam's "relaxed" range is 0.8–0.9. |
+| `SARVAM_TTS_TEMPERATURE` | `0.7` | How lively the voice sounds (0.01–1.0, API default 0.6). 0.7 = Sarvam's "warm" range for wellness. Sent only to bulbul v3/v4-flash. |
 | `SARVAM_TTS_CODEC` | `mp3` | `mp3` or `wav`. |
 | `SARVAM_STT_MODEL` | `saaras:v4` | Speech-to-text model. |
 | `SARVAM_TRANSLATE_MODEL` | `mayura:v1` | `sarvam-translate:v1` also works (formal only). |

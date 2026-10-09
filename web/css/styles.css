@@ -212,6 +212,9 @@ input[type="checkbox"] { min-height: 0; width: 18px; height: 18px; }
 .pcard .name { font-weight: 700; font-size: 1.15rem; }
 .pcard .meta { color: var(--text-2); font-size: .875rem; }
 .pcard .top .status-pill { margin-left: auto; }
+.pcard .top .pills { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: .25rem; }
+.pcard .top .pills .status-pill { margin-left: 0; }
+.redflag-badge::before { display: none; }
 .pcard .alert { margin-top: .5rem; font-weight: 700; color: var(--red); font-size: .9rem; }
 .kv { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .5rem; margin-top: .75rem; }
 .kv div { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: .4rem .55rem; }
@@ -520,6 +523,7 @@ canvas.live { width: 100%; height: 260px; display: block; background: var(--surf
 .g-ticks { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 10px; }
 .g-tick { border-radius: 12px; text-align: center; padding: 6px 0; font-weight: 700; font-size: 1.25rem; background: var(--grey-soft); color: var(--text-3); border: 2px solid transparent; }
 .g-tick .i { display: block; font-size: 1.3rem; line-height: 1.2; }
+.g-tick .ap { display: block; font-size: .95rem; line-height: 1.1; font-weight: 600; }
 .g-tick.done { background: var(--green-soft); color: var(--green); border-color: var(--green-line); }
 .g-tick.missed { background: var(--red-soft); color: var(--red); border-color: var(--red-line); }
 .g-tick.pending { background: var(--yellow-soft); color: var(--yellow); border-color: var(--yellow-dot); }

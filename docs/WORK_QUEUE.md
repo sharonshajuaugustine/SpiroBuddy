@@ -1,6 +1,6 @@
 # Work queue – the single prioritised backlog
 
-Owned by the quality & efficiency controller (`docs/QA_PROMPT.md`). **Updated:** Review 1, 9 Oct 2026, HEAD `23d8b0b`.
+Owned by the quality & efficiency controller (`docs/QA_PROMPT.md`). **Updated:** Review 1, 9 Oct 2026, HEAD `23d8b0b` – plus research round 4 folded in (lead's request).
 Format: `ID · task · why it matters for the demo · value 1–5 · cost S/M/L · owner · status`. At most 3 items are "next".
 
 **Rules for every agent prompt:** name the exact files, give a "done when", say what not to redo, max 2 build agents + 1 research agent at once, never two agents on the same files.
@@ -24,7 +24,7 @@ Format: `ID · task · why it matters for the demo · value 1–5 · cost S/M/L 
 
 | ID | Task | Why it matters for the demo | Value | Cost | Owner | Status |
 |---|---|---|---|---|---|---|
-| Q-04 | **Person click-through of TEST_PLAN Level 2** (phone keypad 1/2/3, conversational mode, WhatsApp typed "status"/"स्थिति", voice check in hi/ml/ta, guardian "Send a cheer") and write `docs/DEMO_GUIDE.md`: the click order for the 10-min story, what to say, and which backup to use if a step fails | The demo is the product; nobody has walked the full story since comms landed | 5 | M | lead (after Q-01–Q-03) | queued |
+| Q-04 | **Person click-through of TEST_PLAN Level 2** (phone keypad 1/2/3, conversational mode, WhatsApp typed "status"/"स्थिति", voice check in hi/ml/ta, guardian "Send a cheer") and write `docs/DEMO_GUIDE.md`: the click order for the 10-min story, what to say, and which backup to use if a step fails. **Story order (round 4):** missed sessions → nurse alert → nurse clicks **☎ Call patient** (nurse and patient connected, a human call) as the *primary* call path; the AI reminder/check-in call is shown second as "optional, where consent allows" | The demo is the product; nobody has walked the full story since comms landed | 5 | M | lead (after Q-01–Q-03) | queued |
 | Q-05 | 12-hour time on slots and ticks | India-fit (HANDOFF checklist) | 3 | S | agent 9 | in Q-03 |
 | Q-06 | Dashboard status clarity: rename "TREND ▲ Improving" to "Volume (3 days)" or hide it when today has 0 sessions (`backend/app/service.py:114–119`, `web/js/ui.js:54`); show a red-flag badge on the patient card when a red-flag alert is open | "Needs a call" + "Improving" side by side confuses judges; a red-flag patient shown "On track" invites a hard question | 4 | S | web engineer (agent 4) | queued |
 | Q-07 | Voice preset: pace 0.85, temperature 0.7 | Elderly listeners (research round 3) | 3 | S | agent 9 | in Q-03 |
@@ -37,11 +37,13 @@ Format: `ID · task · why it matters for the demo · value 1–5 · cost S/M/L 
 | Q-14 | Sarvam calls C3 → C5 (agent in Sarvam dashboard, webhook over Render/tunnel, one real call to a pre-consented presenter phone) | The "phone actually rings" moment; the browser simulator stays the guaranteed path | 4 | M | user + lead | waiting on user |
 | Q-15 | Twilio WhatsApp sandbox, TEST_PLAN Level 5 | Real WhatsApp on a judge-visible phone; "would send" works meanwhile | 3 | S | user + lead | waiting on user |
 | Q-16 | Hardware day, TEST_PLAN Level 7: flash firmware, calibrate at 500/1000/1500/2000 mL, record 20 breaths, report *measured* accuracy (never the ±100 mL target) | Real device in the demo; the video is the backup | 5 | M | user + lead (hackathon day) | waiting on hardware |
-| Q-17 | ~~Research round 4~~ DONE (commit ee887e6) – (gaps 1–4 in KNOWLEDGE_BASE "Open gaps after round 3"): mL per mm for the Breazer 2500, TRAI type (i)/(ii) for reminders, rupee cost of a lung complication, CDSCO MDSW matrix | Judge Q&A strength; mL/mm also fixes the 3D/calibration numbers | 3 | M | research agent (agent 6, always on) | queued (relaunch with these gaps; never re-read ledger URLs) |
+| Q-17 | Research round 4 (sensor ROI, CDSCO wording, calls, hands-on list) | – | – | – | research agent | **done** (KNOWLEDGE_BASE "Round 4 additions") |
 | Q-22 | Firmware: VL53L1X ROI 4×4 centred by default; matte target on the piston; per-model calibration table at 3 printed marks | Wall echoes ruin readings otherwise (F-TECH-3) | 4 | S | lead | ROI done; calibration table on hardware day |
 | Q-23 | Care-team wording: patient-facing "wellness" text never names a disease; nurse alerts labelled "care-team mode"; nurse click-to-call (human) shown as the primary call path, AI calls secondary; "some reminder calls need consent renewed weekly" | CDSCO software guidance (F-REG-4), TRAI (F-COMMS-12) | 4 | S | agent 9 (with Q-03) | queued |
 | Q-24 | Research round 5: CDSCO 2021 respiratory list / Jan 2025 self-notified list for "incentive spirometer"; Indian 30-day post-op readmission; current Portea/Apollo prices; Indian home IS adherence; RBIPMT 2024 + TB completions | Judge Q&A depth; user wants research always running | 3 | M | research agent | next (runs alongside builds) |
 | Q-25 | User hands-on: InPASS patent search (CAPTCHA), TRAI Gazette date on egazette.gov.in, caliper measurements incl. open floor under piston | Can't be done by agents | 3 | S | user | waiting on user |
+| Q-26 | **Research round 5 – capped.** Run now in the research slot (standing rule: one research agent always on), limited to the 3 gaps that change the pitch: (1) CDSCO 2021 respiratory list / Jan 2025 self-notified list – is "incentive spirometer" listed, which class; (2) Indian 30-day post-op readmission rates (problem slide); (3) any Indian home IS adherence data (likely none – stop after ~5 sources and say so). **Defer** Portea/Apollo current prices and the RBIPMT 2024 rehab PDF + TB completions (business/vision slides only). Cap ~15 new sources, never re-read ledger URLs, output = KNOWLEDGE_BASE + PITCH_FACTS update | Strengthens 2 judge answers (regulation, size of the problem); the rest is nice-to-have | 3 | M (background, no build files) | research agent (agent 6) | queued – start now in the research slot (doesn't count toward the 3 build "next") |
+| Q-27 | Research leftovers: Portea/Apollo home-care prices; RBIPMT 2024 rehab PDF + TB completions | Business and "vision" slides only | 2 | S | research agent | deferred (after round 5) |
 | Q-18 | Full rehearsal, TEST_PLAN Level 8, twice, timed | Go / no-go | 5 | S | user + lead (demo morning) | queued |
 | Q-19 | Remove two stray `console.log` lines in `web/showcase/showcase.js` | Clean console if a judge opens DevTools | 1 | S | 3D engineer | deferred |
 | Q-20 | FEATURE_PLAN Stage 2 (daily red-flag check-in call, missed-call callback, QR onboarding, voice-note transcription, PDF report, roles + audit log) | Not needed for the demo; on the "what's next" slide | 2 | L | – | deferred (user rule: never cut, only defer) |
@@ -71,6 +73,14 @@ FEATURE_PLAN Stage 1 items 1–7 are all built in dry-run (ladder, calls + simul
    3. Paste Account SID and Auth Token into `.env` (`TWILIO_ACCOUNT_SID=`, `TWILIO_AUTH_TOKEN=`). See `docs/COMMS.md`.
 5. **Native-speaker check** of the voice cues (Hindi, Malayalam, Tamil at least): open the demo panel → **Voice check** card → pick the language → **▶ Play the coaching sequence**; write down any word that sounds wrong and send it to Claude. Also check the address forms ("ji", "Amma/Appa", "Chechi") with an Indian team member.
 6. **Hindi browser voice on the demo laptop** (backup if Sarvam fails): Windows **Settings → Time & language → Speech → Add voices** → add **Hindi (India)**. (Claude can't change system settings.)
-7. **Caliper measurements** of the Romsons spirometer for every dimension flagged "measure with caliper" in `docs/3D_SOURCES.md`, plus mL per mm of piston travel.
+7. **Hands-on measurements on hackathon day** (research round 4: none of these are published). With a caliper or ruler, on the Romsons Breazer 2500, write down:
+   1. the inner diameter of the tube the piston moves in;
+   2. the piston's full travel (bottom to top, in mm);
+   3. the spacing in mm between the printed marks (e.g. 500 → 1,000 → 1,500 mL);
+   4. whether the floor under the piston is open (can the sensor see up from the base?);
+   5. with the sensor fitted: the reading at the top of travel (piston fully up).
+   Also every dimension flagged "measure with caliper" in `docs/3D_SOURCES.md`. Send the numbers to Claude (they fill the calibration table, Q-23).
 8. **Hardware on the day:** tell Claude which board (ESP32 or Uno/Nano) and sensor (VL53L0X or VL53L1X) you got.
 9. **Decision:** call the device a "base unit" (as in the videos) or a "clip-on" (as in CLAUDE.md)? (Q-12)
+10. **InPASS patent search** (it has a CAPTCHA, so only a person can do it): go to iprsearch.ipindia.gov.in → **Patent Search** → search the title/abstract for "incentive spirometer", then "respiratory exerciser" and "spirometer sensor". Send Claude a screenshot or the list of titles and application numbers.
+11. **TRAI Gazette date check:** go to egazette.gov.in → **Search** → search "Telecom Commercial Communications Customer Preference (Third Amendment) Regulations, 2026". Send Claude the publication date and the gazette ID shown (it fixes the "from when" in the calls wording).

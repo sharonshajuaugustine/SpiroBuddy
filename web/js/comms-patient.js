@@ -6,7 +6,7 @@
   const SB = window.SB;
   const { esc, $, $$, toast, busy, ago } = SB.ui;
   const C = SB.comms;
-  const LANGS = { hi: 'Hindi', en: 'English', ta: 'Tamil' };
+  const LANGS = { hi: 'Hindi', en: 'English', ta: 'Tamil', ml: 'Malayalam', te: 'Telugu', kn: 'Kannada', bn: 'Bengali', mr: 'Marathi', gu: 'Gujarati' };
   const CH = { both: 'WhatsApp + call', whatsapp: 'WhatsApp only', call: 'Call only', sms: 'SMS (dry run)' };
   const RELS = ['son', 'daughter', 'daughter-in-law', 'son-in-law', 'wife', 'husband', 'grandson', 'granddaughter', 'brother', 'sister', 'neighbour', 'friend'];
 
@@ -17,10 +17,13 @@
     els.actions.innerHTML = `
       <div class="card-head"><h2 style="margin:0">Care team actions</h2><div class="spacer"></div><span id="cp-provider" class="muted small"></span></div>
       <div class="row" style="margin-bottom:.6rem">
-        <button class="btn primary" id="cp-call" type="button" title="Your phone rings first, then the patient – nobody sees the other's number">☎ Call patient</button>
-        <button class="btn" id="cp-script" type="button">✨ AI call script</button>
-        <button class="btn" id="cp-checkin" type="button" title="Automated AI check-in call: asks if they are okay and why the exercise was missed (needs recorded consent)">🗣 AI check-in call</button>
+        <button class="btn primary" id="cp-call" type="button" title="A nurse calls: your phone rings first, then the patient – nobody sees the other's number">☎ Nurse: call patient now</button>
+        <button class="btn" id="cp-script" type="button" title="Opening lines for your call – it does not diagnose">✨ Call script</button>
         <span class="muted small">Calling as <b id="cp-me"></b></span>
+      </div>
+      <div class="row" style="margin-bottom:.6rem">
+        <button class="btn sm" id="cp-checkin" type="button" title="Automated AI check-in call: asks if they are okay and why the exercise was missed (needs recorded consent)">🗣 Automated check-in call (secondary)</button>
+        <span class="muted small">A person calls first; the automated call is a backup. Some reminder calls need consent renewed weekly.</span>
       </div>
       <div id="cp-call-res" aria-live="polite"></div>
       <div class="script-box" id="cp-script-box" hidden></div>
@@ -83,7 +86,7 @@
       <div class="muted small" id="cc-consent-note" style="margin:.35rem 0"></div>
       <div class="row" style="margin:.25rem 0 .5rem">
         <button class="btn sm" id="cc-read" type="button" title="Play the consent statement to the patient in their language (itemised data list, one-word STOP)">🔊 Read consent aloud</button>
-        <button class="btn sm" id="cc-renew" type="button" hidden title="Consent for ongoing reminder calls lasts 7 days under TRAI's 2026 rules">↻ Consent re-confirmed today</button>
+        <button class="btn sm" id="cc-renew" type="button" hidden title="Some reminder calls need consent renewed weekly (TRAI)">↻ Consent re-confirmed today</button>
         <button class="btn sm" id="cc-ask" type="button" title="Send the weekly one-tap question on WhatsApp: keep the reminders? ✅ yes / ⛔ STOP">📨 Ask “keep reminders?”</button>
       </div>
       <div class="script-box" id="cc-consent-text" hidden></div>
@@ -122,7 +125,7 @@
     function consentNote(s) {
       const when = s.consent_at ? new Date(s.consent_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
       $('#cc-consent-note', els.care).textContent = s.consent_ok
-        ? `Consent for automated calls/WhatsApp recorded on ${when} (TRAI rules).${s.consent_renew_due ? ` ⚠ It is ${s.consent_age_days} days old – TRAI's "ongoing use" consent lasts 7 days: please re-confirm with the patient.` : ''} Automated calls in production go through an Indian provider (Exotel or a Sarvam-rented number); in this demo they ring in the phone simulator.`
+        ? `Consent for automated calls/WhatsApp recorded on ${when} (TRAI rules).${s.consent_renew_due ? ` ⚠ It is ${s.consent_age_days} days old – some reminder calls need consent renewed weekly (TRAI): please re-confirm with the patient.` : ''} Automated calls in production go through an Indian provider (Exotel or a Sarvam-rented number); in this demo they ring in the phone simulator.`
         : '⚠ No consent recorded (yes + date) – the ladder will skip automated calls and WhatsApp to the patient (device beep and nurse alert still work).';
       $('#cc-renew', els.care).hidden = !s.consent_ok;
     }
