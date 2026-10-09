@@ -322,6 +322,10 @@ Kept by the research agent; saved by the lead for round 1. Grades: **A** = peer-
 | C17 | Plans: "CDSCO class unconfirmed; wellness apps excluded" | CONFIRMED, MORE DETAIL | Guidance is function-based (F-REG-1). Diagnostic and monitoring spirometers are Class B; no incentive-spirometer row found (F-REG-2). Keep the answer "exercise coach; we'll get a formal ruling". |
 | C18 | Plan §11.3/§790: "We follow the DPDP Act principles" | CONFIRMED, ADD SPECIFICS | Rules notified Nov 2025; main duties from about May 2027 (F-REG-3). Add: itemised notice read aloud, one-word withdrawal, access logs, 72-hour breach report, and the patient's own consent (an adult child isn't a legal guardian). |
 | C14 | Plan/REQUIREMENTS imply our laser sensing is new | NEEDS WORDING CHANGE | InSee already uses infrared time-of-flight on the piston (F-COMP-5). Say: "like InSee, we read the disc with a laser sensor; unlike InSee, our AI judges breathing *technique* and coaches in Indian languages at home." |
+| C19 (round 4) | PITCH_FACTS #25: "ongoing-use reminders need consent renewed every 7 days" | NEEDS WORDING CHANGE | Only type (ii) "ongoing use" service calls need 7-day consent (F-COMMS-8). TRAI's press release adds a *separate* 7-day window for commercial messages after a customer's written inquiry (F-COMMS-12). Say: "some reminder calls need consent the patient renews weekly". |
+| C20 (round 4) | "Spirometers for monitoring are Class B; wellness tools are outside" | CONFIRMED FROM PRIMARY TEXT | CDSCO PDF (F-REG-4): wellness software must not mention any disease; software that *alerts* about a condition is not wellness. Standalone software that only *informs* clinical management of a *serious* condition sits in Class A in Table 2. |
+| C21 (round 4) | "No Indian complication-cost figure exists" (PITCH_FACTS never-say list) | UPDATE | Still no direct rupee cost of a post-surgery lung complication. We now have Indian cost anchors: ₹2,307 per ward bed-day (CHSI, F-BIZ-4) and ₹25,927 per ICU bed-day (PGIMER 2024, F-BIZ-5). Use them as "what a day costs", not as "what we save". |
+| C22 (round 4) | Plans: piston mL can be computed from the cylinder size | WRONG APPROACH | No Romsons drawing exists publicly (F-TECH-4). Calibrate against the printed marks on each spirometer model instead. |
 
 ## Contradictions & risks
 1. Cochrane 2014 found no proof incentive spirometry works, and AARC advises against using it alone. Our answer: the trials never recorded adherence, and we measure it. **Never say "prevents pneumonia".**
@@ -344,8 +348,23 @@ Kept by the research agent; saved by the lead for round 1. Grades: **A** = peer-
 18. **(Round 3)** Voice pacing feedback ("slow down / speed up") already exists in hobby projects (F-COMP-10), and Tidal's PCT text also covers sound-based sensing and voice switches (F-COMP-8). Our novelty is the combination for Indian homes, not any single feature.
 19. **(Round 3)** The only Indian complication-cost number we have is a proxy (VAP in an ICU, F-BIZ-2). Don't present it as the cost of a post-surgery lung complication.
 20. **(Round 3)** Inconsistent finding IDs: the imported section reuses F-VOICE-7 to 9 and F-COMP-7. Cite those as "(imported)".
+21. **(Round 4)** CDSCO's own text says software that *alerts* about a condition is **not** wellness (F-REG-4). The nurse-alert feature therefore probably makes SpiroBuddy medical device software. Keep the demo wording "exercise reminders and adherence summary for the care team".
+22. **(Round 4)** Inside a 5–7 cm wide cylinder the sensor's full 27° beam reaches the walls by about 10–15 cm of distance. Wall echoes make readings too short (F-TECH-3). Use the smallest sensing window (4x4, about 15°) and test at the top of the piston's travel.
+23. **(Round 4)** The Romsons Breazer's inner size and mL-per-mm are not published anywhere we could find (F-TECH-4). Without a hands-on measurement, any volume we show is a guess.
+24. **(Round 4)** TRAI's Gazette date is still unknown. If it was published around 18 Sep 2026, the main rules start about 18 Oct 2026 and the A2P declaration rule about 17 Nov 2026, so they may be in force on hackathon day (F-COMMS-12).
+25. **(Round 4)** Our rupee cost numbers come from different hospitals and years (a trauma ICU, a multi-state costing study). They are anchors, not a savings claim (F-BIZ-4, F-BIZ-5).
 
-## Open gaps (priority order, after round 3)
+## Open gaps (priority order, after round 4)
+1. **TECH (hands-on, needs the team, not the web):** with calipers, measure the Breazer 2500's inner cylinder diameter, piston travel from 0 to 2500 mL and the mm between printed marks; check whether the floor under the piston is open. Bench-test the VL53L1X at 4x4 sensing window inside the tube at the top of travel. The web has no drawing (F-TECH-4).
+2. **COMMS:** exact Gazette date of the TRAI Third Amendment (try egazette.gov.in by hand); whether the final text excludes "human-assisted" calls (search our local copy of #106 for "human"); a telecom lawyer's view on type (i) vs type (ii) for post-discharge reminders.
+3. **COMP:** InPASS (Indian patent office) search needs a CAPTCHA, so a person must do it: iprsearch.ipindia.gov.in → Patent Search → title/abstract "incentive spirometer", "spirometer", "respiratory exerciser"; applicant "Tidal".
+4. **REG:** CDSCO respiratory notification (6 Aug 2021) and the Jan 2025 "Class A self-notified" list: is "incentive spirometer" or "respiratory exerciser" named? Does Romsons hold a CDSCO registration for the Breazer?
+5. **BIZ:** 30-day readmission rate after major surgery in India; current Portea / Apollo HomeCare price pages; any HBP revision after 2022.
+6. **VOICE:** listen to Bulbul v3 voices with older listeners; measure our own latency; Bhashini terms.
+7. **CLIN:** Indian home IS adherence after discharge; any trial of family-involved breathing exercise.
+8. **VIS:** RBIPMT July 2024 pulmonary-rehab guidance PDF (ntep.in/node/6610); yearly number of people completing TB treatment (Ni-kshay / India TB Report) to size the post-TB market.
+
+## Open gaps (priority order, after round 3; kept for history)
 1. **TECH:** mL per mm of piston travel for the Romsons Breazer 2500 and the AirLife-type devices (measure with calipers or find the product drawing); tube inner diameter vs the 27° beam; any published VL53L1X-in-tube test.
 2. **COMMS:** the exact Gazette date of TRAI's Third Amendment (to fix the start dates); whether TRAI or a law firm has said post-discharge health reminders are type (i) or type (ii) service calls; the DLT fee on an operator's own page; Meta Cloud API direct (no BSP fee) for India, re-check.
 3. **BIZ:** the rupee cost of a post-surgery lung complication or an extra ward/ICU day in India (try the CHSI costing study / PGIMER unit costs); the current HBP version (2023+) rates for CABG and cholecystectomy; per-patient prices of Indian post-discharge programmes.
@@ -751,3 +770,119 @@ About 30 reads (ledger #106–#134). Note: the imported Sarvam/InSee section abo
 | J13 | "Why will patients keep using it? WhatsApp bots lose most users." | "True: an Indian WhatsApp rehab bot saw 18% completion overall, but 30% when hospitals referred patients. We enrol patients at discharge through the nurse, and the device beeps and speaks even if nobody opens WhatsApp." | F-COMP-9, F-ADH-1 |
 | J14 | "A Korean app with hourly alarms showed no benefit." | "Go-breath relied on patients reporting their own use, with no sensor. We record every breath automatically, as the successful US trial did." | F-ADH-5, F-ADH-1 |
 | J15 | "Is India's problem big enough?" | "Public records alone show about 49 lakh major operations a year (an undercount). Roughly 1 in 10 surgical patients gets a lung complication, and in one Indian study 28% of those patients died. India also has fewer nurses than WHO recommends." | F-INDIA-1, F-CLIN-1, F-CLIN-8, F-INDIA-7 |
+
+# Round 4 additions (9 Oct 2026)
+
+## REG (round 4)
+
+### F-REG-4: CDSCO's software guidance (primary text): wellness software must not mention any disease, and software that alerts about a condition is never wellness. Standalone software that only informs care of a serious condition is Class A
+- Detail (read in the PDF itself, Doc No. CDSCO/MD/GD/MDSW/01/2026, 62 pages):
+  - **Scope:** the guidance excludes software meant only for general wellness, a healthy lifestyle, or tracking body measures for fitness, *as long as* it has no medical purpose.
+  - **Wellness rules:** a wellness claim may talk about keeping up or improving general health, but it **must not refer to any disease, disorder or condition**. Software that measures or reports body values for screening, diagnosis, **monitoring, alerting** or managing a condition is **not** wellness.
+  - **Hardware link:** software that drives or influences a hardware medical device gets the **same class as that device**. Apps that control a device over Bluetooth or Wi-Fi count as medical devices.
+  - **Table 2, standalone software:** class depends on how serious the condition is and what the software does. *Serious* condition: treat/diagnose = C, drive clinical management = B, **inform clinical management = A**. *Critical*: D / C / B. *Non-serious*: B / A / A.
+  - **Licensing:** only Class A devices that are **non-sterile and non-measuring** skip the licence and just register. A device that measures needs a licence.
+  - The guidance itself is "for public awareness", not law. Its date isn't printed on the pages we read; secondary sources say 21 July 2026.
+- Source: CDSCO, Guidance Document on Medical Device Software under MDR-2017 – https://www.cdsco.gov.in/opencms/export/sites/CDSCO_WEB/Pdf-documents/Guidance-document-on-Medical-Device-Software-under-MDR-2017.pdf (#135) – **A**
+- Use in pitch: two honest routes. (1) **Wellness mode:** "a breathing-exercise coach" with no disease named on the box or in the app. (2) **Care-team mode** (nurse summary and alerts): medical device software. If it only *informs* the nurse about recovery after surgery (serious, not critical), Table 2 points to **Class A**, but because it measures volume it still needs a licence, not just registration.
+- Caveat: our reading, not a ruling. In the US, incentive spirometers themselves are Class II (21 CFR 868.5690, search snippet only). We still haven't found an Indian class for incentive spirometers (F-REG-2).
+
+## TECH (round 4)
+
+### F-TECH-3: A laser sensor inside a tube picks up echoes off the walls, which make readings too short. Fix: shrink the sensing window to 4x4 (about 15° instead of 27°), use dull dark walls, and keep a clear target
+- Detail:
+  - In ST's own forum, users and ST staff say that once the beam touches the side walls, light bounces back early and the sensor **under-reads**. Advice: matte black inner walls; the VL53L1X (unlike older chips) can turn off the outer light detectors to **narrow its view**.
+  - Several forum posts quoting ST's manual: full array (16x16) ≈ 27°, 8x8 ≈ 20°, **4x4 ≈ 15° (the minimum)**. The window is set with VL53L1X_SetROI(dev, X, Y), sizes 4–16. A smaller window also lowers the maximum range, which doesn't matter at our 4–20 cm.
+  - Team geometry (our maths, not a source): at 15 cm the full 27° cone is about **7 cm wide**; at 4x4 (15°) it's about **4 cm wide**. So in a 5–7 cm cylinder only the narrowed window stays off the walls at the top of travel.
+- Source: ST Community, "VL53L1X in a tube.. Tips and tricks?" – https://community.st.com/imaging-sensors-49/vl53l1x-in-a-tube-tips-and-tricks-20936 (#136) – **C** (forum, includes ST staff); ROI figures from forum snippets (#149) – **C**
+- Use in build: firmware sets ROI 4x4 (centred); mount the sensor on the cylinder axis; put a matte-white dot on the piston top as the target; calibrate at 3 printed marks. Use in pitch: "we narrowed the laser to fit inside the tube".
+- Caveat: forum evidence. No published test of a VL53L1X inside an incentive spirometer exists. Our own bench test is the real proof.
+
+### F-TECH-4: The Romsons Breazer 2500's inner size and mL per mm of piston travel are not published anywhere we could find, so each model must be calibrated against its printed scale
+- Detail: retailer pages (1mg, Medikabazaar, Truemeds), the supplier listing (HSN code 90192090 only), and YouTube titles give no drawing, inner diameter or mL-per-mm value. Team reasoning (not a source): volumetric spirometer scales are set by the maker, not by simple cylinder geometry, so **don't calculate mL from the diameter**. Map distance to the printed marks (for example 500, 1500 and 2500 mL) instead.
+- Source: #137, #138 and search results (#149) – **C**; absence of evidence
+- Use in build: a calibration table per spirometer model (distance in mm → mL), filled by hand on hackathon day with calipers and the printed marks.
+- Caveat: whether the floor under the piston is open remains unknown. Look at a real unit.
+
+## COMMS (round 4)
+
+### F-COMMS-12: TRAI's own press release (18 Sep 2026) confirms the A2P rules and adds three things: a termination charge of up to 5 paise a minute, a 7-day window after a customer's written inquiry, and a ban on spam apps blanket-tagging official number series
+- Detail:
+  - A2P call = a call started by software or an automated platform without a human dialling, including robocalls and pre-recorded or artificial voices. **Every sender must pre-declare A2P use and its caller IDs**; undeclared A2P calls count as spam.
+  - The receiving operator may charge up to **₹0.05 a minute** for A2P calls; official 140/1600 series are exempt.
+  - Commercial messages may follow a customer's **written or digital inquiry for 7 days only**. This is separate from the type (ii) service-call consent in F-COMMS-8.
+  - **Call-management apps** (such as caller-ID apps) may not blanket-block or tag the official 140xx, 1600xx and 1601xx series as spam. Users can still block calls on their own phones.
+  - Operators' AI flags a sender when 5 or more of its numbers are flagged within 10 days. Then come KYC re-checks, possible barring and disconnection. Complaint-based action now starts at 3 complaints in 10 days, if the AI has also flagged the number.
+  - Timeline: draft 13 Mar 2026, comments until 19 Apr / 4 May, open house 3 Jun, issued 18 Sep 2026. **The Gazette date is still not found.**
+- Source: TRAI Press Release No. 119/2026 – https://www.trai.gov.in/sites/default/files/2026-09/PR_No119of2026.pdf (#139) – **A**
+- Use in pitch: "Our calls would be declared A2P calls from a hospital's registered number. WhatsApp and the device do the daily work."
+- Caveat: press release summary. Legal detail is in the regulation (#106).
+
+### F-COMMS-13: Exotel asked TRAI to exempt "human-assisted" calls (an app connects a live person, for example a healthcare teleconsultation) from the A2P rules. We don't yet know if the final rules accepted this
+- Detail: in its April 2026 comments, Exotel proposed that a call with a live human agent actively taking part should not count as an A2P call. Its examples included healthcare teleconsultation and click-to-call. It argued the A2P burden should fall on automated, pre-recorded calls.
+- Source: Exotel comments on the draft TCCCPR Third Amendment – https://www.trai.gov.in/sites/default/files/2026-04/Exotel_TRAI_TCCCPR_Comments_v2.pdf (#140) – **B**
+- Use in build: design the escalation as **nurse clicks "Call patient" → the phone line connects nurse and patient**, a human call, rather than an AI robocall. This is the safest design under either outcome.
+- Caveat: an industry wish, not the final rule. Check #106 for "human".
+
+## BIZ (round 4)
+
+### F-BIZ-4: A hospital bed-day in India costs about ₹2,307 on average, and a surgical procedure about ₹10,686 (national costing study, 57 hospitals in 11 states)
+- Detail: the Cost of Health Services in India (CHSI) study covered 11 public tertiary hospitals, 27 district hospitals and 16 private hospitals. Its mean cost was ₹2,307 per inpatient bed-day and ₹10,686 per procedure. Teaching hospitals cost more per bed-day. The study is used to set PM-JAY payment weights.
+- Source: "Refining the provider payment system of India's government-funded health insurance programme", *BMJ Open* 2023, PMID 37857541 (#141) – **A**
+- Use in pitch: "Every extra day in a ward costs an Indian hospital about ₹2,300. In PM-JAY's fixed bundle, that comes out of the hospital's margin."
+- Caveat: provider cost, not price. Data from before 2023.
+
+### F-BIZ-5: At PGIMER Chandigarh, an ICU bed-day cost the health system ₹25,927, and a patient with ventilator pneumonia cost ₹5.44 lakh vs ₹2.07 lakh without it (2021–22)
+- Detail: trauma ICU, 494 admissions. Ventilator pneumonia (VAP) affected 9.7% of ventilated patients. Average stay was 21 days with VAP vs 8.2 without.
+- Source: "Ventilator-associated pneumonia – What price does the public health system pay?", *Lung India* 2024, PMID 38953191 (#142) – **A**
+- Use in pitch (illustrative, label it so): the Udaipur study's patients with lung complications spent about 7 more ICU days (F-CLIN-8). At PGIMER's ICU cost, that's about **₹1.8 lakh** of extra ICU cost per complicated patient. Say "up to about ₹2 lakh", and say it is a back-of-envelope figure.
+- Caveat: VAP ≠ post-surgery lung complication. Trauma ICU at a teaching hospital. Combining two studies is our own calculation.
+
+### F-BIZ-6 (weak, Grade C): Home-care price anchors: Apollo HomeCare launched home nursing at about ₹2,000–3,600 a day; Portea's home ICU was about ₹6,500–12,000 a day (2018); Tricog's post-discharge monitoring runs at least 6 months
+- Source: search snippets (#149, not opened) and the Tricog news reprint, 2023 (#145) – **C**
+- Use: shows families and hospitals already pay thousands of rupees a day for home care, so a few hundred rupees per recovery episode is small.
+- Caveat: old and undated prices. Check the current price pages.
+
+### F-BIZ-7 (team estimate, not a source): unit economics sketch
+- Parts (Indian retail, snippets #149): VL53L1X module ₹399–₹859, ESP32-C3 board ₹299, plus battery, buzzer/speaker and case, roughly ₹300–500. **About ₹1,000–1,700 per clip-on at hobby prices**, less in volume.
+- Reusable: one clip-on serves about 10+ patients after cleaning, so roughly ₹100–170 of hardware per patient.
+- Running cost for a 14-day recovery: WhatsApp 3 updates a day × ₹0.115 ≈ **₹5**; voice coaching ≈ ₹0.6 a message, or **₹0** with pre-made clips (F-VOICE-1); cloud costs negligible.
+- Price idea: **₹500–1,000 per patient episode, paid by the hospital.** That is less than half of one ward bed-day (₹2,307, F-BIZ-4) and a small fraction of one ICU day (₹25,927, F-BIZ-5).
+- Caveat: our own estimate. Not validated with any hospital.
+
+## COMP (round 4)
+
+### F-COMP-11: Indian home-monitoring players exist (Zorgers + Clinitouch for COPD at home, Tricog after discharge, Dozee in hospital beds), but none tracks incentive-spirometer exercise
+- Detail: Mohali's Zorgers partnered with UK firm Clinitouch (Spirit Health) to bring remote monitoring to COPD and lung patients at home in India; Clinitouch's patients average **77 years old** worldwide, and an offline mode was planned for early 2025 (article updated Nov 2024). Tricog monitored patients discharged after heart failure or surgery with two Bengaluru hospitals, for at least 6 months (2023). Dozee monitors heart and breathing in hospital beds (snippet).
+- Source: Digital Health News (#144) – **B**; Tricog news reprint (#145) – **C**
+- Use in pitch: "Home monitoring after discharge is a real Indian market. Nobody measures whether the patient actually does the breathing exercise."
+- Caveat: no prices or outcomes published.
+
+## VIS (round 4)
+
+### F-VIS-2: India's TB programme (NTEP) says every patient completing TB treatment should be checked for post-TB lung disease, and lists home-based activity and inspiratory muscle training in rehab
+- Detail: Standard 1: evaluate everyone completing treatment (chest X-ray, lung function, 6-minute walk, symptoms, quality of life). Standard 2: rehab indications (breathlessness, poor exercise capacity, COPD or bronchiectasis, a hospital stay in the past year). Standard 3: rehab must include supervised exercise, education and **home-based activity plans**; core parts include inspiratory muscle training and airway clearance. A separate RBIPMT/Central TB Division guidance on pulmonary rehab for TB (July 2024) exists (snippet only).
+- Source: NTEP, Clinical Standards for Post-TB Lung Disease (Annexure 2) – https://ntep.in/node/6657 (#146) – **A**
+- Use in pitch (roadmap): "After surgery today; next, India's TB survivors. The national TB programme already asks for home-based lung rehab."
+- Caveat: an incentive spirometer isn't named. Inspiratory training uses other devices. Undated page.
+
+### F-VIS-3: In Pune, 87% of 370 people with chronic lung disease wanted pulmonary rehab, and 84% liked a web-based programme at home (70% a paper manual)
+- Detail: outpatient survey at a multi-speciality hospital, mean age 56. 80% of 207 doctors and physios thought rehab works, but many didn't know how to refer.
+- Source: *Chronic Respiratory Disease* 2024, PMID 39075037 (#147) – **A**
+- Use in pitch: demand for home-based breathing programmes in India.
+- Caveat: one city, a hospital outpatient sample, stated preference only.
+
+## JUDGE – round 4 additions (J16–J25)
+
+| # | Question | Short answer | Evidence |
+|---|---|---|---|
+| J16 | "What does a lung complication cost an Indian hospital?" | "A ward day costs about ₹2,300 and an ICU day about ₹26,000 at a public teaching hospital. Patients with these complications spend about a week more in ICU, so roughly up to ₹2 lakh each. That's our rough estimate from two Indian studies." | F-BIZ-4, F-BIZ-5, F-CLIN-8 |
+| J17 | "Your nurse alerts make this a medical device, don't they?" | "Yes, probably. CDSCO says alerting software isn't wellness. Software that only informs the nurse about a serious but not critical condition points to Class A, and because it measures, it needs a licence. We'd apply before launch; the hackathon build is a coach." | F-REG-4 |
+| J18 | "Can a laser even work inside a plastic tube?" | "Wall echoes are a known problem. We narrow the sensor's view from 27° to about 15°, aim it down the middle, and calibrate on the printed marks. We'll show the live reading against the scale." | F-TECH-3, F-TECH-1 |
+| J19 | "How do you turn millimetres into millilitres?" | "We don't use geometry. We read the distance at the device's own printed marks and map between them, once per spirometer model." | F-TECH-4 |
+| J20 | "Won't patients ignore calls marked as spam?" | "That's why calls are only the backup. Daily coaching happens on the device and WhatsApp. TRAI now bars caller-ID apps from blanket-tagging official commercial series, and a hospital's declared number is the right channel." | F-COMMS-12, F-COMMS-13 |
+| J21 | "Who else does home monitoring in India?" | "Zorgers with Clinitouch for COPD, Tricog after discharge, Dozee in hospital. None checks whether patients do their breathing exercise, or how well." | F-COMP-11 |
+| J22 | "Is this just for surgery?" | "Surgery first. Next is TB survivors: NTEP asks for every patient finishing treatment to be checked, with home-based rehab. An Indian trial completed 246 of 260 patients at home." | F-VIS-2, F-VIS-1 |
+| J23 | "What are your unit economics?" | "About ₹1,000–1,700 of parts for a reusable clip-on, so roughly ₹150 a patient over 10 uses, plus about ₹5 of WhatsApp per recovery. We'd charge the hospital ₹500–1,000 per patient, less than half a ward day." | F-BIZ-7, F-BIZ-4 |
+| J24 | "After TRAI's new rules, can you still call patients?" | "Yes, if done right: an Indian registered sender, declared A2P caller IDs, and consent recorded at discharge. Our escalation is a nurse-to-patient call, so a human is on the line." | F-COMMS-8, F-COMMS-12, F-COMMS-13 |
+| J25 | "Do Indian patients even want home programmes?" | "In Pune, 87% of chronic lung patients wanted rehab and 84% liked a home-based digital programme. Hospital-referred users of a WhatsApp rehab bot finished more often." | F-VIS-3, F-COMP-9 |

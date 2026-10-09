@@ -1,6 +1,6 @@
 # Pitch facts (slide-ready)
 
-Rewritten at the end of each round. Only A/B-graded facts unless labelled. Finding IDs (F-…) and ledger numbers (#) point to KNOWLEDGE_BASE.md and SOURCES_LEDGER.md. **Round 3, 9 Oct 2026.** Judge Q&A: see the "JUDGE" table at the end of KNOWLEDGE_BASE.md.
+Rewritten at the end of each round. Only A/B-graded facts unless labelled. Finding IDs (F-…) and ledger numbers (#) point to KNOWLEDGE_BASE.md and SOURCES_LEDGER.md. **Round 4, 9 Oct 2026.** Judge Q&A: see the "JUDGE" table at the end of KNOWLEDGE_BASE.md.
 
 ## The problem
 1. **About 1 in 10 adults having surgery gets a lung complication** (10.4% of 9,864 patients, 146 hospitals, 29 countries). LAS VEGAS, *Eur J Anaesthesiol* 2017. **A**. F-CLIN-1
@@ -36,10 +36,14 @@ Rewritten at the end of each round. Only A/B-graded facts unless labelled. Findi
 21. **A WhatsApp update costs about 12 paise (₹0.115, Meta's India utility rate). An AI phone call costs about ₹8 for 2 minutes, roughly 70 times more.** So: WhatsApp first, calls only to escalate. Meta rate card; Plivo + Sarvam prices (our maths). **B**. F-COMMS-2, F-COMMS-11
 22. **Voice in 11 Indian languages: Sarvam at ₹3 per 1,000 characters (about 60 paise per coaching message), with ₹100 free credits. A free offline backup (AI4Bharat Indic-TTS, MIT licence) also exists.** **B**. F-VOICE-1–3, F-VOICE-10
 
+23a. **What a hospital day costs in India: about ₹2,307 per ward bed-day on average (57 hospitals, 11 states) and ₹25,927 per ICU bed-day at PGIMER.** CHSI, *BMJ Open* 2023; *Lung India* 2024. **A**. F-BIZ-4, F-BIZ-5. *Back-of-envelope only:* a week of extra ICU from a lung complication ≈ up to ₹2 lakh. Label it as our estimate.
+23b. **Unit economics (team estimate): about ₹1,000–1,700 of parts per reusable clip-on (≈ ₹150 a patient over 10 uses) and about ₹5 of WhatsApp per 14-day recovery. Price idea: ₹500–1,000 per patient, less than half of one ward day.** F-BIZ-7 (not a source).
+23c. **Demand beyond surgery: NTEP asks for every patient finishing TB treatment to be checked for post-TB lung disease, with home-based rehab plans; in Pune, 87% of 370 lung patients wanted rehab and 84% liked a home digital programme.** NTEP standards; *Chron Respir Dis* 2024. **A**. F-VIS-2, F-VIS-3
+
 ## Honest limits (say them before judges ask)
 23. **The evidence that incentive spirometry alone prevents complications is weak** (Cochrane 2014; a 2024 cardiac-surgery review found it no better than standard breathing care). **But those trials rarely recorded whether patients actually did the exercise. SpiroBuddy makes that visible.** **A**. F-CLIN-3, F-CLIN-7
-24. **It's an exercise coach and tracker, not a diagnostic.** India's July 2026 software guidance decides by function; wellness and training tools are outside, while monitoring a patient's breathing for clinical decisions would make it a device (spirometers for monitoring are Class B). **B**. F-REG-1, F-REG-2
-25. **Calls: TRAI's 2026 rules treat AI voice calls as "A2P calls". They need advance declaration, an Indian registered caller ID and, for ongoing-use reminders, consent renewed every 7 days.** So phone calls are an escalation step via an Indian partner; WhatsApp and the device work today. **A**. F-COMMS-8
-26. **Accuracy: the sensor chip is ±2 cm out of the box but very steady, so we calibrate it to each spirometer's printed marks. Even eye-reading of these scales varies by hundreds of mL.** ST datasheet; Thai study 2026. **A/B**. F-TECH-1, F-TECH-2
+24. **It's an exercise coach and tracker, not a diagnostic.** CDSCO's 2026 software guidance (primary text): wellness software may not name any disease, and software that monitors or **alerts** about a condition is a medical device. Standalone software that only *informs* care of a serious condition is Class A in its table, but a measuring device still needs a licence. **A**. F-REG-4, F-REG-1, F-REG-2
+25. **Calls: TRAI's 2026 rules treat AI voice calls as "A2P calls". They need advance declaration, an Indian registered caller ID and, for some reminder calls, consent the patient renews weekly.** So calls are an escalation step: the nurse clicks "call" and a human talks to the patient. WhatsApp and the device do the daily work. **A**. F-COMMS-8, F-COMMS-12, F-COMMS-13
+26. **Accuracy: the sensor chip is ±2 cm out of the box but very steady, so we calibrate it to each spirometer's printed marks and narrow its view (27° → about 15°) so tube walls don't confuse it. Even eye-reading of these scales varies by hundreds of mL.** ST datasheet; ST forum; Thai study 2026. **A/B/C**. F-TECH-1, F-TECH-2, F-TECH-3
 
-Never say: "prevents pneumonia", "first in the world", "laser sensing is our invention", "diagnoses", "₹X saved per patient" (no Indian complication-cost figure exists yet).
+Never say: "prevents pneumonia", "first in the world", "laser sensing is our invention", "diagnoses", "₹X saved per patient" (we have day-cost anchors, not a measured saving), "CDSCO-approved", "no regulation applies".

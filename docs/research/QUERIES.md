@@ -98,3 +98,38 @@ Every query run by the research agent, with date and usefulness, so no query is 
 | 2026-10-09 | WebSearch | patents.google.com IN incentive spirometer sensor monitoring device Indian patent application 202 | Low: US only |
 | 2026-10-09 | Google Patents xhr | q=("incentive spirometer")&country=IN; q=spirometer&country=IN; q=spirometer + incentive/exerciser/lung &country=IN; q=spirometer&assignee=Tidal | Medium: found Tidal PCT |
 | 2026-10-09 | WebSearch | Indian startup pulmonary rehabilitation digital app COPD home monitoring India 2025 2026 funding respiratory healthtech | High: Respira Health |
+
+## Round 4 plan (9 Oct 2026)
+1. TECH: Romsons Breazer 2500 internals; VL53L1X inside a tube (ROI, wall reflections).
+2. REG: CDSCO MDSW guidance PDF itself; incentive-spirometer class.
+3. COMMS: TRAI Third Amendment Gazette date; commentary on health reminder calls.
+4. BIZ: rupee cost of complications / bed-days; PM-JAY current rates; home-care price anchors; unit economics.
+5. COMP: Indian post-op / respiratory RPM startups (InPASS needs CAPTCHA, left to user). 6. VIS: post-TB / COPD rehab demand; NTEP guidance. 7. JUDGE: 10 more questions.
+(A previous round-4 agent was stopped before logging anything; no ledger rows after #134 were found.)
+
+| date | channel | query | useful? |
+|---|---|---|---|
+| 2026-10-09 | WebSearch | Romsons Breazer 2500 incentive spirometer dimensions piston cylinder diameter specifications | None: no specs anywhere |
+| 2026-10-09 | WebSearch | VL53L1X inside tube pipe wall reflection ROI narrow field of view crosstalk measurement | High: ST forum threads |
+| 2026-10-09 | WebSearch | TRAI TCCCPR (Third Amendment) Regulations 2026 gazette published date comes into force | Medium: PR 119 found; Gazette date not found |
+| 2026-10-09 | WebSearch | CDSCO medical device software guidance July 2026 PDF wellness software classification annexure | High: primary PDF link |
+| 2026-10-09 | curl + pdftotext | CDSCO MDSW guidance PDF | High |
+| 2026-10-09 | YouTube (yt-dlp) | ytsearch8: Romsons Breazer 2500 | None (titles only) |
+| 2026-10-09 | WebSearch | "Breazer" Romsons volumetric exerciser amazon.in product dimensions cm | None |
+| 2026-10-09 | WebSearch | romsons.com breazer volumetric respiratory exerciser 4000 2500 5000 product catalogue | Low: retail only |
+| 2026-10-09 | curl + pdftotext | TRAI PR_No119of2026.pdf | High |
+| 2026-10-09 | WebSearch | TRAI third amendment 2026 TCCCPR A2P calls "service" calls hospitals healthcare reminders analysis law firm October 2026 | Medium: Exotel comments |
+| 2026-10-09 | WebSearch | India cost of postoperative pulmonary complications rupees per patient hospital stay study INR | Low: no rupee PPC cost exists |
+| 2026-10-09 | WebSearch | Portea home nursing visit price per day rupees 2026 OR Apollo HomeCare nursing charges per day post-surgery care | Low: old snippets only |
+| 2026-10-09 | WebSearch | National Health System Cost Database India cost per ICU bed day ward bed day rupees tertiary hospital PGIMER | High: CHSI ₹2,307/bed-day |
+| 2026-10-09 | Europe PMC | ABSTRACT "2307" bed-day India; ICU "bed day" India cost trauma 2016–2026 | High: PMIDs 37857541, 38953191 |
+| 2026-10-09 | WebSearch | PM-JAY HBP 2025 revised package rates increase CABG cholecystectomy NHA rationalisation 2025 2026 | Low: HBP 2022 still latest found |
+| 2026-10-09 | WebSearch | Indian startup post-surgery remote patient monitoring home recovery app hospitals 2025 2026 Inc42 OR YourStory respiratory | Medium |
+| 2026-10-09 | WebSearch | NTEP post-TB care guidance document India 2024 post-tuberculosis lung disease pulmonary rehabilitation follow-up | High |
+| 2026-10-09 | WebSearch | pulmonary rehabilitation availability India COPD patients percentage access centres Lung India 2023 2024 survey | Medium: Pune survey |
+| 2026-10-09 | Europe PMC | "pulmonary rehabilitation" Pune survey/needs 2022–2026 | High |
+| 2026-10-09 | WebSearch | VL53L1X module price India robu.in OR robocraze rupees ESP32-C3 price India | Medium (snippets) |
+| 2026-10-09 | WebSearch | VL53L1X ROI 4x4 SPAD field of view degrees 16x16 27 degrees user manual UM2356 SetROI | Medium: 4x4 ≈ 15° |
+| 2026-10-09 | Europe PMC | "incentive spirometer(s)" AND (accuracy OR bench OR calibration OR "inspired volume") | None new |
+| 2026-10-09 | WebSearch | CDSCO classification "incentive spirometer" OR "respiratory exerciser" OR "lung exerciser" risk class A notified medical device list | Low: no Indian entry; US Class II |
+| 2026-10-09 | WebSearch | "Third Amendment" TCCCPR 2026 notified gazette "September 2026" effective "October 2026" A2P declaration deadline | None |
