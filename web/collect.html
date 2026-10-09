@@ -40,6 +40,7 @@
           <span id="fast-warn" class="warn-fast hidden">SLOWER!</span>
           <span class="state-badge IDLE" id="state">IDLE</span>
         </div>
+        <div class="row" id="voice-coach-bar" style="margin-bottom:.5rem"></div><!-- VOICE: js/voice-ui.js -->
         <div class="row" style="align-items:baseline;margin-bottom:.5rem"><span class="big-num" id="vol">0</span><span class="muted">mL</span><span class="muted small" style="margin-left:auto" id="raw-now">raw: –</span></div>
         <canvas class="live" id="live" aria-label="Live breath volume graph"></canvas>
         <div id="sim-box" style="margin-top:.75rem">
@@ -100,6 +101,9 @@
   <script src="js/charts.js"></script>
   <script src="js/breath.js"></script>
   <script src="js/sources.js"></script>
+  <script src="js/voice.js"></script><!-- VOICE -->
+  <script src="js/voice-ui.js"></script><!-- VOICE -->
+  <script>window.SBCoach = (ev, x) => { try { SB.voiceCoach && SB.voiceCoach[ev](x); } catch (e) { console.warn(e); } };</script><!-- VOICE: speaks cues during breaths -->
   <script>
   (function () {
     const { esc, $, $$, toast, busy, LABEL_TEXT } = SB.ui;
@@ -121,8 +125,9 @@
     function makeDetector() {
       detector = new B.BreathDetector({
         targetMl: target(), holdTargetS: holdT(),
-        onState: (s) => { const el = $('#state'); el.textContent = s; el.className = 'state-badge ' + s; if (s === 'INHALING') $('#fast-warn').classList.add('hidden'); },
+        onState: (s) => { SBCoach('onState', s); const el = $('#state'); el.textContent = s; el.className = 'state-badge ' + s; if (s === 'INHALING') $('#fast-warn').classList.add('hidden'); },
         onEvent: (ev) => {
+          SBCoach('onEvent', ev);
           if (ev.type === 'too_fast_live') { $('#fast-warn').classList.remove('hidden'); chart.mark(ev.t, 'too fast ' + ev.rate + ' mL/s', getComputedStyle(document.documentElement).getPropertyValue('--red')); }
           if (ev.type === 'ignored') chart.mark(ev.t, 'ignored (too small/short)');
           if (ev.type === 'reset') chart.mark(ev.t, 'reset (timeout)');
@@ -147,6 +152,7 @@
 
     async function onBreath(b) {
       const t0 = b.samples[0].t;
+      SBCoach('onBreath', b);
       lastBreath = Object.assign({}, b, { saved: null, model: null, rel: b.samples.map((s) => ({ t: Math.round((s.t - t0)) / 1000, ml: Math.round(s.ml * 10) / 10 })) });
       chart.mark(b.samples[b.samples.length - 1].t, `${b.features.peak_ml} mL · ${b.score}/10`);
       renderLast();

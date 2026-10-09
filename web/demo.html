@@ -46,10 +46,16 @@
         <div class="log" id="log" aria-live="polite"></div>
       </section>
     </div>
+
+    <!-- VOICE (voice agent): filled by js/voice-ui.js – plays every coaching cue in the chosen language -->
+    <section class="card" id="voice-check-card" style="margin-top:1rem"><div class="muted">Loading voice check…</div></section>
+    <!-- /VOICE -->
   </main>
 
   <script src="js/api.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/voice.js"></script><!-- VOICE -->
+  <script src="js/voice-ui.js"></script><!-- VOICE -->
   <script>
   (function () {
     const { esc, $, $$, link, statusPill, fmtMl, labelChips, dateTimeLabel, toast, busy, poll, hourLabel } = SB.ui;

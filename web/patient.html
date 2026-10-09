@@ -51,6 +51,10 @@
         <div id="wa-result" aria-live="polite"></div>
       </section>
 
+      <!-- VOICE (voice agent): filled by js/voice-ui.js – language picker, voice-note summary, push-to-talk -->
+      <section class="card span-2" id="voice-patient-card"><div class="muted">Loading voice…</div></section>
+      <!-- /VOICE -->
+
       <section class="card">
         <div class="card-head"><h2>Targets &amp; settings</h2></div>
         <form id="settings" class="form-grid" autocomplete="off">
@@ -81,6 +85,8 @@
   <script src="js/api.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/charts.js"></script>
+  <script src="js/voice.js"></script><!-- VOICE -->
+  <script src="js/voice-ui.js"></script><!-- VOICE -->
   <script>
   (function () {
     const { esc, $, link, hourLabel, statusPill, trendHTML, dateTimeLabel, ago, timeLabel, initials, labelChips, fmtMl, LANG, toast, busy, poll } = SB.ui;

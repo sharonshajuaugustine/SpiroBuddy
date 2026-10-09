@@ -8,3 +8,6 @@ backend/data/*.db-journal
 
 media/_frames/
 tools/render/_frames/
+backend/data/tts_cache/
+backend/data/translate_cache.json
+backend/data/voice_prefs.json
