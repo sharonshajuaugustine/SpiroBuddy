@@ -917,7 +917,7 @@ To cut costs, use template text for the after-session sentences and keep the AI 
 - Eltorai et al., *JAMA Surgery* 2019 (58% vs 28%): https://jamanetwork.com/journals/jamasurgery/article-abstract/2730077
 - InSee FDA clearance letter, Aug 2025: https://www.accessdata.fda.gov/cdrh_docs/pdf24/K241152.pdf
 - Penn Airalux trial: https://clinicaltrials.gov/study/NCT06629454
-- Indian studies of lung complications after surgery: https://www.ijsurgery.com/index.php/isj/article/view/2439 · https://doaj.org/article/8ce7474ddd114cdbb332bb5c0d16b782
+- Indian studies of lung complications after surgery: https://www.ijsurgery.com/index.php/isj/article/view/3176 (Udaipur numbers, Int Surg J 2018;5:3057–65; corrected link) · https://doaj.org/article/8ce7474ddd114cdbb332bb5c0d16b782
 - Romsons Breazer listing: https://www.medikabazaar.com/products/romsons-breazer-2500-volumetric-lung-exerciser-mbpgmrsmmssrre15739
 - ST VL53L1X manual (field of view): https://st.com/resource/en/user_manual/um2555-vl53l1x-ultra-lite-driver-multiple-zone-implementation-stmicroelectronics.pdf
 - ST cover-window guide (crosstalk): https://www.st.com/resource/en/application_note/an5231-cover-glass-guidelines-for-the-singlezone-timeofflight-sensor-stmicroelectronics.pdf

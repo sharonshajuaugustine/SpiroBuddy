@@ -110,7 +110,7 @@
 - InSee EUA press release, 2021: https://www.prnewswire.com/news-releases/tidal-medical-technologies-receives-fda-emergency-use-authorization-eua-for-the-use-of-insee-for-tracking-of-incentive-spirometers-usage-in-treatment-of-respiratory-conditions-in-covid-19-patients-301333527.html
 - Penn Airalux trial results: https://clinicaltrials.gov/study/NCT06629454 · AATS abstract: https://www.aats.org/resources/abstract.pdf?abstract=3136448
 - Romsons Breazer prices: https://www.medikabazaar.com/products/romsons-breazer-2500-volumetric-lung-exerciser-mbpgmrsmmssrre15739 · https://www.medikabazaar.com/physiotherapy-rehabilitation-medical-aids/physiotherapy-rehabilitation/exerciser/brand-20282.html
-- Indian PPC studies: https://www.ijsurgery.com/index.php/isj/article/view/2439 · https://doaj.org/article/8ce7474ddd114cdbb332bb5c0d16b782 · https://pmc.ncbi.nlm.nih.gov/articles/PMC12535847/
+- Indian PPC studies: https://www.ijsurgery.com/index.php/isj/article/view/3176 (Udaipur numbers, Int Surg J 2018;5:3057–65; corrected link) · https://doaj.org/article/8ce7474ddd114cdbb332bb5c0d16b782 · https://pmc.ncbi.nlm.nih.gov/articles/PMC12535847/
 - PPC hospital costs (Australia/NZ): https://world.physio/congress-proceeding/impact-postoperative-pulmonary-complications-hospital-costs-and-length-stay
 - VL53L1X field of view (ST UM2555): https://st.com/resource/en/user_manual/um2555-vl53l1x-ultra-lite-driver-multiple-zone-implementation-stmicroelectronics.pdf
 - ST cover-window guidelines (AN5231): https://www.st.com/resource/en/application_note/an5231-cover-glass-guidelines-for-the-singlezone-timeofflight-sensor-stmicroelectronics.pdf
