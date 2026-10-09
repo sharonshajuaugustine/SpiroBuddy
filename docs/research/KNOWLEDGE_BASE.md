@@ -343,3 +343,12 @@ Kept by the research agent; saved by the lead for round 1. Grades: **A** = peer-
 7. **COMP:** Indian patent search (ipindiaservices) for IS tracker filings and any Tidal Medical Indian family; InSee price (contact only).
 8. **INDIA:** a LASI national figure for mobile phone ownership among people over 60 (not found in the factsheet snippet); WhatsApp use among caregivers.
 9. JUDGE: compile likely questions with evidence-backed answers.
+
+
+## Imported: Sarvam calls & InSee feasibility (separate chat, 9 Oct 2026)
+Full report: `docs/research/SARVAM_CALLS_AND_INSEE_FEASIBILITY.md` (ledger #93–#105). Key points:
+- **F-VOICE-7:** Sarvam Voice Agents cost **₹3.50/min** (launch price), which includes numbers, simulation and analytics. The ₹100 signup credit covers about 28 min if it can be applied to Voice Agents (not confirmed). Renting a number may need KYC. – #99, #55 – B
+- **F-VOICE-8:** keypad entry (DTMF) is still "planned" in Sarvam's runtime docs, so the demo should use **spoken answers**, not "press 1/2/3". Call transfer goes to **one** number or SIP address per transfer. No simultaneous ring-group found. Outbound webhooks and call variables exist (Aug 2026). – #94, #97, #98 – B
+- **F-VOICE-9:** "emotion" is only **post-call sentiment from the transcript** (Call Analytics). There is no validated reading of feelings from tone of voice, so label it "possible distress – review call" and require the nurse to confirm. – #104, #105 – B
+- **F-COMP-7:** InSee performance study: 30 subjects, 240 data points, 100% agreement with blinded physicians (95% CI 98.5–100%). Size about 6.24 × 3.34 × 1.14 in, 4.2 oz, 1,200 mAh, USB-C. **No public price, no verified India distributor.** It is offered as a free hospital trial. It proves measurement accuracy, **not** better patient outcomes. – #101–#103 – A/B
+- Decisions: the browser phone is the guaranteed demo route; a real Sarvam call goes only to one pre-consented presenter phone if a number is active; the webhook is normalised to `{provider, status, outcome, reason_category, patient_words, neutral_note, red_flag, callback_requested, transcript_reference}`; red-flag rules are deterministic and run outside the LLM.

@@ -130,6 +130,8 @@ Each idea is scored 1–5 on: **P**atient value · **E**ase for elderly users (5
 5. **WhatsApp:** quick-reply buttons (simulated in the demo panel's chat view), weekly progress card image, voice-note summary (TTS audio file in the demo; real when a TTS key exists).
 6. **Lower-than-usual trend flag** + **AI nurse call script** on the patient page (with template fallbacks).
 
+7. **Sarvam Voice Agent call (optional live path):** a conversational check-in call ("Are you okay, why did you miss it?") using spoken answers, a webhook into SpiroBuddy with the normalised outcome, a neutral nurse note and deterministic red-flag rules. Browser phone stays the guaranteed path. Spec: `docs/research/SARVAM_CALLS_AND_INSEE_FEASIBILITY.md` §5–§7.
+
 **Stage 2 – after the hackathon:** the daily red-flag check-in call, missed-call callback, QR onboarding, care-circle settings, voice-note transcription, personalised coaching, PDF report, roles + audit log.
 **Stage 3 – scale:** on-device ML, FHIR/ABDM export, multi-hospital, cohort analytics, breath garden, on-device OLED.
 
