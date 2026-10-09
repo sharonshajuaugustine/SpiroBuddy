@@ -124,6 +124,12 @@ def bulk_insert(st: Store, items: list[tuple[dict, list]]) -> None:
 
 def wipe(st: Store) -> None:
     # Filters are always given: Supabase may block DELETE without a WHERE clause.
+    # --- comms hook: wipe comms tables first (backend/app/comms/seed_comms.py) ---
+    try:
+        from .comms import seed_comms
+        seed_comms.wipe(st)
+    except Exception as e:
+        log.warning("comms wipe skipped: %s", e)
     st.delete("breaths", [("id", "gte", 0)])
     st.delete("slots", [("patient_id", "gte", 0)])
     st.delete("sessions", [("id", "gte", 0)])
@@ -178,6 +184,12 @@ def seed(st: Store, now: datetime | None = None) -> int:
         st.update("patients", [("id", "eq", pid)], {"personal_best_ml": best})
 
     _seed_messages(st, now)
+    # --- comms hook: guardians, care settings, alerts, ladder history (comms/seed_comms.py) ---
+    try:
+        from .comms import seed_comms
+        seed_comms.seed(st, now)
+    except Exception as e:
+        log.warning("comms seed skipped: %s", e)
     log.info("Seeded %d patients, %d sessions in %.1fs", len(patients), len(items),
              time.time() - t_start)
     return len(patients)

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SpiroBuddy Videos</title>
+<meta name="description" content="Pre-rendered SpiroBuddy videos for presenting offline: guided tour, 360° view, breath types and exploded view.">
+<style>
+  :root { --bg:#f4f6f9; --surface:#fff; --border:#dbe1e8; --text:#13202e; --text-2:#4a5868; --text-3:#6b7888; --brand:#0b6e8a; --brand-soft:#e3f2f6;
+    --shadow:0 1px 2px rgba(16,32,48,.06),0 2px 8px rgba(16,32,48,.05); --radius:12px; --font:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif; color-scheme:light; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0f151c; --surface:#17202a; --border:#2b3846; --text:#e8eef4; --text-2:#b4c0cc; --text-3:#8d9aa8; --brand:#3fb4d4; --brand-soft:#143241; --shadow:0 1px 2px rgba(0,0,0,.4); color-scheme:dark; } }
+  :root[data-theme="dark"] { --bg:#0f151c; --surface:#17202a; --border:#2b3846; --text:#e8eef4; --text-2:#b4c0cc; --text-3:#8d9aa8; --brand:#3fb4d4; --brand-soft:#143241; --shadow:0 1px 2px rgba(0,0,0,.4); color-scheme:dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.5; }
+  main { max-width: 1180px; margin: 0 auto; padding: 24px 16px 48px; }
+  header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  h1 { font-size: 1.5rem; margin: 0; } h1 span { color: var(--brand); }
+  .spacer { flex: 1; }
+  a.btn { font-weight: 600; font-size: 14px; color: var(--brand); text-decoration: none; border: 1px solid var(--border); background: var(--surface); padding: 7px 12px; border-radius: 8px; }
+  .note { color: var(--text-2); font-size: 14px; margin: 0 0 18px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .card.wide { grid-column: 1 / -1; }
+  video { width: 100%; display: block; background: #000; aspect-ratio: 16 / 9; }
+  .meta { padding: 12px 16px 16px; }
+  .meta h2 { font-size: 1.05rem; margin: 0 0 4px; }
+  .meta p { margin: 0; color: var(--text-2); font-size: 14px; }
+  .meta small { color: var(--text-3); }
+  .missing { padding: 40px 16px; text-align: center; color: var(--text-3); aspect-ratio: 16/9; display: grid; place-items: center; background: var(--brand-soft); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1><span>SpiroBuddy</span> videos</h1>
+    <span class="spacer"></span>
+    <a class="btn" href="./">Open the 3D showroom</a>
+    <a class="btn" href="sources.html">Sources</a>
+  </header>
+  <p class="note">Rendered from the 3D concept model (1920 × 1080, 30 fps). They play offline from this folder. Dimensions come from published specs; flagged sizes are listed in the sources. The laser beam is drawn for illustration – the real 940 nm beam is invisible.</p>
+  <div class="grid" id="grid"></div>
+</main>
+<script>
+  const VIDS = [
+    ['tour', 'Guided tour (~90 s)', 'The problem → meet SpiroBuddy → what’s inside → how it measures → live coaching → our own AI model → progress & family updates.', true],
+    ['hero', '360° view (20 s)', 'Slow turntable with breaths, live light and phone.'],
+    ['breath-types', 'Four breath types (35 s)', 'Good, too fast, too shallow, no hold – with features, score and rule label.'],
+    ['exploded', 'Exploded view (15 s)', 'The base unit opens up with labelled parts, then closes again.'],
+  ];
+  const grid = document.getElementById('grid');
+  for (const [id, title, text, wide] of VIDS) {
+    const card = document.createElement('article'); card.className = 'card' + (wide ? ' wide' : '');
+    card.innerHTML = `<video controls preload="metadata" src="videos/${id}.mp4"></video><div class="meta"><h2>${title}</h2><p>${text}</p><small>videos/${id}.mp4</small></div>`;
+    card.querySelector('video').addEventListener('error', e => { e.target.outerHTML = '<div class="missing">Not rendered yet – run tools\\render\\render_videos.py</div>'; }, { once: true });
+    grid.appendChild(card);
+  }
+</script>
+</body>
+</html>

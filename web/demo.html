@@ -28,10 +28,15 @@
         <span><span class="kbd">P</span> poor</span>
         <span><span class="kbd">X</span> 2 missed slots</span>
         <span><span class="kbd">S</span> send summary to family</span>
+        <span><span class="kbd">L</span> play escalation ladder</span><!-- COMMS -->
       </div>
     </section>
 
     <section class="demo-grid" id="cards" aria-live="polite"><div class="muted">Loading patients…</div></section>
+
+    <!-- COMMS (comms agent): escalation ladder + phone & WhatsApp simulators, filled by js/phone-sim.js -->
+    <section class="card" id="comms-demo" style="margin-top:1rem"><div class="muted">Loading simulators…</div></section>
+    <!-- /COMMS -->
 
     <div class="grid grid-2" style="margin-top:1rem">
       <section class="card">
@@ -56,6 +61,8 @@
   <script src="js/ui.js"></script>
   <script src="js/voice.js"></script><!-- VOICE -->
   <script src="js/voice-ui.js"></script><!-- VOICE -->
+  <script src="js/comms.js"></script><!-- COMMS -->
+  <script src="js/phone-sim.js"></script><!-- COMMS -->
   <script>
   (function () {
     const { esc, $, $$, link, statusPill, fmtMl, labelChips, dateTimeLabel, toast, busy, poll, hourLabel } = SB.ui;
@@ -178,7 +185,10 @@
       if (msig !== refresh.msig) { refresh.msig = msig; renderMsgs(msgs || []); }
     }
 
-    SB.ui.boot('demo').then(() => { log('Panel ready' + (SB.api.state.mock ? ' (MOCK mode)' : '')); poll(refresh, 2000); });
+    SB.ui.boot('demo').then(() => {
+      log('Panel ready' + (SB.api.state.mock ? ' (MOCK mode)' : '')); poll(refresh, 2000);
+      SB.comms.mountBell(); SB.commsDemo.mount(document.getElementById('comms-demo')); // COMMS
+    });
   })();
   </script>
 </body>

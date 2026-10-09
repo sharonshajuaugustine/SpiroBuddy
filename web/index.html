@@ -27,6 +27,10 @@
       <button class="stat info" data-filter="all" type="button"><div class="num" id="n-sessions">–</div><div class="lbl" id="l-sessions">sessions done today</div></button>
     </section>
 
+    <!-- COMMS (comms agent): alerts inbox, filled by js/comms-dashboard.js -->
+    <section class="card alerts-card" id="alerts" aria-label="Alerts inbox" style="margin-bottom:1rem"><div class="muted">Loading alerts…</div></section>
+    <!-- /COMMS -->
+
     <div class="toolbar">
       <label class="sr-only" for="search">Search patients</label>
       <input type="search" id="search" placeholder="Search name, surgery…" autocomplete="off">
@@ -51,6 +55,8 @@
 
   <script src="js/api.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/comms.js"></script><!-- COMMS -->
+  <script src="js/comms-dashboard.js"></script><!-- COMMS -->
   <script>
   (function () {
     const { esc, $, $$, link, statusPill, trendHTML, STATUS_RANK, ago, timeLabel, fmtMl, toast, poll } = SB.ui;
@@ -169,7 +175,11 @@
       $('#updated').textContent = 'Live · updated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }
 
-    SB.ui.boot('dashboard').then(() => poll(refresh, 2000));
+    SB.ui.boot('dashboard').then(() => {
+      poll(refresh, 2000);
+      SB.comms.mountBell(); SB.commsDashboard.mountInbox(document.getElementById('alerts')); // COMMS
+      if (location.hash === '#alerts') setTimeout(() => document.getElementById('alerts').scrollIntoView(), 300);
+    });
   })();
   </script>
 </body>

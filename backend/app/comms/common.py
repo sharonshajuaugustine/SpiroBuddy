@@ -1,0 +1,216 @@
+"""Shared helpers for the comms package: time & quiet hours (IST), names, numbers, events."""
+from __future__ import annotations
+
+import logging
+from datetime import datetime, timedelta
+
+from .. import service
+from ..config import demo_mode, env, iso, now_local, parse_dt
+
+log = logging.getLogger("spirobuddy.comms")
+
+LANGS = ("en", "hi", "ta")
+
+
+def st():
+    return service.store()
+
+
+def now() -> datetime:
+    return now_local()
+
+
+def to_dt(v) -> datetime | None:
+    if v in (None, ""):
+        return None
+    try:
+        return parse_dt(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def lang_of(value, default: str = "en") -> str:
+    v = str(value or "").lower()[:2]
+    return v if v in LANGS else default
+
+
+def first_name(name: str | None) -> str:
+    return (name or "").split()[0] if name else ""
+
+
+# ----------------------------------------------------------------------------- quiet hours (IST)
+
+def default_quiet() -> tuple[str, str]:
+    """QUIET_HOURS env like '21:30-07:30' (IST). Default 21:30–07:30."""
+    raw = env("QUIET_HOURS", "21:30-07:30")
+    try:
+        a, b = [x.strip() for x in raw.split("-")]
+        parse_hm(a), parse_hm(b)
+        return a, b
+    except Exception:
+        return "21:30", "07:30"
+
+
+def parse_hm(s: str) -> tuple[int, int]:
+    h, m = str(s).strip().split(":")
+    h, m = int(h), int(m)
+    if not (0 <= h <= 23 and 0 <= m <= 59):
+        raise ValueError(f"bad time {s}")
+    return h, m
+
+
+def valid_hm(s) -> bool:
+    try:
+        parse_hm(s)
+        return True
+    except Exception:
+        return False
+
+
+def in_quiet(dt: datetime, start: str, end: str) -> bool:
+    """True if dt (local) falls inside [start, end), which may wrap past midnight."""
+    try:
+        sh, sm = parse_hm(start)
+        eh, em = parse_hm(end)
+    except Exception:
+        return False
+    t = dt.hour * 60 + dt.minute
+    s, e = sh * 60 + sm, eh * 60 + em
+    if s == e:
+        return False
+    return (s <= t < e) if s < e else (t >= s or t < e)
+
+
+def quiet_end_after(dt: datetime, end: str) -> datetime:
+    """The next time the quiet window ends after dt."""
+    eh, em = parse_hm(end)
+    cand = dt.replace(hour=eh, minute=em, second=0, microsecond=0)
+    if cand <= dt:
+        cand += timedelta(days=1)
+    return cand
+
+
+# ----------------------------------------------------------------------------- names
+
+def honorific(patient: dict, lang: str = "en") -> str:
+    """'Ravi ji' (Hindi/English, respectful Indian usage); Tamil: 'Lakshmi amma' / 'Mohan ayya'."""
+    fn = first_name(patient.get("name"))
+    if lang == "ta":
+        return f"{fn} {'amma' if (patient.get('sex') or '').upper() == 'F' else 'ayya'}"
+    return f"{fn} ji"
+
+
+_CALL_NAMES = {
+    # relation -> (male patient, female patient) per language
+    "son": {"en": ("Papa", "Maa"), "hi": ("पापा", "माँ"), "ta": ("Appa", "Amma")},
+    "daughter": {"en": ("Papa", "Maa"), "hi": ("पापा", "माँ"), "ta": ("Appa", "Amma")},
+    "daughter-in-law": {"en": ("Papa ji", "Mummy ji"), "hi": ("पापा जी", "मम्मी जी"),
+                        "ta": ("Mama", "Athai")},
+    "son-in-law": {"en": ("Papa ji", "Mummy ji"), "hi": ("पापा जी", "मम्मी जी"),
+                   "ta": ("Mama", "Athai")},
+    "grandson": {"en": ("Dadaji", "Dadi"), "hi": ("दादाजी", "दादी"), "ta": ("Thatha", "Paati")},
+    "granddaughter": {"en": ("Dadaji", "Dadi"), "hi": ("दादाजी", "दादी"),
+                      "ta": ("Thatha", "Paati")},
+    "brother": {"en": ("Bhaiya", "Didi"), "hi": ("भैया", "दीदी"), "ta": ("Anna", "Akka")},
+    "sister": {"en": ("Bhaiya", "Didi"), "hi": ("भैया", "दीदी"), "ta": ("Anna", "Akka")},
+}
+
+
+def call_name(relation: str | None, patient: dict, lang: str = "en") -> str:
+    """What this guardian calls the patient: 'Papa', 'Maa', 'Mummy ji', or the first name."""
+    rel = (relation or "").strip().lower()
+    names = _CALL_NAMES.get(rel)
+    if not names:
+        return first_name(patient.get("name"))
+    pair = names.get(lang) or names["en"]
+    return pair[1] if (patient.get("sex") or "").upper() == "F" else pair[0]
+
+
+RELATIONS_HI = {"son": "बेटा", "daughter": "बेटी", "daughter-in-law": "बहू",
+                "son-in-law": "दामाद", "wife": "पत्नी", "husband": "पति",
+                "grandson": "पोता", "granddaughter": "पोती", "brother": "भाई",
+                "sister": "बहन", "neighbour": "पड़ोसी", "friend": "दोस्त"}
+
+
+# ----------------------------------------------------------------------------- numbers
+
+def e164(number: str | None) -> str | None:
+    """'+91 98450 12345' -> '+919845012345'. Placeholders with X (seeded fake numbers) -> None."""
+    if not number:
+        return None
+    n = str(number).strip().replace(" ", "").replace("-", "")
+    if n.lower().startswith("whatsapp:"):
+        n = n[9:]
+    if not n or "X" in n.upper():
+        return None
+    if n.startswith("0") and len(n) == 11:          # 09845012345 -> +919845012345
+        n = "+91" + n[1:]
+    if n.isdigit() and len(n) == 10:                 # Indian mobile without code
+        n = "+91" + n
+    return n if n.startswith("+") and n[1:].isdigit() and 8 <= len(n) <= 16 else None
+
+
+def demo_route(role: str) -> str | None:
+    """Where a real message/call goes when the stored number is a demo placeholder."""
+    if role == "patient":
+        return e164(env("DEMO_PATIENT_PHONE"))
+    if role == "nurse":
+        return e164(env("DEMO_NURSE_PHONE")) or e164(env("DEMO_NURSE_WHATSAPP"))
+    return e164(env("DEMO_GUARDIAN_PHONE")) or e164(env("DEMO_FAMILY_WHATSAPP"))
+
+
+def resolve_number(stored: str | None, role: str) -> str | None:
+    """Real number to use: the stored one if it is real, else the DEMO_* route for this role."""
+    return e164(stored) or demo_route(role)
+
+
+def public_base() -> str:
+    return env("PUBLIC_BASE_URL").rstrip("/")
+
+
+# ----------------------------------------------------------------------------- patients
+
+def patient(pid: int) -> dict | None:
+    return service.get_patient_row(int(pid))
+
+
+def patient_names() -> dict[int, str]:
+    return {p["id"]: p["name"] for p in st().select("patients", columns="id,name")}
+
+
+# ----------------------------------------------------------------------------- events (timeline)
+
+EVENT_ICONS = {
+    "device_beep": "🔔", "whatsapp": "💬", "call": "📞", "call_answered": "📞", "keypress": "🔢",
+    "no_answer": "📵", "guardian_whatsapp": "💬", "guardian_call": "📞", "nurse_alert": "🚨",
+    "quiet_hold": "🌙", "resolved": "✅", "inbound": "↩", "cheer": "💛", "click_to_call": "☎",
+    "red_flag": "🚨", "snooze": "⏰", "trend": "📉", "start": "▶", "stopped": "■",
+    "voice_note": "🎧", "weekly_card": "🖼", "sms": "✉",
+}
+
+
+def log_event(patient_id: int | None, kind: str, title: str, detail: str = "",
+              channel: str = "system", actor: str = "system", to_name: str | None = None,
+              status: str = "info", run_id: int | None = None, ref_id: int | None = None,
+              at: datetime | None = None) -> dict:
+    row = {"patient_id": patient_id, "run_id": run_id, "kind": kind, "channel": channel,
+           "actor": actor, "to_name": to_name, "title": title[:300], "detail": (detail or "")[:1500],
+           "status": status, "ref_id": ref_id, "created_at": iso(at or now())}
+    try:
+        return st().insert("escalation_events", [row])[0]
+    except Exception as e:      # the timeline must never break a send
+        log.warning("event log failed: %s", e)
+        return row
+
+
+def public_event(e: dict) -> dict:
+    return {"id": e.get("id"), "patient_id": e.get("patient_id"), "run_id": e.get("run_id"),
+            "kind": e.get("kind"), "icon": EVENT_ICONS.get(e.get("kind") or "", "•"),
+            "channel": e.get("channel"), "actor": e.get("actor"), "to_name": e.get("to_name"),
+            "title": e.get("title"), "detail": e.get("detail"), "status": e.get("status"),
+            "ref_id": e.get("ref_id"),
+            "created_at": iso(to_dt(e.get("created_at")) or now())}
+
+
+def is_demo() -> bool:
+    return demo_mode()

@@ -98,3 +98,16 @@ Grades: A = peer-reviewed / guideline / regulator data · B = reputable org, maj
 | 90 | 2026-10-09 | https://www.tribuneindia.com/news/nation/indian-poor-seek-2-crore-hospital-admissions-under-ayushman-bharat-most-in-general-medicine-general-surgery-299041 | 2 crore PM-JAY admissions, top specialities (19 Aug 2021) (Jina) | The Tribune | B | F-INDIA-9 |
 | 91 | 2026-10-09 | https://www.thequint.com/fit/medical-procedures-performed-under-ayushman-bharat | Top PM-JAY procedures, Lok Sabha reply (27 Jul 2019) (Jina) | The Quint | B | F-INDIA-9 |
 | 92 | 2026-10-09 | ytsearch6:incentive spirometer kaise use kare hindi | YouTube search results (yt-dlp): ids 5IuWF1LMxo4, Tbhgs0QSbi0, JIg5vKN6MXU, Nog8S8u4m5Q, je0w0Elt0dI, 5tyE16Z7pys | YouTube | C | F-INDIA-10 |
+| 93 | 2026-10-09 | https://docs.sarvam.ai/conversations/deploy/telephony | Voice Agents phone numbers: BYO telephony or rent from Sarvam | Sarvam docs | B | SARVAM_CALLS_AND_INSEE_FEASIBILITY.md |
+| 94 | 2026-10-09 | https://docs.sarvam.ai/conversations/build/tools/call-transfer | Voice Agent call transfer providers, destination and testing limits | Sarvam docs | B | SARVAM_CALLS_AND_INSEE_FEASIBILITY.md |
+| 95 | 2026-10-09 | https://docs.sarvam.ai/conversations/deploy/campaigns/campaign-lifecycle | Campaign lifecycle and default ten-campaign limit | Sarvam docs | B | SARVAM_CALLS_AND_INSEE_FEASIBILITY.md |
+| 96 | 2026-10-09 | https://docs.sarvam.ai/conversations/build/variables-personalization | Input/output variables and hook lifecycle | Sarvam docs | B | SARVAM_CALLS_AND_INSEE_FEASIBILITY.md |
+| 97 | 2026-10-09 | https://docs.sarvam.ai/conversations/build/run-time | Voice runtime, DTMF status and scale claims | Sarvam docs | B | SARVAM_CALLS_AND_INSEE_FEASIBILITY.md |
+| 98 | 2026-10-09 | https://docs.sarvam.ai/changelog/2026/8/20 | Outbound webhooks and call-context variables | Sarvam docs | B | SARVAM_CALLS_AND_INSEE_FEASIBILITY.md |
+| 99 | 2026-10-09 | https://www.sarvam.ai/epoch/summary | Voice Agents general availability and ₹3.50/min launch price | Sarvam official site | B | SARVAM_CALLS_AND_INSEE_FEASIBILITY.md |
+| 100 | 2026-10-09 | https://www.sarvam.ai/api-pricing | Current pay-as-you-go API pricing | Sarvam official site | B | SARVAM_CALLS_AND_INSEE_FEASIBILITY.md |
+| 101 | 2026-10-09 | https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm?ID=K241152 | FDA database entry for InSee K241152, decision 21 Aug 2025 | US FDA | A | SARVAM_CALLS_AND_INSEE_FEASIBILITY.md |
+| 102 | 2026-10-09 | https://www.breathe-insee.com/ | InSee capabilities and free hospital trial form; no public price | Tidal Medical / manufacturer | B | SARVAM_CALLS_AND_INSEE_FEASIBILITY.md |
+| 103 | 2026-10-09 | https://www.breathe-insee.com/care-provider | InSee sensor, stored/displayed data and reminder workflow | Tidal Medical / manufacturer | B | SARVAM_CALLS_AND_INSEE_FEASIBILITY.md |
+| 104 | 2026-10-09 | https://www.sarvam.ai/call-analytics | Call Analytics product page: transcript-derived sentiment and structured reports | Sarvam official site | B | SARVAM_CALLS_AND_INSEE_FEASIBILITY.md |
+| 105 | 2026-10-09 | https://docs.sarvam.ai/api/cookbook/guides/call-analytics-pipeline | Batch transcription, diarisation and LLM sentiment-analysis workflow | Sarvam docs | B | SARVAM_CALLS_AND_INSEE_FEASIBILITY.md |

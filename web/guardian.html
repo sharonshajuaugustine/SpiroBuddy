@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpiroBuddy Family</title>
+  <meta name="description" content="Automated updates from SpiroBuddy for the family (demo, fake patient). No login needed.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b6e8a'/%3E%3Crect x='9' y='13' width='6' height='13' rx='3' fill='%23fff'/%3E%3Cpath d='M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4' stroke='%237fe0c8' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="g-body">
+  <div class="g-wrap">
+    <header class="g-top">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#0b6e8a"/><rect x="9" y="6" width="6" height="20" rx="3" fill="#fff" opacity=".35"/><rect x="9" y="13" width="6" height="13" rx="3" fill="#fff"/><path d="M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4" stroke="#7fe0c8" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+      <div class="t">SpiroBuddy<small id="g-auto">Automated updates from SpiroBuddy</small></div>
+    </header>
+    <div class="g-lang" role="group" aria-label="Language" id="g-lang">
+      <button type="button" data-l="hi" aria-pressed="false">हिंदी</button>
+      <button type="button" data-l="en" aria-pressed="false">English</button>
+      <button type="button" data-l="ta" aria-pressed="false">தமிழ்</button>
+    </div>
+    <main id="g-main" aria-live="polite"><div class="g-card">Loading…</div></main>
+    <p class="g-foot" id="g-foot"></p>
+  </div>
+  <script src="js/voice.js"></script>
+  <script>
+  (function () {
+    const token = new URLSearchParams(location.search).get('t') || '';
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const L = {
+      auto: { en: 'Automated updates from SpiroBuddy', hi: 'SpiroBuddy से स्वचालित जानकारी', ta: 'SpiroBuddy தானியங்கி தகவல்கள்' },
+      good: { en: '{P} is doing well today', hi: '{P} आज अच्छा कर रहे हैं', ta: '{P} இன்று நன்றாகச் செய்கிறார்' },
+      goodSub: { en: 'The breathing exercises are on track.', hi: 'साँस के व्यायाम ठीक चल रहे हैं।', ta: 'மூச்சுப் பயிற்சிகள் சரியாக நடக்கின்றன.' },
+      nudge: { en: '{P} needs a little encouragement', hi: '{P} को थोड़े हौसले की ज़रूरत है', ta: '{P}-க்கு கொஞ்சம் ஊக்கம் தேவை' },
+      nudgeSub: { en: 'A few exercises were missed today. A cheer helps!', hi: 'आज कुछ व्यायाम छूट गए। आपका हौसला मदद करेगा!', ta: 'இன்று சில பயிற்சிகள் தவறின. உங்கள் ஊக்கம் உதவும்!' },
+      call: { en: 'Please call {P} now', hi: 'कृपया अभी {P} को फ़ोन करें', ta: 'தயவுசெய்து இப்போது {P}-ஐ அழையுங்கள்' },
+      callSub: { en: 'Several exercises were missed. The nurse has been told.', hi: 'कई व्यायाम छूट गए हैं। नर्स को बता दिया गया है।', ta: 'பல பயிற்சிகள் தவறின. செவிலியருக்குத் தெரிவிக்கப்பட்டது.' },
+      done: { en: 'done today', hi: 'आज पूरे', ta: 'இன்று முடிந்தவை' },
+      of: { en: '{a} of {b}', hi: '{b} में से {a}', ta: '{b} இல் {a}' },
+      notYet: { en: "Today's exercises start at 8:00.", hi: 'आज के व्यायाम सुबह 8 बजे शुरू होंगे।', ta: 'இன்றைய பயிற்சிகள் காலை 8 மணிக்குத் தொடங்கும்.' },
+      streak: { en: 'good days in a row', hi: 'दिन लगातार अच्छे', ta: 'நல்ல நாட்கள் தொடர்ச்சியாக' },
+      last: { en: 'Last breath', hi: 'आख़िरी साँस', ta: 'கடைசி மூச்சு' },
+      minAgo: { en: '{n} min ago', hi: '{n} मिनट पहले', ta: '{n} நிமிடம் முன்' },
+      hAgo: { en: '{n} hours ago', hi: '{n} घंटे पहले', ta: '{n} மணி நேரம் முன்' },
+      dAgo: { en: '{n} days ago', hi: '{n} दिन पहले', ta: '{n} நாள் முன்' },
+      none: { en: 'No breath yet', hi: 'अभी कोई साँस नहीं', ta: 'இன்னும் இல்லை' },
+      ticks: { en: 'Today, hour by hour', hi: 'आज, हर घंटे', ta: 'இன்று, ஒவ்வொரு மணியும்' },
+      callBtn: { en: '📞 Call {P}', hi: '📞 {P} को फ़ोन करें', ta: '📞 {P}-ஐ அழைக்க' },
+      cheerBtn: { en: '💛 Send a cheer', hi: '💛 हौसला भेजें', ta: '💛 வாழ்த்து அனுப்ப' },
+      pick: { en: 'Pick one – {P} will hear it after the next exercise:', hi: 'एक चुनें – अगले व्यायाम के बाद {P} इसे सुनेंगे:', ta: 'ஒன்றைத் தேர்ந்தெடுங்கள் – அடுத்த பயிற்சிக்குப் பின் {P} கேட்பார்:' },
+      back: { en: '← Back', hi: '← वापस', ta: '← திரும்ப' },
+      listen: { en: '🔊 Listen', hi: '🔊 सुनें', ta: '🔊 கேளுங்கள்' },
+      queued: { en: '{n} cheer(s) waiting to be heard', hi: '{n} संदेश सुनाए जाने का इंतज़ार कर रहे हैं', ta: '{n} வாழ்த்து காத்திருக்கிறது' },
+      demoCall: { en: 'Demo: this would dial {P}\'s phone ({num}).', hi: 'डेमो: यह {P} का फ़ोन ({num}) मिलाएगा।', ta: 'டெமோ: இது {P}-இன் தொலைபேசியை ({num}) அழைக்கும்.' },
+      foot: { en: 'Automated updates from SpiroBuddy. SpiroBuddy does not diagnose. In an emergency, call 112.', hi: 'SpiroBuddy से स्वचालित जानकारी। SpiroBuddy बीमारी नहीं बताता। आपातकाल में 112 पर कॉल करें।', ta: 'SpiroBuddy தானியங்கி தகவல்கள். இது நோயைக் கண்டறியாது. அவசரத்தில் 112 ஐ அழைக்கவும்.' },
+      bad: { en: 'This link is not valid any more. Please ask the hospital for a new one.', hi: 'यह लिंक अब मान्य नहीं है। कृपया अस्पताल से नया लिंक माँगें।', ta: 'இந்த இணைப்பு இனி செல்லாது. மருத்துவமனையிடம் புதியதைக் கேளுங்கள்.' },
+      offline: { en: 'No internet right now – showing the last update.', hi: 'अभी इंटरनेट नहीं है – पिछली जानकारी दिख रही है।', ta: 'இணையம் இல்லை – கடைசி தகவல்.' },
+    };
+    const BCP = { en: 'en-IN', hi: 'hi-IN', ta: 'ta-IN' };
+    let lang = null, d = null, view = 'home', sentMsg = null;
+    try { lang = localStorage.getItem('sb_g_lang'); } catch (_) { /* ignore */ }
+    const t = (k, v) => { let s = (L[k] && (L[k][lang] || L[k].en)) || k; Object.entries(v || {}).forEach(([a, b]) => { s = s.split('{' + a + '}').join(b); }); return s; };
+    const P = () => (d && (d.patient['calls_patient_' + lang] || d.patient.calls_patient)) || '';
+
+    function setLang(l) {
+      lang = ['en', 'hi', 'ta'].includes(l) ? l : 'hi';
+      document.documentElement.lang = lang;
+      document.querySelectorAll('#g-lang button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.l === lang)));
+      try { localStorage.setItem('sb_g_lang', lang); } catch (_) { /* ignore */ }
+      render();
+    }
+    document.getElementById('g-lang').addEventListener('click', (e) => { const b = e.target.closest('button[data-l]'); if (b) setLang(b.dataset.l); });
+
+    function agoText(m) { if (m == null) return t('none'); if (m < 60) return t('minAgo', { n: Math.max(1, m) }); if (m < 1440) return t('hAgo', { n: Math.round(m / 60) }); return t('dAgo', { n: Math.round(m / 1440) }); }
+    function statusText() { const s = d.status; return { h: t(s, { P: P() }), p: t(s + 'Sub') }; }
+    function speak(text) {
+      if (window.Voice && Voice.say) return Voice.say(text, lang, { interrupt: true });
+      try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = BCP[lang]; u.rate = 0.9; speechSynthesis.speak(u); } catch (_) { /* no speech */ }
+    }
+
+    function render() {
+      document.getElementById('g-auto').textContent = t('auto');
+      document.getElementById('g-foot').textContent = t('foot');
+      const main = document.getElementById('g-main');
+      if (!d) return;
+      document.title = `${P()} – SpiroBuddy`;
+      const st = statusText();
+      const ic = { good: '✅', nudge: '⚠️', call: '📞' }[d.status] || '✅';
+      if (view === 'cheer') {
+        main.innerHTML = `<div class="g-card"><p style="margin-top:0"><b>${esc(t('pick', { P: P() }))}</b></p>
+          <div class="g-choices">${d.cheer_presets.map((c, i) => `<button type="button" data-preset="${i}">${esc(c)}</button>`).join('')}</div></div>
+          <button class="g-btn listen" type="button" data-back>${esc(t('back'))}</button>`;
+        return;
+      }
+      const ticks = d.today.map((s) => `<div class="g-tick ${esc(s.status)}" title="${s.hour}:00"><span class="i">${{ done: '✓', missed: '✗', pending: '⏳', upcoming: '·' }[s.status] || '·'}</span>${s.hour}</div>`).join('');
+      const tel = d.call.tel ? `tel:${d.call.tel}` : '#';
+      main.innerHTML = `
+        <section class="g-card g-status ${esc(d.status)}" aria-label="Status"><div class="ic" aria-hidden="true">${ic}</div><div><h1>${esc(st.h)}</h1><p>${esc(st.p)}</p></div></section>
+        ${sentMsg ? `<div class="g-done" role="status" style="margin-bottom:14px">${esc(sentMsg)}</div>` : ''}
+        <a class="g-btn call" href="${esc(tel)}" data-call>${esc(t('callBtn', { P: P() }))}</a>
+        <button class="g-btn cheer" type="button" data-cheer>${esc(t('cheerBtn'))}</button>
+        <div class="g-row">
+          <div class="g-card"><div class="g-big">${d.due ? esc(t('of', { a: d.done, b: d.due })) : '—'}</div><div class="g-label">${esc(d.due ? t('done') : t('notYet'))}</div></div>
+          <div class="g-card"><div class="g-big">🔥 ${esc(d.streak)}</div><div class="g-label">${esc(t('streak'))}</div></div>
+        </div>
+        <div class="g-card"><div class="g-label">${esc(t('last'))}</div><div class="g-big" style="font-size:2rem">${d.last ? esc(agoText(d.last.minutes_ago)) : esc(t('none'))}</div>${d.last && d.last.best_ml ? `<div class="g-label">${Math.round(d.last.best_ml).toLocaleString()} mL</div>` : ''}</div>
+        <div class="g-card"><div class="g-label">${esc(t('ticks'))}</div><div class="g-ticks">${ticks}</div></div>
+        ${d.cheers_queued ? `<p class="g-label" style="text-align:center">💛 ${esc(t('queued', { n: d.cheers_queued }))}</p>` : ''}
+        <button class="g-btn listen" type="button" data-listen>${esc(t('listen'))}</button>`;
+    }
+
+    document.getElementById('g-main').addEventListener('click', async (e) => {
+      if (e.target.closest('[data-cheer]')) { view = 'cheer'; sentMsg = null; render(); window.scrollTo(0, 0); return; }
+      if (e.target.closest('[data-back]')) { view = 'home'; render(); return; }
+      if (e.target.closest('[data-listen]')) {
+        const st = statusText();
+        speak(`${st.h}. ${st.p} ${d.due ? t('of', { a: d.done, b: d.due }) + ' ' + t('done') + '.' : ''}`);
+        return;
+      }
+      const call = e.target.closest('[data-call]');
+      if (call) {
+        fetch(`/api/comms/guardian/${encodeURIComponent(token)}/call-log`, { method: 'POST' }).catch(() => {});
+        if (!d.call.tel) { e.preventDefault(); sentMsg = t('demoCall', { P: P(), num: d.call.display || '—' }); render(); }
+        return;
+      }
+      const pr = e.target.closest('[data-preset]');
+      if (pr) {
+        pr.disabled = true;
+        try {
+          const r = await fetch(`/api/comms/guardian/${encodeURIComponent(token)}/cheer`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ preset: Number(pr.dataset.preset), language: lang }) }).then((x) => x.json());
+          sentMsg = r.message || '💛';
+          view = 'home';
+          await load();
+          speak(sentMsg);
+        } catch (_) { pr.disabled = false; }
+      }
+    });
+
+    async function load() {
+      try {
+        const r = await fetch(`/api/comms/guardian/${encodeURIComponent(token)}`, { cache: 'no-store' });
+        if (r.status === 404) { document.getElementById('g-main').innerHTML = `<div class="g-card">${esc(t('bad'))}</div>`; return; }
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        d = await r.json();
+        if (!lang) { setLang(d.guardian.language); return; }
+        if (view === 'home') render();
+      } catch (e) {
+        if (!d) document.getElementById('g-main').innerHTML = `<div class="g-card">${esc(t('offline'))}</div>`;
+      }
+    }
+    if (lang) setLang(lang); else { lang = 'hi'; render(); lang = null; }
+    if (!token) { lang = lang || 'hi'; document.getElementById('g-main').innerHTML = `<div class="g-card">${esc(t('bad'))}</div>`; }
+    else { load(); setInterval(() => { if (!document.hidden) load(); }, 15000); }
+  })();
+  </script>
+</body>
+</html>

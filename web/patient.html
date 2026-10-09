@@ -55,6 +55,12 @@
       <section class="card span-2" id="voice-patient-card"><div class="muted">Loading voice…</div></section>
       <!-- /VOICE -->
 
+      <!-- COMMS (comms agent): filled by js/comms-patient.js -->
+      <section class="card" id="comms-actions"><div class="muted">Loading care team actions…</div></section>
+      <section class="card" id="comms-ladder"><div class="muted">Loading escalation ladder…</div></section>
+      <section class="card span-2" id="comms-care"><div class="muted">Loading care circle…</div></section>
+      <!-- /COMMS -->
+
       <section class="card">
         <div class="card-head"><h2>Targets &amp; settings</h2></div>
         <form id="settings" class="form-grid" autocomplete="off">
@@ -87,6 +93,8 @@
   <script src="js/charts.js"></script>
   <script src="js/voice.js"></script><!-- VOICE -->
   <script src="js/voice-ui.js"></script><!-- VOICE -->
+  <script src="js/comms.js"></script><!-- COMMS -->
+  <script src="js/comms-patient.js"></script><!-- COMMS -->
   <script>
   (function () {
     const { esc, $, link, hourLabel, statusPill, trendHTML, dateTimeLabel, ago, timeLabel, initials, labelChips, fmtMl, LANG, toast, busy, poll } = SB.ui;
@@ -201,13 +209,18 @@
     $('#btn-wa-nurse').addEventListener('click', (e) => wa('summary', 'nurse', e.currentTarget));
     $('#btn-wa-missed').addEventListener('click', (e) => wa('missed', 'nurse', e.currentTarget));
 
-    SB.ui.boot('patient').then(() => poll(async () => {
-      try { await refresh(); }
-      catch (e) {
-        if (e.status === 404) { $('#profile').innerHTML = `<div><h1>Patient not found</h1><p class="muted">There is no patient with id ${esc(id)}. <a href="${link('index.html')}">Back to all patients</a></p></div>`; }
-        throw e;
-      }
-    }, 2000));
+    SB.ui.boot('patient').then(() => {
+      poll(async () => {
+        try { await refresh(); }
+        catch (e) {
+          if (e.status === 404) { $('#profile').innerHTML = `<div><h1>Patient not found</h1><p class="muted">There is no patient with id ${esc(id)}. <a href="${link('index.html')}">Back to all patients</a></p></div>`; }
+          throw e;
+        }
+      }, 2000);
+      // COMMS: alert bell + care team actions, escalation ladder/timeline, care circle
+      SB.comms.mountBell();
+      SB.commsPatient.mount(Number(id), { actions: $('#comms-actions'), ladder: $('#comms-ladder'), care: $('#comms-care') });
+    });
   })();
   </script>
 </body>

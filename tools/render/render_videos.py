@@ -77,8 +77,9 @@ def start_server(port: int):
     sys.exit("render server did not start")
 
 
-def run_one(vid: str, port: int, gpu: bool, glb: bool, rng: tuple[int | None, int | None], expect: int | None) -> bool:
-    shutil.rmtree(FRAMES / vid, ignore_errors=True)
+def run_one(vid: str, port: int, gpu: bool, glb: bool, rng: tuple[int | None, int | None], expect: int | None, resume: bool = False) -> bool:
+    if not resume:
+        shutil.rmtree(FRAMES / vid, ignore_errors=True)
     urllib.request.urlopen(urllib.request.Request(f"http://localhost:{port}/reset/{vid}", data=b"", method="POST"), timeout=5).read()
     q = f"render={vid}" + ("&glb=1" if glb else "")
     if rng[0] is not None:
@@ -151,6 +152,14 @@ def main() -> None:
             expect = durations.get(vid, 0) * 30
             glb = i == 0 and a.frm is None
             ok = run_one(vid, a.port, not a.swiftshader, glb, (a.frm, a.to), expect)
+            for attempt in range(3):  # resume on the GPU from the first missing frame
+                if ok or a.swiftshader or a.frm is not None:
+                    break
+                have = 0
+                while (FRAMES / vid / f"f_{have:05d}.jpg").exists():
+                    have += 1
+                print(f"[render] {vid}: resuming on GPU from frame {have} (attempt {attempt + 1})")
+                ok = run_one(vid, a.port, True, False, (have, None), expect, resume=True)
             if not ok and not a.swiftshader:
                 print(f"[render] {vid}: retrying with SwiftShader (CPU)")
                 ok = run_one(vid, a.port, False, glb, (a.frm, a.to), expect)

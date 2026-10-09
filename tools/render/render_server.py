@@ -55,12 +55,12 @@ def encode(vid: str, info: dict) -> None:
             d = float(b.get("d", 0.15))
             cmd += ["-f", "lavfi", "-t", f"{d:.3f}", "-i", f"sine=frequency={float(b['f']):.0f}:sample_rate=48000"]
             ms = int(max(0.0, float(b["t"])) * 1000)
-            filt.append(f"[{i + 2}:a]volume=0.22,afade=t=in:d=0.01,afade=t=out:st={max(0.0, d - 0.04):.3f}:d=0.04,"
+            filt.append(f"[{i + 2}:a]volume=1.6,afade=t=in:d=0.01,afade=t=out:st={max(0.0, d - 0.04):.3f}:d=0.04,"
                         f"aformat=channel_layouts=stereo,adelay={ms}|{ms}[b{i}]")
             labels.append(f"[b{i}]")
         filt.append(f"[1:a]{''.join(labels)}amix=inputs={len(labels) + 1}:normalize=0:duration=first[aout]")
         cmd += ["-filter_complex", ";".join(filt), "-map", "0:v", "-map", "[aout]", "-c:a", "aac", "-b:a", "128k"]
-    cmd += ["-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-r", str(fps),
+    cmd += ["-vf", "scale=in_range=full:out_range=tv,format=yuv420p", "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-color_range", "tv", "-r", str(fps),
             "-movflags", "+faststart", "-shortest" if beeps else "-an", str(out)]
     set_status(vid, state="encoding")
     print(f"[render] encoding {vid}: {info.get('frames')} frames", flush=True)
@@ -68,7 +68,7 @@ def encode(vid: str, info: dict) -> None:
     if r.returncode != 0 and beeps:
         print(f"[render] audio mux failed, retrying without sound:\n{r.stderr[-800:]}", flush=True)
         r = subprocess.run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-framerate", str(fps), "-i", str(frames_dir / "f_%05d.jpg"),
-                            "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-r", str(fps), "-movflags", "+faststart", str(out)],
+                            "-vf", "scale=in_range=full:out_range=tv,format=yuv420p", "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-color_range", "tv", "-r", str(fps), "-movflags", "+faststart", str(out)],
                            capture_output=True, text=True)
     if r.returncode == 0:
         set_status(vid, state="done", msg=str(out))

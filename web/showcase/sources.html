@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D Model Sources</title>
+<meta name="description" content="Every dimension in the SpiroBuddy 3D model with its source and confidence (generated from docs/3D_SOURCES.md).">
+<style>
+:root{--bg:#f4f6f9;--surface:#fff;--border:#dbe1e8;--text:#13202e;--text-2:#4a5868;--brand:#0b6e8a;--brand-soft:#e3f2f6;--amber:#a15c00;--amber-soft:#fff5e0;--red:#c62828;--red-soft:#fdecec;--radius:12px;--font:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0f151c;--surface:#17202a;--border:#2b3846;--text:#e8eef4;--text-2:#b4c0cc;--brand:#3fb4d4;--brand-soft:#143241;--amber:#f3b443;--amber-soft:#352914;--red:#ff6b6b;--red-soft:#3a1b1d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f151c;--surface:#17202a;--border:#2b3846;--text:#e8eef4;--text-2:#b4c0cc;--brand:#3fb4d4;--brand-soft:#143241;--amber:#f3b443;--amber-soft:#352914;--red:#ff6b6b;--red-soft:#3a1b1d;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.5}
+main{max-width:1200px;margin:0 auto;padding:24px 16px 48px}a{color:var(--brand);word-break:break-all}
+h1{font-size:1.6rem}h2{font-size:1.2rem;margin-top:2rem}p,li{color:var(--text-2)}
+.tw{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:top;text-align:left}
+th{background:var(--brand-soft);position:sticky;top:0}code{background:var(--brand-soft);padding:1px 4px;border-radius:4px}
+blockquote{margin:12px 0;padding:10px 14px;background:var(--surface);border-left:4px solid var(--brand);border-radius:8px;color:var(--text-2)}
+.flag{font-weight:700;border-radius:6px;padding:0 4px;white-space:nowrap}.flag.d{color:var(--amber);background:var(--amber-soft)}.flag.n{color:var(--red);background:var(--red-soft)}
+.top{display:flex;gap:10px;flex-wrap:wrap}.top a{font-weight:600;text-decoration:none;border:1px solid var(--border);background:var(--surface);padding:6px 12px;border-radius:8px;word-break:normal}
+</style></head><body><main><div class="top"><a href="./">← 3D showroom</a><a href="videos.html">Videos</a></div>
+<h1>3D model – sources for every dimension</h1>
+<p><strong>Rule:</strong> every size in the 3D model comes from a cited web source, or is clearly flagged.</p>
+<p>Each row ID (B.., E.., D.., P.., C..) appears as a comment next to the number in the <code>CFG</code> object at the top of <code>web/showcase/showcase.js</code>.</p>
+<p><strong>Confidence:</strong> HIGH = published by the maker / datasheet · MED = retailer listing or official photo read directly · LOW = derived from a photo with a weak reference.</p>
+<p><strong>Flags:</strong> <code><span class="flag d">DERIVED – confirm with caliper</span></code> = worked out from an official photo (arithmetic shown). <code><span class="flag n">NOT PUBLISHED – placeholder</span></code> = no source found; measure it.</p>
+<p>Research date: 9 Oct 2026.</p>
+<hr>
+<h2>How the spirometer sizes were derived (read this first)</h2>
+<p>Romsons does <strong>not</strong> publish any dimensions for the Breazer 2500 (checked: the official romsons.in product page and its product data, Medikabazaar, Netmeds, Amazon.in, IndiaMART, Globallinker; the official product data even lists weight as <code>0</code>). Retailers give only rough box-style sizes, and they disagree:</p>
+<div class="tw"><table><thead><tr><th>Listing</th><th>Size given</th><th>Weight</th></tr></thead><tbody>
+<tr><td>Amazon.in (B0BDVLW63J) – "Product Dimensions"</td><td>20 × 20 × 9 cm</td><td>350 g</td></tr>
+<tr><td>IndiaMART (Romsons Medsource)</td><td>20 × 10 × 5 cm</td><td>300 g</td></tr>
+<tr><td>Hospimart (search snippet only; page would not load)</td><td>20 × 15 × 5 cm</td><td>250 g</td></tr>
+<tr><td>TrueMeds (search snippet only)</td><td>"approx. 12 × 12 × 12 cm"</td><td>320 g</td></tr>
+</tbody></table></div>
+<p>The only number that three listings agree on is <strong>20 cm as the largest dimension</strong>. So:</p>
+<ol>
+<li><strong>Anchor (B02):</strong> overall height including the cap = <strong>200 mm</strong>. This is an assumption (LOW). If your caliper says otherwise, change <code>CFG.spiro.H</code> and scale the other derived sizes by the same factor.</li>
+<li><strong>Scale:</strong> the official Romsons labelled diagram (image 5 on romsons.in, a near-front orthographic drawing, 1500 × 1500 px) shows the device from the cap top (y = 355 px) to the base bottom (y = 1105 px) = <strong>750 px</strong>. So <strong>1 px = 200 / 750 = 0.2667 mm</strong>.</li>
+<li>Every other spirometer size below = (pixel distance measured on that drawing) × 0.2667. The front-view ratio width/height = 664/750 = 0.885 was cross-checked against the official in-use photo (image 4: 432/480 = 0.90) – they agree within 2 %.</li>
+<li>Depth (front-to-back) is not visible in a front drawing. It comes from the cap lobes (which look circular in the official ¾ photo, image 2) and is bounded by the 9 cm box depth on Amazon.</li>
+</ol>
+<p>Official images used (all from the romsons.in product page, product data at <code><a href="https://www.romsons.in/products/romsons-breazer-2500-volumetric-respiratory-exerciser.json">https://www.romsons.in/products/romsons-breazer-2500-volumetric-respiratory-exerciser.json</a></code>):</p>
+<ul>
+<li><strong>IMG-D</strong> (labelled diagram): <a href="https://cdn.shopify.com/s/files/1/0625/3402/5474/files/5_c51db912-8a72-422d-be3b-ba0d7590884b.jpg">https://cdn.shopify.com/s/files/1/0625/3402/5474/files/5_c51db912-8a72-422d-be3b-ba0d7590884b.jpg</a></li>
+<li><strong>IMG-34</strong> (¾ product photo): <a href="https://cdn.shopify.com/s/files/1/0625/3402/5474/files/2_26373931-7d07-454f-a6ee-3d6ae0a5b90f.jpg">https://cdn.shopify.com/s/files/1/0625/3402/5474/files/2_26373931-7d07-454f-a6ee-3d6ae0a5b90f.jpg</a></li>
+<li><strong>IMG-USE</strong> (man using it, near-front): <a href="https://cdn.shopify.com/s/files/1/0625/3402/5474/files/4_227980a9-c2b1-4c09-912d-dfc84be9e304.jpg">https://cdn.shopify.com/s/files/1/0625/3402/5474/files/4_227980a9-c2b1-4c09-912d-dfc84be9e304.jpg</a></li>
+<li><strong>IMG-IFU</strong> (instructions for use): <a href="https://cdn.shopify.com/s/files/1/0625/3402/5474/files/6_6a26af5f-3ebc-4832-958b-02fe9cdaeff4.jpg">https://cdn.shopify.com/s/files/1/0625/3402/5474/files/6_6a26af5f-3ebc-4832-958b-02fe9cdaeff4.jpg</a></li>
+<li><strong>IMG-BOX</strong>: <a href="https://cdn.shopify.com/s/files/1/0625/3402/5474/files/1_9465c39c-8719-453c-ab36-6878348ed61f.jpg">https://cdn.shopify.com/s/files/1/0625/3402/5474/files/1_9465c39c-8719-453c-ab36-6878348ed61f.jpg</a></li>
+</ul>
+<hr>
+<h2>B – Romsons Breazer 2500 (the spirometer we model)</h2>
+<div class="tw"><table><thead><tr><th>ID</th><th>Part</th><th>Dimension</th><th>Value</th><th>Source URL</th><th>How verified</th><th>Confidence</th></tr></thead><tbody>
+<tr><td>B01</td><td>Product</td><td>Model, capacity, ref</td><td>Breazer 2500, volumetric, up to 2500 mL, REF SH-6083, SKU ORBRZ2500; two chambers, connecting tube, mouthpiece with inbuilt filter, built-in handle, goal indicator, latex-free</td><td><a href="https://www.romsons.in/products/romsons-breazer-2500-volumetric-respiratory-exerciser">https://www.romsons.in/products/romsons-breazer-2500-volumetric-respiratory-exerciser</a></td><td>Official maker page + product data (.json)</td><td>HIGH</td></tr>
+<tr><td>B02</td><td>Whole device</td><td>Overall height incl. cap</td><td><strong>200 mm</strong></td><td>Amazon.in <a href="https://www.amazon.in/dp/B0BDVLW63J">https://www.amazon.in/dp/B0BDVLW63J</a> ; IndiaMART <a href="https://www.indiamart.com/ms-romsons-medsource/respiratory-exerciser.html">https://www.indiamart.com/ms-romsons-medsource/respiratory-exerciser.html</a></td><td>Retailer listings: largest dimension 20 cm in all three that give one. Used as the anchor. <strong><span class="flag d">DERIVED – confirm with caliper</span></strong></td><td>LOW</td></tr>
+<tr><td>B03</td><td>Whole device</td><td>Overall width incl. handle</td><td>177.1 mm (664 px × 0.2667)</td><td>IMG-D</td><td>Derived from official drawing; cross-checked with IMG-USE ratio 0.90. <strong><span class="flag d">DERIVED – confirm with caliper</span></strong></td><td>LOW–MED</td></tr>
+<tr><td>B04</td><td>Base</td><td>Width</td><td>172.5 mm (647 px)</td><td>IMG-D</td><td><strong><span class="flag d">DERIVED – confirm with caliper</span></strong></td><td>LOW–MED</td></tr>
+<tr><td>B05</td><td>Base</td><td>Height</td><td>28.0 mm (105 px: y 1000→1105)</td><td>IMG-D</td><td><strong><span class="flag d">DERIVED – confirm with caliper</span></strong></td><td>LOW–MED</td></tr>
+<tr><td>B06</td><td>Base</td><td>Depth (front–back)</td><td>80 mm</td><td>IMG-34 + Amazon box depth 9 cm</td><td>Base looks deeper than the cap in IMG-34; must fit the 90 mm box. <strong><span class="flag d">DERIVED – confirm with caliper</span></strong></td><td>LOW</td></tr>
+<tr><td>B06</td><td>Base</td><td>Air arches (2 at front/back), 30 × 8 mm, at x −55 / +25 mm</td><td>IMG-D, IMG-34</td><td>Shape read from photo; sizes estimated. <strong><span class="flag d">DERIVED – confirm with caliper</span></strong></td><td>LOW</td></tr>
+<tr><td>B07</td><td>Cap (blue, figure-8)</td><td>Thickness / width</td><td>17.3 mm (65 px) / 144.0 mm (540 px)</td><td>IMG-D</td><td><strong><span class="flag d">DERIVED – confirm with caliper</span></strong></td><td>LOW–MED</td></tr>
+<tr><td>B08</td><td>Cap</td><td>Lobe Ø over volume / flow chamber (→ cap depth)</td><td>65.3 mm (245 px) / 61.3 mm (230 px); waist ≈ 0.62 × lobe</td><td>IMG-D, IMG-34</td><td>Lobes assumed circular (they look round in IMG-34). <strong><span class="flag d">DERIVED – confirm with caliper</span></strong></td><td>LOW</td></tr>
+<tr><td>B09</td><td>Volume chamber</td><td>Outer Ø; centre from left edge</td><td>47.2 mm (177 px); 106.8 mm</td><td>IMG-D</td><td><strong><span class="flag d">DERIVED – confirm with caliper</span></strong></td><td>LOW–MED</td></tr>
+<tr><td>B10</td><td>Chamber walls, clear body panels</td><td>Wall thickness</td><td>1.5 mm / 2 mm</td><td>–</td><td><strong><span class="flag n">NOT PUBLISHED – placeholder, measure with caliper</span></strong></td><td>–</td></tr>
+<tr><td>B11</td><td>Chambers</td><td>Bottom of chambers / top of blue seat dish</td><td>14.7 mm / 21.3 mm above floor (y 1050 / 1025 px)</td><td>IMG-D</td><td><strong><span class="flag d">DERIVED – confirm with caliper</span></strong></td><td>LOW</td></tr>
+<tr><td>B12</td><td>Piston ("Volume Indicator (Plunger)")</td><td>Ø × height</td><td>40.5 mm (152 px) × 30.7 mm (115 px)</td><td>IMG-D (labelled "Volume Indicator (Plunger)")</td><td><strong><span class="flag d">DERIVED – confirm with caliper</span></strong></td><td>LOW–MED</td></tr>
+<tr><td>B13</td><td>Volume scale</td><td>Printed marks</td><td>250, 500 … 2500 mL every 250 mL; "ml Inspired Volume"; <strong>printed on both sides</strong></td><td>IMG-D ("Volume Scale Printed on both sides"), IMG-34</td><td>Read directly from official images</td><td>HIGH</td></tr>
+<tr><td>B14</td><td>Volume scale</td><td>Mark spacing; height of 250 mark; 0 mL level</td><td>11.14 mm per 250 mL ((873−497)/9 = 41.8 px); 250 mark 61.9 mm above floor; 0 mL ≈ 50.8 mm (extrapolated)</td><td>IMG-D</td><td>2500 mark at y 497 px, 250 at y 873 px. Piston top drawn at 53.3 mm at rest (2.5 mm drawing slop) – model uses the extrapolated 0 mark. <strong><span class="flag d">DERIVED – confirm with caliper</span></strong></td><td>LOW–MED</td></tr>
+<tr><td>B15</td><td>Flow-indicator chamber</td><td>Outer Ø; centre from left edge</td><td>32.3 mm (121 px); 37.2 mm</td><td>IMG-D</td><td><strong><span class="flag d">DERIVED – confirm with caliper</span></strong></td><td>LOW–MED</td></tr>
+<tr><td>B16</td><td>Flow float (cup)</td><td>Top Ø / bottom Ø / height</td><td>22.7 / 14.4 / 36.0 mm (85 / 54 / 135 px)</td><td>IMG-D (labelled "Flow Indicator")</td><td><strong><span class="flag d">DERIVED – confirm with caliper</span></strong></td><td>LOW–MED</td></tr>
+<tr><td>B17</td><td>Flow zones</td><td>3 emoji boxes, target = middle box (arrows)</td><td>98.7 → 128.0 mm above floor; each ≈ 9.8 mm</td><td>IMG-D, IMG-IFU step 4 ("flow indicator stays in the middle emoji window")</td><td>Layout HIGH (official IFU); heights <strong><span class="flag d">DERIVED – confirm with caliper</span></strong></td><td>LOW–MED</td></tr>
+<tr><td>B18</td><td>Connector tube (middle, "BREAZER 2500" print)</td><td>Outer Ø; centre; hose port height</td><td>12.0 mm (45 px); 76.4 mm; port ≈ 57 mm above floor</td><td>IMG-D, IMG-34, IMG-USE</td><td>Hose plugs in at the bottom front of this tube (IMG-34). <strong><span class="flag d">DERIVED – confirm with caliper</span></strong></td><td>LOW</td></tr>
+<tr><td>B19</td><td>Handle (clear, right side)</td><td>Hole x 140.5–160.5 mm, hole top 121.3 mm, outer edge 177.1 mm, 4 finger grips; thickness 12 mm</td><td>IMG-D, IMG-34</td><td>Outline <strong><span class="flag d">DERIVED – confirm with caliper</span></strong>; thickness <strong><span class="flag n">NOT PUBLISHED – placeholder</span></strong></td><td>LOW</td></tr>
+<tr><td>B20</td><td>Goal indicator</td><td>Blue slider on the right side of the volume chamber; set to the prescribed level</td><td>IMG-D ("Goal Indicator"), IMG-IFU step 1</td><td>Official. Model sets it to 2000 mL (our demo target, C01)</td><td>HIGH (position on scale is a setting)</td></tr>
+<tr><td>B21</td><td>Corrugated hose</td><td>Outer Ø; rib pitch; length</td><td>18.7 mm (70 px); ≈ 3.2 mm (≈ 12 px); ≈ 270 mm (path traced in IMG-34 ≈ 1000 px vs 750 px device height)</td><td>IMG-D, IMG-34</td><td>Rough. <strong><span class="flag d">DERIVED – confirm with caliper</span> / tape</strong></td><td>LOW</td></tr>
+<tr><td>B22</td><td>Mouthpiece</td><td>"Removable mouth piece with inbuilt filter"; filter housing Ø 20 × 22 mm + flat mouthpiece 34.6 mm, tip width 18.7 mm (total ≈ 56.6 mm = 212 px)</td><td>IMG-D; romsons.in text</td><td>Feature HIGH; sizes <strong><span class="flag d">DERIVED – confirm with caliper</span></strong></td><td>LOW</td></tr>
+<tr><td>B23</td><td>Colours</td><td>Clear body, blue cap/collars/piston/float/seats, frosted white base, white hose &amp; mouthpiece; listing colour "BlueGreen"</td><td>IMG-34, IMG-USE; Medikabazaar <a href="https://www.medikabazaar.com/products/romsons-breazer-2500-volumetric-lung-exerciser-mbpgmrsmmssrre15739">https://www.medikabazaar.com/products/romsons-breazer-2500-volumetric-lung-exerciser-mbpgmrsmmssrre15739</a></td><td>Official photos</td><td>HIGH</td></tr>
+<tr><td>B24</td><td>Whole device</td><td>Weight</td><td>300–350 g (not used by the model)</td><td>Amazon.in, IndiaMART</td><td>Retailer listings (disagree)</td><td>LOW</td></tr>
+<tr><td>B25</td><td>Air path / physics</td><td>Inhaling through the mouthpiece creates <strong>negative pressure</strong> above the piston and float, so both rise; outside air enters <strong>below</strong> them through the base. The piston height shows inspired volume; the float shows flow rate.</td><td>FDA 510(k) K182847 (Voldyne, same device class): <a href="https://fda.innolitics.com/submissions/AN/subpart-f%E2%80%94therapeutic-devices/BWF/K182847">https://fda.innolitics.com/submissions/AN/subpart-f%E2%80%94therapeutic-devices/BWF/K182847</a> ; IMG-IFU step 4 (arrows point up in both chambers and along the hose to the mouth)</td><td>Official IFU drawing + regulator summary of an equivalent design</td><td>MED</td></tr>
+<tr><td>B26</td><td>Base under the piston</td><td>Is there an open inlet straight under the piston (laser path)?</td><td>–</td><td>Air must enter under the piston (B25), so an opening must exist, but its size/position is not visible in any published photo. <strong><span class="flag n">NOT PUBLISHED – check on the real unit before choosing base mount</span></strong></td><td>–</td></tr>
+<tr><td>B27</td><td>Flow float response</td><td>mL/s needed to reach each emoji box</td><td>Model: middle box at 600 mL/s, top box at ≥ 1300 mL/s (illustrative)</td><td>–</td><td><strong><span class="flag n">NOT PUBLISHED – illustrative mapping only</span></strong></td><td>–</td></tr>
+<tr><td>B28</td><td>Chamber tops (cap underside)</td><td>Height</td><td>182.7 mm = B02 − B07</td><td>derived</td><td>arithmetic</td><td>LOW</td></tr>
+</tbody></table></div>
+<blockquote>Note: the printed mL scale is <strong>not</strong> the piston's swept volume (a 40.5 mm piston rising 111 mm sweeps only ~143 mL). Like other volumetric incentive spirometers, the scale is a factory calibration. That is why SpiroBuddy converts laser distance → mL using the <strong>printed marks</strong> (calibration table, ARCHITECTURE Contract B), never piston geometry.</blockquote>
+<h2>E – Electronics</h2>
+<div class="tw"><table><thead><tr><th>ID</th><th>Part</th><th>Dimension</th><th>Value</th><th>Source URL</th><th>How verified</th><th>Confidence</th></tr></thead><tbody>
+<tr><td>E01</td><td>Seeed XIAO ESP32-C3</td><td>Board size</td><td>21 × 17.8 mm</td><td><a href="https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/">https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/</a></td><td>Official Seeed wiki spec table</td><td>HIGH</td></tr>
+<tr><td>E02</td><td>XIAO ESP32-C3</td><td>Overall thickness incl. parts</td><td>≈ 5 mm (model: PCB 1.0 mm + parts)</td><td>Galaxus listing <a href="https://galaxus.ch/en/s1/product/seeed-studio-xiao-esp32-c3-development-boards-kits-25165349">https://galaxus.ch/en/s1/product/seeed-studio-xiao-esp32-c3-development-boards-kits-25165349</a> (search snippet)</td><td>Retailer; PCB thickness <strong><span class="flag n">NOT PUBLISHED – placeholder</span></strong></td><td>LOW</td></tr>
+<tr><td>E03</td><td>XIAO ESP32-C3</td><td>Pins &amp; USB-C</td><td>D0–D10 = GPIO2,3,4,5,6,7,21,20,8,9,10; 5V, GND, 3V3; USB-C on a short edge; U.FL antenna; charging 380 mA</td><td>Seeed wiki (above)</td><td>Official wiki pin table; USB-C position from official photos. USB-C shell 8.9 × 3.2 × 7.3 mm is <strong><span class="flag n">NOT PUBLISHED for XIAO – placeholder</span></strong></td><td>HIGH / –</td></tr>
+<tr><td>E04</td><td>VL53L1X</td><td>Package</td><td>4.9 × 2.5 × 1.56 mm</td><td>ST datasheet DS12385 Rev 8 (Aug 2024) <a href="https://www.st.com/resource/en/datasheet/vl53l1x.pdf">https://www.st.com/resource/en/datasheet/vl53l1x.pdf</a></td><td>Datasheet feature list (note: its Table 1 says 4.4 × 2.5 × 1.56 – inconsistency inside the datasheet; 4.9 used)</td><td>HIGH</td></tr>
+<tr><td>E05</td><td>VL53L1X</td><td>Field of view / ROI</td><td>27° full FoV; programmable 15–27° by ROI from 4×4 to 16×16 SPADs</td><td>ST DS12385 Rev 8</td><td>Datasheet</td><td>HIGH</td></tr>
+<tr><td>E06</td><td>VL53L1X</td><td>Laser</td><td>940 nm invisible, Class 1 (IEC 60825-1:2014)</td><td>ST DS12385 Rev 8</td><td>Datasheet. <strong>The beam in the model is drawn for illustration only</strong></td><td>HIGH</td></tr>
+<tr><td>E07</td><td>VL53L1X</td><td>Range &amp; timing</td><td>Short mode max 136 cm (dark) / 135 cm (ambient); min. guaranteed 4 cm; timing budget ≥ 33 ms for all modes (20 ms short only); up to 50 Hz</td><td>ST DS12385 Rev 8</td><td>Datasheet</td><td>HIGH</td></tr>
+<tr><td>E08</td><td>VL53L1X breakout</td><td>Pololu #3415 carrier</td><td>13 × 18 × 2 mm; 2 holes 0.5″ (12.7 mm) apart; 2.6–5.5 V; pins VDD VIN GND SDA SCL XSHUT GPIO1</td><td><a href="https://www.pololu.com/product/3415">https://www.pololu.com/product/3415</a></td><td>Official product page. (If you buy a GY-VL53L1X module instead, measure it.)</td><td>HIGH</td></tr>
+<tr><td>E09</td><td>LiPo battery</td><td>500 mAh pouch with protection</td><td>29 × 36 × 4.75 mm, 10.5 g, JST-PH</td><td>Adafruit #1578 <a href="https://www.adafruit.com/product/1578">https://www.adafruit.com/product/1578</a></td><td>Official product page (a typical 400–600 mAh cell)</td><td>HIGH (for that product)</td></tr>
+<tr><td>E10</td><td>Passive piezo buzzer</td><td>PS1240</td><td>Ø 11.9 × 6.53 mm</td><td>Adafruit #160 <a href="https://www.adafruit.com/product/160">https://www.adafruit.com/product/160</a></td><td>Official product page</td><td>HIGH (for that product)</td></tr>
+<tr><td>E11</td><td>WS2812B module</td><td>NeoPixel Mini Button PCB; LED package</td><td>PCB 9.1 × 9.1 × 3.2 mm (page also says "8 × 10 mm"); LED 5050 = 5.0 × 5.0 mm, 1.57 mm tall</td><td>Adafruit #1612 <a href="https://www.adafruit.com/product/1612">https://www.adafruit.com/product/1612</a> ; Worldsemi WS2812B spec (5050 package) <a href="https://www.triopak.fi/files/product/Worldsemi/WS2812B.pdf">https://www.triopak.fi/files/product/Worldsemi/WS2812B.pdf</a> ; height: Maplin listing <a href="https://pro.maplin.co.uk/products/ws2812b-rgb-programmable-5050-smd-led-plcc-4">https://pro.maplin.co.uk/products/ws2812b-rgb-programmable-5050-smd-led-plcc-4</a></td><td>Official page (with its own inconsistency) + maker spec + retailer</td><td>MED</td></tr>
+<tr><td>E12</td><td>Tactile button</td><td>6 mm switch</td><td>6.0 × 6.0 × 5.0 mm</td><td>Adafruit #367 <a href="https://www.adafruit.com/product/367">https://www.adafruit.com/product/367</a></td><td>Official product page</td><td>HIGH</td></tr>
+<tr><td>E13</td><td>Small parts on boards (ESP32-C3 chip block, pads, U.FL, standoffs)</td><td>–</td><td>illustrative</td><td>–</td><td><strong>Illustrative only – not size claims</strong></td><td>–</td></tr>
+</tbody></table></div>
+<h2>D – SpiroBuddy base unit (OUR OWN DESIGN)</h2>
+<p>The unit is our design. Its sizes are <strong>derived</strong> from the spirometer rows (B), the component rows (E) and the design rules in <code>docs/plans/SpiroBuddy_Complete_Plan.md</code> §4.3 and §4.5 (≥ 5 cm sensor-to-disc, ~2 mm walls, air openings open, USB-C reachable, foam ring, own battery compartment).</p>
+<div class="tw"><table><thead><tr><th>ID</th><th>Item</th><th>Value</th><th>Derivation</th></tr></thead><tbody>
+<tr><td>D01</td><td>Wall thickness</td><td>2.0 mm</td><td>Plan §4.5 rule</td></tr>
+<tr><td>D02</td><td>Footprint</td><td>Pocket 177.5 × 85 mm; outside 181.5 × 89 mm, corner R 10</td><td>Base B04/B06 172.5 × 80 + 2 × (2 mm EVA foam lining + 0.5 mm clearance) + 2 × 2 mm wall</td></tr>
+<tr><td>D03</td><td>Heights</td><td>Tray 34 mm + lid 12 mm = <strong>46 mm total</strong>; pocket 8 mm deep (floor top at 38 mm); 2 mm foam pads → spirometer floor at 40 mm</td><td>Chosen so the sensor-to-piston rule (D05) holds</td></tr>
+<tr><td>D04</td><td>Sensor stack</td><td>Tray floor 2 + standoff 3 + Pololu board 2 (E08) + VL53L1X 1.56 (E04) → sensor face at <strong>8.56 mm</strong></td><td>arithmetic</td></tr>
+<tr><td>D05</td><td>Sensor → piston underside</td><td>At rest: 40 + (50.8 − 30.7) − 8.56 = <strong>51.5 mm</strong> (rule ≥ 50 mm ✓, ST minimum 40 mm ✓). At 2500 mL: 51.5 + 10 × 11.14 = <strong>162.9 mm</strong> (far inside short-mode 1.3 m)</td><td>B11/B12/B14 + D03/D04</td></tr>
+<tr><td>D06</td><td>Beam footprint</td><td>ROI 15°: 13.6 mm Ø at rest, 42.9 mm Ø at 2500 mL (chamber bore ≈ 44.2 mm, piston 40.5 mm). Full 27° FoV would be 79 mm at the top → <strong>use the smallest ROI</strong> and calibrate with the printed marks</td><td>E05 + D05</td></tr>
+<tr><td>D07</td><td>Light tunnel</td><td>Black tube ID 20 / OD 24 mm from just above the sensor to the pocket floor; black EVA foam ring ID 20 / OD 32 × 2 mm on top</td><td>Plan: foam ring against stray light</td></tr>
+<tr><td>D08</td><td>Air openings</td><td>4 slots 12 × 4 mm on each long side at pocket level + 2 mm gap under the spirometer (pads) + open sensor window, so outside air still reaches the inlet under the piston</td><td>Plan: "air openings stay open"</td></tr>
+<tr><td>D09</td><td>USB-C access</td><td>11 × 5 mm cut-out in the left wall; XIAO's USB-C at the wall</td><td>Plan: "USB-C stays reachable"</td></tr>
+<tr><td>D10</td><td>Front</td><td>Frosted light bar 60 × 5 mm with the WS2812B behind it; Ø 8 mm start-button cap (6 mm switch E12)</td><td>our design</td></tr>
+<tr><td>D11</td><td>Layout (x, z mm from centre)</td><td>Sensor under the volume-chamber axis (x = +20.6); XIAO at the left wall (z −14); LiPo in its own ribbed bay (−22, +16); buzzer (+64, −22); LED (+12, front); button (+66, front)</td><td>our design</td></tr>
+<tr><td>–</td><td>Mounting choice</td><td><strong>Base mount</strong> (sensor looks up at the piston underside). Why: the official IFU shows air entering both chambers from below (B25), and the Breazer's cap is opaque blue plastic, so a top mount would have to look through it. <strong>Risk:</strong> B26 – if the floor under the piston turns out to be closed plastic, run VL53L1X crosstalk calibration through it or switch to a side/top bracket.</td><td></td></tr>
+</tbody></table></div>
+<h2>P – Phone (illustrative)</h2>
+<div class="tw"><table><thead><tr><th>ID</th><th>Item</th><th>Value</th><th>Note</th></tr></thead><tbody>
+<tr><td>P01</td><td>Phone on a stand</td><td>76 × 160 × 8.5 mm, screen 70 × 148 mm</td><td><strong>ILLUSTRATIVE – a generic phone, not a real product.</strong> The screens show the idea of the patient app (being built separately).</td></tr>
+</tbody></table></div>
+<h2>C – Coaching rules used by the animation</h2>
+<div class="tw"><table><thead><tr><th>ID</th><th>Item</th><th>Value</th><th>Source</th></tr></thead><tbody>
+<tr><td>C01</td><td>Target / hold target / "too fast" live threshold / window</td><td>2000 mL / 3 s / 1200 mL/s / 0.3 s</td><td><code>docs/ARCHITECTURE.md</code> §5 CONTRACT C</td></tr>
+<tr><td>C02</td><td>Score and labels</td><td>depth 4 × min(peak/target,1) + speed (3 if max rise ≤ 900, 1 if ≤ 1400, else 0) + hold 3 × min(hold/3,1); rules too_fast &gt; 1400 → too_shallow pct &lt; 0.5 → no_hold hold &lt; 1.0 → good</td><td>CONTRACT C; same code as <code>ml/features.py</code></td></tr>
+</tbody></table></div>
+<p><strong>Breath curves check</strong> (sampled at 30 Hz with the CONTRACT C code; shown on the showroom page under "Breath check"):</p>
+<div class="tw"><table><thead><tr><th>Curve (peak / rise / hold / fall)</th><th>max rise mL/s</th><th>hold s</th><th>pct target</th><th>rule label</th><th>score</th></tr></thead><tbody>
+<tr><td>good 1800 / 3.5 / 3.0 / 2.2</td><td>805.0</td><td>4.167</td><td>0.900</td><td>good ✓</td><td>9.6</td></tr>
+<tr><td>too_fast 1700 / 0.9 / 1.6 / 1.6</td><td>2833.3</td><td>2.100</td><td>0.850</td><td>too_fast ✓</td><td>5.5</td></tr>
+<tr><td>too_shallow 750 / 2.8 / 2.6 / 1.6</td><td>418.7</td><td>3.500</td><td>0.375</td><td>too_shallow ✓</td><td>7.5</td></tr>
+<tr><td>no_hold 1850 / 3.0 / 0 / 1.0</td><td>964.5</td><td>0.833</td><td>0.925</td><td>no_hold ✓</td><td>5.5</td></tr>
+</tbody></table></div>
+<p>Verified twice: the showroom's JavaScript port and the project's <code>ml/features.py</code> give identical numbers.</p>
+<p>(Exact values are printed in the browser console and in the page's "Breath check" table.)</p>
+<hr>
+<h2>Caliper checklist (what to measure on the real Breazer, in this order)</h2>
+<ol>
+<li>Overall height incl. cap (B02) – if it is not 200 mm, scale all DERIVED B rows by (measured / 200).</li>
+<li>Base width, depth and height (B04–B06) → sets the pocket size D02.</li>
+<li>Piston underside height at rest above the table, and the floor/inlet under the piston (B11, B12, B26) → decides base mount and D05.</li>
+<li>Height of the 250 mL and 2500 mL marks above the table (B14) → calibration and the 3D scale.</li>
+<li>Volume chamber outer Ø and wall (B09, B10); cap lobes (B08).</li>
+<li>Hose length and Ø, mouthpiece (B21, B22) – cosmetic.</li>
+</ol>
+<p><small>Generated from docs/3D_SOURCES.md by tools/render/make_sources_html.py.</small></p></main></body></html>

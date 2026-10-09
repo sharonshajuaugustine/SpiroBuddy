@@ -19,10 +19,13 @@ from .config import DB_PATH, env
 
 log = logging.getLogger("spirobuddy.store")
 
-TABLES = ["patients", "sessions", "breaths", "slots", "messages", "breaths_labelled"]
-JSON_COLS = {"features", "samples"}
-BOOL_COLS = {"sent", "dry_run"}
-PKS = {"slots": ["patient_id", "slot_date", "slot_hour"]}
+TABLES = ["patients", "sessions", "breaths", "slots", "messages", "breaths_labelled",
+          # comms tables (backend/app/comms/, docs/COMMS.md)
+          "guardians", "care_settings", "alerts", "escalations", "escalation_events", "calls",
+          "cheers", "inbound_messages"]
+JSON_COLS = {"features", "samples", "config", "meta"}
+BOOL_COLS = {"sent", "dry_run", "is_primary", "consent"}
+PKS = {"slots": ["patient_id", "slot_date", "slot_hour"], "care_settings": ["patient_id"]}
 
 Filter = tuple[str, str, Any]
 
@@ -76,10 +79,49 @@ CREATE TABLE IF NOT EXISTS messages (
 CREATE TABLE IF NOT EXISTS breaths_labelled (
   id INTEGER PRIMARY KEY AUTOINCREMENT, person TEXT, label TEXT, samples TEXT,
   features TEXT, created_at TEXT);
+-- comms tables (backend/app/comms/, docs/COMMS.md)
+CREATE TABLE IF NOT EXISTS guardians (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, patient_id INTEGER, name TEXT, relation TEXT,
+  phone TEXT, language TEXT DEFAULT 'hi', channel TEXT DEFAULT 'both', city TEXT,
+  quiet_start TEXT, quiet_end TEXT, is_primary INTEGER DEFAULT 0, consent INTEGER DEFAULT 0,
+  consent_at TEXT, token TEXT, created_at TEXT);
+CREATE TABLE IF NOT EXISTS care_settings (
+  patient_id INTEGER PRIMARY KEY, config TEXT, updated_at TEXT);
+CREATE TABLE IF NOT EXISTS alerts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, patient_id INTEGER, kind TEXT, severity TEXT,
+  title TEXT, detail TEXT, status TEXT DEFAULT 'open', assigned_to TEXT, snooze_until TEXT,
+  run_id INTEGER, created_at TEXT, updated_at TEXT, acted_by TEXT);
+CREATE TABLE IF NOT EXISTS escalations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, patient_id INTEGER, reason TEXT, status TEXT,
+  speed TEXT, step_index INTEGER, next_at TEXT, slot_date TEXT, slot_hour INTEGER,
+  snoozes INTEGER DEFAULT 0, outcome TEXT, meta TEXT, created_at TEXT, updated_at TEXT);
+CREATE TABLE IF NOT EXISTS escalation_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, patient_id INTEGER, run_id INTEGER, kind TEXT,
+  channel TEXT, actor TEXT, to_name TEXT, title TEXT, detail TEXT, status TEXT, ref_id INTEGER,
+  created_at TEXT);
+CREATE TABLE IF NOT EXISTS calls (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, patient_id INTEGER, run_id INTEGER, guardian_id INTEGER,
+  to_role TEXT, to_name TEXT, to_number TEXT, purpose TEXT, provider TEXT, provider_sid TEXT,
+  status TEXT, digits TEXT, outcome TEXT, language TEXT, script TEXT, meta TEXT,
+  ring_until TEXT, created_at TEXT, updated_at TEXT);
+CREATE TABLE IF NOT EXISTS cheers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, patient_id INTEGER, guardian_id INTEGER, from_name TEXT,
+  text TEXT, language TEXT, status TEXT DEFAULT 'queued', created_at TEXT, played_at TEXT);
+CREATE TABLE IF NOT EXISTS inbound_messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, patient_id INTEGER, guardian_id INTEGER,
+  from_number TEXT, from_role TEXT, from_name TEXT, channel TEXT, body TEXT, intent TEXT,
+  reply TEXT, created_at TEXT);
+CREATE INDEX IF NOT EXISTS idx_alerts_status ON alerts(status, patient_id);
+CREATE INDEX IF NOT EXISTS idx_events_patient ON escalation_events(patient_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_calls_status ON calls(status);
 CREATE INDEX IF NOT EXISTS idx_sessions_patient ON sessions(patient_id, slot_date);
 CREATE INDEX IF NOT EXISTS idx_breaths_session ON breaths(session_id);
 CREATE INDEX IF NOT EXISTS idx_slots_date ON slots(slot_date);
 """
+
+# (table, column, type) added to existing local databases on start-up
+SQLITE_ADD_COLUMNS = [("guardians", "consent", "INTEGER DEFAULT 0"),
+                      ("guardians", "consent_at", "TEXT")]
 
 _SQL_OPS = {"eq": "=", "neq": "!=", "gte": ">=", "lte": "<=", "gt": ">", "lt": "<"}
 
@@ -117,6 +159,10 @@ class SqliteStore(Store):
         self.conn = sqlite3.connect(self.path, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
         self.conn.executescript(SQLITE_DDL)
+        for table, col, typ in SQLITE_ADD_COLUMNS:     # columns added after a table existed
+            have = {r[1] for r in self.conn.execute(f"PRAGMA table_info({table})")}
+            if col not in have:
+                self.conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
         self.conn.commit()
 
     @staticmethod

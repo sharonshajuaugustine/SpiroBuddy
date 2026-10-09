@@ -209,7 +209,8 @@ function breathEval(sched, t) {
 }
 function coachEval(be, t) {
   if (be.active) {
-    if (be.phase === 'rise' && be.fastAt !== null && t >= be.fastAt) return { led: COL.fast, en: 'Slower…', hi: 'धीरे…', tone: 'fast' };
+    // once the 0.3 s rise rate crossed FAST_RATE, stay amber for the rest of this breath so the patient sees it
+    if (be.fastAt !== null && t >= be.fastAt) return { led: COL.fast, en: 'Slower…', hi: 'धीरे…', tone: 'fast' };
     if (be.phase === 'rise') return { led: COL.breathe, en: 'Breathe in slowly', hi: 'धीरे-धीरे साँस लें', tone: 'breathe' };
     if (be.phase === 'hold') return { led: COL.breathe, en: 'Hold…', hi: 'साँस रोकें…', tone: 'breathe' };
     return { led: COL.breathe, en: 'Now breathe out', hi: 'अब साँस छोड़ें', tone: 'breathe' };
@@ -625,7 +626,7 @@ function buildUnit() {
   }
   // logo on the lid front
   const logo = canvasTex(512, 64, (c, ww, hh) => { c.fillStyle = '#e3f2f6'; c.font = `700 40px ${FONT}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('SpiroBuddy', ww / 2, hh / 2 + 2); });
-  P.lid.add(at(mesh(new THREE.PlaneGeometry(56, 7), new THREE.MeshBasicMaterial({ map: logo, transparent: true }), 'logo', { cast: false }), -50, U.trayH + U.lidH / 2 - 1.5, Dp / 2 + 0.05));
+  P.lid.add(at(mesh(new THREE.PlaneGeometry(56, 7), new THREE.MeshBasicMaterial({ map: logo, transparent: true }), 'logo', { cast: false }), 52, U.trayH + U.lidH / 2 - 1.5, Dp / 2 + 0.05));
   g.add(P.lid);
   // ---- light tunnel (black tube) from just above the sensor up to the pocket floor (D07)
   { const s = circleShape(U.tunnelOD / 2, sensorX, 0); s.holes.push(circlePath(U.tunnelID / 2, sensorX, 0));
@@ -716,7 +717,7 @@ function buildUnit() {
   // beep rings (sound illustration)
   P.rings = [];
   for (let i = 0; i < 3; i++) {
-    const r = new THREE.Mesh(new THREE.TorusGeometry(1, 0.012, 6, 96), new THREE.MeshBasicMaterial({ color: COL.good, transparent: true, opacity: 0, depthWrite: false }));
+    const r = new THREE.Mesh(new THREE.TorusGeometry(1, 0.016, 8, 96), new THREE.MeshBasicMaterial({ color: COL.good, transparent: true, opacity: 0, depthWrite: false }));
     r.rotation.x = Math.PI / 2; r.position.y = 24; r.name = 'fx_ring'; r.userData.fx = true; g.add(r); P.rings.push(r);
   }
   return { group: g, parts: P, sensorX };
@@ -755,11 +756,11 @@ const unit = buildUnit(); model.add(unit.group);
 const phone = buildPhone(); model.add(phone.group);
 // laser beam (illustration — the real 940 nm beam is invisible)
 const beam = new THREE.Group(); beam.name = 'fx_laser'; beam.userData.fx = true;
-const beamCone = new THREE.Mesh(new THREE.ConeGeometry(1, 1, 40, 1, true), new THREE.MeshBasicMaterial({ color: 0xff2d55, transparent: true, opacity: 0.18, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+const beamCone = new THREE.Mesh(new THREE.ConeGeometry(1, 1, 40, 1, true), new THREE.MeshBasicMaterial({ color: 0xe0284f, transparent: true, opacity: 0.25, depthWrite: false, side: THREE.DoubleSide }));
 beamCone.geometry.rotateX(Math.PI); beamCone.geometry.translate(0, 0.5, 0);
-const beamCore = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 1, 10), new THREE.MeshBasicMaterial({ color: 0xff5577, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false }));
+const beamCore = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 1, 10), new THREE.MeshBasicMaterial({ color: 0xd61f45, transparent: true, opacity: 0.9, depthWrite: false }));
 beamCore.geometry.translate(0, 0.5, 0);
-const beamSpot = new THREE.Mesh(new THREE.CircleGeometry(1, 40), new THREE.MeshBasicMaterial({ color: 0xff3b6b, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+const beamSpot = new THREE.Mesh(new THREE.CircleGeometry(1, 40), new THREE.MeshBasicMaterial({ color: 0xd61f45, transparent: true, opacity: 0.6, depthWrite: false, side: THREE.DoubleSide }));
 beamSpot.rotation.x = Math.PI / 2;
 beam.add(beamCone, beamCore, beamSpot); scene.add(beam);
 // LED glow sprite
@@ -845,7 +846,7 @@ function applyState(st) {
   unit.parts.rings.forEach((r, i) => {
     const u = ringT === null ? -1 : (ringT - i * 0.22) / 1.1;
     r.visible = u > 0 && u < 1 && ledOn;
-    if (r.visible) { const s = lerp(70, 190, u); r.scale.set(s, s, s * 40); r.material.opacity = (1 - u) * 0.9; r.material.color.set(ringCol); r.position.y = 30 + 20 * u; }
+    if (r.visible) { const s = lerp(70, 190, u); r.scale.set(s, s, s); r.material.opacity = (1 - u) * 0.9; r.material.color.set(ringCol); r.position.y = 30 + 20 * u; }
   });
   // X-ray
   const xa = st.xray || 0;
@@ -863,7 +864,7 @@ function applyState(st) {
   const rr = Math.tan(THREE.MathUtils.degToRad(E.vlRoiDeg / 2)) * dist;
   beamCone.scale.set(rr, dist, rr); beamCore.scale.set(1, dist, 1);
   beamSpot.position.set(0, dist - 0.3, 0); beamSpot.scale.set(rr, rr, rr);
-  beamCone.material.opacity = 0.2 * la; beamCore.material.opacity = 0.85 * la; beamSpot.material.opacity = 0.6 * la;
+  beamCone.material.opacity = 0.26 * la; beamCore.material.opacity = 0.9 * la; beamSpot.material.opacity = 0.7 * la;
   // phone screen
   if (phone.group.visible) drawPhone(st, be, co);
   return { be, co, dist, vol };
@@ -905,7 +906,7 @@ function drawPhone(st, be, co) {
     c.font = `600 32px ${FONT}`; c.fillStyle = '#4a5868'; c.fillText('mL', 250, 512);
     // speed meter
     const sx = 250, sy = 560, sw = 240;
-    c.fillStyle = '#4a5868'; c.font = `600 22px ${FONT}`; c.fillText('Speed', sx, sy - 12);
+    c.fillStyle = '#4a5868'; c.font = `600 22px ${FONT}`; c.fillText('Speed', sx, sy + 48);
     const segs = [['#2e9d4e', 0.5], ['#f0a020', 0.25], ['#c62828', 0.25]]; let ox = sx;
     for (const [col, f] of segs) { c.fillStyle = col; c.fillRect(ox, sy, sw * f, 18); ox += sw * f; }
     const fr = Math.min(1, Math.max(0, be.r03) / 2000);
@@ -1011,8 +1012,8 @@ const VIDEOS = {
     countOffset: 2,
     tracks: {
       cam: [[0, C(28, 12, 560, 0, 100, 0)], [9, C(-12, 12, 520, 0, 100, 0)], [11, C(-6, 14, 600, 0, 110, 0)], [17, C(22, 16, 640, 10, 110, 0)], [20.5, C(32, 22, 700, 0, 125, 0)],
-            [26, C(-34, 26, 720, 0, 135, 0)], [32, C(-18, 20, 660, 0, 120, 0)], [35.5, C(62, 8, 430, 20, 105, 0)], [41, C(78, 4, 400, 20, 100, 0)], [46, C(70, 6, 420, 20, 100, 0)],
-            [48.5, C(14, 13, 640, 85, 105, 25)], [63, C(-6, 14, 610, 85, 105, 25)], [65, C(18, 12, 580, 85, 110, 25)], [76, C(6, 10, 560, 85, 110, 25)],
+            [26, C(-34, 26, 720, 0, 135, 0)], [32, C(-18, 20, 660, 0, 120, 0)], [35.5, C(58, 10, 520, 20, 95, 0)], [41, C(76, 6, 500, 20, 95, 0)], [46, C(68, 8, 520, 20, 95, 0)],
+            [48.5, C(14, 12, 560, 90, 108, 25)], [63, C(-6, 13, 545, 90, 108, 25)], [65, C(18, 11, 545, 90, 110, 25)], [76, C(6, 10, 530, 90, 110, 25)],
             [78, C(24, 6, 330, 200, 86, 60)], [85.5, C(18, 7, 320, 200, 86, 60)], [88.5, C(14, 16, 760, 60, 105, 10)], [92, C(4, 16, 800, 60, 105, 10)]],
       unitX: [[0, 560], [11.6, 560], [14.2, 0]],
       spiroY: [[0, 0], [10.6, 0], [12.0, SEAT + 34], [14.4, SEAT + 34], [16.0, SEAT]],
@@ -1041,6 +1042,7 @@ const VIDEOS = {
       [86, 92, 'SpiroBuddy — coaching every breath at home.'],
     ],
     labelGroups: t => (t < 64 ? ['unit'] : []),
+    hud: t => t < 77,
   },
   hero: {
     title: 'SpiroBuddy – 360°', duration: 20, chapters: [[0, 'SpiroBuddy']],
@@ -1065,7 +1067,7 @@ const VIDEOS = {
 function videoState(id, t) {
   const v = VIDEOS[id], T = v.tracks;
   return {
-    cam: track(T.cam, t), unitX: track(T.unitX, t), spiroY: track(T.spiroY, t), phoneX: track(T.phoneX, t),
+    cam: (c => ({ ...c, dist: c.dist * (v.camScale ?? 1.25) }))(track(T.cam, t)), hud: v.hud ? v.hud(t) : true, unitX: track(T.unitX, t), spiroY: track(T.spiroY, t), phoneX: track(T.phoneX, t),
     explode: track(T.explode, t), xray: track(T.xray, t), labels: track(T.labels, t), laser: track(T.laser, t),
     sched: v.sched, tB: t, countOffset: v.countOffset, phone: v.phone(t), caption: captionAt(v.captions, t),
     labelGroups: v.labelGroups(t), chapters: v.chapters, duration: v.duration, t, panel: v.panel, title: v.title,
@@ -1143,7 +1145,7 @@ function drawVideoOverlay(ctx, st, info, Wpx, Hpx) {
   ctx.fillStyle = '#4a5868'; ctx.font = `500 17px ${FONT}`; ctx.fillText('Healthcare & Wellbeing · hackathon demo', Wpx - 56, 116);
   ctx.textAlign = 'left';
   // HUD
-  if (st.unitX < 300) drawHUD(ctx, info, 48, 136);
+  if (st.unitX < 300 && st.hud) drawHUD(ctx, info, 48, 136);
   // breath-type panel
   if (st.panel) drawBreathPanel(ctx, st, info, Wpx);
   // caption
@@ -1158,9 +1160,9 @@ function drawVideoOverlay(ctx, st, info, Wpx, Hpx) {
   // outro
   if (st.title.startsWith('SpiroBuddy – guided') && st.t > 87) {
     const a = clamp01((st.t - 87) / 1.2);
-    ctx.globalAlpha = a; ctx.fillStyle = 'rgba(255,255,255,0.86)'; rr(ctx, Wpx / 2 - 430, 300, 860, 230, 28); ctx.fill();
+    ctx.globalAlpha = a; ctx.fillStyle = 'rgba(255,255,255,0.9)'; rr(ctx, Wpx / 2 - 600, 290, 1200, 240, 12); ctx.fill();
     ctx.textAlign = 'center'; ctx.fillStyle = '#0b6e8a'; ctx.font = `800 84px ${FONT}`; ctx.fillText('SpiroBuddy', Wpx / 2, 410);
-    ctx.fillStyle = '#4a5868'; ctx.font = `600 30px ${FONT}`; ctx.fillText('Fits Indian spirometers · coaches in Indian languages · updates families', Wpx / 2, 470);
+    ctx.fillStyle = '#4a5868'; ctx.font = `600 28px ${FONT}`; ctx.fillText('Fits Indian spirometers · coaches in Indian languages · updates families', Wpx / 2, 470);
     ctx.textAlign = 'left'; ctx.globalAlpha = 1;
   }
   // honesty tag + chapter progress bar
@@ -1410,11 +1412,13 @@ async function renderVideo(id) {
     drawVideoOverlay(ov, st, info, w, h);
     cc.drawImage(glCanvas, 0, 0, w, h); cc.drawImage(ovCanvas, 0, 0);
     const blob = await new Promise(res => comp.toBlob(res, 'image/jpeg', jpegQ));
-    const r = await fetch(`/frame/${id}/${i}`, { method: 'POST', body: blob });
-    if (!r.ok) throw new Error('frame upload failed ' + r.status);
+    for (let attempt = 1; ; attempt++) {   // retry: a busy local server can drop a request now and then
+      try { const r = await fetch(`/frame/${id}/${i}`, { method: 'POST', body: blob }); if (r.ok) break; throw new Error('HTTP ' + r.status); }
+      catch (e) { if (attempt >= 8) throw new Error(`frame ${i} upload failed: ${e.message}`); await new Promise(res => setTimeout(res, 250 * attempt)); }
+    }
     window.__renderStatus = { id, frame: i, of: N };
   }
-  await fetch(`/done/${id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ frames: N, fps, beeps, duration: v.duration }) });
+  if (end === N) await fetch(`/done/${id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ frames: N, fps, beeps, duration: v.duration }) });
   window.__renderStatus = { id, done: true };
 }
 
