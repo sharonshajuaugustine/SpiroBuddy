@@ -1,4 +1,4 @@
-"""AI daily summary (3 sentences, English or Hindi) with a template fallback.
+"""AI daily summary (3 sentences; English, Hindi, Tamil or Malayalam) with a template fallback.
 
 Claude via the Anthropic Python SDK, model claude-opus-5-5, effort "low", max_tokens 400.
 Falls back to template text when there is no ANTHROPIC_API_KEY, on any error, on a
@@ -15,7 +15,8 @@ from .config import env
 log = logging.getLogger("spirobuddy.llm")
 
 MODEL = "claude-opus-5-5"
-LANG_NAMES = {"en": "English", "hi": "Hindi (Devanagari script)", "ta": "Tamil (Tamil script)"}
+LANG_NAMES = {"en": "English", "hi": "Hindi (Devanagari script)", "ta": "Tamil (Tamil script)",
+              "ml": "Malayalam (Malayalam script)"}
 
 SYSTEM = (
     "You write short daily progress updates for SpiroBuddy, a breathing-exercise coach used at "
@@ -38,26 +39,106 @@ def llm_enabled() -> bool:
     return bool(env("ANTHROPIC_API_KEY"))
 
 
+def add_recent(stats: dict, detail: dict) -> dict:
+    """Before the first slot (8 am) nothing is due yet today: attach yesterday's numbers (or, if
+    yesterday is empty, the last few days) from patient_detail()['history'] so the summary can say
+    something useful instead of "0 of 0" (Q-29). Returns `stats` (changed in place)."""
+    if stats.get("due"):
+        return stats
+    hist = list(detail.get("history") or [])[:-1]          # last item is today
+    if not hist:
+        return stats
+    y = hist[-1]
+    if y.get("sessions_done"):
+        stats["recent"] = {"days": 1, "sessions": int(y["sessions_done"]),
+                           "best_ml": int(y.get("best_ml") or 0)}
+        return stats
+    days = [h for h in hist if h.get("sessions_done")]
+    if days:
+        stats["recent"] = {"days": len(hist), "sessions": sum(int(h["sessions_done"]) for h in days),
+                           "best_ml": int(max(h.get("best_ml") or 0 for h in days))}
+    return stats
+
+
+# Template text. ta/ml strings were written without a native speaker: NEEDS A NATIVE-SPEAKER CHECK.
+# Family-facing text: never names a disease or the operation.
+_T = {
+    "en": {
+        "today": "{name} completed {done} of {due} breathing sessions today.",
+        "best": "The best breath today was {best} mL against a target of {target} mL.",
+        "nobest": "No breaths have been recorded yet today; the target is {target} mL.",
+        "tip": "Please encourage a slow, deep breath with a 3-second hold every hour.",
+        "great": "Great work - keep practising every hour like this.",
+        "early": "{name}'s breathing sessions for today start at 8 am, so none are due yet.",
+        "yday": "Yesterday {name} did {n} breathing sessions, with a best breath of {best} mL "
+                "against a target of {target} mL.",
+        "recent": "Over the last {days} days {name} did {n} breathing sessions, with a best breath of "
+                  "{best} mL against a target of {target} mL.",
+        "early_tip": "Once the day starts, please encourage a slow, deep breath with a 3-second hold "
+                     "every hour.",
+    },
+    "hi": {
+        "today": "{name} ने आज {due} में से {done} साँस-व्यायाम सत्र पूरे किए।",
+        "best": "आज की सबसे अच्छी साँस {best} mL रही, लक्ष्य {target} mL है।",
+        "nobest": "आज अभी तक कोई साँस दर्ज नहीं हुई, लक्ष्य {target} mL है।",
+        "tip": "कृपया हर घंटे धीरे-धीरे गहरी साँस लेने और 3 सेकंड रोकने के लिए प्रोत्साहित करें।",
+        "great": "बहुत बढ़िया, ऐसे ही हर घंटे अभ्यास जारी रखें।",
+        "early": "{name} के आज के साँस-व्यायाम सुबह 8 बजे शुरू होंगे, अभी कोई सत्र बाकी नहीं है।",
+        "yday": "कल {name} ने {n} सत्र पूरे किए, सबसे अच्छी साँस {best} mL रही (लक्ष्य {target} mL)।",
+        "recent": "पिछले {days} दिनों में {name} ने {n} सत्र पूरे किए, सबसे अच्छी साँस {best} mL रही "
+                  "(लक्ष्य {target} mL)।",
+        "early_tip": "दिन शुरू होने पर कृपया हर घंटे धीरे-धीरे गहरी साँस लेने और 3 सेकंड रोकने के लिए "
+                     "प्रोत्साहित करें।",
+    },
+    "ta": {
+        "today": "{name} இன்று {due} இல் {done} மூச்சுப் பயிற்சி அமர்வுகளை முடித்தார்.",
+        "best": "இன்றைய சிறந்த மூச்சு {best} mL, இலக்கு {target} mL.",
+        "nobest": "இன்று இதுவரை மூச்சு எதுவும் பதிவாகவில்லை; இலக்கு {target} mL.",
+        "tip": "ஒவ்வொரு மணி நேரமும் மெதுவாக ஆழ்ந்த மூச்சு எடுத்து 3 வினாடி நிறுத்த ஊக்குவியுங்கள்.",
+        "great": "மிக நன்று, ஒவ்வொரு மணி நேரமும் இப்படியே பயிற்சியைத் தொடருங்கள்.",
+        "early": "{name}-இன் இன்றைய மூச்சுப் பயிற்சிகள் காலை 8 மணிக்குத் தொடங்கும்; இப்போது எதுவும் "
+                 "நிலுவையில் இல்லை.",
+        "yday": "நேற்று {name} {n} அமர்வுகளை முடித்தார்; சிறந்த மூச்சு {best} mL (இலக்கு {target} mL).",
+        "recent": "கடந்த {days} நாட்களில் {name} {n} அமர்வுகளை முடித்தார்; சிறந்த மூச்சு {best} mL "
+                  "(இலக்கு {target} mL).",
+        "early_tip": "நாள் தொடங்கியதும், ஒவ்வொரு மணி நேரமும் மெதுவாக ஆழ்ந்த மூச்சு எடுத்து 3 வினாடி "
+                     "நிறுத்த ஊக்குவியுங்கள்.",
+    },
+    "ml": {
+        "today": "{name} ഇന്ന് {due}-ൽ {done} ശ്വസന വ്യായാമ സെഷനുകൾ പൂർത്തിയാക്കി.",
+        "best": "ഇന്നത്തെ ഏറ്റവും നല്ല ശ്വാസം {best} mL ആയിരുന്നു, ലക്ഷ്യം {target} mL ആണ്.",
+        "nobest": "ഇന്ന് ഇതുവരെ ശ്വാസമൊന്നും രേഖപ്പെടുത്തിയിട്ടില്ല, ലക്ഷ്യം {target} mL ആണ്.",
+        "tip": "ദയവായി ഓരോ മണിക്കൂറിലും പതുക്കെ ആഴത്തിൽ ശ്വാസമെടുത്ത് 3 സെക്കൻഡ് പിടിച്ചുനിർത്താൻ "
+               "പ്രോത്സാഹിപ്പിക്കുക.",
+        "great": "വളരെ നന്നായി, ഓരോ മണിക്കൂറിലും ഇതുപോലെ പരിശീലനം തുടരൂ.",
+        "early": "{name}-ന്റെ ഇന്നത്തെ ശ്വസന വ്യായാമങ്ങൾ രാവിലെ 8 മണിക്ക് തുടങ്ങും; ഇപ്പോൾ ഒന്നും "
+                 "ചെയ്യേണ്ടതില്ല.",
+        "yday": "ഇന്നലെ {name} {n} സെഷനുകൾ ചെയ്തു; ഏറ്റവും നല്ല ശ്വാസം {best} mL (ലക്ഷ്യം {target} mL).",
+        "recent": "കഴിഞ്ഞ {days} ദിവസങ്ങളിൽ {name} {n} സെഷനുകൾ ചെയ്തു; ഏറ്റവും നല്ല ശ്വാസം {best} mL "
+                  "(ലക്ഷ്യം {target} mL).",
+        "early_tip": "ദിവസം തുടങ്ങുമ്പോൾ, ഓരോ മണിക്കൂറിലും പതുക്കെ ആഴത്തിൽ ശ്വാസമെടുത്ത് 3 സെക്കൻഡ് "
+                     "പിടിച്ചുനിർത്താൻ പ്രോത്സാഹിപ്പിക്കുക.",
+    },
+}
+
+
 def template_summary(stats: dict, language: str) -> str:
+    t = _T.get(language) or _T["en"]
     name = stats["first_name"]
     done, due = stats["done"], stats["due"]
     best, target = int(stats["best_ml"]), int(stats["target_ml"])
-    if language == "hi":
-        s1 = f"{name} ने आज {due} में से {done} साँस-व्यायाम सत्र पूरे किए।"
-        if best:
-            s2 = f"आज की सबसे अच्छी साँस {best} mL रही, लक्ष्य {target} mL है।"
-        else:
-            s2 = f"आज अभी तक कोई साँस दर्ज नहीं हुई, लक्ष्य {target} mL है।"
-        s3 = ("कृपया हर घंटे धीरे-धीरे गहरी साँस लेने और 3 सेकंड रोकने के लिए प्रोत्साहित करें।"
-               if done < due or best < target else "बहुत बढ़िया, ऐसे ही हर घंटे अभ्यास जारी रखें।")
-        return " ".join([s1, s2, s3])
-    s1 = f"{name} completed {done} of {due} breathing sessions today."
-    if best:
-        s2 = f"The best breath today was {best} mL against a target of {target} mL."
-    else:
-        s2 = f"No breaths have been recorded yet today; the target is {target} mL."
-    s3 = ("Please encourage a slow, deep breath with a 3-second hold every hour."
-           if done < due or best < target else "Great work - keep practising every hour like this.")
+    if not due:                     # before 8 am: nothing due yet -> no "0 of 0" (Q-29)
+        parts = [t["early"].format(name=name)]
+        r = stats.get("recent")
+        if r and r.get("sessions"):
+            key = "yday" if r["days"] == 1 else "recent"
+            parts.append(t[key].format(name=name, n=r["sessions"], days=r["days"],
+                                       best=r["best_ml"], target=target))
+        parts.append(t["early_tip"])
+        return " ".join(parts)
+    s1 = t["today"].format(name=name, done=done, due=due)
+    s2 = (t["best"] if best else t["nobest"]).format(best=best, target=target)
+    s3 = t["tip"] if done < due or best < target else t["great"]
     return " ".join([s1, s2, s3])
 
 
@@ -76,13 +157,28 @@ def _prompt(stats: dict, language: str) -> str:
         f"too shallow: {lc.get('too_shallow', 0)}, no hold: {lc.get('no_hold', 0)}\n"
         f"7-day trend of best breath: {stats.get('trend', 'flat')}\n"
         f"Missed sessions in a row right now: {stats.get('trailing_missed', 0)}"
+        + _early_note(stats)
     )
+
+
+def _early_note(stats: dict) -> str:
+    """Before the first slot: tell the model nothing is due yet and give recent days (Q-29)."""
+    if stats.get("due"):
+        return ""
+    note = ("\nIt is before today's first session (8 am), so no sessions are due yet today. "
+            "Do not say '0 of 0'; say today's sessions start at 8 am")
+    r = stats.get("recent")
+    if r and r.get("sessions"):
+        when = "Yesterday" if r["days"] == 1 else f"Last {r['days']} days"
+        note += (f", and summarise the recent days instead.\n{when}: {r['sessions']} sessions done, "
+                 f"best breath {r['best_ml']} mL")
+    return note + "."
 
 
 def summarize(stats: dict, language: str = "en") -> dict:
     """-> {text, source: "llm"|"template"}"""
     language = language if language in LANG_NAMES else "en"
-    fallback_lang = "hi" if language == "hi" else "en"
+    fallback_lang = language if language in _T else "en"
     if not llm_enabled():
         return {"text": template_summary(stats, fallback_lang), "source": "template"}
     try:

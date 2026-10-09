@@ -490,3 +490,43 @@ def test_red_flag_badge_on_patient_list(fresh):
         if a["kind"] == "red_flag":
             fresh.post(f"{C}/alerts/{a['id']}/resolve", json={"by": "Nurse"})
     assert not next(x for x in fresh.get("/api/patients").json() if x["id"] == p["id"])["red_flag_open"]
+
+
+def test_malayalam_guardian_gets_malayalam_summary(fresh):
+    """Q-28: Sreedevi's husband (Malayalam) gets the summary, disclosure and footer in Malayalam;
+    a Malayalam STOP word blocks the next one."""
+    from backend.app.comms.common import DISCLOSURE
+    from backend.app.comms.messages import FOOTER
+    pid = next(p["id"] for p in fresh.get("/api/patients").json() if p["name"] == "Sreedevi Nair")
+    g = fresh.get(f"{C}/care/{pid}").json()["guardians"][0]
+    assert g["language"] == "ml"
+    r = fresh.post(f"/api/whatsapp/{pid}", json={"kind": "summary", "to": "family"}).json()
+    assert {"sent", "dry_run", "text", "to_role"} <= set(r) and r["dry_run"] is True
+    assert DISCLOSURE["ml"] in r["text"] and FOOTER["ml"] in r["text"]
+    body = r["text"].replace(DISCLOSURE["ml"], "").replace(FOOTER["ml"], "")
+    assert any("\u0d00" <= ch <= "\u0d7f" for ch in body)          # Malayalam script in the summary
+    assert "automated" not in r["text"] and "completed" not in r["text"]
+    assert "SpiroBuddy - " not in r["text"]                          # Q-29: no duplicated brand
+    missed = fresh.post(f"/api/whatsapp/{pid}", json={"kind": "missed", "to": "family"}).json()
+    assert "ശ്വസന" in missed["text"] and FOOTER["ml"] in missed["text"]
+    stop = fresh.post(f"{C}/wa/reply", json={"patient_id": pid, "role": "guardian", "text": "നിർത്തുക"}).json()
+    assert stop["intent"] == "stop" and "SpiroBuddy" in stop["reply"]
+    blocked = fresh.post(f"/api/whatsapp/{pid}", json={"kind": "summary", "to": "family"}).json()
+    assert blocked["blocked"] is True and blocked["sent"] is False
+
+
+def test_early_morning_summary_has_no_zero_of_zero(fresh, monkeypatch):
+    """Q-29: before the 8 am slot nothing is due: say so and summarise yesterday, never "0 of 0"."""
+    from backend.app import llm, service
+    orig = service.summary_stats
+    monkeypatch.setattr(service, "summary_stats",
+                        lambda d: {**orig(d), "done": 0, "due": 0, "best_ml": 0.0, "avg_score": None})
+    r = fresh.post("/api/whatsapp/2", json={"kind": "summary", "to": "family"}).json()
+    assert "0 of 0" not in r["text"] and "start at 8 am" in r["text"]
+    assert "Yesterday" in r["text"] or "last" in r["text"]
+    assert "SpiroBuddy - " not in r["text"]
+    stats = {"first_name": "Sreedevi", "done": 0, "due": 0, "best_ml": 0, "target_ml": 2250}
+    for lang in ("en", "hi", "ta", "ml"):
+        t = llm.template_summary(llm.add_recent(dict(stats), {"history": [
+            {"sessions_done": 9, "best_ml": 1800.0}, {"sessions_done": 0, "best_ml": 0}]}), lang)
+        assert "0 of 0" not in t and "9" in t and "1800" in t and "8" in t

@@ -617,7 +617,7 @@ def send_voice_note(pid: int, body: dict | None = Body(None)):
     g = guardians.primary_guardian(pid) if to == "family" else None
     lang = lang_of((g or {}).get("language") if g else p.get("language"), "hi")
     d = service.patient_detail(pid)
-    s = llm.summarize(service.summary_stats(d), "hi" if lang == "hi" else "en")
+    s = llm.summarize(llm.add_recent(service.summary_stats(d), d), "hi" if lang == "hi" else "en")
     text = s["text"]
     if lang == "ta":
         try:

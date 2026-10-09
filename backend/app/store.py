@@ -15,7 +15,7 @@ import sqlite3
 import threading
 from typing import Any, Iterable
 
-from .config import DB_PATH, env
+from .config import DB_PATH, env, iso, parse_dt
 
 log = logging.getLogger("spirobuddy.store")
 
@@ -25,6 +25,9 @@ TABLES = ["patients", "sessions", "breaths", "slots", "messages", "breaths_label
           "cheers", "inbound_messages"]
 JSON_COLS = {"features", "samples", "config", "meta"}
 BOOL_COLS = {"sent", "dry_run", "is_primary", "consent"}
+# timestamptz columns in supabase/schema.sql (returned in UTC by Postgres -> made local again)
+TS_COLS = {"created_at", "started_at", "updated_at", "consent_at", "snooze_until", "next_at",
+           "ring_until", "played_at"}
 PKS = {"slots": ["patient_id", "slot_date", "slot_hour"], "care_settings": ["patient_id"]}
 
 Filter = tuple[str, str, Any]
@@ -52,7 +55,7 @@ class Store:
         raise NotImplementedError
 
     def count(self, table: str) -> int:
-        return len(self.select(table, columns="id" if table != "slots" else "patient_id"))
+        return len(self.select(table, columns=PKS.get(table, ["id"])[0]))
 
 
 # ----------------------------------------------------------------------------- SQLite
@@ -240,37 +243,82 @@ class SqliteStore(Store):
 
 # ----------------------------------------------------------------------------- Supabase
 
+def _same_keys(rows: list[dict]) -> list[list[dict]]:
+    """PostgREST bulk inserts need every object to have the same keys: group rows by key set."""
+    groups: dict[tuple, list[dict]] = {}
+    for r in rows:
+        groups.setdefault(tuple(sorted(r.keys())), []).append(r)
+    return list(groups.values())
+
+
+def _pg_value(v) -> str:
+    """A value inside a PostgREST in.(...) list: quote it if it has reserved characters."""
+    s = str(v)
+    if any(c in s for c in ',()" \\'):
+        return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
+    return s
+
+
 class SupabaseStore(Store):
     """Supabase Postgres through PostgREST (https://<ref>.supabase.co/rest/v1/<table>).
 
     Auth: the key always goes in the `apikey` header. Legacy JWT keys (service_role, start
     with "eyJ") also go in `Authorization: Bearer`; new `sb_secret_...` keys must NOT
     (Supabase docs: "Send publishable and secret keys on the apikey header").
+
+    Rows come back looking like SqliteStore rows: timestamps as local ISO strings
+    (Postgres would return UTC, e.g. "...T04:35:00.123+00:00"), jsonb as dict/list.
     """
     name = "supabase"
     PAGE = 1000   # Supabase caps rows per response (default max-rows 1000), so page through
 
-    def __init__(self, url: str, key: str):
-        import httpx
-        headers = {"apikey": key, "Content-Type": "application/json"}
-        if key.startswith("eyJ"):
-            headers["Authorization"] = f"Bearer {key}"
-        self.client = httpx.Client(base_url=url.rstrip("/") + "/rest/v1", headers=headers,
-                                   timeout=15.0)
-        self.client.get("/patients", params={"select": "id", "limit": "1"}).raise_for_status()
+    def __init__(self, url: str, key: str, client=None):
+        if client is None:
+            import httpx
+            headers = {"apikey": key, "Content-Type": "application/json"}
+            if key.startswith("eyJ"):
+                headers["Authorization"] = f"Bearer {key}"
+            client = httpx.Client(base_url=url.rstrip("/") + "/rest/v1", headers=headers,
+                                  timeout=15.0)
+        self.client = client
+        # Fail fast (-> demo fallback with a clear note) if the key is wrong or a table is missing.
+        for t in TABLES:
+            r = self.client.get(f"/{t}", params={"select": "*", "limit": "0"})
+            if r.status_code >= 400:
+                hint = (" - run supabase/schema.sql in the Supabase SQL Editor"
+                        if r.status_code in (404, 400) or "does not exist" in r.text
+                        or "schema cache" in r.text else "")
+                raise RuntimeError(f"table {t}: HTTP {r.status_code} {r.text[:160]}{hint}")
 
     @staticmethod
     def _params(filters: Iterable[Filter]) -> list[tuple[str, str]]:
         params = []
         for col, op, val in filters:
             if op == "in":
-                vals = ",".join(str(v) for v in val)
+                vals = ",".join(_pg_value(v) for v in val)
                 params.append((col, f"in.({vals})"))
             elif isinstance(val, bool):
                 params.append((col, f"{op}.{'true' if val else 'false'}"))
+            elif val is None:
+                params.append((col, "is.null" if op == "eq" else "not.is.null"))
             else:
                 params.append((col, f"{op}.{val}"))
         return params
+
+    @staticmethod
+    def _decode(row: dict) -> dict:
+        for k, v in row.items():
+            if k in TS_COLS and isinstance(v, str) and v:
+                try:
+                    row[k] = iso(parse_dt(v))
+                except ValueError:
+                    pass
+            elif k in JSON_COLS and isinstance(v, str):
+                try:
+                    row[k] = json.loads(v)
+                except ValueError:
+                    pass
+        return row
 
     def _check(self, r):
         if r.status_code >= 400:
@@ -280,8 +328,11 @@ class SupabaseStore(Store):
 
     def select(self, table, filters=(), order=None, desc=False, limit=None, columns="*"):
         base = [("select", columns)] + self._params(filters)
-        if order:
-            base.append(("order", f"{order}.{'desc' if desc else 'asc'}"))
+        # Always order (tie-break on the primary key) so paging with offset is stable.
+        direction = "desc" if desc else "asc"
+        keys = ([f"{order}.{direction}"] if order else []) + \
+               [f"{k}.{direction}" for k in PKS.get(table, ["id"]) if k != order]
+        base.append(("order", ",".join(keys)))
         out: list[dict] = []
         offset = 0
         while True:
@@ -292,31 +343,34 @@ class SupabaseStore(Store):
             offset += len(rows)
             if len(rows) < want or (limit is not None and len(out) >= limit):
                 break
-        return out
+        return [self._decode(r) for r in out]
 
     def insert(self, table, rows):
         out = []
-        for i in range(0, len(rows), 500):
-            chunk = rows[i:i + 500]
-            r = self._check(self.client.post(f"/{table}", json=chunk,
-                                             headers={"Prefer": "return=representation"}))
-            out.extend(r.json())
+        for group in _same_keys(rows):
+            for i in range(0, len(group), 500):
+                chunk = group[i:i + 500]
+                r = self._check(self.client.post(f"/{table}", json=chunk,
+                                                 headers={"Prefer": "return=representation"}))
+                out.extend(self._decode(x) for x in r.json())
         return out
 
     def update(self, table, filters, values):
-        self._check(self.client.patch(f"/{table}", params=self._params(filters), json=values))
+        self._check(self.client.patch(f"/{table}", params=self._params(filters), json=values,
+                                      headers={"Prefer": "return=minimal"}))
 
     def upsert(self, table, rows):
         pk = PKS.get(table, ["id"])
-        self._check(self.client.post(
-            f"/{table}", params={"on_conflict": ",".join(pk)}, json=rows,
-            headers={"Prefer": "resolution=merge-duplicates,return=minimal"}))
+        for group in _same_keys(rows):
+            self._check(self.client.post(
+                f"/{table}", params={"on_conflict": ",".join(pk)}, json=group,
+                headers={"Prefer": "resolution=merge-duplicates,return=minimal"}))
 
     def delete(self, table, filters):
         self._check(self.client.delete(f"/{table}", params=self._params(filters)))
 
     def count(self, table):
-        col = "patient_id" if table == "slots" else "id"
+        col = PKS.get(table, ["id"])[0]
         r = self._check(self.client.get(f"/{table}", params={"select": col, "limit": "1"},
                                         headers={"Prefer": "count=exact"}))
         rng = r.headers.get("content-range", "*/0")   # e.g. "0-0/42"

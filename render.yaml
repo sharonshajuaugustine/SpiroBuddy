@@ -1,16 +1,26 @@
 # Render Blueprint for SpiroBuddy (spec: https://render.com/docs/blueprint-spec)
 # One Python web service: FastAPI API + the nurse & doctor website (web/) + 3D showroom.
+# Render asks for every "sync: false" value ONCE, when the Blueprint is first created.
+# Only SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY matter; leave all the others blank.
+# (Values added later: Dashboard -> spirobuddy -> Environment.)
 services:
   - type: web
     name: spirobuddy
     runtime: python
     plan: free
-    region: singapore
+    region: singapore              # closest Render region to India / Supabase Mumbai
+    branch: main
     buildCommand: pip install -r backend/requirements.txt && (python ml/train.py || echo "ML training skipped - server will use the rule fallback")
     startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
     autoDeployTrigger: commit
     envVars:
+      # ---- needed: the database (Supabase -> Project Settings -> Data API / API Keys)
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      # ---- fixed settings
       - key: PYTHON_VERSION
         value: 3.12.8
       - key: DEMO_MODE
@@ -19,19 +29,58 @@ services:
         value: supabase          # falls back to demo SQLite if the Supabase keys are missing
       - key: TZ_NAME
         value: Asia/Kolkata
-      - key: SUPABASE_URL
+      - key: TWILIO_WHATSAPP_FROM
+        value: whatsapp:+14155238886
+      - key: CALL_PROVIDER
+        value: auto
+      - key: QUIET_HOURS
+        value: "21:00-07:00"
+      # ---- optional: leave blank; every feature has an offline fallback
+      - key: ANTHROPIC_API_KEY           # AI summaries (else template text)
         sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
+      - key: SARVAM_API_KEY              # Indian-language voice (else recorded clips / browser voice)
         sync: false
-      - key: ANTHROPIC_API_KEY
-        sync: false
-      - key: TWILIO_ACCOUNT_SID
+      - key: TWILIO_ACCOUNT_SID          # real WhatsApp / calls (else "would send")
         sync: false
       - key: TWILIO_AUTH_TOKEN
         sync: false
-      - key: TWILIO_WHATSAPP_FROM
-        value: whatsapp:+14155238886
-      - key: DEMO_FAMILY_WHATSAPP
+      - key: TWILIO_VOICE_FROM
+        sync: false
+      - key: DEMO_FAMILY_WHATSAPP        # team phones only, like whatsapp:+9198xxxxxxxx
         sync: false
       - key: DEMO_NURSE_WHATSAPP
+        sync: false
+      - key: DEMO_PATIENT_PHONE          # team phones only, like +9198xxxxxxxx
+        sync: false
+      - key: DEMO_GUARDIAN_PHONE
+        sync: false
+      - key: DEMO_NURSE_PHONE
+        sync: false
+      - key: NURSE_DESK_PHONE
+        sync: false
+      # Advanced (see .env.example and docs/COMMS.md). PUBLIC_BASE_URL is filled in
+      # automatically from Render's own address, so it is not listed here.
+      - key: SARVAM_AGENT_API_KEY
+        sync: false
+      - key: SARVAM_ORG_ID
+        sync: false
+      - key: SARVAM_WORKSPACE_ID
+        sync: false
+      - key: SARVAM_AGENT_ID
+        sync: false
+      - key: SARVAM_CONNECTION_ID
+        sync: false
+      - key: SARVAM_AGENT_NUMBER
+        sync: false
+      - key: SARVAM_WEBHOOK_SECRET
+        generateValue: true
+      - key: EXOTEL_SID
+        sync: false
+      - key: EXOTEL_API_KEY
+        sync: false
+      - key: EXOTEL_API_TOKEN
+        sync: false
+      - key: EXOTEL_CALLER_ID
+        sync: false
+      - key: EXOTEL_APP_ID
         sync: false

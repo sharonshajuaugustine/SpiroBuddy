@@ -197,6 +197,11 @@ def collect(body: dict = Body(...)):
 
 @app.post("/api/train")
 def train():
+    if service.store().name == "supabase":     # local disk may have been wiped (Render restart)
+        try:
+            service.export_labelled_csv()
+        except Exception as e:
+            log.warning("could not export labelled breaths from Supabase: %s", e)
     res = models_ml.train()
     if not res.get("ok") and res.get("error"):
         raise HTTPException(503, res["error"])
@@ -248,11 +253,14 @@ def send_whatsapp(pid: int, body: dict | None = Body(None)):
     from .comms import messages as comms_messages
     guardian, lang, number, blocked = comms_messages.care_update_recipient(d, to_role)
     if kind == "summary":
-        s = llm.summarize(service.summary_stats(d), lang)
-        text = f"SpiroBuddy - {d['name']}: {s['text']}"
+        # before 8 am nothing is due yet: add yesterday's numbers instead of "0 of 0" (Q-29)
+        s = llm.summarize(llm.add_recent(service.summary_stats(d), d), lang)
+        # The disclosure line already names SpiroBuddy (Q-29): no "SpiroBuddy - Name:" prefix.
+        # The nurse gets the full name so she knows which patient it is.
+        text = s["text"] if to_role == "family" else f"{d['name']}: {s['text']}"
     else:
         missed = [s["hour"] for s in d["today"] if s["status"] == "missed"][-2:]
-        text = whatsapp.missed_text(d, missed, lang if lang in ("en", "hi") else "en")
+        text = whatsapp.missed_text(d, missed, lang)        # en/hi/ta/ml; anything else -> English
     return comms_messages.send_care_update(d, kind, to_role, text, lang, guardian=guardian,
                                            stored_number=number, blocked_reason=blocked)
 

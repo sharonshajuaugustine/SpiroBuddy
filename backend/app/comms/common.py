@@ -9,7 +9,10 @@ from ..config import demo_mode, env, iso, now_local, parse_dt
 
 log = logging.getLogger("spirobuddy.comms")
 
-LANGS = ("en", "hi", "ta")
+LANGS = ("en", "hi", "ta")          # languages with FULL comms text (calls, IVR, consent statement)
+# WhatsApp text (messages, disclosure, footer, replies, summaries) also exists in Malayalam (Q-28).
+# Calls/IVR/consent statement have no Malayalam yet, so they keep using lang_of() (ml -> en).
+TEXT_LANGS = LANGS + ("ml",)
 
 
 def st():
@@ -38,6 +41,13 @@ def lang_of(value, default: str = "en") -> str:
     if v.isalpha() and len(v) == 2:
         return "en"
     return default
+
+
+def text_lang(value, default: str = "en") -> str:
+    """Language for WhatsApp TEXT: like lang_of, but Malayalam ("ml") is kept (Q-28).
+    Any other language we have no text for -> English."""
+    v = str(value or "").lower()[:2]
+    return v if v in TEXT_LANGS else lang_of(value, default)
 
 
 def first_name(name: str | None) -> str:
@@ -255,19 +265,23 @@ DISCLOSURE = {
     "en": "Namaste, this is SpiroBuddy's automated care assistant.",
     "hi": "नमस्ते, यह SpiroBuddy की स्वचालित देखभाल सहायक है।",
     "ta": "வணக்கம், இது SpiroBuddy-இன் தானியங்கி பராமரிப்பு உதவியாளர்.",
+    # ml: NEEDS A NATIVE-SPEAKER CHECK (Q-28)
+    "ml": "നമസ്കാരം, ഇത് SpiroBuddy-യുടെ ഓട്ടോമാറ്റിക് പരിചരണ സഹായിയാണ്.",
 }
 DISCLOSURE_TAG = {      # short form for replies inside a conversation the person already started
     "en": "🤖 SpiroBuddy automated assistant:",
     "hi": "🤖 SpiroBuddy स्वचालित सहायक:",
     "ta": "🤖 SpiroBuddy தானியங்கி உதவியாளர்:",
+    "ml": "🤖 SpiroBuddy ഓട്ടോമാറ്റിക് സഹായി:",         # needs a native-speaker check
 }
+_AUTO_MARKERS = ("automated", "स्वचालित", "தானியங்கி", "ഓട്ടോമാറ്റിക്")
 
 
 def disclosed(text: str, lang: str = "en", short: bool = False) -> str:
     """Prefix the AI disclosure unless the text already carries it."""
-    lang = lang_of(lang, "en")
+    lang = text_lang(lang, "en")
     low = (text or "").lower()
-    if "automated" in low or "स्वचालित" in (text or "") or "தானியங்கி" in (text or ""):
+    if any(m in low for m in _AUTO_MARKERS):
         return text
     tag = (DISCLOSURE_TAG if short else DISCLOSURE)[lang]
     return f"{tag} {text}" if short else f"{tag}\n{text}"

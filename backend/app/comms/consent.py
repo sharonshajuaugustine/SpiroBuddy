@@ -14,7 +14,7 @@ from datetime import timedelta
 
 from ..config import iso
 from .common import (CONSENT_RENEW_DAYS, consent_age_days, first_name, has_consent, in_quiet,
-                     lang_of, log_event, now, st, to_dt)
+                     lang_of, log_event, now, st, text_lang, to_dt)
 
 DATA_ITEMS = {
     "en": ["your name, age and operation", "your phone number and language",
@@ -55,21 +55,28 @@ RENEW_TEXT = {
           "साँस-व्यायाम की याद और स्वचालित कॉल भेजते रहें?",
     "ta": "வணக்கம் {n}, இது SpiroBuddy-இன் தானியங்கி பராமரிப்பு உதவியாளர். ஒரு கேள்வி: இன்னும் ஒரு வாரம் "
           "மூச்சுப் பயிற்சி நினைவூட்டல்களும் தானியங்கி அழைப்புகளும் தொடரலாமா?",
+    # ml strings in this file: NEEDS A NATIVE-SPEAKER CHECK (Q-28). The full consent statement
+    # (CONSENT_TEXT) has no Malayalam yet and stays English for ml.
+    "ml": "നമസ്കാരം {n}, ഇത് SpiroBuddy-യുടെ ഓട്ടോമാറ്റിക് പരിചരണ സഹായിയാണ്. ഒരു ചോദ്യം: ശ്വസന വ്യായാമ "
+          "ഓർമ്മപ്പെടുത്തലുകളും ഓട്ടോമാറ്റിക് കോളുകളും ഒരു ആഴ്ച കൂടി തുടരട്ടെയോ?",
 }
 RENEW_BUTTONS = {
     "en": [("consent_yes", "✅ Yes, keep them"), ("stop", "⛔ STOP")],
     "hi": [("consent_yes", "✅ हाँ, जारी रखें"), ("stop", "⛔ रोको (STOP)")],
     "ta": [("consent_yes", "✅ ஆம், தொடரவும்"), ("stop", "⛔ நிறுத்து (STOP)")],
+    "ml": [("consent_yes", "✅ അതെ, തുടരുക"), ("stop", "⛔ നിർത്തുക (STOP)")],
 }
 REPLY = {
     "consent_yes": {"en": "✅ Thank you. Reminders continue for another 7 days. Send STOP at any time to stop.",
                     "hi": "✅ धन्यवाद। अगले 7 दिन याद दिलाना जारी रहेगा। रोकने के लिए कभी भी STOP भेजें।",
-                    "ta": "✅ நன்றி. இன்னும் 7 நாட்கள் நினைவூட்டல்கள் தொடரும். நிறுத்த எப்போது வேண்டுமானாலும் STOP அனுப்பவும்."},
+                    "ta": "✅ நன்றி. இன்னும் 7 நாட்கள் நினைவூட்டல்கள் தொடரும். நிறுத்த எப்போது வேண்டுமானாலும் STOP அனுப்பவும்.",
+                    "ml": "✅ നന്ദി. ഓർമ്മപ്പെടുത്തലുകൾ 7 ദിവസം കൂടി തുടരും. നിർത്താൻ എപ്പോൾ വേണമെങ്കിലും STOP അയയ്ക്കുക."},
     "stop": {"en": "⛔ Done – SpiroBuddy will not send automated calls or messages any more. Your nurse can still call you. In an emergency, call 112.",
              "hi": "⛔ ठीक है – SpiroBuddy अब स्वचालित कॉल या संदेश नहीं भेजेगी। आपकी नर्स फिर भी कॉल कर सकती हैं। आपातकाल में 112 पर कॉल करें।",
-             "ta": "⛔ சரி – SpiroBuddy இனி தானியங்கி அழைப்புகள் அல்லது செய்திகளை அனுப்பாது. உங்கள் செவிலியர் இன்னும் அழைக்கலாம். அவசரத்தில் 112 ஐ அழைக்கவும்."},
+             "ta": "⛔ சரி – SpiroBuddy இனி தானியங்கி அழைப்புகள் அல்லது செய்திகளை அனுப்பாது. உங்கள் செவிலியர் இன்னும் அழைக்கலாம். அவசரத்தில் 112 ஐ அழைக்கவும்.",
+             "ml": "⛔ ശരി – SpiroBuddy ഇനി ഓട്ടോമാറ്റിക് കോളുകളോ സന്ദേശങ്ങളോ അയയ്ക്കില്ല. നിങ്ങളുടെ നഴ്സിന് ഇപ്പോഴും വിളിക്കാം. അടിയന്തര സാഹചര്യത്തിൽ 112-ൽ വിളിക്കുക."},
 }
-STOP_RE = re.compile(r"^\s*(stop|unsubscribe|रोको|रोकें|बंद करो|बंद|நிறுத்து|நிறுத்தவும்|⛔.*)\s*[.!।]?\s*$", re.I)
+STOP_RE = re.compile(r"^\s*(stop|unsubscribe|रोको|रोकें|बंद करो|बंद|நிறுத்து|நிறுத்தவும்|നിർത്തുക|നിർത്തൂ|നിർത്ത്|⛔.*)\s*[.!।]?\s*$", re.I)
 
 
 def consent_text(lang: str) -> dict:
@@ -139,11 +146,11 @@ def ask(pid: int, to: str = "patient", guardian: dict | None = None) -> dict:
         g = guardian or primary_guardian(pid)
         if not g:
             raise ValueError("no guardian in the care circle")
-        lang = lang_of(g.get("language"), "en")
+        lang = text_lang(g.get("language"), "en")
         return messages.send(p, "family", g.get("phone"), RENEW_TEXT[lang].format(n=first_name(g["name"])),
                              "consent_renewal", lang, buttons=RENEW_BUTTONS[lang],
                              to_name=guardian_label(g))
-    lang = lang_of(p.get("language"), "en")
+    lang = text_lang(p.get("language"), "en")
     return messages.send(p, "patient", get_settings(pid).get("patient_phone"),
                          RENEW_TEXT[lang].format(n=messages.addr(p, lang)), "consent_renewal", lang,
                          buttons=RENEW_BUTTONS[lang], to_name=first_name(p["name"]))

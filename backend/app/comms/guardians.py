@@ -6,7 +6,7 @@ import copy
 import secrets
 
 from ..config import iso
-from .common import (CONSENT_RENEW_DAYS, LANGS, call_name, consent_age_days, default_quiet,
+from .common import (CONSENT_RENEW_DAYS, TEXT_LANGS, call_name, consent_age_days, default_quiet,
                      first_name, has_consent, now, st, to_dt, valid_hm)
 
 STEP_KEYS = ["device", "patient_whatsapp", "patient_call", "guardian", "nurse"]
@@ -174,8 +174,8 @@ def _clean(body: dict, partial: bool) -> dict:
         out["city"] = (str(body.get("city") or "").strip() or None)
     if "language" in body or not partial:
         lang = str(body.get("language") or "hi")
-        if lang not in LANGS:
-            raise ValueError("language must be en, hi or ta")
+        if lang not in TEXT_LANGS:
+            raise ValueError("language must be en, hi, ta or ml")
         out["language"] = lang
     if "channel" in body or not partial:
         ch = str(body.get("channel") or "both")

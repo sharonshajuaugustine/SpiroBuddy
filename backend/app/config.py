@@ -17,6 +17,10 @@ DB_PATH = DATA_DIR / "spirobuddy.db"
 LABELLED_CSV = DATA_DIR / "breaths_labelled.csv"
 
 load_dotenv(ROOT / ".env")
+# On Render the public address is known automatically (RENDER_EXTERNAL_URL); use it when
+# PUBLIC_BASE_URL wasn't set by hand, so Twilio/Sarvam webhooks and voice-note links work.
+if not (os.getenv("PUBLIC_BASE_URL") or "").strip() and (os.getenv("RENDER_EXTERNAL_URL") or "").strip():
+    os.environ["PUBLIC_BASE_URL"] = os.environ["RENDER_EXTERNAL_URL"].strip()
 if str(ROOT) not in sys.path:                        # so `import ml` works
     sys.path.insert(0, str(ROOT))
 

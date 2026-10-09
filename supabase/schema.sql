@@ -10,7 +10,7 @@ create table if not exists public.patients (
   sex              text,
   surgery          text,
   surgery_date     date,
-  language         text not null default 'en' check (language in ('en','hi','ta')),
+  language         text not null default 'en',   -- en hi ta ml ... (voice supports 11 languages)
   target_ml        int  not null default 2000,
   hold_target_s    real not null default 3,
   family_phone     text,
@@ -226,3 +226,19 @@ alter table public.escalation_events enable row level security;
 alter table public.calls             enable row level security;
 alter table public.cheers            enable row level security;
 alter table public.inbound_messages  enable row level security;
+
+-- ============================================================================ upgrades + access
+-- Safe to run again on a project made with an older copy of this file.
+alter table public.patients  drop constraint if exists patients_language_check;   -- demo has a Malayalam patient
+alter table public.guardians add column if not exists consent    boolean not null default false;
+alter table public.guardians add column if not exists consent_at timestamptz;
+
+-- The server's secret / service_role key must be able to read and write every table
+-- (new Supabase projects may not expose new tables to the Data API automatically).
+-- anon / authenticated get nothing: RLS is on and there are no policies.
+grant usage on schema public to service_role;
+grant select, insert, update, delete on all tables in schema public to service_role;
+grant usage, select on all sequences in schema public to service_role;
+
+-- Tell the Data API (PostgREST) to pick up the new tables right away.
+notify pgrst, 'reload schema';

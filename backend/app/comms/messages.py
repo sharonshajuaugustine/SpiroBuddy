@@ -1,10 +1,13 @@
-"""WhatsApp for the ladder: texts in English / Hindi / Tamil, quick-reply buttons (Twilio Content
+"""WhatsApp for the ladder: texts in English / Hindi / Tamil / Malayalam, quick-reply buttons (Twilio Content
 API when a template SID is set, otherwise "Reply 1/2/3" text), media (weekly card, voice note),
 and inbound replies ("1", "done", "status", "स्थिति", "help" -> red-flag flow).
 
 Rules (FEATURE_PLAN Part D): one question per message, at most 3 options, the patient's own
 language, every automated message says it is automatic and how to reach a human, never a
 diagnosis. Red-flag words always get the fixed "contact your nurse / call 112" message.
+
+Malayalam ("ml", Q-28): every Malayalam string in this file was written without a native speaker
+and NEEDS A NATIVE-SPEAKER CHECK before real use. Calls/IVR stay en/hi/ta (common.lang_of).
 Reminder wording is strictly *utility* (no promotion) so Meta bills it at the utility rate.
 """
 from __future__ import annotations
@@ -15,8 +18,8 @@ import re
 
 from .. import service, whatsapp
 from ..config import env, iso
-from .common import (call_name, disclosed, e164, first_name, honorific, lang_of, log_event,
-                     now, resolve_number, st)
+from .common import (call_name, disclosed, e164, first_name, honorific, log_event, now,
+                     resolve_number, st, text_lang)
 
 log = logging.getLogger("spirobuddy.comms.messages")
 
@@ -26,6 +29,7 @@ RED_FLAG_TEXT = {
     "en": "Please contact your nurse now. If it's an emergency, call 112.",
     "hi": "कृपया अभी अपनी नर्स से संपर्क करें। आपातकाल हो तो 112 पर कॉल करें।",
     "ta": "தயவுசெய்து உடனே உங்கள் செவிலியரைத் தொடர்பு கொள்ளுங்கள். அவசரம் என்றால் 112 ஐ அழைக்கவும்.",
+    "ml": "ദയവായി ഉടൻ തന്നെ നിങ്ങളുടെ നഴ്സിനെ ബന്ധപ്പെടുക. അടിയന്തര സാഹചര്യമാണെങ്കിൽ 112-ൽ വിളിക്കുക.",
 }
 try:   # one fixed red-flag phrase everywhere: reuse the voice agent's cue (voice_cues.py)
     from ..voice_cues import cue_text as _cue
@@ -33,22 +37,26 @@ try:   # one fixed red-flag phrase everywhere: reuse the voice agent's cue (voic
 except Exception:
     pass
 NURSE_TOLD = {"en": "We have told your nurse.", "hi": "हमने आपकी नर्स को बता दिया है।",
-              "ta": "உங்கள் செவிலியருக்குத் தெரிவித்துள்ளோம்."}
+              "ta": "உங்கள் செவிலியருக்குத் தெரிவித்துள்ளோம்.",
+              "ml": "ഞങ്ങൾ നിങ്ങളുടെ നഴ്സിനെ അറിയിച്ചിട്ടുണ്ട്."}
 FOOTER = {
     "en": "— SpiroBuddy (automatic message). Reply 3 to talk to your nurse.",
     "hi": "— SpiroBuddy (स्वचालित संदेश)। नर्स से बात करने के लिए 3 भेजें।",
     "ta": "— SpiroBuddy (தானியங்கி செய்தி). செவிலியருடன் பேச 3 அனுப்பவும்.",
+    "ml": "— SpiroBuddy (ഓട്ടോമാറ്റിക് സന്ദേശം). നഴ്സുമായി സംസാരിക്കാൻ 3 അയയ്ക്കുക.",
 }
 
 PATIENT_BUTTONS = {
     "en": [("done", "✅ Done"), ("snooze", "⏰ 15 min"), ("call_me", "📞 Call me")],
     "hi": [("done", "✅ हो गया"), ("snooze", "⏰ 15 मिनट बाद"), ("call_me", "📞 मुझे कॉल करें")],
     "ta": [("done", "✅ முடிந்தது"), ("snooze", "⏰ 15 நிமிடம்"), ("call_me", "📞 அழைக்கவும்")],
+    "ml": [("done", "✅ ചെയ്തു"), ("snooze", "⏰ 15 മിനിറ്റ്"), ("call_me", "📞 എന്നെ വിളിക്കൂ")],
 }
 GUARDIAN_BUTTONS = {
     "en": [("guardian_ack", "👍 I'll check"), ("status", "📊 Status"), ("nurse", "📞 Nurse")],
     "hi": [("guardian_ack", "👍 मैं देखता हूँ"), ("status", "📊 स्थिति"), ("nurse", "📞 नर्स")],
     "ta": [("guardian_ack", "👍 பார்க்கிறேன்"), ("status", "📊 நிலை"), ("nurse", "📞 செவிலியர்")],
+    "ml": [("guardian_ack", "👍 ഞാൻ നോക്കാം"), ("status", "📊 സ്ഥിതി"), ("nurse", "📞 നഴ്സ്")],
 }
 from .consent import RENEW_BUTTONS  # noqa: E402  (weekly "keep calling? yes / STOP")
 
@@ -58,7 +66,7 @@ BUTTONS_BY_KIND = {"reminder": ("patient", PATIENT_BUTTONS),
 
 
 def numbered(buttons: list[tuple[str, str]], lang: str) -> str:
-    word = {"en": "Reply", "hi": "जवाब दें", "ta": "பதில்"}[lang]
+    word = {"en": "Reply", "hi": "जवाब दें", "ta": "பதில்", "ml": "മറുപടി"}.get(lang, "Reply")
     return f"{word}: " + " · ".join(f"{i + 1} = {label}" for i, (_, label) in enumerate(buttons))
 
 
@@ -68,6 +76,8 @@ def addr(patient: dict, lang: str) -> str:
         return f"{fn} जी"
     if lang == "ta":
         return f"{fn} {'அம்மா' if (patient.get('sex') or '').upper() == 'F' else 'ஐயா'}"
+    if lang == "ml":           # 'Sreedevi ചേച്ചി' / 'Gopan ചേട്ടൻ' (native-speaker check: ചേച്ചി or അമ്മ?)
+        return f"{fn} {'ചേച്ചി' if (patient.get('sex') or '').upper() == 'F' else 'ചേട്ടൻ'}"
     return honorific(patient, "en")
 
 
@@ -79,18 +89,22 @@ def reminder_text(patient: dict, lang: str, missed: int) -> str:
     if lang == "ta":
         return (f"🔔 வணக்கம் {a}, இது SpiroBuddy-இன் தானியங்கி பராமரிப்பு உதவியாளர். மூச்சுப் பயிற்சி "
                 f"நேரம் – 10 மெதுவான, ஆழ்ந்த மூச்சுகள். முடித்துவிட்டீர்களா?")
+    if lang == "ml":
+        return (f"🔔 നമസ്കാരം {a}, ഇത് SpiroBuddy-യുടെ ഓട്ടോമാറ്റിക് പരിചരണ സഹായിയാണ്. ശ്വസന "
+                f"വ്യായാമത്തിനുള്ള സമയമായി – 10 പതുക്കെയുള്ള, ആഴത്തിലുള്ള ശ്വാസങ്ങൾ. നിങ്ങൾ ചെയ്തോ?")
     return (f"🔔 Namaste {a}, this is SpiroBuddy's automated care assistant. It's time for your "
             f"breathing exercise – 10 slow, deep breaths. Have you done it?")
 
 
 def guardian_alert_text(patient: dict, guardian: dict, missed: int, patient_answered: bool,
                         red_flag: bool = False) -> str:
-    lang = lang_of(guardian.get("language"), "en")
+    lang = text_lang(guardian.get("language"), "en")
     who = call_name(guardian.get("relation"), patient, lang)
     fn = first_name(patient.get("name"))
     gname = first_name(guardian.get("name"))
     me = {"hi": "यह SpiroBuddy की स्वचालित देखभाल सहायक है।",
           "ta": "இது SpiroBuddy-இன் தானியங்கி பராமரிப்பு உதவியாளர்.",
+          "ml": "ഇത് SpiroBuddy-യുടെ ഓട്ടോമാറ്റിക് പരിചരണ സഹായിയാണ്.",
           "en": "this is SpiroBuddy's automated care assistant."}[lang]
     if red_flag:
         if lang == "hi":
@@ -99,6 +113,9 @@ def guardian_alert_text(patient: dict, guardian: dict, missed: int, patient_answ
         if lang == "ta":
             return (f"🚨 {gname}, {me} {who} ({fn}) SpiroBuddy-இல் உதவி கேட்டுள்ளார். செவிலியருக்குத் "
                     f"தெரிவிக்கப்பட்டது. உடனே பேசுங்கள். அவசரம் என்றால் 112 ஐ அழைக்கவும்.")
+        if lang == "ml":
+            return (f"🚨 {gname}, {me} {who} ({fn}) SpiroBuddy-യിൽ സഹായം ചോദിച്ചിട്ടുണ്ട്. നഴ്സിനെ "
+                    f"അറിയിച്ചിട്ടുണ്ട്. ദയവായി ഉടൻ സംസാരിക്കുക. അടിയന്തര സാഹചര്യത്തിൽ 112-ൽ വിളിക്കുക.")
         return (f"🚨 {gname}, {me} {who} ({fn}) asked for help on SpiroBuddy. The nurse has been told. "
                 f"Please speak to them now. In an emergency, call 112.")
     if lang == "hi":
@@ -108,6 +125,10 @@ def guardian_alert_text(patient: dict, guardian: dict, missed: int, patient_answ
     if lang == "ta":
         return (f"வணக்கம் {gname}, {me} {who} ({fn}) தொடர்ந்து {missed} மூச்சுப் பயிற்சிகளைத் "
                 f"தவறவிட்டுள்ளார். ஒருமுறை அவரை விசாரிப்பீர்களா?")
+    if lang == "ml":
+        tail = ", ഞങ്ങളുടെ ഓർമ്മപ്പെടുത്തൽ കോളിന് മറുപടിയും നൽകിയില്ല" if not patient_answered else ""
+        return (f"നമസ്കാരം {gname}, {me} {who} ({fn}) തുടർച്ചയായി {missed} ശ്വസന വ്യായാമങ്ങൾ "
+                f"ചെയ്തില്ല{tail}. ഒന്ന് വിവരം അന്വേഷിക്കാമോ?")
     tail = " and didn't answer our reminder call" if not patient_answered else ""
     return (f"Namaste {gname}, {me} {who} ({fn}) has missed {missed} breathing sessions in a row{tail}. "
             f"Could you check on them?")
@@ -140,6 +161,15 @@ def status_text(pid: int, lang: str, for_guardian: dict | None = None) -> str:
         if pr["streak"]:
             s += f" தொடர்ந்து {pr['streak']} நல்ல நாட்கள் 🔥"
         return s
+    if lang == "ml":
+        s = f"📊 {label} – " + (f"ഇന്ന് {pr['due']}-ൽ {pr['done']} സെഷനുകൾ പൂർത്തിയായി." if pr["due"]
+                               else "ഇന്നത്തെ സെഷനുകൾ രാവിലെ 8 മണിക്ക് തുടങ്ങും.")
+        s += f" ഏറ്റവും നല്ല ശ്വാസം {best} mL (ലക്ഷ്യം {pr['target_ml']} mL)." if best else ""
+        if pr["streak"]:
+            s += f" തുടർച്ചയായി {pr['streak']} നല്ല ദിവസങ്ങൾ 🔥"
+        if last_hr is not None:
+            s += f" അവസാന സെഷൻ {last_hr}:00-ന്."
+        return s
     s = f"📊 {label} – " + (f"{pr['done']} of {pr['due']} sessions done today." if pr["due"]
                            else "Today's sessions start at 8:00.")
     s += f" Best breath {best:,} mL (target {pr['target_ml']:,} mL)." if best else ""
@@ -153,28 +183,36 @@ def status_text(pid: int, lang: str, for_guardian: dict | None = None) -> str:
 REPLIES = {
     "done": {"en": "Shabash! ✅ Thank you, {a}. Your SpiroBuddy counts the breaths and ticks it for you.",
              "hi": "शाबाश! ✅ धन्यवाद {a}। आपका SpiroBuddy साँसें गिनकर इसे टिक कर देगा।",
-             "ta": "சபாஷ்! ✅ நன்றி {a}. உங்கள் SpiroBuddy மூச்சுகளை எண்ணி டிக் செய்யும்."},
+             "ta": "சபாஷ்! ✅ நன்றி {a}. உங்கள் SpiroBuddy மூச்சுகளை எண்ணி டிக் செய்யும்.",
+             "ml": "മിടുക്ക്! ✅ നന്ദി {a}. നിങ്ങളുടെ SpiroBuddy ശ്വാസങ്ങൾ എണ്ണി ഇത് രേഖപ്പെടുത്തും."},
     "snooze": {"en": "⏰ Okay {a}, I'll remind you again in 15 minutes.",
                "hi": "⏰ ठीक है {a}, 15 मिनट बाद फिर याद दिलाऊँगा।",
-               "ta": "⏰ சரி {a}, 15 நிமிடத்தில் மீண்டும் நினைவூட்டுகிறேன்."},
+               "ta": "⏰ சரி {a}, 15 நிமிடத்தில் மீண்டும் நினைவூட்டுகிறேன்.",
+             "ml": "⏰ ശരി {a}, 15 മിനിറ്റ് കഴിഞ്ഞ് വീണ്ടും ഓർമ്മിപ്പിക്കാം."},
     "call_me": {"en": "📞 Okay {a}, your nurse will call you soon.",
                 "hi": "📞 ठीक है {a}, आपकी नर्स जल्द ही आपको कॉल करेंगी।",
-                "ta": "📞 சரி {a}, உங்கள் செவிலியர் விரைவில் அழைப்பார்."},
+                "ta": "📞 சரி {a}, உங்கள் செவிலியர் விரைவில் அழைப்பார்.",
+             "ml": "📞 ശരി {a}, നിങ്ങളുടെ നഴ്സ് ഉടൻ വിളിക്കും."},
     "guardian_ack": {"en": "🙏 Thank you, {g}. We've noted that you'll check on {who}.",
                      "hi": "🙏 धन्यवाद {g} जी। हमने नोट कर लिया कि आप {who} का हाल पूछेंगे।",
-                     "ta": "🙏 நன்றி {g}. நீங்கள் {who}-ஐ விசாரிப்பீர்கள் என்று குறித்துக்கொண்டோம்."},
+                     "ta": "🙏 நன்றி {g}. நீங்கள் {who}-ஐ விசாரிப்பீர்கள் என்று குறித்துக்கொண்டோம்.",
+             "ml": "🙏 നന്ദി {g}. നിങ്ങൾ {who}-യുടെ വിവരം അന്വേഷിക്കുമെന്ന് ഞങ്ങൾ രേഖപ്പെടുത്തി."},
     "nurse": {"en": "📞 Okay {g}, the nurse will call you back soon.",
               "hi": "📞 ठीक है {g} जी, नर्स जल्द ही आपको कॉल करेंगी।",
-              "ta": "📞 சரி {g}, செவிலியர் விரைவில் அழைப்பார்."},
+              "ta": "📞 சரி {g}, செவிலியர் விரைவில் அழைப்பார்.",
+             "ml": "📞 ശരി {g}, നഴ്സ് ഉടൻ തിരികെ വിളിക്കും."},
     "cheer": {"en": "💛 Your cheer is saved. {who} will hear it after the next breathing session.",
               "hi": "💛 आपका संदेश सेव हो गया। अगले व्यायाम के बाद {who} इसे सुनेंगे।",
-              "ta": "💛 உங்கள் வாழ்த்து சேமிக்கப்பட்டது. அடுத்த பயிற்சிக்குப் பின் {who} கேட்பார்."},
+              "ta": "💛 உங்கள் வாழ்த்து சேமிக்கப்பட்டது. அடுத்த பயிற்சிக்குப் பின் {who} கேட்பார்.",
+             "ml": "💛 നിങ്ങളുടെ സന്ദേശം സേവ് ചെയ്തു. അടുത്ത ശ്വസന വ്യായാമത്തിന് ശേഷം {who} ഇത് കേൾക്കും."},
     "unknown_patient": {"en": "Sorry, I didn't understand. Reply 1 = ✅ Done, 2 = ⏰ remind in 15 min, 3 = 📞 talk to the nurse.",
                         "hi": "माफ़ कीजिए, समझ नहीं पाया। 1 = ✅ हो गया, 2 = ⏰ 15 मिनट बाद, 3 = 📞 नर्स से बात।",
-                        "ta": "மன்னிக்கவும், புரியவில்லை. 1 = ✅ முடிந்தது, 2 = ⏰ 15 நிமிடம், 3 = 📞 செவிலியர்."},
+                        "ta": "மன்னிக்கவும், புரியவில்லை. 1 = ✅ முடிந்தது, 2 = ⏰ 15 நிமிடம், 3 = 📞 செவிலியர்.",
+             "ml": "ക്ഷമിക്കണം, മനസ്സിലായില്ല. 1 = ✅ ചെയ്തു, 2 = ⏰ 15 മിനിറ്റ് കഴിഞ്ഞ്, 3 = 📞 നഴ്സുമായി സംസാരിക്കാൻ."},
     "unknown_guardian": {"en": "Sorry, I didn't understand. Reply 1 = 👍 I'll check, 2 = 📊 today's status, 3 = 📞 talk to the nurse.",
                          "hi": "माफ़ कीजिए, समझ नहीं पाया। 1 = 👍 मैं देखता हूँ, 2 = 📊 आज की स्थिति, 3 = 📞 नर्स से बात।",
-                         "ta": "மன்னிக்கவும், புரியவில்லை. 1 = 👍 பார்க்கிறேன், 2 = 📊 இன்றைய நிலை, 3 = 📞 செவிலியர்."},
+                         "ta": "மன்னிக்கவும், புரியவில்லை. 1 = 👍 பார்க்கிறேன், 2 = 📊 இன்றைய நிலை, 3 = 📞 செவிலியர்.",
+             "ml": "ക്ഷമിക്കണം, മനസ്സിലായില്ല. 1 = 👍 ഞാൻ നോക്കാം, 2 = 📊 ഇന്നത്തെ സ്ഥിതി, 3 = 📞 നഴ്സുമായി സംസാരിക്കാൻ."},
     "unknown_sender": {"en": "Namaste! This is SpiroBuddy, an automatic breathing-exercise helper. We couldn't match your number to a patient. Please ask the hospital to add you to the care circle. In an emergency, call 112.",
                        "hi": "नमस्ते! यह SpiroBuddy है, एक स्वचालित साँस-व्यायाम सहायक। आपका नंबर किसी मरीज़ से नहीं जुड़ा है। कृपया अस्पताल से आपको जोड़ने को कहें। आपातकाल में 112 पर कॉल करें।"},
 }
@@ -195,6 +233,9 @@ CHEER_PRESETS = {
     "ta": ["உங்களால் முடியும்! பத்து மெதுவான மூச்சுகள் – உங்களைப் பற்றி பெருமை. 💪",
            "ஒவ்வொரு மூச்சும் நுரையீரலை வலுப்படுத்தும். தொடருங்கள்! 🌱",
            "உங்களை நேசிக்கிறோம். விரைவில் குணமடையுங்கள்! 💛"],
+    "ml": ["നിങ്ങൾക്ക് കഴിയും! പത്ത് പതുക്കെയുള്ള ശ്വാസങ്ങൾ – ഞങ്ങൾക്ക് നിങ്ങളെക്കുറിച്ച് അഭിമാനമുണ്ട്. 💪",
+           "ഓരോ ശ്വാസവും നിങ്ങളെ കൂടുതൽ ശക്തരാക്കുന്നു. തുടരൂ! 🌱",
+           "ഞങ്ങൾ നിങ്ങളെ സ്നേഹിക്കുന്നു. വേഗം സുഖമാകട്ടെ! 💛"],
 }
 
 # ----------------------------------------------------------------------------- intents
@@ -207,15 +248,15 @@ RED_FLAG_RE = re.compile(
     r"நெஞ்சு வலி|மூச்சு திணறல்|காய்ச்சல்|ரத்தம்|மயக்கம்|உதவி", re.I)
 
 _PATIENT_WORDS = {
-    "done": r"^(1|✅.*|done|did it|ho gaya|ho gya|haan|ha|yes|हो गया|हाँ|हां|कर लिया|முடிந்தது|ஆம்)$",
-    "snooze": r"^(2|⏰.*|later|remind.*|15.*|baad mein|बाद में|15 मिनट.*|பிறகு|15 நிமிடம்)$",
-    "call_me": r"^(3|📞.*|call( me)?|call me please|nurse|कॉल.*|मुझे कॉल करें|नर्स|அழைக்கவும்|செவிலியர்)$",
-    "status": r"^(status|sthiti|स्थिति|halat|हाल|progress|நிலை|📊.*)$",
+    "done": r"^(1|✅.*|done|did it|ho gaya|ho gya|haan|ha|yes|हो गया|हाँ|हां|कर लिया|முடிந்தது|ஆம்|ചെയ്തു|അതെ)$",
+    "snooze": r"^(2|⏰.*|later|remind.*|15.*|baad mein|बाद में|15 मिनट.*|பிறகு|15 நிமிடம்|പിന്നീട്|15 മിനിറ്റ്.*)$",
+    "call_me": r"^(3|📞.*|call( me)?|call me please|nurse|कॉल.*|मुझे कॉल करें|नर्स|அழைக்கவும்|செவிலியர்|എന്നെ വിളിക്കൂ|വിളിക്കൂ|നഴ്സ്)$",
+    "status": r"^(status|sthiti|स्थिति|halat|हाल|progress|நிலை|സ്ഥിതി|📊.*)$",
 }
 _GUARDIAN_WORDS = {
-    "guardian_ack": r"^(1|👍.*|ok|okay|i'?ll check|will check|haan|हाँ|हां|मैं देखता हूँ|मैं देखती हूँ|பார்க்கிறேன்)$",
-    "status": r"^(2|status|sthiti|स्थिति|हाल|progress|நிலை|📊.*)$",
-    "nurse": r"^(3|📞.*|nurse|call|नर्स|कॉल.*|செவிலியர்)$",
+    "guardian_ack": r"^(1|👍.*|ok|okay|i'?ll check|will check|haan|हाँ|हां|मैं देखता हूँ|मैं देखती हूँ|பார்க்கிறேன்|ഞാൻ നോക്കാം)$",
+    "status": r"^(2|status|sthiti|स्थिति|हाल|progress|நிலை|സ്ഥിതി|📊.*)$",
+    "nurse": r"^(3|📞.*|nurse|call|नर्स|कॉल.*|செவிலியர்|നഴ്സ്)$",
     "cheer": r"^(cheer|💛|शाबाश|shabash|வாழ்த்து).*$",
 }
 
@@ -257,7 +298,7 @@ def send(patient: dict, role: str, stored_number: str | None, text: str, kind: s
     role: 'patient' | 'family' (guardian) | 'nurse'. Real sends go to the stored number if it is
     real, otherwise to the DEMO_* number for that role (never to a placeholder).
     """
-    lang = lang_of(lang, "en")
+    lang = text_lang(lang, "en")
     # AI disclosure first (reminders/alerts carry it in their own wording; replies get a short tag)
     text = disclosed(text, lang, short=(kind == "reply"))
     body = text + (f"\n\n{FOOTER[lang]}" if footer else "")
@@ -373,7 +414,7 @@ def _send_media(to: str, body: str, media_url: str) -> dict:
 
 
 def send_reminder(patient: dict, cfg: dict, missed: int, run_id: int | None = None) -> dict:
-    lang = lang_of(patient.get("language"), "en")
+    lang = text_lang(patient.get("language"), "en")
     btns = PATIENT_BUTTONS[lang]
     return send(patient, "patient", cfg.get("patient_phone"), reminder_text(patient, lang, missed),
                 "reminder", lang, buttons=btns, to_name=first_name(patient["name"]), run_id=run_id)
@@ -381,7 +422,7 @@ def send_reminder(patient: dict, cfg: dict, missed: int, run_id: int | None = No
 
 def send_guardian_alert(patient: dict, guardian: dict, missed: int, patient_answered: bool,
                         run_id: int | None = None, red_flag: bool = False) -> dict:
-    lang = lang_of(guardian.get("language"), "en")
+    lang = text_lang(guardian.get("language"), "en")
     return send(patient, "family", guardian.get("phone"),
                 guardian_alert_text(patient, guardian, missed, patient_answered, red_flag),
                 "guardian_alert", lang, buttons=GUARDIAN_BUTTONS[lang],
@@ -404,7 +445,7 @@ def care_update_recipient(patient: dict, to_role: str) -> tuple[dict | None, str
     g = primary_guardian(int(patient["id"]))
     if not g:
         return None, "en", patient.get("family_phone"), "no guardian with recorded consent in the care circle"
-    lang = lang_of(g.get("language"), "en")
+    lang = text_lang(g.get("language"), "en")
     if not has_consent(g):
         return g, lang, g.get("phone"), (f"{guardian_label(g)} has not given consent or replied STOP – "
                                          "no automated WhatsApp sent")
@@ -481,14 +522,14 @@ def handle_inbound(body: str, from_number: str | None = None, payload: str | Non
                                           "intent": "unknown", "reply": reply, "created_at": iso(now())}])
         return {"intent": "unknown", "reply": reply, "patient_id": None, "role": None}
 
-    lang = lang_of((guardian or {}).get("language") if role == "guardian" else patient.get("language"), "en")
+    lang = text_lang((guardian or {}).get("language") if role == "guardian" else patient.get("language"), "en")
     intent = detect_intent(body or payload or "", role, payload)
     if intent not in ("stop", "consent_yes", "red_flag") and _last_out_kind(patient["id"], role, guardian) == "consent_renewal":
         # the last question was "keep the reminders?": 1/yes = keep, 2 = stop
         low = (body or "").strip().lower().strip(" .!।")
-        if low in ("1", "yes", "haan", "हाँ", "हां", "ஆம்", "ok", "okay") or intent in ("done", "guardian_ack"):
+        if low in ("1", "yes", "haan", "हाँ", "हां", "ஆம்", "അതെ", "ok", "okay") or intent in ("done", "guardian_ack"):
             intent = "consent_yes"
-        elif low in ("2", "no", "nahi", "नहीं", "இல்லை"):
+        elif low in ("2", "no", "nahi", "नहीं", "இல்லை", "വേണ്ട", "ഇല്ല"):
             intent = "stop"
     a = addr(patient, lang)
     g_first = first_name((guardian or {}).get("name")) or "ji"

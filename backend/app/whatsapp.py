@@ -71,6 +71,15 @@ def missed_text(patient: dict, hours: list[int], language: str) -> str:
         return (f"SpiroBuddy सूचना: {first} ने लगातार {max(2, len(hours))} साँस-व्यायाम सत्र छोड़ दिए हैं"
                 f"{' (' + times + ')' if times else ''}। कृपया उनसे बात करें। "
                 f"साँस लेने में तकलीफ़ हो तो नर्स से संपर्क करें या 112 पर कॉल करें।")
+    # ta / ml: written without a native speaker – NEEDS A NATIVE-SPEAKER CHECK (Q-28).
+    if language == "ta":
+        return (f"SpiroBuddy அறிவிப்பு: {first} தொடர்ந்து {max(2, len(hours))} மூச்சுப் பயிற்சி அமர்வுகளைத் "
+                f"தவறவிட்டுள்ளார்{' (' + times + ')' if times else ''}. தயவுசெய்து அவரிடம் பேசுங்கள். "
+                f"மூச்சு விடுவதில் சிரமம் இருந்தால் செவிலியரைத் தொடர்பு கொள்ளுங்கள் அல்லது 112 ஐ அழைக்கவும்.")
+    if language == "ml":
+        return (f"SpiroBuddy അറിയിപ്പ്: {first} തുടർച്ചയായി {max(2, len(hours))} ശ്വസന വ്യായാമ സെഷനുകൾ "
+                f"ചെയ്തില്ല{' (' + times + ')' if times else ''}. ദയവായി അവരുമായി സംസാരിക്കുക. "
+                f"ശ്വാസമെടുക്കാൻ ബുദ്ധിമുട്ടുണ്ടെങ്കിൽ നഴ്സിനെ ബന്ധപ്പെടുക അല്ലെങ്കിൽ 112-ൽ വിളിക്കുക.")
     return (f"SpiroBuddy alert: {first} has missed {max(2, len(hours))} breathing sessions in a row"
             f"{' (' + times + ')' if times else ''}. Please check in with them. "
             f"If they have trouble breathing, contact the nurse or call 112.")

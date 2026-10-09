@@ -282,6 +282,29 @@ def save_labelled(person: str, label: str, samples: list, features: dict) -> dic
     return counts
 
 
+def export_labelled_csv() -> int:
+    """Rewrite backend/data/breaths_labelled.csv from the store before training.
+
+    On Render the disk is wiped on every restart, but the labelled breaths are safe in Supabase,
+    so ml/train.py (which reads the CSV) still sees every collected breath. Returns the row count.
+    """
+    import json
+    rows = store().select("breaths_labelled", order="id")
+    if not rows:
+        return 0
+    with open(LABELLED_CSV, "w", newline="", encoding="utf-8") as fh:
+        w = csv.writer(fh)
+        w.writerow(["created_at", "person", "label", *FEATURE_KEYS, "samples"])
+        for r in rows:
+            feats = r.get("features") or {}
+            if not isinstance(feats, dict) or not all(k in feats for k in FEATURE_KEYS):
+                continue
+            w.writerow([r.get("created_at"), r.get("person"), r.get("label"),
+                        *[feats[k] for k in FEATURE_KEYS],
+                        json.dumps(r.get("samples") or [], separators=(",", ":"))])
+    return len(rows)
+
+
 def summary_stats(detail: dict) -> dict:
     """Numbers for the AI/template summary from a patient_detail() result."""
     today = now_local().date().isoformat()
