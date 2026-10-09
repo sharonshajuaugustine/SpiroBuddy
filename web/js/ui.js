@@ -24,11 +24,11 @@
   }
   function hourLabel(h) { return String(h).padStart(2, '0') + ':00'; }
   function parseDate(v) { if (!v) return null; const d = new Date(v); return isNaN(d) ? null : d; }
-  function timeLabel(v) { const d = parseDate(v); return d ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'; }
+  function timeLabel(v) { const d = parseDate(v); return d ? d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '—'; }
   function dateTimeLabel(v) {
     const d = parseDate(v); if (!d) return '—';
     const today = new Date().toDateString() === d.toDateString();
-    return today ? 'Today ' + timeLabel(d) : d.toLocaleDateString([], { day: 'numeric', month: 'short' }) + ' ' + timeLabel(d);
+    return today ? 'Today ' + timeLabel(d) : d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) + ' ' + timeLabel(d);
   }
   function ago(v) {
     const d = parseDate(v); if (!d) return 'no sessions yet';
@@ -59,7 +59,7 @@
     if (!counts) return '—';
     return Object.keys(LABEL_TEXT).filter((k) => counts[k]).map((k) => `<span class="lbl-chip lbl-${k}">${LABEL_TEXT[k]} ${counts[k]}</span>`).join('') || '—';
   }
-  function fmtMl(v) { return v == null || v === '' || Number(v) === 0 ? '—' : Math.round(Number(v)).toLocaleString() + ' mL'; }
+  function fmtMl(v) { return v == null || v === '' || Number(v) === 0 ? '—' : Math.round(Number(v)).toLocaleString('en-IN') + ' mL'; }
 
   /* ---------- toasts ---------- */
   function toast(msg, kind, ms) {

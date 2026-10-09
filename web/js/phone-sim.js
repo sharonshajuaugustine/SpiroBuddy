@@ -55,7 +55,7 @@
       lastSig = sig; lastCount = items.length;
       body.innerHTML = items.length ? items.map((m) => {
         const time = new Date(m.at);
-        const t = isNaN(time) ? '' : time.toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        const t = isNaN(time) ? '' : time.toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
         const btns = m.buttons && m.buttons.length ? `<div class="wa-btns">${m.buttons.map((b) => `<button type="button" data-payload="${esc(b.payload)}" ${m.answered ? 'disabled' : ''}>${esc(b.label)}</button>`).join('')}</div>` : '';
         const img = m.image ? `<img src="${esc(m.image)}" alt="Weekly progress card" loading="lazy" data-zoom>` : '';
         const audio = m.audio ? `<button class="wa-play" type="button" data-speak="${esc(m.id)}">▶ 0:20 voice note</button>` : '';

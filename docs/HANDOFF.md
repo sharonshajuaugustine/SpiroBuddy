@@ -8,12 +8,14 @@
 - **Patient mobile app: set aside.** The user builds it separately against the same `/api`.
 - **3D model rule:** every size must come from a cited web source (`docs/3D_SOURCES.md`); anything unpublished is flagged "measure with caliper".
 
-## Where we are
-- Docs updated for the new scope: ARCHITECTURE (contracts D, §9–§12), ROLES (5 agents), REQUIREMENTS (demo story), START_PROMPT, `.env.example`.
-- 5 subagents started in parallel (see docs/ROLES.md): firmware, backend & data, ML, web (nurse site), 3D & video. Their code may be partly written – check each folder.
-- Python packages are installed in `.venv`. `.env` exists (copied from `.env.example`; add the new DEMO_MODE / DATA_BACKEND / SUPABASE_* lines if missing).
+## Where we are (9 Oct 2026, evening)
+- **Built and committed:** firmware (VL53L1X/VL53L0X, ROI 4×4), ML model (95.8% synthetic), backend (CONTRACT D + demo + Supabase fallback + Render blueprint), nurse/doctor website (dashboard, patient, demo panel, collect), Sarvam voice (11 languages, fallbacks), comms (escalation ladder, IVR + phone/WhatsApp simulators, Sarvam voice-agent provider + webhook + replay, consent with weekly renewal, guardian page, alerts inbox, click-to-call), 3D showroom + 4 videos + GLB, research rounds 1–4 (docs/research/), TEST_PLAN.md, 61 passing pytest tests.
+- **QA Review 1** done (docs/QA_REPORT.md): no blockers; fixes made (Indian date formats, cache headers, guardian sizes). **The single backlog is docs/WORK_QUEUE.md — take tasks from its "Next" list.**
+- Python packages in `.venv`; `.env` exists (no keys yet).
 
-## Standing rule from the user
+## Standing rules from the user
+- **Quality & efficiency controller** (docs/QA_PROMPT.md) reviews after every build agent and before new launches; max 2 build + 1 research agents at once.
+- Never simplify early; explore fully, then converge (docs/FEATURE_PLAN.md). One palette (docs/DESIGN_SYSTEM.md). Patient/guardian side effortless for elderly users.
 - **Always keep one research subagent running** (docs/research/RESEARCH_PROMPT.md). If none is running at session start, launch one with the next gaps from docs/research/KNOWLEDGE_BASE.md. It must never re-read a URL in docs/research/SOURCES_LEDGER.md.
 - Code is on GitHub: https://github.com/sharonshajuaugustine/SpiroBuddy (branch `main`; local `master` tracks `origin/main`). gh's active account is sharonshajuaugustine.
 

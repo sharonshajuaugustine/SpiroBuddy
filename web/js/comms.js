@@ -109,11 +109,12 @@
   /* ---------- small renderers ---------- */
   const { esc } = SB.ui;
   const SEV_TEXT = { red: '● Needs a person now', amber: '⚠ Watch', info: 'ℹ Info' };
-  function timeOnly(v) { const d = new Date(v); return isNaN(d) ? '' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
-  const STATUS_TAG = { ok: ['sent', 'done'], sent: ['sent', 'sent'], dry_run: ['dry', 'would send'], failed: ['missed', 'failed'], warn: ['missed', 'no answer'], held: ['dry', 'held'], skipped: ['', 'skipped'], info: ['', ''] };
+  function timeOnly(v) { const d = new Date(v); return isNaN(d) ? '' : d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
+  const STATUS_TAG = { ok: ['sent', 'done'], sent: ['sent', 'sent'], dry_run: ['dry', 'would send'], failed: ['missed', 'failed'], warn: ['missed', '⚠ needs a look'], held: ['dry', 'held'], skipped: ['', 'skipped'], info: ['', ''] };
   function eventRow(e, opts) {
     opts = opts || {};
-    const [cls, label] = STATUS_TAG[e.status] || ['', e.status || ''];
+    let [cls, label] = STATUS_TAG[e.status] || ['', e.status || ''];
+    if (e.status === 'warn' && /did not answer|no answer/i.test((e.title || '') + ' ' + (e.detail || ''))) label = 'no answer';
     return `<li class="tl-item tl-${esc(e.status || 'info')}" data-id="${esc(e.id)}">
       <span class="tl-icon" aria-hidden="true">${esc(e.icon || '•')}</span>
       <div class="tl-body">

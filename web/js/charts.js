@@ -39,7 +39,7 @@
       const v = d.best_ml || 0;
       const under = target && v < 0.8 * target;
       const dt = new Date(d.date + 'T00:00:00');
-      const lbl = isNaN(dt) ? d.date : dt.toLocaleDateString([], { weekday: 'short', day: 'numeric' });
+      const lbl = isNaN(dt) ? d.date : dt.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' });
       s += `<rect class="bar${under ? ' under' : ''}" x="${x(i) - bw / 2}" y="${y(v)}" width="${bw}" height="${Math.max(0, T + ih - y(v))}" rx="4"><title>${esc(lbl)}: best ${Math.round(v)} mL, ${d.sessions_done || 0} sessions${d.avg_score != null ? ', avg score ' + d.avg_score : ''}</title></rect>`;
       s += `<text x="${x(i)}" y="${H - B + 18}" text-anchor="middle">${esc(lbl)}</text>`;
     });

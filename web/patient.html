@@ -169,7 +169,7 @@
       renderSessions(sessions || []);
       renderMsgs(msgs || []);
       if (!formFilled) fillForm(p);
-      $('#updated').textContent = 'Live · ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      $('#updated').textContent = 'Live · ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }
 
     $('#settings').addEventListener('submit', (e) => {

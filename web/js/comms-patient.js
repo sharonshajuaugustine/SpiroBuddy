@@ -120,7 +120,7 @@
       careFilled = true;
     }
     function consentNote(s) {
-      const when = s.consent_at ? new Date(s.consent_at).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+      const when = s.consent_at ? new Date(s.consent_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
       $('#cc-consent-note', els.care).textContent = s.consent_ok
         ? `Consent for automated calls/WhatsApp recorded on ${when} (TRAI rules).${s.consent_renew_due ? ` ⚠ It is ${s.consent_age_days} days old – TRAI's "ongoing use" consent lasts 7 days: please re-confirm with the patient.` : ''} Automated calls in production go through an Indian provider (Exotel or a Sarvam-rented number); in this demo they ring in the phone simulator.`
         : '⚠ No consent recorded (yes + date) – the ladder will skip automated calls and WhatsApp to the patient (device beep and nurse alert still work).';
@@ -144,7 +144,7 @@
     function renderGuardians(gs) {
       $('#cc-guardians', els.care).innerHTML = gs.length ? gs.map((g) => `<div class="guardian-row" data-id="${g.id}">
         <div class="who"><b>${esc(g.name)}</b> <span class="muted">· ${esc(g.relation || 'family')}${g.city ? ' · ' + esc(g.city) : ''}</span>${g.is_primary ? ' <span class="chip ok">primary</span>' : ''}
-          <div class="small muted">${esc(g.phone || 'no phone')} · ${esc(LANGS[g.language] || g.language)} · ${esc(CH[g.channel] || g.channel)}${g.quiet_start ? ` · quiet ${esc(g.quiet_start)}–${esc(g.quiet_end)}` : ''} · calls the patient “${esc(g.calls_patient || '')}” · ${g.consent_ok ? `✓ consent ${esc(new Date(g.consent_at).toLocaleDateString([], { day: 'numeric', month: 'short' }))}${g.consent_renew_due ? ' (re-confirm: over 7 days)' : ''}` : '⚠ no consent'}</div></div>
+          <div class="small muted">${esc(g.phone || 'no phone')} · ${esc(LANGS[g.language] || g.language)} · ${esc(CH[g.channel] || g.channel)}${g.quiet_start ? ` · quiet ${esc(g.quiet_start)}–${esc(g.quiet_end)}` : ''} · calls the patient “${esc(g.calls_patient || '')}” · ${g.consent_ok ? `✓ consent ${esc(new Date(g.consent_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }))}${g.consent_renew_due ? ' (re-confirm: over 7 days)' : ''}` : '⚠ no consent'}</div></div>
         <a class="btn sm" href="${esc(SB.ui.link(g.link))}" target="_blank" rel="noopener" title="Magic link – no login">Family page ↗</a>
         <button class="btn sm" data-g="copy" type="button">Copy link</button>
         <select class="sm-select" data-g="channel" aria-label="How to reach ${esc(g.name)}">${Object.entries(CH).map(([k, v]) => `<option value="${k}" ${k === g.channel ? 'selected' : ''}>${v}</option>`).join('')}</select>
@@ -215,7 +215,7 @@
       if (cr !== refresh.csig) { refresh.csig = cr; $('#cp-calls', els.actions).innerHTML = cr || '<li class="muted" style="border:0;background:none;padding:0">No AI check-in calls yet.</li>'; }
       const tr = d.trend;
       $('#cp-trend', els.actions).innerHTML = tr && tr.flag ? `<div class="observation"><b>📉 Lower than usual (observation)</b><br>${esc(tr.text)}</div>`
-        : tr && tr.avg3 ? `<div class="muted small">Today's best vs own 3-day average (${Number(tr.avg3).toLocaleString()} mL): ${tr.pct_below ? tr.pct_below + '% lower' : 'not lower'} – no flag.</div>` : '';
+        : tr && tr.avg3 ? `<div class="muted small">Today's best vs own 3-day average (${Number(tr.avg3).toLocaleString('en-IN')} mL): ${tr.pct_below ? tr.pct_below + '% lower' : 'not lower'} – no flag.</div>` : '';
       const sig = JSON.stringify(d.alerts);
       if (sig !== refresh.asig && !els.actions.querySelector('.busy')) { refresh.asig = sig; renderAlerts(d.alerts); }
       const run = d.active_run || (d.runs && d.runs[0]);

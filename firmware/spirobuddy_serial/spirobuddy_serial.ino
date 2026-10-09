@@ -26,7 +26,7 @@
 // VL53L1X only: narrow the field of view so the sensor sees the disc, not the
 // chamber walls. 16 = full view (~27 deg), 8 = ~20 deg, 4 = narrowest (~15 deg).
 // Smaller = narrower but weaker signal. Allowed 4..16.
-#define VL53L1X_ROI_SIZE   8
+#define VL53L1X_ROI_SIZE   4   // 4x4 default (research round 4, F-TECH-3): wider windows see the tube walls
 #define VL53L1X_ROI_CENTER 199   // 199 = centre of the sensor (Pololu default)
 
 // Readings above this are treated as "nothing in front of the sensor".

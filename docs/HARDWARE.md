@@ -191,7 +191,7 @@ What the other lines mean:
 
 **Foam ring:** cut a 2–3 mm black EVA foam ring that surrounds the sensor's two little windows (emitter and receiver) without covering them. It blocks stray light and reflections.
 
-**Aim:** point the sensor at the **middle of the disc**. The sketch already narrows the VL53L1X's view (setting `VL53L1X_ROI_SIZE 8`, about 20° instead of 27°) so it sees the disc, not the walls. If readings jump when the disc is near the walls, try `4` (narrowest, ~15°). The VL53L0X can't narrow its view (fixed about 25°).
+**Aim:** point the sensor at the **middle of the disc**. The sketch narrows the VL53L1X's view to the smallest window (`VL53L1X_ROI_SIZE 4`, about 15° instead of 27°, centre 199) so it sees the disc, not the walls (research round 4, F-TECH-3). If the signal is too weak at the top of travel, try `8` (~20°). The VL53L0X can't narrow its view (fixed about 25°).
 
 ---
 
@@ -222,7 +222,7 @@ Note: the distance gets **smaller** as the disc rises (base mount: bigger). That
 | Compile error "VL53L1X.h: No such file" | Library missing | Install "VL53L1X by Pololu" (or VL53L0X by Pololu). |
 | Compile error about `begin` / wrong library | A look-alike library is installed | Remove the SparkFun/Adafruit one or make sure the Pololu one is installed. |
 | `E,NO_TARGET` all the time | Disc out of range, or sensor too close (<4 cm) | Move the sensor so the disc is 5–100 cm away. |
-| Numbers jump around a lot | Sensor wobbles, light leaking, or seeing walls | Fix it firmly, add foam ring, set `VL53L1X_ROI_SIZE 4`. |
+| Numbers jump around a lot | Sensor wobbles, light leaking, or seeing walls | Fix it firmly, add foam ring, add a matte (non-shiny) target under the piston; ROI is already 4. |
 | Numbers don't change when disc moves (top mount) | Crosstalk from the plastic lid | Press sensor flat on plastic, add foam ring, or switch to base mount. |
 | Website can't connect | Serial Monitor still open, or not using Chrome/Edge | Close Serial Monitor; use Chrome or Edge on the laptop (Web Serial). |
 | No beep on `B` | No buzzer, wrong pin, or an *active* buzzer | Check pin table. A passive piezo is expected; it's optional anyway. |

@@ -72,7 +72,7 @@
 
     function log(text) {
       const d = document.createElement('div');
-      d.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + '  ' + text;
+      d.textContent = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + '  ' + text;
       $('#log').prepend(d);
     }
 

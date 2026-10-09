@@ -156,7 +156,7 @@ input, select, textarea {
 input[type="checkbox"] { min-height: 0; width: 18px; height: 18px; }
 .field { display: flex; flex-direction: column; gap: .25rem; }
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .75rem; align-items: end; }
-.seg { display: inline-flex; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); overflow: hidden; }
+.seg { display: inline-flex; max-width: 100%; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); overflow-x: auto; }
 .seg button {
   font: inherit; font-size: .9rem; font-weight: 600; border: 0; background: var(--surface); color: var(--text-2);
   padding: .45rem .8rem; cursor: pointer; border-right: 1px solid var(--border);
@@ -500,10 +500,10 @@ canvas.live { width: 100%; height: 260px; display: block; background: var(--surf
 .g-wrap { max-width: 560px; margin: 0 auto; padding: 0 16px 48px; }
 .g-top { display: flex; align-items: center; gap: .6rem; padding: 14px 0; }
 .g-top svg { width: 40px; height: 40px; flex: none; }
-.g-top .t { font-weight: 800; font-size: 1.15rem; line-height: 1.15; }
-.g-top .t small { display: block; font-weight: 600; font-size: .8rem; color: var(--text-3); }
+.g-top .t { font-weight: 800; font-size: 1.35rem; line-height: 1.15; }
+.g-top .t small { display: block; font-weight: 600; font-size: 1.25rem; color: var(--text-3); }
 .g-lang { display: flex; gap: .4rem; margin: 0 0 14px; }
-.g-lang button { flex: 1; min-height: 56px; font: inherit; font-size: 1.05rem; font-weight: 700; border-radius: 14px; border: 2px solid var(--border-strong); background: var(--surface); color: var(--text); cursor: pointer; }
+.g-lang button { flex: 1; min-height: 64px; font: inherit; font-size: 1.25rem; font-weight: 700; border-radius: 14px; border: 2px solid var(--border-strong); background: var(--surface); color: var(--text); cursor: pointer; }
 .g-lang button[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
 .g-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 18px; box-shadow: var(--shadow); margin-bottom: 14px; }
 .g-status { display: flex; gap: .9rem; align-items: center; border-left: 10px solid var(--green-dot); }
@@ -518,7 +518,7 @@ canvas.live { width: 100%; height: 260px; display: block; background: var(--surf
 .g-row .g-card { margin: 0; }
 .g-label { color: var(--text-2); font-weight: 600; }
 .g-ticks { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 10px; }
-.g-tick { border-radius: 12px; text-align: center; padding: 6px 0; font-weight: 700; font-size: .9rem; background: var(--grey-soft); color: var(--text-3); border: 2px solid transparent; }
+.g-tick { border-radius: 12px; text-align: center; padding: 6px 0; font-weight: 700; font-size: 1.25rem; background: var(--grey-soft); color: var(--text-3); border: 2px solid transparent; }
 .g-tick .i { display: block; font-size: 1.3rem; line-height: 1.2; }
 .g-tick.done { background: var(--green-soft); color: var(--green); border-color: var(--green-line); }
 .g-tick.missed { background: var(--red-soft); color: var(--red); border-color: var(--red-line); }
@@ -529,9 +529,9 @@ canvas.live { width: 100%; height: 260px; display: block; background: var(--surf
 .g-btn.listen { background: var(--surface); color: var(--text); border: 2px solid var(--border-strong); min-height: 64px; font-size: 1.15rem; }
 .g-btn:active { transform: translateY(1px); }
 .g-choices { display: flex; flex-direction: column; gap: 10px; }
-.g-choices button { min-height: 72px; font: inherit; font-size: 1.1rem; font-weight: 700; text-align: left; padding: 10px 16px; border-radius: 16px; border: 2px solid var(--brand); background: var(--brand-soft); color: var(--text); cursor: pointer; }
+.g-choices button { min-height: 72px; font: inherit; font-size: 1.25rem; font-weight: 700; text-align: left; padding: 10px 16px; border-radius: 16px; border: 2px solid var(--brand); background: var(--brand-soft); color: var(--text); cursor: pointer; }
 .g-done { background: var(--green-soft); border: 2px solid var(--green-line); border-radius: 16px; padding: 14px; font-weight: 700; color: var(--green); }
-.g-foot { text-align: center; color: var(--text-3); font-size: .9rem; margin-top: 18px; }
+.g-foot { text-align: center; color: var(--text-3); font-size: 1.25rem; margin-top: 18px; }
 @media (max-width: 380px) { .g-ticks { grid-template-columns: repeat(5, 1fr); } .g-big { font-size: 2.1rem; } .g-row { grid-template-columns: 1fr; } }
 [hidden] { display: none !important; }
 /* ======================= /COMMS ======================= */

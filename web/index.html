@@ -65,7 +65,7 @@
     let filter = 'all';
     let first = true;
 
-    $('#today-label').textContent = new Date().toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · slots 08:00–21:00';
+    $('#today-label').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · slots 08:00–21:00';
 
     function setFilter(f) {
       filter = f;
@@ -146,7 +146,7 @@
       $('#n-sessions').textContent = sessions;
       $('#l-sessions').textContent = `sessions done today (of ${due} due)`;
       const basis = patients.some((p) => p.status_basis === 'yesterday');
-      $('#today-label').textContent = new Date().toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · slots 08:00–21:00' + (basis ? ' · before 08:00 – colours show yesterday' : '');
+      $('#today-label').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · slots 08:00–21:00' + (basis ? ' · before 08:00 – colours show yesterday' : '');
       document.title = (n.red ? `(${n.red}) ` : '') + 'SpiroBuddy Dashboard';
     }
 
@@ -172,7 +172,7 @@
       const sig = JSON.stringify(list);
       const now = Date.now();
       if (sig !== refresh.sig || pendingChanges.size || now - (refresh.at || 0) > 30000) { refresh.sig = sig; refresh.at = now; render(); }
-      $('#updated').textContent = 'Live · updated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      $('#updated').textContent = 'Live · updated ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }
 
     SB.ui.boot('dashboard').then(() => {

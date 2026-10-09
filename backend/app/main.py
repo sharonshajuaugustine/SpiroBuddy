@@ -44,6 +44,15 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"],
                    allow_headers=["*"])
 
 
+@app.middleware("http")
+async def _revalidate_static(request, call_next):
+    """Browsers must re-check web/ files (cheap 304 via ETag), so a fix is never hidden by cache."""
+    resp = await call_next(request)
+    if not request.url.path.startswith("/api"):
+        resp.headers.setdefault("Cache-Control", "no-cache")
+    return resp
+
+
 # ----------------------------------------------------------------------------- errors as JSON
 
 @app.exception_handler(StarletteHTTPException)

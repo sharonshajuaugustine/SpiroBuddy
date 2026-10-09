@@ -63,7 +63,7 @@ Start the server: `scripts\run.ps1`, then open http://localhost:8000 in Chrome. 
 - [ ] Switch language (Hindi/English); the "automated updates" notice is visible.
 
 ### Record breaths (`/collect.html`)
-- [ ] Simulator keys g/f/s/n make breaths; the live graph, "SLOWER!" warning and spoken cues all work.
+- [ ] Simulator keys g/f/s/n make breaths; the live graph, "⚠ Slower…" warning and spoken cues all work.
 - [ ] (With hardware) Connect over USB → `S,READY` → live mm values → calibration points → breaths detected.
 
 ### 3D showroom (`/showcase/`)

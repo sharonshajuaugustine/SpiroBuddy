@@ -37,7 +37,7 @@
       <section class="card span-2">
         <div class="card-head">
           <h2>Live volume</h2><div class="spacer"></div>
-          <span id="fast-warn" class="warn-fast hidden">SLOWER!</span>
+          <span id="fast-warn" class="warn-fast hidden">⚠ Slower…</span>
           <span class="state-badge IDLE" id="state">IDLE</span>
         </div>
         <div class="row" id="voice-coach-bar" style="margin-bottom:.5rem"></div><!-- VOICE: js/voice-ui.js -->
@@ -186,7 +186,7 @@
         renderLast();
         if (r && r.count_by_label) renderCounts(r.count_by_label);
         savedRows.unshift({ at: new Date(), label, peak: b.features.peak_ml, score: b.score });
-        $('#saved-rows').innerHTML = savedRows.slice(0, 30).map((s) => `<tr><td>${s.at.toLocaleTimeString()}</td><td><span class="lbl-chip lbl-${s.label}">${LABEL_TEXT[s.label]}</span></td><td class="num">${s.peak} mL</td><td class="num">${s.score}</td></tr>`).join('');
+        $('#saved-rows').innerHTML = savedRows.slice(0, 30).map((s) => `<tr><td>${s.at.toLocaleTimeString('en-IN')}</td><td><span class="lbl-chip lbl-${s.label}">${LABEL_TEXT[s.label]}</span></td><td class="num">${s.peak} mL</td><td class="num">${s.score}</td></tr>`).join('');
         toast(`Saved as ${LABEL_TEXT[label]}`, 'good', 1800);
       } catch (e) { toast('Save failed: ' + e.message, 'bad'); }
     }

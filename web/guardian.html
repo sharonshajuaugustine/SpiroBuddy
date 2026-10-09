@@ -107,7 +107,7 @@
           <div class="g-card"><div class="g-big">${d.due ? esc(t('of', { a: d.done, b: d.due })) : '—'}</div><div class="g-label">${esc(d.due ? t('done') : t('notYet'))}</div></div>
           <div class="g-card"><div class="g-big">🔥 ${esc(d.streak)}</div><div class="g-label">${esc(t('streak'))}</div></div>
         </div>
-        <div class="g-card"><div class="g-label">${esc(t('last'))}</div><div class="g-big" style="font-size:2rem">${d.last ? esc(agoText(d.last.minutes_ago)) : esc(t('none'))}</div>${d.last && d.last.best_ml ? `<div class="g-label">${Math.round(d.last.best_ml).toLocaleString()} mL</div>` : ''}</div>
+        <div class="g-card"><div class="g-label">${esc(t('last'))}</div><div class="g-big" style="font-size:2rem">${d.last ? esc(agoText(d.last.minutes_ago)) : esc(t('none'))}</div>${d.last && d.last.best_ml ? `<div class="g-label">${Math.round(d.last.best_ml).toLocaleString('en-IN')} mL</div>` : ''}</div>
         <div class="g-card"><div class="g-label">${esc(t('ticks'))}</div><div class="g-ticks">${ticks}</div></div>
         ${d.cheers_queued ? `<p class="g-label" style="text-align:center">💛 ${esc(t('queued', { n: d.cheers_queued }))}</p>` : ''}
         ${d.quiet ? `<div class="g-card"><div class="g-label"><b>${esc(t('quietT'))}</b></div><div class="g-big" style="font-size:2rem">${esc(d.quiet.start)} – ${esc(d.quiet.end)}</div><div class="g-label">${esc(t('quietSub'))}</div>
