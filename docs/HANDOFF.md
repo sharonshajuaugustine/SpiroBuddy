@@ -34,3 +34,12 @@
 - Backend runs as `backend.app.main:app` from the repo root (same command locally and on Render).
 - USB serial instead of Bluetooth for the hackathon. ML model runs on the server; rules fallback.
 - LLM: `claude-opus-5-5` with effort low, plus a template fallback.
+
+## Queued: India-fit QA agent (start when the comms agent finishes) – checklist from research round 3
+- Voice preset for elderly: Bulbul v3, pace 0.85, temperature 0.7; female default per language (priya hi, pooja ml, ishita ta), male option; never "varun". Repeat key numbers; show the same words in large text.
+- Formats everywhere: DD/MM/YYYY, 12-hour time, ₹ with lakh grouping, +91 numbers (allow non-+91 for guardians abroad).
+- Address forms: "ji", "Amma/Appa", "Chechi" (team guidance – needs an Indian team member's check).
+- Fictional hospital names only. Demo patients: man late 50s–60s after CABG; woman 60–68 after knee replacement; woman 40s after cholecystectomy; man ~50 post-TB rehab (plus Ravi).
+- Consent: from the patient, in their language, read aloud, itemised data list, one-word "stop", weekly renewal for calls.
+- Caregiver is the default WhatsApp recipient; ≥2 guardians.
+- Never say: "prevents pneumonia", "first", "clinically proven", "FDA-approved", "diagnoses". Sensor accuracy: report measured numbers, not the ±100 mL target.
