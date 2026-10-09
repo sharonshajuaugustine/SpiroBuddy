@@ -14,15 +14,17 @@
     <div class="page-head">
       <div>
         <h1>Demo control panel</h1>
-        <div class="muted">For the presenter. Open the <a href="index.html" id="dash-link" target="_blank" rel="noopener">dashboard in a second tab ↗</a> – it updates within 2 seconds.</div>
+        <p class="page-sub">For the presenter. Open the <a href="index.html" id="dash-link" target="_blank" rel="noopener">dashboard in a second tab<span data-icon="external" data-size="14"></span></a> – it updates within 2 seconds.</p>
       </div>
-      <div class="spacer"></div>
-      <button class="btn danger" id="btn-reset" type="button">↺ Reset demo data</button>
+      <div class="page-actions">
+        <button class="btn danger" id="btn-reset" type="button"><span data-icon="refresh"></span>Reset demo data</button>
+      </div>
     </div>
 
-    <section class="card" style="margin-bottom:1rem">
-      <div class="row">
-        <b>Shortcuts for Ravi (live demo patient):</b>
+    <div class="page-stack">
+    <section class="card" aria-label="Keyboard shortcuts">
+      <div class="card-head"><h2>Keyboard shortcuts</h2><span class="card-sub">for Ravi, the live demo patient</span></div>
+      <div class="shortcuts">
         <span><span class="kbd">G</span> good session</span>
         <span><span class="kbd">M</span> mixed</span>
         <span><span class="kbd">P</span> poor</span>
@@ -35,28 +37,30 @@
     <section class="demo-grid" id="cards" aria-live="polite"><div class="muted">Loading patients…</div></section>
 
     <!-- COMMS (comms agent): escalation ladder + phone & WhatsApp simulators, filled by js/phone-sim.js -->
-    <section class="card" id="comms-demo" style="margin-top:1rem"><div class="muted">Loading simulators…</div></section>
+    <section class="card" id="comms-demo"><div class="muted">Loading simulators…</div></section>
     <!-- /COMMS -->
 
-    <div class="grid grid-2" style="margin-top:1rem">
+    <div class="grid grid-2">
       <section class="card">
-        <div class="card-head"><h2>Message log</h2><span class="muted small">WhatsApp – every attempt</span><div class="spacer"></div><span class="updated"><span class="live-dot"></span>live</span></div>
+        <div class="card-head"><h2><span data-icon="message"></span>Message log</h2><span class="card-sub">WhatsApp – every attempt</span><div class="spacer"></div><span class="live"><span class="live-dot"></span>Live</span></div>
         <div class="msgs" id="msgs"><div class="muted">No messages yet.</div></div>
       </section>
       <section class="card">
-        <div class="card-head"><h2>3D showroom</h2><div class="spacer"></div><a class="btn sm" href="showcase/" target="_blank" rel="noopener">Open full screen ↗</a><button class="btn sm" id="btn-embed" type="button">Show here</button></div>
-        <p class="muted small" style="margin-top:0">How the device works: the disc rises, the laser measures it, coaching and the score.</p>
+        <div class="card-head"><h2><span data-icon="cube"></span>3D showroom</h2><div class="spacer"></div><a class="btn sm" href="showcase/" target="_blank" rel="noopener"><span data-icon="external" data-size="15"></span>Open full screen</a><button class="btn sm" id="btn-embed" type="button">Show here</button></div>
+        <p class="muted small">How the device works: the disc rises, the laser measures it, coaching and the score.</p>
         <div id="embed"></div>
-        <div class="card-head" style="margin-top:1rem"><h3 style="margin:0">Activity</h3></div>
+        <h3 class="section-title">Activity</h3>
         <div class="log" id="log" aria-live="polite"></div>
       </section>
     </div>
 
     <!-- VOICE (voice agent): filled by js/voice-ui.js – plays every coaching cue in the chosen language -->
-    <section class="card" id="voice-check-card" style="margin-top:1rem"><div class="muted">Loading voice check…</div></section>
+    <section class="card" id="voice-check-card"><div class="muted">Loading voice check…</div></section>
     <!-- /VOICE -->
+    </div>
   </main>
 
+  <script src="js/icons.js"></script>
   <script src="js/api.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/voice.js"></script><!-- VOICE -->
@@ -65,7 +69,8 @@
   <script src="js/phone-sim.js"></script><!-- COMMS -->
   <script>
   (function () {
-    const { esc, $, $$, link, statusPill, fmtMl, labelChips, dateTimeLabel, toast, busy, poll, hourLabel } = SB.ui;
+    const { esc, $, $$, link, ic, statusPill, fmtMl, labelChips, dateTimeLabel, toast, busy, poll, hourLabel } = SB.ui;
+    SB.ui.hydrateIcons(document);
     $('#dash-link').href = link('index.html');
     const results = {};
     let patients = [], lastMsgIds = null;
@@ -81,19 +86,19 @@
       box.innerHTML = patients.map((p) => {
         const r = results[p.id];
         return `<article class="card dcard ${esc(p.status)}${String(p.id) === '1' ? ' star' : ''}" data-id="${esc(p.id)}">
-          <div class="row"><b style="font-size:1.1rem">${esc(p.name)}</b>${String(p.id) === '1' ? '<span class="chip">★ live demo patient</span>' : ''}<span style="margin-left:auto">${statusPill(p.status)}</span></div>
-          <div class="muted small">Done ${p.done_today ?? 0} / ${p.due_today ?? 0} due · best today ${fmtMl(p.best_today)} · target ${fmtMl(p.target_ml)}</div>
+          <div class="dcard-head"><span class="name">${esc(p.name)}</span>${String(p.id) === '1' ? `<span class="chip">${ic('star', { size: 14 })}Live demo patient</span>` : ''}${statusPill(p.status)}</div>
+          <div class="muted small tnum">Done ${p.done_today ?? 0} of ${p.due_today ?? 0} due · best today ${fmtMl(p.best_today)} · goal ${fmtMl(p.target_ml)}</div>
           <div class="btns">
-            <button class="btn good" data-act="good">Simulate<br>good</button>
-            <button class="btn mixed" data-act="mixed">Simulate<br>mixed</button>
-            <button class="btn poor" data-act="poor">Simulate<br>poor</button>
-            <button class="btn danger wide" data-act="miss">Simulate 2 missed slots</button>
-            <button class="btn wide" data-act="wa">Send summary to family (WhatsApp)</button>
-            <a class="btn wide" href="${link('patient.html?id=' + encodeURIComponent(p.id))}" target="_blank" rel="noopener">Open patient page ↗</a>
+            <button class="btn good" type="button" data-act="good">${ic('check-circle')}<span>Simulate good</span></button>
+            <button class="btn mixed" type="button" data-act="mixed">${ic('alert-triangle')}<span>Simulate mixed</span></button>
+            <button class="btn poor" type="button" data-act="poor">${ic('x-circle')}<span>Simulate poor</span></button>
+            <button class="btn danger wide" type="button" data-act="miss">${ic('clock')}Simulate 2 missed slots</button>
+            <button class="btn wide" type="button" data-act="wa">${ic('send')}Send summary to family (WhatsApp)</button>
+            <a class="btn wide" href="${link('patient.html?id=' + encodeURIComponent(p.id))}" target="_blank" rel="noopener">${ic('external')}Open patient page</a>
           </div>
           ${r ? `<div class="result">${r}</div>` : ''}
         </article>`;
-      }).join('') || '<div class="empty">No patients. Press "Reset demo data".</div>';
+      }).join('') || `<div class="empty">${ic('users', { size: 28 })}<b>No patients</b>Press "Reset demo data" to load the fake patients.</div>`;
     }
 
     $('#cards').addEventListener('click', (e) => {
@@ -116,18 +121,18 @@
           const withIntent = b.filter((x) => x.intended);
           const agree = withIntent.filter((x) => x.intended === x.label).length;
           const src = b.length && b[0].source ? (b[0].source === 'model' ? 'our ML model' : 'rules') : '';
-          results[id] = `✅ <b>${esc(what)}</b> session saved – slot ${r.slot_hour != null ? hourLabel(r.slot_hour) : '?'} ${esc(r.slot_status || '')}<br>${b.length} breaths · avg score <b>${avg}</b>/10 · best ${fmtMl(best)}<br>${labelChips(r.label_counts || counts)}${withIntent.length ? `<br>Labelled by ${esc(src || 'the server')}: agreed with the simulator on <b>${agree}/${withIntent.length}</b> breaths` : ''}`;
+          results[id] = `<span class="r-good">${ic('check-circle', { size: 16 })}</span><b>${esc(what)}</b> session saved – slot ${r.slot_hour != null ? hourLabel(r.slot_hour) : '?'} ${esc(r.slot_status || '')}<br>${b.length} breaths · avg score <b>${avg}</b>/10 · best ${fmtMl(best)}<br>${labelChips(r.label_counts || counts)}${withIntent.length ? `<br>Labelled by ${esc(src || 'the server')}: agreed with the simulator on <b>${agree}/${withIntent.length}</b> breaths` : ''}`;
           log(`${name}: simulated ${what} session → slot ${r.slot_hour != null ? hourLabel(r.slot_hour) : '?'} ${r.slot_status || ''}, avg ${avg}/10`);
-          toast(`✅ ${name}: ${what} session saved`, 'good');
+          toast(`${name}: ${what} session saved`, 'good');
         } else if (what === 'miss') {
           const r = await SB.api.miss(id);
           const hrs = r && Array.isArray(r.missed) ? r.missed.map((m) => hourLabel(m.slot_hour)) : r && r.missed_hours ? r.missed_hours.map(hourLabel) : [];
-          results[id] = `⚠ ${hrs.length ? 'Slots ' + esc(hrs.join(', ')) : '2 slots'} marked missed – missed-session alert logged${r && r.status ? ' · status now <b>' + esc(r.status) + '</b>' : ''}.`;
+          results[id] = `<span class="r-warn">${ic('alert-triangle', { size: 16 })}</span>${hrs.length ? 'Slots ' + esc(hrs.join(', ')) : '2 slots'} marked missed – missed-session alert logged${r && r.status ? ' · status now <b>' + esc(r.status) + '</b>' : ''}.`;
           log(`${name}: 2 slots marked missed${hrs.length ? ' (' + hrs.join(', ') + ')' : ''}`);
-          toast(`⚠ ${name}: 2 missed slots`, 'bad');
+          toast(`${name}: 2 slots marked missed`, 'bad');
         } else if (what === 'wa') {
           const r = await SB.api.whatsapp(id, 'summary', 'family');
-          results[id] = `${r.sent ? '✅ Sent' : r.dry_run ? '<b>DRY RUN – would send:</b>' : '✖ Failed:'} ${esc(r.text || '')}`;
+          results[id] = `${r.sent ? `<span class="r-good">${ic('check-circle', { size: 16 })}</span><b>Sent:</b>` : r.dry_run ? `<span class="r-warn">${ic('info', { size: 16 })}</span><b>Dry run – would send:</b>` : `<span class="r-bad">${ic('x-circle', { size: 16 })}</span><b>Failed:</b>`} ${esc(r.text || '')}`;
           log(`${name}: WhatsApp summary ${r.sent ? 'sent' : r.dry_run ? 'dry run (would send)' : 'failed'}`);
         }
         await refresh();

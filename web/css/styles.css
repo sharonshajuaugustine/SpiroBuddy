@@ -851,3 +851,81 @@ canvas.live { width: 100%; height: 260px; display: block; background: var(--surf
   .print-foot { margin-top: 10pt; font-size: 8.5pt; color: #333; border-top: 1px solid #bbb; padding-top: 4pt; }
   .footer-note { display: none; }
 }
+
+/* =====================================================================================
+   7. UI 2 ADDITIONS – guardian page v2 and demo-panel tidy.
+   Added at the END on purpose: nothing above is changed, these rules only refine the
+   guardian (.g-*) and demo (.dcard, .page-stack, .shortcuts) pieces. Keep new work below.
+   ===================================================================================== */
+/* ---------- guardian page v2 (elderly family on a phone: 18 px+ text, 64 px+ buttons, one column) ---------- */
+.g-body { overflow-x: hidden; }
+.g-wrap { padding: 0 var(--sp-4) var(--sp-12); }
+.g-wrap > main { padding: 0; max-width: none; }   /* the nurse-site page padding is not wanted here */
+.g-top { gap: var(--sp-3); padding: var(--sp-4) 0 var(--sp-3); margin-bottom: var(--sp-4); border-bottom: 1px solid var(--border); }
+.g-top .t { letter-spacing: -.01em; }
+.g-top .t small { font-size: 1.125rem; color: var(--text-2); letter-spacing: 0; }
+.g-lang { gap: var(--sp-2); margin: 0 0 var(--sp-4); }
+.g-lang button { border-width: 1px; border-radius: var(--r-lg); display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2); padding: 0 var(--sp-2); min-width: 0; }
+.g-lang button:hover { background: var(--surface-3); }
+.g-lang button[aria-pressed="true"], .g-lang button[aria-pressed="true"]:hover { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+.g-card { border-radius: var(--r-xl); padding: var(--sp-5); margin-bottom: var(--sp-4); }
+.g-card > p:last-child { margin-bottom: 0; }
+.g-status { gap: var(--sp-4); border-left-width: 6px; }
+.g-status .ic { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--green-soft); color: var(--green); }
+.g-status.nudge .ic { background: var(--yellow-soft); color: var(--yellow); }
+.g-status.call .ic { background: var(--red-soft); color: var(--red); }
+.g-status h1 { font-size: 1.5rem; letter-spacing: -.01em; }
+.g-status p { margin-top: var(--sp-1); }
+.g-big { letter-spacing: -.02em; display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+.g-big.sm { font-size: 2rem; }
+.g-big svg { color: var(--brand); }
+.g-label { font-size: 1.125rem; }
+.g-label.center { text-align: center; display: flex; align-items: center; justify-content: center; gap: var(--sp-2); }
+.g-title { display: flex; align-items: center; gap: var(--sp-2); font-weight: 700; color: var(--text); margin-bottom: var(--sp-2); }
+.g-title svg { color: var(--text-2); flex: none; }
+.g-row { gap: var(--sp-4); margin-bottom: var(--sp-4); }
+.g-btn { border-radius: var(--r-lg); border: 2px solid transparent; padding: var(--sp-2) var(--sp-4); gap: var(--sp-3); font-size: 1.3rem; font-weight: 750; text-align: center; margin-bottom: var(--sp-3); }
+.g-btn svg { flex: none; }
+.g-btn.call { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+.g-btn.call:hover { background: var(--brand-hover); border-color: var(--brand-hover); color: var(--brand-ink); }
+.g-btn.cheer { background: var(--brand-soft); border-color: var(--brand); color: var(--brand); }
+.g-btn.cheer:hover { background: var(--surface); color: var(--brand-hover); }
+.g-btn.listen { border-color: var(--border-strong); font-size: 1.2rem; }
+.g-btn.listen:hover { background: var(--surface-3); }
+.g-ticks { margin-top: var(--sp-3); }
+.g-tick { border-radius: var(--r-md); border-width: 1px; padding: var(--sp-2) 0; font-size: 1.125rem; font-variant-numeric: tabular-nums; }
+.g-tick .i { display: grid; place-items: center; height: 24px; }
+.g-tick .ap { font-size: 1.125rem; }
+.g-big + .g-label { margin-top: var(--sp-1); }
+.g-tick.upcoming { background: var(--surface); border: 1px dashed var(--border-strong); }
+.g-legend { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); margin-top: var(--sp-3); font-size: 1.125rem; font-weight: 600; color: var(--text-2); }
+.g-legend span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.g-legend .l-done svg { color: var(--green); } .g-legend .l-missed svg { color: var(--red); } .g-legend .l-pending svg { color: var(--yellow); } .g-legend .l-upcoming svg { color: var(--text-3); }
+.g-choices { gap: var(--sp-3); margin-top: var(--sp-3); }
+.g-choices button { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); border-radius: var(--r-lg); border: 2px solid var(--border-strong); background: var(--surface); padding: var(--sp-3) var(--sp-4); min-height: var(--target-patient); }
+.g-choices button:hover { background: var(--surface-3); }
+.g-choices button[aria-pressed="true"] { background: var(--brand-soft); border-color: var(--brand); }
+.g-choices button svg { flex: none; color: var(--brand); }
+.g-choices button:disabled { opacity: .6; cursor: progress; }
+.g-done { display: flex; align-items: center; gap: var(--sp-3); border-width: 1px; border-radius: var(--r-lg); padding: var(--sp-4); margin-bottom: var(--sp-4); }
+.g-done svg { flex: none; }
+.g-note { display: flex; align-items: flex-start; gap: var(--sp-3); }
+.g-note svg { flex: none; color: var(--text-3); margin-top: 3px; }
+.g-foot { font-size: 1.125rem; margin-top: var(--sp-6); }
+@media (max-width: 480px) { .g-row { grid-template-columns: 1fr; } .g-ticks { grid-template-columns: repeat(5, 1fr); } }
+
+/* ---------- demo panel tidy ---------- */
+.page-stack { display: flex; flex-direction: column; gap: var(--sp-4); }
+.page-stack > * { min-width: 0; }
+.shortcuts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); font-size: var(--fs-md); color: var(--text-2); }
+.shortcuts > span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.shortcuts .kbd { min-width: 22px; text-align: center; color: var(--text); }
+.demo-grid { grid-template-columns: repeat(auto-fill, minmax(min(330px, 100%), 1fr)); }
+.dcard-head { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; margin-bottom: var(--sp-1); }
+.dcard-head .name { font-size: var(--fs-lg); font-weight: 700; }
+.dcard-head .status-pill { margin-left: auto; }
+.dcard .btns .btn { white-space: normal; text-align: center; padding: var(--sp-1) var(--sp-2); }
+.dcard .btns .btn:not(.wide) { flex-direction: column; gap: var(--sp-1); min-height: 64px; }
+.dcard .result { line-height: 1.6; }
+.dcard .result > svg.i:first-child { margin-right: 4px; }
+.r-good { color: var(--green); } .r-warn { color: var(--yellow); } .r-bad { color: var(--red); }

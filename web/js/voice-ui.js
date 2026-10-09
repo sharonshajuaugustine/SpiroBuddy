@@ -119,13 +119,13 @@
   /* ======================================================= demo panel: voice check */
   async function mountCheck(card) {
     card.innerHTML = `
-      <div class="card-head"><h2>Voice check</h2><span class="muted small">every coaching cue, in any language</span><div class="spacer"></div><span class="vprov"></span><button class="btn sm vmute" type="button"></button></div>
+      <div class="card-head"><h2>${window.SB && SB.icon ? SB.icon('volume') : ''}Voice check</h2><span class="card-sub">every coaching cue, in any language</span><div class="spacer"></div><span class="vprov"></span><button class="btn sm vmute" type="button"></button></div>
       <div class="row" style="margin-bottom:.6rem">
         <label for="vc-lang">Language</label><select id="vc-lang"></select>
-        <button class="btn primary" id="vc-all" type="button">▶ Play the coaching sequence</button>
-        <button class="btn" id="vc-stop" type="button">■ Stop</button>
-        <button class="btn sm" id="vc-good" type="button">♪ Chime</button>
-        <button class="btn sm" id="vc-slow" type="button">♪ Slower tone</button>
+        <button class="btn primary" id="vc-all" type="button">${window.SB && SB.icon ? SB.icon('play') : ''}Play the coaching sequence</button>
+        <button class="btn" id="vc-stop" type="button">${window.SB && SB.icon ? SB.icon('stop') : ''}Stop</button>
+        <button class="btn sm" id="vc-good" type="button">${window.SB && SB.icon ? SB.icon('music', { size: 15 }) : ''}Chime</button>
+        <button class="btn sm" id="vc-slow" type="button">${window.SB && SB.icon ? SB.icon('music', { size: 15 }) : ''}Slower tone</button>
       </div>
       <div class="muted small" id="vc-now" aria-live="polite" style="margin-bottom:.4rem">Pick a language and press a cue.</div>
       <div class="vc-grid" id="vc-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.4rem"></div>`;

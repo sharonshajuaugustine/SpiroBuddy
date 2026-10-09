@@ -244,7 +244,7 @@
   function mountDemo(el) {
     let pid = 1, sinceId = 0, patients = [], care = null;
     el.innerHTML = `
-      <div class="card-head"><h2 style="margin:0">📞 Calls &amp; WhatsApp – live simulators</h2><span class="muted small">no phone signal needed · the same logic as real calls</span></div>
+      <div class="card-head"><h2>${SB.ui.ic('phone')}Calls &amp; WhatsApp – live simulators</h2><span class="card-sub">no phone signal needed · the same logic as real calls</span></div>
       <div class="sim-grid">
         <div class="sim-controls">
           <div class="mini-form">
@@ -252,35 +252,35 @@
             <div class="field"><label class="row" style="gap:.4rem"><input type="checkbox" id="cd-quiet"> Respect quiet hours</label></div>
           </div>
           <div class="row" style="margin:.6rem 0">
-            <button class="btn primary lg" id="cd-play" type="button" title="Shortcut: L">▶ Play escalation ladder (≈60 s)</button>
-            <button class="btn danger" id="cd-stop" type="button" hidden>■ Stop</button>
-            <button class="btn" id="cd-next" type="button" hidden>⏭ Next step</button>
+            <button class="btn primary lg" id="cd-play" type="button" title="Shortcut: L">${SB.ui.ic('play')}Play escalation ladder (≈60 s)</button>
+            <button class="btn danger" id="cd-stop" type="button" hidden>${SB.ui.ic('stop')}Stop</button>
+            <button class="btn" id="cd-next" type="button" hidden>${SB.ui.ic('skip-forward')}Next step</button>
           </div>
           <div class="row" style="margin-bottom:.6rem">
-            <button class="btn poor" id="cd-red" type="button" title="Patient writes red-flag words">🚨 Red-flag message</button>
-            <button class="btn" id="cd-card" type="button">🖼 Weekly card</button>
-            <button class="btn" id="cd-voice" type="button">🎧 Voice note</button>
-            <a class="btn" id="cd-guardian" target="_blank" rel="noopener">👪 Family page ↗</a>
+            <button class="btn poor" id="cd-red" type="button" title="Patient writes red-flag words">${SB.ui.ic('flag')}Red-flag message</button>
+            <button class="btn" id="cd-card" type="button">${SB.ui.ic('image')}Weekly card</button>
+            <button class="btn" id="cd-voice" type="button">${SB.ui.ic('headphones')}Voice note</button>
+            <a class="btn" id="cd-guardian" target="_blank" rel="noopener">${SB.ui.ic('users')}Family page${SB.ui.ic('external', { size: 14 })}</a>
           </div>
           <div class="row" style="margin-bottom:.6rem">
             <label class="small" for="cd-style">Patient's call</label>
             <select id="cd-style" class="sm-select" title="How the ladder's automated call to the patient works">
-              <option value="ivr">⌨ Keypad menu (press 1 / 2 / 3)</option>
-              <option value="agent">🗣 AI conversation (Sarvam-style)</option></select>
+              <option value="ivr">Keypad menu (press 1 / 2 / 3)</option>
+              <option value="agent">AI conversation (Sarvam-style)</option></select>
           </div>
           <div class="row" style="margin-bottom:.6rem">
-            <button class="btn primary" id="cd-nurse" type="button" title="A person calls: the nurse's phone rings first, then the patient (click-to-call)">☎ Nurse calls patient</button>
-            <button class="btn sm" id="cd-checkin" type="button" title="Backup: ring the patient now with the automated AI check-in call (needs consent; some reminder calls need consent renewed weekly)">🗣 AI check-in call – optional, where consent allows</button>
+            <button class="btn primary" id="cd-nurse" type="button" title="A person calls: the nurse's phone rings first, then the patient (click-to-call)">${SB.ui.ic('phone')}Nurse calls patient</button>
+            <button class="btn sm" id="cd-checkin" type="button" title="Backup: ring the patient now with the automated AI check-in call (needs consent; some reminder calls need consent renewed weekly)">${SB.ui.ic('sparkles', { size: 15 })}AI check-in call – optional, where consent allows</button>
           </div>
           <div class="row" style="margin-bottom:.6rem">
             <select id="cd-sample" class="sm-select" aria-label="Saved Sarvam call result"><option value="pain">Loading samples…</option></select>
-            <button class="btn" id="cd-replay" type="button" title="Backup if a live call fails: feeds a saved Sarvam webhook through the real handler">⏯ Replay saved Sarvam result</button>
+            <button class="btn" id="cd-replay" type="button" title="Backup if a live call fails: feeds a saved Sarvam webhook through the real handler">${SB.ui.ic('refresh')}Replay saved Sarvam result</button>
           </div>
           <ul class="call-res" id="cd-results" aria-live="polite"></ul>
           <div class="muted small" id="cd-hint"></div>
           <div id="cd-run" style="margin:.5rem 0"></div>
           <div class="device" id="cd-device" title="The SpiroBuddy unit on the spirometer"><div class="unit"><div class="led"></div></div><div><b>SpiroBuddy unit</b><div class="small muted" id="cd-device-t">Idle · light off</div></div></div>
-          <h3 style="margin:.9rem 0 .3rem">Live comms feed</h3>
+          <h3 class="section-title">Live comms feed</h3>
           <ul class="timeline feed" id="cd-feed"><li class="muted">Waiting for events…</li></ul>
         </div>
         <div id="cd-phone-p"></div>

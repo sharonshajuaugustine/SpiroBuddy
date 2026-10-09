@@ -4,7 +4,7 @@ Every SpiroBuddy surface uses this: the nurse/doctor website, the demo panel, th
 
 **Feel:** clinical and calm. Neutral backgrounds, one brand teal, status colours used sparingly and always with an icon and a word. Crisp type hierarchy, 4/8 spacing, thin borders instead of heavy shadows, tabular numbers.
 
-`web/css/styles.css` is organised in this order: **1 tokens** (light + dark) → **2 base** → **3 layout & app shell** → **4 components** → **5 pages** → **6 print**.
+`web/css/styles.css` is organised in this order: **1 tokens** (light + dark) → **2 base** → **3 layout & app shell** → **4 components** → **5 pages** → **6 print** → **7 UI 2 additions** (guardian page v2, demo-panel tidy – later rules that refine the `.g-*` and `.dcard` pieces; add new work below it).
 
 ---
 
@@ -88,11 +88,16 @@ Breakpoints: ≥ 1280 full bar · 1024–1279 ward name hidden · < 1024 nav str
 | Live indicator | `.live` (+ `.stale`), `.live-dot` | "Live · updated 3:04 pm" / red "Offline · last data 3:04 pm". |
 | Charts | `SB.charts.weekChart(el, history, goal)`, `SB.charts.qualityBar(el, counts)`, `.chart-legend` | Honest: y-axis from 0, labelled axis, value on every bar, goal line with its value, one measure per chart, plus a hidden data table for screen readers. |
 | Timeline / ladder | `.timeline` > `.tl-item`, `.ladder` > `.ladder-step.done/.next/.held/.skipped` | Communications history and escalation steps. |
-| Icons | `web/js/icons.js`: `SB.icon(name, {size, label})`, or `<span data-icon="bell"></span>` + `SB.ui.hydrateIcons()` | 24 px grid, 2 px stroke, round ends, `currentColor`. Set: dashboard, bell, users, user, user-check, sliders, cube, activity, wind, phone, eye, search, check, check-circle, x-circle, x, alert-triangle, alert-octagon, flag, info, clock, hourglass, circle, calendar, bed, globe, chevron-*, arrow-*, minus, moon, sun, printer, sparkles, message, send, refresh, wifi-off, database, flask, external, hospital, play. `ui.js` loads `icons.js` itself if a page forgot it. |
+| Icons | `web/js/icons.js`: `SB.icon(name, {size, label})`, or `<span data-icon="bell"></span>` + `SB.ui.hydrateIcons()` | 24 px grid, 2 px stroke, round ends, `currentColor`. Set: dashboard, bell, users, user, user-check, sliders, cube, activity, wind, phone, eye, search, check, check-circle, x-circle, x, alert-triangle, alert-octagon, flag, info, clock, hourglass, circle, calendar, bed, globe, chevron-*, arrow-* (up, down, right, left), minus, moon, sun, printer, sparkles, message, send, refresh, wifi-off, database, flask, external, hospital, play, stop, skip-forward, heart, volume, flame, star, maximize, image, headphones, music, film, book. `ui.js` loads `icons.js` itself if a page forgot it. |
+| Page stack | `.page-stack` | Wraps the sections of a page so every card has the same 16 px gap (demo panel). No inline margins. |
+| Shortcut list | `.shortcuts` > `span` > `.kbd` | Keyboard shortcuts in a card (demo panel). |
+| Demo patient card | `.dcard` (+ `.red/.yellow/.green`, `.star`), `.dcard-head` (`.name`, chip, status pill), `.btns` (+ `.wide`), `.result` with `.r-good/.r-warn/.r-bad` icon | The three simulate buttons stack icon over words (64 px). Results start with an icon and a word (Sent / Dry run / Failed). |
 
 ## 4. Pages
 - **Dashboard** (`index.html`): tiles (Patients · Needs a call · Open alerts · Sessions today) → triage list sorted red flag → needs a call → watch → on track, with search, status filter with counts, sort, and per row: status pill(s), name + age/sex/operation/post-op day + reason, today "x of y due" meter, best vs goal meter, 3-day volume trend, last session, Call / View. Whole row opens the patient. Alerts inbox beside the list on wide screens (≥ 1560 px), below it otherwise.
 - **Patient** (`patient.html`): header (avatar, name, status, age, operation, post-op day, ward/bed, language, family) with **Call patient** (primary) and **Print**; KPI strip; today's 14 hourly slots (icon + time + word); 7-day best-breath chart; breath-quality breakdown; recent sessions; AI summary; WhatsApp; voice; care circle. Right column: care-team actions (nurse call first, AI check-in call secondary), escalation ladder + communications timeline, messages, goal & settings. One column under 1180 px.
+- **Demo panel** (`demo.html`): page header with **Reset demo data** in `.page-actions`; then a `.page-stack` of: shortcuts card, patient cards (`.demo-grid` of `.dcard`), simulators card (`js/phone-sim.js`), message log + 3D showroom/activity, voice check (`js/voice-ui.js`). The phone and WhatsApp simulators keep WhatsApp's own colours and emoji on purpose – they imitate another app.
+- **3D showroom** (`showcase/index.html`, `videos.html`, `sources.html`): no app shell (the 3D view needs the whole window), but the same tokens, logo, `.btn`, `.chip`, `.card` and focus ring. Each page carries an **inline copy of the tokens** from section 1 of `styles.css` – change both together. A floating top bar (logo → dashboard, page name, Videos / Sources / Fullscreen) sits over the 3D view. They read the same stored light/dark choice (`localStorage sb_theme`). `sources.html` is generated: edit the template in `tools/render/make_sources_html.py`, then run it.
 - **Print** (`@media print`): the patient page prints as an A4 summary – header, KPIs, slots, chart, quality, sessions, AI summary, alerts and messages; the shell, buttons, forms, voice, care circle and ladder are hidden; a printed-at line and the "does not diagnose" footer are added.
 
 ## 5. Accessibility rules
@@ -100,10 +105,13 @@ WCAG 2.2 AA contrast for all text tokens in both themes · visible 3 px focus ri
 
 ## 6. Patient & guardian surfaces
 They import the **same** `web/css/styles.css` and the same tokens – same colours, same meaning, same icons (`web/js/icons.js`). Differences:
-- **Type:** body at `--fs-xl` (20 px) minimum; the main number at `--fs-4xl` (32–48 px).
+- **Type:** body at `--fs-xl` (20 px); nothing on the page under 18 px; the main number at `--fs-4xl` (32–48 px).
 - **Targets:** `--target-patient` (64 px) minimum, 72 px for the main action.
-- **One action per screen**, plain words in the patient's language, no charts with axes – big ticks (`.g-tick.done/.missed/.pending`) and one status card (`.g-status.good/.nudge/.call`).
-- No app shell, no demo chip, no alerts. Existing classes: `.g-body`, `.g-wrap`, `.g-top`, `.g-lang`, `.g-card`, `.g-status`, `.g-big`, `.g-row`, `.g-ticks`, `.g-btn.call/.cheer/.listen`, `.g-choices`, `.g-done`, `.g-foot`.
+- **One action per screen**, plain words in the patient's language, no charts with axes – big ticks (`.g-tick.done/.missed/.pending/.upcoming`, each with an icon, and a word legend `.g-legend` underneath) and one status card (`.g-status.good/.nudge/.call`: round icon badge + a sentence).
+- **Buttons:** `.g-btn.call` is the one filled teal (primary) button; `.g-btn.cheer` is teal outline on pale teal; `.g-btn.listen` (also used for Back) is a plain outline. Each has an icon first, then words. Choice lists (`.g-choices`) are outlined rows; the chosen one (`aria-pressed="true"`) turns pale teal with a tick.
+- **Icons, not emoji** – same set as the nurse site, through `SB.icon()`; if `icons.js` fails to load, the words still show.
+- One column under 480 px; no sideways scroll at 375 px; light and dark follow the phone's setting.
+- No app shell, no demo chip, no alerts. Classes: `.g-body`, `.g-wrap`, `.g-top`, `.g-lang`, `.g-card`, `.g-note` (loading / bad link / offline), `.g-status`, `.g-title` (icon + card title), `.g-big` (+ `.sm`), `.g-label` (+ `.center`), `.g-row`, `.g-ticks`, `.g-legend`, `.g-btn.call/.cheer/.listen`, `.g-choices`, `.g-done`, `.g-foot`.
 
 ## 7. Voice and tone (all text, voice prompts, WhatsApp, calls)
 - Warm, short, respectful. Use "Ravi ji" style address in Hindi. No medical jargon.
