@@ -36,6 +36,7 @@
 - Backend runs as `backend.app.main:app` from the repo root (same command locally and on Render).
 - USB serial instead of Bluetooth for the hackathon. ML model runs on the server; rules fallback.
 - LLM: `claude-opus-5-5` with effort low, plus a template fallback.
+- Long-run architecture (demo → many hospitals) and the "top 10 decisions to make now" (tenant_id, /api/v1, UUIDs + idempotency, no PHI in LLM/logs, Mumbai hosting…): see `docs/FUTURE_ARCHITECTURE.md`.
 
 ## Queued: India-fit QA agent (start when the comms agent finishes) – checklist from research round 3
 - Voice preset for elderly: Bulbul v3, pace 0.85, temperature 0.7; female default per language (priya hi, pooja ml, ishita ta), male option; never "varun". Repeat key numbers; show the same words in large text.
