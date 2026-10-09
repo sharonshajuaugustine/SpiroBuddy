@@ -1008,11 +1008,14 @@ const VIDEOS = {
   tour: {
     title: 'SpiroBuddy – guided tour', duration: 92,
     chapters: [[0, 'The problem'], [10, 'Meet SpiroBuddy'], [20, "What's inside"], [34, 'How it measures'], [47, 'Live voice coaching'], [64, 'Our own AI model'], [77, 'Progress & family updates'], [86, 'SpiroBuddy']],
-    sched: [{ t0: 3.2, type: 'too_fast' }, { t0: 36.0, type: 'good' }, { t0: 49.0, type: 'too_fast' }, { t0: 54.6, type: 'good' }, { t0: 65.0, type: 'too_shallow' }, { t0: 72.6, type: 'no_hold' }],
+    sched: [{ t0: 3.2, type: 'too_fast' }, { t0: 34.8, type: 'good' }, { t0: 49.0, type: 'too_fast' }, { t0: 54.6, type: 'good' }, { t0: 65.0, type: 'too_shallow' }, { t0: 72.6, type: 'no_hold' }],
     countOffset: 2,
     tracks: {
-      cam: [[0, C(28, 12, 560, 0, 100, 0)], [9, C(-12, 12, 520, 0, 100, 0)], [11, C(-6, 14, 600, 0, 110, 0)], [17, C(22, 16, 640, 10, 110, 0)], [20.5, C(32, 22, 700, 0, 125, 0)],
-            [26, C(-34, 26, 720, 0, 135, 0)], [32, C(-18, 20, 660, 0, 120, 0)], [35.5, C(58, 10, 520, 20, 95, 0)], [41, C(76, 6, 500, 20, 95, 0)], [46, C(68, 8, 520, 20, 95, 0)],
+      cam: [[0, C(28, 12, 560, 0, 100, 0)], [9, C(-12, 12, 520, 0, 100, 0)], [11, C(-6, 14, 660, 0, 125, 0)], [17, C(22, 16, 660, 10, 115, 0)], [20.5, C(32, 22, 760, 0, 150, 0)],
+            [26, C(-34, 24, 800, 0, 165, 0)], [30.5, C(-26, 22, 800, 0, 165, 0)], [33.5, C(-18, 18, 680, 0, 125, 0)],
+            // chapter 4 – close-up from the front-right so the two chambers sit side by side (looking along the x axis
+            // lines them up one behind the other and, with X-ray on, reads as a doubled spirometer)
+            [35, C(32, 12, 520, D.volX, 80, 0)], [41, C(42, 10, 540, D.volX, 84, 0)], [46, C(36, 11, 530, D.volX, 84, 0)],
             [48.5, C(14, 12, 560, 90, 108, 25)], [63, C(-6, 13, 545, 90, 108, 25)], [65, C(18, 11, 545, 90, 110, 25)], [76, C(6, 10, 530, 90, 110, 25)],
             [78, C(24, 6, 330, 200, 86, 60)], [85.5, C(18, 7, 320, 200, 86, 60)], [88.5, C(14, 16, 760, 60, 105, 10)], [92, C(4, 16, 800, 60, 105, 10)]],
       unitX: [[0, 560], [11.6, 560], [14.2, 0]],
@@ -1021,7 +1024,7 @@ const VIDEOS = {
       explode: [[0, 0], [20.5, 0], [23.5, 1], [30.5, 1], [33.5, 0]],
       xray: [[0, 0], [20.5, 0], [22, 1], [45, 1], [47, 0]],
       labels: [[0, 0], [23, 0], [24, 1], [30.5, 1], [31.5, 0]],
-      laser: [[0, 0], [34.5, 0], [35.5, 1], [45.5, 1], [46.5, 0]],
+      laser: [[0, 0], [33.8, 0], [34.6, 1], [45.5, 1], [46.5, 0]],
     },
     phone: t => (t < 77.5 ? { screen: 'live' } : t < 81.8 ? { screen: 'checklist', progress: (t - 78) / 3 } : { screen: 'whatsapp', progress: (t - 82) / 2.6 }),
     captions: [
@@ -1031,8 +1034,8 @@ const VIDEOS = {
       [15.6, 19.8, "Nothing touches the patient's breath — the air path stays exactly as Romsons designed it."],
       [20, 27, 'Inside: a VL53L1X laser distance sensor, a XIAO ESP32-C3 and a 500 mAh LiPo battery…'],
       [27, 33.8, '…a piezo beeper, a WS2812B status light, a start button, and USB-C charging.'],
-      [34, 40.2, 'The sensor looks up through a light tunnel at the underside of the piston, 30 times a second.'],
-      [40.2, 46.8, 'Distance → mL, calibrated with the spirometer’s own printed marks. (The 940 nm beam is invisible – drawn for illustration.)'],
+      [34, 39.6, 'The sensor looks up through a light tunnel at the underside of the piston, 30 times a second.'],
+      [39.6, 46.8, 'Distance → mL, calibrated with the spirometer’s own printed marks. (The 940 nm beam is invisible – drawn for illustration.)'],
       [47, 54.4, 'Too fast? The light turns amber and the phone says “Slower…” – “धीरे…”'],
       [54.4, 63.8, 'A slow, deep breath with a 3-second hold: green light, a beep, and a score out of 10.'],
       [64, 71, 'Our own trained model labels every breath — here: too shallow…'],
@@ -1118,21 +1121,40 @@ function drawLabels(ctx, Wpx, Hpx, alpha, groups, bounds, scale = 1) {
   drawSide(left, true); drawSide(right, false);
   ctx.restore();
 }
-function drawBeamNote(ctx, Wpx, Hpx, alpha, scale) {
+function drawBeamNote(ctx, Wpx, Hpx, alpha, scale, info, callout = false) {
   if (alpha <= 0.01) return;
-  const p = project(unit.parts.sensor, [0, D.sensorFaceY + 30, 0], Wpx, Hpx); if (!p) return;
-  ctx.save(); ctx.globalAlpha = alpha; ctx.font = `600 ${14 * scale}px ${FONT}`; ctx.textBaseline = 'middle';
-  const text = 'Beam drawn for illustration – 940 nm IR is invisible', tw = ctx.measureText(text).width;
-  const x = p.x + 40 * scale, y = p.y + 50 * scale;
-  ctx.fillStyle = 'rgba(253,236,236,0.96)'; rr(ctx, x, y - 14 * scale, tw + 20 * scale, 28 * scale, 8 * scale); ctx.fill();
-  ctx.strokeStyle = 'rgba(198,40,40,0.55)'; ctx.stroke();
-  ctx.fillStyle = '#c62828'; ctx.fillText(text, x + 10 * scale, y + 1);
+  ctx.save(); ctx.globalAlpha = alpha; ctx.textBaseline = 'middle';
+  const l2 = 'Beam drawn for illustration – 940 nm IR is invisible';
+  if (!callout || !info) {
+    // phone at home (interactive mode, breath-types video): small tag under the sensor, clear of the phone
+    const p = project(unit.parts.sensor, [0, D.sensorFaceY + 30, 0], Wpx, Hpx); if (!p) { ctx.restore(); return; }
+    ctx.font = `600 ${14 * scale}px ${FONT}`; const tw = ctx.measureText(l2).width;
+    const x = p.x + 40 * scale, y = p.y + 50 * scale;
+    ctx.fillStyle = 'rgba(253,236,236,0.96)'; rr(ctx, x, y - 14 * scale, tw + 20 * scale, 28 * scale, 8 * scale); ctx.fill();
+    ctx.strokeStyle = 'rgba(198,40,40,0.55)'; ctx.stroke();
+    ctx.fillStyle = '#c62828'; ctx.fillText(l2, x + 10 * scale, y + 1);
+    ctx.restore(); return;
+  }
+  // phone away (tour chapter 4): live "distance → mL" callout beside the beam, half-way up, clear of the caption
+  const up = D.sensorFaceY + Math.max(24, info.dist * 0.5);
+  const p = project(unit.parts.sensor, [S.volOD / 2 + 10, up, 0], Wpx, Hpx), tip = project(unit.parts.sensor, [0, up, 0], Wpx, Hpx);
+  if (!p) { ctx.restore(); return; }
+  const l1 = `Laser ${info.dist.toFixed(1)} mm  →  ${Math.round(info.vol)} mL`;
+  ctx.font = `800 ${17 * scale}px ${FONT}`; const w1 = ctx.measureText(l1).width;
+  ctx.font = `600 ${13 * scale}px ${FONT}`; const w2 = ctx.measureText(l2).width;
+  const pad = 10 * scale, bw = Math.max(w1, w2) + pad * 2, bh = 54 * scale;
+  const x = Math.min(Wpx - bw - 16, p.x + 24 * scale), y = Math.max(16, Math.min(Hpx - 260 * scale - bh, p.y - bh / 2));
+  if (tip) { ctx.strokeStyle = 'rgba(19,32,46,0.6)'; ctx.lineWidth = 1.4 * scale; ctx.beginPath(); ctx.moveTo(tip.x, tip.y); ctx.lineTo(x, y + bh / 2); ctx.stroke(); }
+  ctx.fillStyle = 'rgba(255,255,255,0.95)'; rr(ctx, x, y, bw, bh, 8 * scale); ctx.fill();
+  ctx.strokeStyle = 'rgba(11,110,138,0.55)'; ctx.lineWidth = 1 * scale; ctx.stroke();
+  ctx.fillStyle = '#0b6e8a'; ctx.font = `800 ${17 * scale}px ${FONT}`; ctx.fillText(l1, x + pad, y + 18 * scale);
+  ctx.fillStyle = '#c62828'; ctx.font = `600 ${13 * scale}px ${FONT}`; ctx.fillText(l2, x + pad, y + bh - 14 * scale);
   ctx.restore();
 }
 function drawVideoOverlay(ctx, st, info, Wpx, Hpx) {
   ctx.clearRect(0, 0, Wpx, Hpx);
   drawLabels(ctx, Wpx, Hpx, st.labels, st.labelGroups, { left: 60, right: 60, top: 150, bottom: 230 }, 1.25);
-  drawBeamNote(ctx, Wpx, Hpx, st.laser, 1.3);
+  drawBeamNote(ctx, Wpx, Hpx, st.laser, 1.3, info, (st.phoneX || 0) > 0);
   // chapter title
   const ch = currentChapter(st.chapters, st.t);
   ctx.save();
@@ -1363,7 +1385,7 @@ function loopInteractive(now) {
   ov.clearRect(0, 0, w, h);
   const panelW = document.body.classList.contains('panel-hidden') ? 0 : ($('panel').getBoundingClientRect().right || 0);
   drawLabels(ov, w, h, st.labels, st.labelGroups, { left: panelW + 16, right: ($('readout').getBoundingClientRect().width || 0) + 32, top: 90, bottom: 120 }, 1);
-  drawBeamNote(ov, w, h, st.laser, 1);
+  drawBeamNote(ov, w, h, st.laser, 1, info);
   // readout
   const rows = hudRows(info);
   $('r_vol').textContent = rows[0][1]; $('r_flow').textContent = rows[1][1]; $('r_dist').textContent = rows[2][1]; $('r_state').textContent = rows[3][1];
