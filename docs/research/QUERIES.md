@@ -29,3 +29,4 @@ Every query run by the research agent, with date and usefulness, so no query is 
 | 2026-10-09 | Jina Reader | sarvam.ai/api-pricing; docs.sarvam.ai TTS, Bulbul, ratelimits, licensing, llms.txt, Twilio guide, Voice Agents overview | High |
 | 2026-10-09 | Jina Reader | twilio.com/en-us/guidelines/in/voice | High |
 | 2026-10-09 | Jina Reader | developers.facebook.com/docs/whatsapp/pricing + INR rate card | High |
+| 2026-10-09 | Jina Reader | pmc.ncbi.nlm.nih.gov/articles/PMC10942208 (HMIS surgical rates India) | High: 356 major surgeries per 100,000 in 2019 |

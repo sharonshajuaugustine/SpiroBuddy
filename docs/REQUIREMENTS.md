@@ -1,7 +1,7 @@
 # Requirements – SpiroBuddy hackathon MVP
 
 ## 1. Problem
-Patients get an incentive spirometer after surgery (or for lung disease). At home they skip the exercise or do it wrong (too fast, too shallow, no hold), and nobody can see it. An hourly reminder doubled adherence, 58% vs 28% (Eltorai et al., *JAMA Surgery* 2019). InSee, a US clip-on tracker, was FDA-cleared in 2025, but it fits one US spirometer, works only in hospitals and is English-only. **SpiroBuddy brings this to India:** it fits Indian spirometers, works at home, coaches in Indian languages and updates families on WhatsApp.
+Patients get an incentive spirometer after surgery (or for lung disease). At home they skip the exercise or do it wrong (too fast, too shallow, no hold), and nobody can see it. In a randomised trial of 145 heart-bypass patients, an hourly reminder doubled the share of waking hours in which patients did their breathing exercise, 58% vs 28% (Eltorai et al., *JAMA Surgery* 2019). InSee, a US clip-on tracker, was FDA-cleared in August 2025 (K241152), but it fits only the AirLife 2500/4000, is for hospital use and is designed for US hospitals. (Verified wording: docs/research/KNOWLEDGE_BASE.md.) **SpiroBuddy brings this to India:** it fits Indian spirometers, works at home, coaches in Indian languages and updates families on WhatsApp.
 
 ## 2. Users
 | User | Needs |

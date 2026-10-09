@@ -13,14 +13,14 @@ Find **credible, cited, pitch-ready evidence** for SpiroBuddy: a clip-on smart u
 
 ## Your files (the only files you edit)
 - `docs/research/SOURCES_LEDGER.md` – every URL you have opened, one row each: `| # | date | URL | title | publisher/type | grade | used in finding IDs / "nothing useful" |`. **Before opening any URL, search this file. If it's already there, don't open it again.** Treat the same document on another URL (DOI vs PubMed vs PMC) as the same source: note the aliases in the row.
-- `docs/research/FINDINGS.md` – the knowledge base (format below).
+- `docs/research/KNOWLEDGE_BASE.md` – the knowledge base (format below).
 - `docs/research/QUERIES.md` – every search query you ran, with date and how useful it was, so no query is repeated.
 - `docs/research/PITCH_FACTS.md` – the short, slide-ready list: the 15–25 strongest numbers and lines, each with its source and grade. Rewrite this at the end of every round.
 
 At the start of a round, also read the URLs already cited in `docs/plans/*.md` and `docs/REQUIREMENTS.md`, and add them to the ledger as "known, from plans" if missing (don't re-open them unless you are fact-checking them).
 
 ## Structured method (each round)
-1. **Plan:** read FINDINGS.md "Open gaps" and pick the 3–5 highest-value gaps for this round. Write the round plan at the top of QUERIES.md.
+1. **Plan:** read KNOWLEDGE_BASE.md "Open gaps" and pick the 3–5 highest-value gaps for this round. Write the round plan at the top of QUERIES.md.
 2. **Search wide, read narrow:** WebSearch first; open only the most authoritative 1–3 results per question; prefer primary sources (journal article, guideline, government data, company filing/FDA database) over news and blogs.
 3. **Record:** every opened URL goes in the ledger immediately, even if useless.
 4. **Extract:** for each useful fact, write a finding (format below). Paraphrase. Quotes only if essential, under 15 words, in quotation marks.
@@ -30,10 +30,10 @@ At the start of a round, also read the URLs already cited in `docs/plans/*.md` a
    - **C:** retailer, blog or press release
    Only A/B facts go into PITCH_FACTS unless clearly labelled.
 6. **Cross-check:** a headline number needs 2 independent sources, or the finding says "single source".
-7. **Fact-check our claims:** compare with the claims in `docs/REQUIREMENTS.md` and `docs/plans/*.md` (e.g. "hourly reminder doubled adherence 58% vs 28%", InSee FDA clearance 2025, Romsons prices). Mark each one CONFIRMED / NEEDS WORDING CHANGE / WRONG in FINDINGS.md "Claim check", with the correct wording.
+7. **Fact-check our claims:** compare with the claims in `docs/REQUIREMENTS.md` and `docs/plans/*.md` (e.g. "hourly reminder doubled adherence 58% vs 28%", InSee FDA clearance 2025, Romsons prices). Mark each one CONFIRMED / NEEDS WORDING CHANGE / WRONG in KNOWLEDGE_BASE.md "Claim check", with the correct wording.
 8. **Close the round:** update "Open gaps", rewrite PITCH_FACTS.md, and report to the lead.
 
-## FINDINGS.md format
+## KNOWLEDGE_BASE.md format
 ```
 ## <Theme>
 ### F-<theme code>-<n>: <one-line fact>

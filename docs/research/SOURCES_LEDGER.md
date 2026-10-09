@@ -68,4 +68,4 @@ Grades: A = peer-reviewed / guideline / regulator data · B = reputable org, maj
 | 60 | 2026-10-09 | https://www.twilio.com/en-us/guidelines/in/voice | India: Voice Guidelines (page dated 8 Oct 2026) | Twilio official | B | F-COMMS-1 |
 | 61 | 2026-10-09 | https://developers.facebook.com/docs/whatsapp/pricing | WhatsApp Business Platform pricing (effective 1 Oct 2026) | Meta for Developers | B | F-COMMS-2 |
 | 62 | 2026-10-09 | https://scontent-atl3-1.xx.fbcdn.net/v/t39.8562-6/830985615_1819783359150737_3237041219299440415_n.csv (linked from #61 as "INR list rates") | WhatsApp INR rate card (xlsx), effective 1 Oct 2026 | Meta | B | F-COMMS-2 |
-| 63 | 2026-10-09 | https://pmc.ncbi.nlm.nih.gov/articles/PMC10942208 | HMIS-based surgical rates in India | PMC | A | NOT READ: session limit hit; retry next round |
+| 63 | 2026-10-09 | https://pmc.ncbi.nlm.nih.gov/articles/PMC10942208 | Population-level surgical rates and unmet need in India 2011–2019 (HMIS), Int J Surg 2024;110:1884 | Int J Surg via PMC (WebFetch hit limit; read via Jina Reader) | A | F-INDIA-1 |
