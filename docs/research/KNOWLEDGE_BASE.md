@@ -1126,3 +1126,86 @@ About 30 reads (ledger #106–#134). Note: the imported Sarvam/InSee section abo
 | J36 | "Isn't your clip-on just an accessory to a Class A device?" | "No. Indian law classes an accessory on its own. Because ours is battery-powered and gives monitoring information, we expect Class B, and we'll confirm with CDSCO before selling. The demo is a prototype, not a medical device on sale." | F-REG-6, F-REG-5 |
 | J37 | "How many TB survivors are we talking about?" | "In 2024 India notified about 18.5 lakh lung-TB cases (74% of new and relapse cases, WHO data). With 90% treated successfully, that's roughly 16–17 lakh people a year finishing treatment; studies find about half still have weak lungs." | F-VIS-7, F-VIS-4 |
 | J38 | "What's the 30-day readmission rate after bypass in India?" | "Indian centres don't publish it; we searched three rounds. Worldwide it's about 1 in 8. Measuring it is part of our pilot." | F-BIZ-12, F-BIZ-8 |
+
+## Round 8 additions – Is sending health updates on WhatsApp allowed? (10 Oct 2026)
+
+Context: family updates may go through WaBI (the team's own Indian WhatsApp Business platform, Coyot AI) or straight through Meta's WhatsApp Cloud API. Both follow the same Meta rules below. Sources are Meta's own policy and developer pages (grade B under our rubric because they are a company's official pages, but they are *the* rules for WhatsApp).
+
+### F-COMMS-14: WhatsApp's Business Messaging Policy does not ban health messages. It bans them only where local law requires "heightened" systems for health data. It also requires opt-in, honouring opt-outs, and no sensitive ID numbers in chats
+- Detail (read 10 Oct 2026; the page shows no date; Meta's opt-in page says the policy was updated in Nov 2024):
+  - Section 3 (Protect data): "Don't use WhatsApp for telemedicine or to send or request any health related information" – but only **if** applicable regulations forbid sending such information to systems that don't meet heightened requirements for health data. So the test is local law, not a blanket ban.
+  - Section 3 also: the business must secure all notices and consents, keep a **published privacy policy**, and must not ask people to share **personal ID card numbers** or other sensitive identifiers (so: never ask for Aadhaar or ABHA numbers in the chat).
+  - Section 2: you may contact someone only if (a) they gave you their number and (b) you got **opt-in permission** to receive messages from you. Business-started chats must use an **approved Message Template**. Free-form replies are allowed only inside the **24-hour customer service window**, which restarts each time the user writes.
+  - Section 1: you must honour every request to stop or opt out, made on or off WhatsApp.
+  - Section 4: "Medical and healthcare products" (and prescription drugs) are restricted for **buying, selling or promoting**. That is about commerce, not care updates. SpiroBuddy's messages sell nothing.
+  - Regulated verticals can't be messaged about on the free WhatsApp Business **App**; we use the Business **Platform** (API) anyway.
+- Source: WhatsApp Business Messaging Policy – https://business.whatsapp.com/policy (ledger #207) – Grade B (Meta's official policy; primary for Meta's own rules).
+- Use in pitch: J-WA below.
+- Caveat: we did not open the separate Meta Commerce Policy (we use no catalogue or payments, so it should not apply). Meta can change the policy without notice.
+
+### F-COMMS-15: A patient's own care update should fit Meta's "utility" category if it is plain and non-promotional. Meta gives no health-specific template rule; if it judges a utility template to be marketing, it now approves it as marketing (about 7× the price)
+- Detail:
+  - **Utility** needs both: (1) **non-promotional**, and (2) either **specific to or requested by the user** (their order, account, services) **or essential/critical** to the user (e.g. safety).
+  - Utility examples include **"Account Alerts or Updates"** (time-sensitive updates about a service the user signed up for, with no upselling or renewals) and opt-in confirmation messages. Health appears only in public-service examples (a vaccine-drive notice, a health emergency).
+  - **Team reading (not a Meta ruling):** "Today Amma did 6 of 10 breathing sessions; best 1,500 mL. Reply STOP to end updates." is specific to a service the family opted into, so it should be utility. Words like "upgrade", "offer" or "book a home visit" would make it marketing.
+  - Since **9 April 2025**, a template filed as utility that Meta thinks is marketing is **approved as marketing**; a review can be requested within 60 days. Businesses that abuse categories lose utility templates for **7 days (30 days if repeated)**, and since 16 April 2025 without the usual 1-day notice.
+  - Templates mixing utility and marketing count as marketing. Meta says its examples are only illustrative.
+  - We found **no health-specific review rule** for templates in Meta's docs.
+- Source: Template categorization – https://developers.facebook.com/documentation/business-messaging/whatsapp/templates/template-categorization.md (ledger #209) – Grade B. Prices: F-COMMS-2 (#61, #62).
+- Use in build: keep each family template short and factual, one purpose each, no links to buy anything; a separate opt-in confirmation template.
+- Caveat: Meta categorises each template case by case; the final category is only known after submission.
+
+### F-COMMS-16: Opt-in can be collected on paper, in person, by IVR call, SMS or a website; it must name the business and say clearly that the person is opting in
+- Detail: Meta's opt-in page (citing the Nov 2024 policy update) says opt-in can be general rather than WhatsApp-specific, as long as local law is followed. Requirements: state clearly that the person is opting in, give the **business's name**, comply with law. Supported methods include **in person or on paper**, an IVR phone flow, SMS and a website. Tips: separate opt-in per message category, clear opt-out, watch the quality rating.
+- Source: Get opt-in for WhatsApp – https://developers.facebook.com/documentation/business-messaging/whatsapp/getting-opt-in.md (ledger #213) – Grade B.
+- Use in build: at discharge the nurse records the patient's consent to share (the patient picks the family number); then the **family member** gets a utility "confirm you want updates from <Hospital> about <patient first name>" message and replies YES. That covers Meta's opt-in (family member) and DPDP consent (patient, F-REG-3).
+- Caveat: the opt-in must name the sender actually shown on WhatsApp (the hospital's verified business, or SpiroBuddy's). Decide whose name the number carries.
+
+### F-REG-7: On Cloud API, Meta acts as a data processor for the business, keeps message content at most 30 days (encrypted at rest), doesn't use it for ads automatically, and can keep message data at rest **in India** ("IN") if the number is registered with local storage
+- Detail:
+  - Meta "acts as a data processor/service provider on behalf of the business" where the law uses those terms, and uses messages only on the business's instructions.
+  - Message content: **maximum 30 days** retention (for retries etc.), **encrypted at rest**. User identifiers are deleted within 30 days of a message's last status update.
+  - Cloud API **decrypts** incoming messages and forwards them to the business (it manages the keys for the business). So messages are encrypted in transit, but Meta's servers see the content; don't call it end-to-end between family and hospital.
+  - Not used automatically to target ads.
+  - Default: processed in Meta data centres worldwide. **Local storage** option: per phone number, set at registration (`data_localization_region`). The supported list includes **India (IN)** (also AU, ID, JP, SG, KR, DE, CH, GB, BR, BH, ZA, AE, CA). Meta names **healthcare** as a typical reason to use it.
+  - With local storage on Cloud API, content may sit in Meta data centres abroad for **up to 60 minutes** while being processed ("data-in-use"), then is deleted outside the chosen country and kept only inside it. Turning it on for an already-registered number means deregister + re-register (usually under 5 minutes, no re-verification).
+  - Meta says Cloud API customers must meet their own data-protection obligations; sub-processors are listed in the WhatsApp Business Data Processing Terms / Meta Hosting Terms for Cloud API (not opened).
+- **DPDP mapping (team reading, not legal advice):** hospital = data fiduciary; SpiroBuddy/WaBI = data processor under a written contract; Meta = sub-processor. DPDP Act s. 16 lets the government restrict transfers to named countries (#196, not opened this round); we did not check whether any such list has been notified (gap).
+- Source: Data Privacy & Security (#210), Local storage (#211), Registration API (#212) – developers.facebook.com – Grade B.
+- Use in pitch / architecture: "For real hospitals we register the number with India local storage, so message content rests in India; our own database is in Mumbai."
+- Caveat: "data never leaves India" would be false (up to 60 minutes of processing abroad; contact-book data is outside local storage). Whether WaBI's number setup supports `data_localization_region` must be checked in WaBI.
+
+### F-REG-8: We found no Indian rule that forbids health updates over WhatsApp. India's 2020 Telemedicine Practice Guidelines reportedly list WhatsApp as an allowed text tool; the DPDP Act treats health data like other personal data and asks for consent, notice and security
+- Detail:
+  - **Telemedicine Practice Guidelines 2020** (Board of Governors in supersession of MCI, with NITI Aayog, March 2020): several summaries quote the guidelines as listing "Chat Platforms like WhatsApp, Facebook Messenger" among tools a doctor may use, with the same core principles whatever the tool. **We could not open the primary PDF** (government copies blocked or broken: #214–#217), so this rests on secondary summaries only (#218). The guidelines govern doctors' consultations; SpiroBuddy's family updates are not consultations and give no advice or prescriptions.
+  - **DPDP Act 2023 / Rules 2025:** no special "health data" category (F-REG-3); needs a plain notice, consent that can be withdrawn as easily as given, reasonable security, and breach reports (72 hours to the Board). Most duties start about **May 2027**.
+  - **IT Act SPDI Rules 2011** treat health information as "sensitive personal data" needing written consent. Our understanding is that the DPDP Act removes IT Act s. 43A (the basis of the SPDI Rules) once its provisions take effect; **not verified from primary text this round (?)**. Until then, get written (digital) consent from the patient, which we do anyway.
+  - Meta's health clause (F-COMMS-14) only applies if Indian law requires "heightened" systems for health data. We found no such Indian rule.
+- Source: TPG summaries (#218, grade C as read); DPDP Rules (#122, A); DPDP Act (#196, A, not opened); F-REG-3.
+- Use in pitch: J-WA.
+- Caveat: absence of a ban is not a licence. A hospital's own IT policy or a state rule may be stricter; a lawyer should confirm before the first real patient.
+
+### F-INDLOC-10: Indian government precedent: the MyGov Corona Helpdesk ran on WhatsApp from March 2020, reached about 4.1 crore users, and from August 2021 let people download vaccine certificates (about 32 lakh in the first weeks) and book vaccine slots
+- Detail: WhatsApp number +91 90131 51515; certificate download via OTP (Aug 2021), slot booking (24 Aug 2021); tech partners Haptik and Turn.io. Shows the Government of India itself sent personal health documents (vaccination certificates) over the WhatsApp Business Platform.
+- Source: news reports, Aug 2021 (Business Today, The Tribune, ETV Bharat, BusinessWorld) – search snippets only (#218) – Grade B (several major outlets agree; pages not opened).
+- Use in pitch: one line in J-WA.
+- Caveat: 2021, a public-health emergency; current status not checked. **No Indian hospital example (Apollo, AIIMS) was verified this round** (gap).
+
+### Risks found (round 8)
+- **R-WA-1: Two consents, not one.** The family member must opt in on WhatsApp (Meta), and the patient must consent to their data being shared with that family member (DPDP). Never message a family number on the nurse's word alone.
+- **R-WA-2: Template drift to marketing.** One promotional phrase can turn a utility template into marketing (≈7× the price) or, if repeated, cost all utility templates for 7–30 days.
+- **R-WA-3: "End-to-end encrypted" is not accurate for Cloud API.** Meta decrypts on our behalf. Say "encrypted in transit and at rest".
+- **R-WA-4: Free-form AI replies only inside 24 hours.** Outside the window, only approved templates. The AI-written evening summary must go into an approved template's variables, not be sent as free text.
+- **R-WA-5: Don't collect IDs in chat.** No Aadhaar or ABHA numbers over WhatsApp (policy section 3).
+
+## JUDGE – round 8 addition (J-WA)
+| # | Question | Short answer | Evidence |
+|---|---|---|---|
+| J-WA | "How is sending health updates on WhatsApp allowed?" | "WhatsApp's business rules allow health messages unless local law demands special health-data systems, and we found no Indian rule that does; the Government's own MyGov helpdesk sent vaccine certificates on WhatsApp. We only message a family member who has opted in, after the patient has consented, using Meta-approved, non-promotional 'utility' templates, and anyone can reply STOP. The messages are progress updates, never a diagnosis, and any worrying reply goes to a nurse. For real hospitals, Meta acts as our data processor, deletes message content within 30 days, and can keep it stored in India." | F-COMMS-14, F-COMMS-15, F-COMMS-16, F-REG-7, F-REG-8, F-INDLOC-10 |
+
+## Open gaps (after round 8, WhatsApp only; the round 7 list still stands)
+1. Primary text of the Telemedicine Practice Guidelines 2020 (all government PDF copies blocked this round). Needs a person to download it in a browser.
+2. An Indian **hospital** (Apollo, AIIMS, Narayana, a state health department) using the WhatsApp Business API for patient or family updates, from an official page.
+3. DPDP Act s. 44 / IT Act s. 43A status, and whether any s. 16 restricted-country list has been notified (open the Act text, #196).
+4. Whether WaBI supports `data_localization_region: IN` when registering numbers, and whose business name the sender shows.
+5. Meta Commerce Policy and WhatsApp Business Data Processing Terms (sub-processor list) – not opened; low priority.

@@ -215,3 +215,25 @@ Every query run by the research agent, with date and usefulness, so no query is 
 | 2026-10-10 | WebSearch | India TB Report 2025 "extra-pulmonary" notified 2024 per cent "pulmonary" TB patients notified tbcindia | Low (report PDF still not found) |
 | 2026-10-10 | curl (WHO TME CSV) | WHO notifications dataset, India 2019–2024: new_labconf, new_clindx, new_ep, ret_rel_* | High: F-VIS-7 (EP 26.0% in 2024) |
 | 2026-10-10 | WebSearch | older adults India WhatsApp use voice messages survey senior citizens 60+ percent use WhatsApp 2023 2024 study | None (small studies, snippets only) |
+
+## Round 8 plan (10 Oct 2026, capped at ~10 sources): is sending health updates on WhatsApp allowed?
+1. Meta policy: Business Messaging Policy health / sensitive-data / prohibited lines.
+2. Opt-in, template categories (utility vs marketing), 24-hour window.
+3. Cloud API data handling: processor role, retention, India local storage.
+4. Indian precedent (government or hospital on WhatsApp Business).
+5. Indian rules (TPG 2020, DPDP, SPDI) – reuse ledger items where possible.
+Also: added FUTURE_ARCHITECTURE W1–W16 to the ledger (#191–#206) without opening them.
+
+| date | channel | query | useful? |
+|---|---|---|---|
+| 2026-10-10 | Jina | business.whatsapp.com/policy – grep health/medical/sensitive/opt-in/template | High: F-COMMS-14 |
+| 2026-10-10 | Jina | developers.facebook.com/docs/whatsapp/updates-to-pricing/new-template-guidelines | None (Page Not Found) |
+| 2026-10-10 | WebSearch | developers.facebook.com WhatsApp template categorization utility "appointment" marketing guidelines | High: found the .md doc URL |
+| 2026-10-10 | curl | template-categorization.md – grep utility/health/appointment/recategor | High: F-COMMS-15 |
+| 2026-10-10 | WebSearch | WhatsApp Cloud API data privacy security "data processor" messages stored 30 days data localization developers.facebook.com | High: found Meta page |
+| 2026-10-10 | curl | data-privacy-and-security.md, local-storage.md, registration.md – grep processor/30 days/region/India | High: F-REG-7 (India "IN" supported) |
+| 2026-10-10 | curl | getting-opt-in.md | High: F-COMMS-16 |
+| 2026-10-10 | WebSearch | Telemedicine Practice Guidelines 2020 Board of Governors MCI pdf WhatsApp "Facebook Messenger" text based | Medium: PDF URLs (all blocked) |
+| 2026-10-10 | curl / Jina / WebFetch | TPG PDF at covid19dashboard.mohfw.gov.in, nmcn.in, mohfw.gov.in, vikaspedia | None (blocked / empty) |
+| 2026-10-10 | WebSearch | "Telemedicine Practice Guidelines" text "WhatsApp" "Facebook Messenger" "chat" "Mobile App" RMP section 3 technology "Text / Chat based" | Medium: secondary summaries quote WhatsApp line (F-REG-8) |
+| 2026-10-10 | WebSearch | PIB MyGov Corona Helpdesk WhatsApp chatbot 9013151515 launched vaccination certificate download WhatsApp | Medium: F-INDLOC-10 (news snippets) |
