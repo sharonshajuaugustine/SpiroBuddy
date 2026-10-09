@@ -1,9 +1,11 @@
 /* SpiroBuddy – Alerts inbox on the dashboard (acknowledge / snooze / assign to me / resolve),
- * plus small alert badges on the patient cards. Needs api.js, ui.js, comms.js. */
+ * plus small alert badges on the triage-list rows. Needs api.js, ui.js, comms.js (icons.js optional). */
 (function () {
   const SB = window.SB;
-  const { esc, $, $$, link, toast, busy, ago } = SB.ui;
+  const { esc, $, $$, link, toast, busy, ago, ic } = SB.ui;
   const C = SB.comms;
+  const SEV_ICON = { red: 'alert-octagon', amber: 'alert-triangle', info: 'info' };
+  const SEV_WORD = { red: 'Needs a person now', amber: 'Watch', info: 'Info' };
 
   function mountInbox(el) {
     let tab = 'active';
@@ -11,18 +13,17 @@
     const TABS = [['active', 'Open'], ['acknowledged', 'Acknowledged'], ['snoozed', 'Snoozed'], ['resolved', 'Resolved'], ['all', 'All']];
     el.innerHTML = `
       <div class="card-head">
-        <h2 style="margin:0">🔔 Alerts inbox</h2>
-        <span class="chip" title="Care-team mode: these alerts are for nurses and doctors only – patients and families never see them">👩‍⚕️ Care-team mode</span>
+        <h2>${ic('bell')}Alerts inbox</h2>
         <span class="chip bad" id="ai-red" title="Red alerts: a person is needed now"><span class="dot"></span><b>–</b>&nbsp;red</span>
         <span class="chip warn" id="ai-amber" title="Amber alerts: watch"><span class="dot"></span><b>–</b>&nbsp;amber</span>
-        <span class="chip" id="ai-mine" title="Assigned to you"><b>–</b>&nbsp;mine</span>
+        <span class="chip" id="ai-mine" title="Assigned to you">${ic('user', { size: 13 })}<b>–</b>&nbsp;mine</span>
         <div class="spacer"></div>
         <label for="ai-me" class="small">I am</label>
         <select id="ai-me" class="sm-select">${C.NURSES.map((n) => `<option ${n === C.me() ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select>
       </div>
       <div class="seg" role="group" aria-label="Alert filter" id="ai-tabs">${TABS.map(([k, l]) => `<button type="button" data-tab="${k}" aria-pressed="${k === tab}">${l}</button>`).join('')}</div>
-      <ul class="alerts" id="ai-list" aria-live="polite"><li class="muted">Loading alerts…</li></ul>
-      <p class="muted small" style="margin:.5rem 0 0">Alerts come from fixed rules (missed sessions, no answer, red-flag words, lower than usual) – never from the AI. Red = a person is needed now.</p>`;
+      <ul class="alerts" id="ai-list" aria-live="polite"><li><span class="skeleton" style="height:64px"></span></li><li><span class="skeleton" style="height:64px"></span></li></ul>
+      <p class="card-sub" style="margin:.75rem 0 0">${ic('info', { size: 13 })} Care-team only – patients and families never see these. Alerts come from fixed rules (missed sessions, no answer, red-flag words, lower than usual), never from the AI.</p>`;
     $('#ai-me', el).addEventListener('change', (e) => { C.setMe(e.target.value); render(); });
     $('#ai-tabs', el).addEventListener('click', (e) => {
       const b = e.target.closest('button[data-tab]'); if (!b) return;
@@ -37,27 +38,27 @@
       return `<li class="alert-item sev-${esc(a.severity)} st-${esc(st)}" data-id="${a.id}">
         <div class="alert-main">
           <div class="alert-top">
-            <span class="sev sev-${esc(a.severity)}">${esc(C.SEV_TEXT[a.severity] || a.severity)}</span>
+            <span class="sev sev-${esc(a.severity)}">${ic(SEV_ICON[a.severity] || 'info', { size: 12 })}${esc(SEV_WORD[a.severity] || a.severity)}</span>
             <span class="tag">${esc(a.kind_label || a.kind)}</span>
             ${st !== 'open' ? `<span class="tag ${st === 'resolved' ? 'sent' : 'dry'}">${esc(st)}${st === 'snoozed' && a.snooze_until ? ' until ' + esc(C.timeOnly(a.snooze_until).slice(0, 5)) : ''}</span>` : ''}
-            ${a.assigned_to ? `<span class="chip${mine ? ' ok' : ''}" title="Assigned">👤 ${esc(a.assigned_to)}</span>` : ''}
-            <span class="muted small" style="margin-left:auto" title="${esc(a.created_at)}">${esc(ago(a.created_at))}</span>
+            ${a.assigned_to ? `<span class="chip${mine ? ' ok' : ''}" title="Assigned">${ic('user', { size: 12 })}${esc(a.assigned_to)}</span>` : ''}
+            <span class="subtle small" style="margin-left:auto" title="${esc(a.created_at)}">${esc(ago(a.created_at))}</span>
           </div>
           <div class="alert-title"><a href="${link('patient.html?id=' + encodeURIComponent(a.patient_id))}">${esc(a.title)}</a></div>
           ${a.detail ? `<details class="alert-detail"><summary>Details</summary><div>${esc(a.detail)}</div></details>` : ''}
         </div>
         <div class="alert-actions">
-          ${st === 'open' || st === 'snoozed' ? `<button class="btn sm primary" data-act="ack" type="button">✓ Acknowledge</button>` : ''}
-          ${st !== 'resolved' ? `<button class="btn sm" data-act="snooze" type="button" title="Hide for 30 minutes">⏰ Snooze 30 min</button>` : ''}
-          ${st !== 'resolved' && !mine ? `<button class="btn sm" data-act="assign" type="button">👤 Assign to me</button>` : ''}
-          ${st !== 'resolved' ? `<button class="btn sm" data-act="call" type="button" title="Your phone rings first, then the patient">☎ Call patient</button>` : ''}
-          ${st !== 'resolved' ? `<button class="btn sm good" data-act="resolve" type="button">✔ Resolve</button>` : `<button class="btn sm" data-act="reopen" type="button">↺ Re-open</button>`}
+          ${st !== 'resolved' ? `<button class="btn sm primary" data-act="call" type="button" title="Your phone rings first, then the patient">${ic('phone', { size: 14 })}Call patient</button>` : ''}
+          ${st === 'open' || st === 'snoozed' ? `<button class="btn sm" data-act="ack" type="button">${ic('check', { size: 14 })}Acknowledge</button>` : ''}
+          ${st !== 'resolved' ? `<button class="btn sm" data-act="snooze" type="button" title="Hide for 30 minutes">${ic('clock', { size: 14 })}Snooze 30 min</button>` : ''}
+          ${st !== 'resolved' && !mine ? `<button class="btn sm" data-act="assign" type="button">${ic('user-check', { size: 14 })}Assign to me</button>` : ''}
+          ${st !== 'resolved' ? `<button class="btn sm good" data-act="resolve" type="button">${ic('check-circle', { size: 14 })}Resolve</button>` : `<button class="btn sm" data-act="reopen" type="button">${ic('refresh', { size: 14 })}Re-open</button>`}
         </div></li>`;
     }
 
     function render() {
       const box = $('#ai-list', el);
-      box.innerHTML = list.length ? list.map(row).join('') : `<li class="empty">${tab === 'active' ? '✓ No open alerts – everyone is on track or already handled.' : 'Nothing here.'}</li>`;
+      box.innerHTML = list.length ? list.map(row).join('') : `<li class="empty">${ic('check-circle', { size: 26 })}<b>${tab === 'active' ? 'No open alerts' : 'Nothing here'}</b>${tab === 'active' ? 'Everyone is on track or already handled.' : ''}</li>`;
     }
 
     $('#ai-list', el).addEventListener('click', (e) => {
@@ -81,37 +82,35 @@
     });
 
     async function refresh() {
-      if (SB.api.state.mock) { $('#ai-list', el).innerHTML = '<li class="empty">Alerts need the live server (mock mode shows patient data only).</li>'; return; }
+      if (SB.api.state.mock) { $('#ai-list', el).innerHTML = `<li class="empty">${ic('wifi-off', { size: 26 })}<b>Alerts need the live server</b>Mock mode shows patient data only.</li>`; return; }
       const res = await C.api.alerts(tab === 'active' ? 'active' : tab);
       const sig = JSON.stringify(res) + C.me();
-      if (sig !== refresh.sig && !el.querySelector('.busy') && !el.querySelector('details[open]')) { refresh.sig = sig; list = res; render(); }
+      if (sig !== refresh.sig && !el.querySelector('.busy') && !el.querySelector('details[open]') && !el.querySelector('#ai-list').contains(document.activeElement)) { refresh.sig = sig; list = res; render(); }
     }
     document.addEventListener('sb:alert-counts', (e) => {
       const c = e.detail || {};
       $('#ai-red b', el).textContent = c.red ?? 0;
       $('#ai-amber b', el).textContent = c.amber ?? 0;
       $('#ai-mine b', el).textContent = c.mine ?? 0;
-      decorateCards(c.by_patient || {});
+      decorateRows(c.by_patient || {});
     });
     SB.ui.poll(refresh, 3000);
   }
 
-  /* small "🔔 n" badge on each patient card that has open alerts */
+  /* small bell badge next to each patient's name in the triage list when they have open alerts */
   let lastBy = {};
-  function decorateCards(by) {
+  function decorateRows(by) {
     lastBy = by;
-    $$('.pcard[data-id]').forEach((card) => {
-      const b = by[card.dataset.id];
-      let el = card.querySelector('.alert-badge');
-      if (!b || !b.open) { if (el) el.remove(); return; }
-      if (!el) { el = document.createElement('span'); el.className = 'alert-badge'; card.querySelector('.top').appendChild(el); }
-      el.className = 'alert-badge' + (b.red ? ' red' : '');
-      el.textContent = `🔔 ${b.open}`;
-      el.title = `${b.open} open alert${b.open === 1 ? '' : 's'}`;
+    $$('#patients tr[data-id]').forEach((tr) => {
+      const slot = tr.querySelector('.alert-slot'); if (!slot) return;
+      const b = by[tr.dataset.id];
+      if (!b || !b.open) { slot.innerHTML = ''; return; }
+      const txt = `${b.open} open alert${b.open === 1 ? '' : 's'}`;
+      slot.innerHTML = `<span class="alert-badge${b.red ? ' red' : ''}" title="${txt}">${ic('bell', { size: 12 })}${b.open}<span class="sr-only"> ${txt}</span></span>`;
     });
   }
   const host = document.getElementById('patients');
-  if (host) new MutationObserver(() => decorateCards(lastBy)).observe(host, { childList: true });
+  if (host) new MutationObserver(() => decorateRows(lastBy)).observe(host, { childList: true });
 
   SB.commsDashboard = { mountInbox };
 })();

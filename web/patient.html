@@ -10,84 +10,99 @@
 </head>
 <body>
   <header id="app-header"></header>
-  <main>
-    <p><a href="index.html" id="back">← All patients</a></p>
+  <main id="main">
+    <div class="print-only print-head" style="display:none"><div><div class="t">SpiroBuddy – patient summary</div><div>Demo City Hospital · Post-op Ward 3B</div></div><div id="print-when"></div></div>
 
-    <section class="card" id="profile-card">
-      <div class="profile" id="profile"><div class="muted">Loading patient…</div></div>
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html" id="back"><span data-icon="chevron-left" data-size="16"></span>Patients</a><span aria-hidden="true">/</span><span id="crumb-name" aria-current="page">Patient</span></nav>
+
+    <section class="card patient-head" id="profile-card" aria-label="Patient overview">
+      <div id="profile"><div class="ph-top"><span class="skeleton" style="width:56px;height:56px;border-radius:50%"></span><div class="ph-id"><span class="skeleton" style="width:240px;height:26px"></span><span class="skeleton" style="width:70%;height:14px;margin-top:12px"></span></div></div></div>
+      <div class="kpis" id="kpis"></div>
     </section>
 
-    <div class="grid grid-2" style="margin-top:1rem">
-      <section class="card span-2">
-        <div class="card-head"><h2>Today's sessions</h2><span class="muted small">one session per hour, 8 am–9 pm</span><div class="spacer"></div><span class="updated"><span class="live-dot"></span><span id="updated">–</span></span></div>
-        <div class="slots" id="slots"></div>
-        <div class="legend"><span class="l-done">Done</span><span class="l-missed">Missed</span><span class="l-pending">Due now</span><span class="l-upcoming">Upcoming</span></div>
-      </section>
+    <div class="detail-grid">
+      <div class="col-main">
+        <section class="card" id="today-card" aria-labelledby="h-today">
+          <div class="card-head"><h2 id="h-today">Today's sessions</h2><span class="card-sub">one session per hour, 8 am – 9 pm</span><div class="spacer"></div><span class="live" id="live-state"><span class="live-dot" aria-hidden="true"></span><span id="updated">–</span></span></div>
+          <div class="slots" id="slots"><span class="skeleton" style="height:64px;grid-column:1/-1"></span></div>
+          <div class="legend" style="margin-top:.75rem"><span class="l-done">Done</span><span class="l-missed">Missed</span><span class="l-pending">Due now</span><span class="l-upcoming">Upcoming</span></div>
+        </section>
 
-      <section class="card span-2">
-        <div class="card-head"><h2>Last 7 days</h2><div class="spacer"></div>
-          <div class="chart-legend"><span><i style="background:var(--brand)"></i>Best breath (mL)</span><span><i style="background:var(--yellow-dot)"></i>Under 80% of target</span><span><i style="background:none;border-top:2px dashed var(--red);height:0"></i>Target</span><span><i style="background:var(--green-dot);height:3px"></i>Sessions done</span></div>
-        </div>
-        <div id="week"></div>
-      </section>
+        <section class="card" id="trend-card" aria-labelledby="h-week">
+          <div class="card-head"><h2 id="h-week">Best breath – last 7 days</h2><div class="spacer"></div>
+            <div class="chart-legend"><span><i style="background:var(--brand)"></i>At or near goal</span><span><i style="background:var(--yellow-dot)"></i>Under 80% of goal</span><span><i class="line-key"></i>Goal</span></div>
+          </div>
+          <div id="week"><span class="skeleton" style="height:220px"></span></div>
+        </section>
 
-      <section class="card">
-        <div class="card-head"><h2>AI summary</h2><div class="spacer"></div><span id="summary-source"></span></div>
-        <div class="row" style="margin-bottom:.6rem">
-          <label for="sum-lang">Language</label>
-          <select id="sum-lang"><option value="">Patient's language</option><option value="en">English</option><option value="hi">Hindi</option><option value="ta">Tamil</option></select>
-          <button class="btn primary" id="btn-summary" type="button">✨ Generate AI summary</button>
-        </div>
-        <div class="summary-box" id="summary-text" aria-live="polite"><span class="muted">Press "Generate AI summary" for a 3-sentence update for the family. The AI only summarises – it never diagnoses.</span></div>
-      </section>
+        <section class="card" id="quality-card" aria-labelledby="h-quality">
+          <div class="card-head"><h2 id="h-quality">Breath quality</h2><span class="card-sub" id="quality-sub">recent sessions</span></div>
+          <div id="quality"><span class="skeleton" style="height:14px"></span></div>
+        </section>
 
-      <section class="card">
-        <div class="card-head"><h2>WhatsApp</h2></div>
-        <div class="row">
-          <button class="btn primary" id="btn-wa-family" type="button">Send summary to family</button>
-          <button class="btn" id="btn-wa-nurse" type="button">Send summary to nurse</button>
-          <button class="btn danger" id="btn-wa-missed" type="button">Send missed alert to nurse</button>
-        </div>
-        <div id="wa-result" aria-live="polite"></div>
-      </section>
+        <section class="card card-flush" id="sessions-card" aria-labelledby="h-sessions">
+          <div class="card-head"><h2 id="h-sessions">Recent sessions</h2></div>
+          <div class="table-wrap" style="margin-top:.5rem"><table class="data-table">
+            <thead><tr><th scope="col">Time</th><th scope="col">Slot</th><th scope="col" class="num">Breaths</th><th scope="col" class="num">Best</th><th scope="col" class="num">Avg score</th><th scope="col">Breath quality</th></tr></thead>
+            <tbody id="sessions"><tr><td colspan="6"><span class="skeleton"></span></td></tr></tbody>
+          </table></div>
+        </section>
 
-      <!-- VOICE (voice agent): filled by js/voice-ui.js – language picker, voice-note summary, push-to-talk -->
-      <section class="card span-2" id="voice-patient-card"><div class="muted">Loading voice…</div></section>
-      <!-- /VOICE -->
+        <section class="card" id="summary-card" aria-labelledby="h-sum">
+          <div class="card-head"><h2 id="h-sum"><span data-icon="sparkles"></span>AI summary</h2><div class="spacer"></div><span id="summary-source"></span></div>
+          <div class="row no-print" style="margin-bottom:.75rem">
+            <label for="sum-lang">Language</label>
+            <select id="sum-lang"><option value="">Patient's language</option><option value="en">English</option><option value="hi">Hindi</option><option value="ta">Tamil</option></select>
+            <button class="btn primary" id="btn-summary" type="button"><span data-icon="sparkles"></span>Generate AI summary</button>
+          </div>
+          <div class="summary-box" id="summary-text" aria-live="polite"><span class="muted">Press "Generate AI summary" for a 3-sentence update for the family. The AI only summarises – it never diagnoses.</span></div>
+        </section>
 
-      <!-- COMMS (comms agent): filled by js/comms-patient.js -->
-      <section class="card" id="comms-actions"><div class="muted">Loading care team actions…</div></section>
-      <section class="card" id="comms-ladder"><div class="muted">Loading escalation ladder…</div></section>
-      <section class="card span-2" id="comms-care"><div class="muted">Loading care circle…</div></section>
-      <!-- /COMMS -->
+        <section class="card" id="wa-card" aria-labelledby="h-wa">
+          <div class="card-head"><h2 id="h-wa"><span data-icon="message"></span>WhatsApp</h2></div>
+          <div class="row">
+            <button class="btn primary" id="btn-wa-family" type="button"><span data-icon="send"></span>Send summary to family</button>
+            <button class="btn" id="btn-wa-nurse" type="button">Send summary to nurse</button>
+            <button class="btn danger" id="btn-wa-missed" type="button"><span data-icon="alert-triangle"></span>Send missed alert to nurse</button>
+          </div>
+          <div id="wa-result" aria-live="polite"></div>
+        </section>
 
-      <section class="card">
-        <div class="card-head"><h2>Targets &amp; settings</h2></div>
-        <form id="settings" class="form-grid" autocomplete="off">
-          <div class="field"><label for="f-target">Target volume (mL)</label><input id="f-target" name="target_ml" type="number" min="250" max="5000" step="50" required></div>
-          <div class="field"><label for="f-hold">Hold target (s)</label><input id="f-hold" name="hold_target_s" type="number" min="1" max="10" step="0.5"></div>
-          <div class="field"><label for="f-lang">Language</label><select id="f-lang" name="language"><option value="en">English</option><option value="hi">Hindi</option><option value="ta">Tamil</option></select></div>
-          <div class="field"><label for="f-phone">Family WhatsApp</label><input id="f-phone" name="family_phone" type="tel" placeholder="+91…"></div>
-          <div class="field"><button class="btn primary" type="submit" id="btn-save">Save</button></div>
-        </form>
-      </section>
+        <!-- VOICE (voice agent): filled by js/voice-ui.js – language picker, voice-note summary, push-to-talk -->
+        <section class="card" id="voice-patient-card"><div class="muted">Loading voice…</div></section>
+        <!-- /VOICE -->
 
-      <section class="card">
-        <div class="card-head"><h2>Messages</h2><span class="muted small">for this patient</span></div>
-        <div class="msgs" id="msgs"><div class="muted">No messages yet.</div></div>
-      </section>
+        <!-- COMMS (comms agent): filled by js/comms-patient.js -->
+        <section class="card" id="comms-care"><span class="skeleton" style="height:120px"></span></section>
+      </div>
 
-      <section class="card span-2">
-        <div class="card-head"><h2>Recent sessions</h2></div>
-        <div class="table-wrap"><table>
-          <thead><tr><th>Time</th><th>Slot</th><th class="num">Breaths</th><th class="num">Best</th><th class="num">Avg score</th><th>Breath quality</th></tr></thead>
-          <tbody id="sessions"><tr><td colspan="6" class="muted">Loading…</td></tr></tbody>
-        </table></div>
-      </section>
+      <aside class="col-side" aria-label="Care team">
+        <section class="card" id="comms-actions"><span class="skeleton" style="height:120px"></span></section>
+        <section class="card" id="comms-ladder"><span class="skeleton" style="height:120px"></span></section>
+        <!-- /COMMS -->
+
+        <section class="card" id="msgs-card" aria-labelledby="h-msgs">
+          <div class="card-head"><h2 id="h-msgs">Messages</h2><span class="card-sub">sent for this patient</span></div>
+          <div class="msgs" id="msgs"><div class="muted">No messages yet.</div></div>
+        </section>
+
+        <section class="card" id="settings-card" aria-labelledby="h-set">
+          <div class="card-head"><h2 id="h-set">Goal &amp; settings</h2></div>
+          <form id="settings" class="form-grid" autocomplete="off">
+            <div class="field"><label for="f-target">Goal volume (mL)</label><input id="f-target" name="target_ml" type="number" min="250" max="5000" step="50" required></div>
+            <div class="field"><label for="f-hold">Hold goal (s)</label><input id="f-hold" name="hold_target_s" type="number" min="1" max="10" step="0.5"></div>
+            <div class="field"><label for="f-lang">Language</label><select id="f-lang" name="language"><option value="en">English</option><option value="hi">Hindi</option><option value="ta">Tamil</option></select></div>
+            <div class="field"><label for="f-phone">Family WhatsApp</label><input id="f-phone" name="family_phone" type="tel" placeholder="+91…"></div>
+            <div class="field"><button class="btn primary" type="submit" id="btn-save">Save</button></div>
+          </form>
+        </section>
+      </aside>
     </div>
     <p class="footer-note">Demo data – fake patient. SpiroBuddy coaches and summarises; it does not diagnose. For breathing trouble, chest pain or fever, the patient is told to contact their nurse or call 112.</p>
+    <p class="print-only print-foot" style="display:none">Demo data – fake patient. SpiroBuddy coaches and summarises; it does not diagnose. Status colours come from fixed rules. For breathing trouble, chest pain or fever: contact the nurse or call 112.</p>
   </main>
 
+  <script src="js/icons.js"></script>
   <script src="js/api.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/charts.js"></script>
@@ -97,40 +112,85 @@
   <script src="js/comms-patient.js"></script><!-- COMMS -->
   <script>
   (function () {
-    const { esc, $, link, hourLabel, statusPill, trendHTML, dateTimeLabel, ago, timeLabel, initials, labelChips, fmtMl, LANG, toast, busy, poll } = SB.ui;
+    const { esc, $, ic, link, hourLabel, statusPill, redFlagPill, trendHTML, dateTimeLabel, initials, labelChips, fmtMl, meter, LANG, toast, busy, poll, istClock, istDate } = SB.ui;
     const id = new URLSearchParams(location.search).get('id') || '1';
-    $('#back').href = link('index.html');
-    let patient = null, prevSlots = null, formFilled = false, lastMsgIds = null;
+    $('#back').href = link('index.html') + '#patients-card';
+    SB.ui.hydrateIcons(document);
+    let patient = null, prevSlots = null, formFilled = false, lastMsgIds = null, family = null;
+    const sigs = {};
+    const changed = (k, v) => { const s = JSON.stringify(v); if (sigs[k] === s) return false; sigs[k] = s; return true; };
+
+    function podOf(p) {
+      if (!p.surgery_date) return null;
+      const sd = new Date(p.surgery_date + (String(p.surgery_date).length <= 10 ? 'T00:00:00' : ''));
+      return isNaN(sd) ? null : Math.max(0, Math.round((Date.now() - sd.getTime()) / 86400000));
+    }
+    function familyText() {
+      if (family == null) return SB.api.state.mock ? '—' : 'Loading…';
+      if (!family.length) return 'None added';
+      return family.map((g) => `${g.name} (${g.relation || 'family'}${g.is_primary ? ', primary' : ''})`).join(', ');
+    }
 
     function renderProfile(p) {
-      const sd = p.surgery_date ? new Date(p.surgery_date + (String(p.surgery_date).length <= 10 ? 'T00:00:00' : '')) : null;
-      const pod = sd && !isNaN(sd) ? Math.max(0, Math.round((Date.now() - sd.getTime()) / 86400000)) : null;
-      $('#profile').innerHTML = `
+      const rf = !!p.red_flag_open;
+      const st = rf ? 'red' : ['red', 'yellow', 'green'].includes(p.status) ? p.status : 'green';
+      const pod = podOf(p);
+      // ward/bed are not in the demo API yet – show the API value when present, else a demo placeholder
+      const ward = p.ward || 'Ward 3B';
+      const bed = p.bed || ('Bed ' + (10 + (Number(p.id) || 0)));
+      const reasons = Array.isArray(p.status_reasons) && p.status_reasons.length ? p.status_reasons.join(' · ') : '';
+      $('#profile').innerHTML = `<div class="ph-top">
         <div class="avatar" aria-hidden="true">${esc(initials(p.name))}</div>
-        <div style="flex:1;min-width:220px">
-          <h1 style="margin:0">${esc(p.name)} ${p.red_flag_open ? '<span class="status-pill status-red redflag-badge" title="Open red-flag alert – see the alerts below">🚨 Red flag</span> ' : ''}${statusPill(p.red_flag_open ? 'red' : p.status)}</h1>
-          <div class="muted">${esc(p.age)} y · ${esc(p.sex || '')} · ${esc(p.surgery || '')}${pod != null ? ` · day ${pod} after surgery` : ''} · ${esc(LANG[p.language] || p.language || '')}</div>
-          ${Array.isArray(p.status_reasons) && p.status_reasons.length ? `<div class="small"><b>Status:</b> ${esc(p.status_reasons.join(' · '))}${p.status_basis === 'yesterday' ? ' (based on yesterday – before 8 am)' : ''}</div>` : ''}
+        <div class="ph-id">
+          <div class="ph-name"><h1>${esc(p.name)}</h1>${rf ? redFlagPill() : ''}${statusPill(st)}</div>
+          <dl class="ph-meta">
+            <div><dt>Age</dt><dd>${esc(p.age)} y${p.sex ? ' · ' + esc(p.sex) : ''}</dd></div>
+            <div><dt>Operation</dt><dd>${esc(p.surgery || '—')}</dd></div>
+            <div><dt>Post-op</dt><dd>${pod != null ? 'Day ' + pod : '—'}</dd></div>
+            <div><dt>Ward / bed</dt><dd${p.ward ? '' : ' title="Demo value"'}>${esc(ward)} · ${esc(bed)}</dd></div>
+            <div><dt>Language</dt><dd>${esc(LANG[p.language] || p.language || '—')}</dd></div>
+            <div><dt>Family</dt><dd id="ph-family">${esc(familyText())}</dd></div>
+          </dl>
+          ${rf || reasons ? `<div class="ph-reason st-${st}">${ic(rf ? 'flag' : st === 'red' ? 'alert-octagon' : st === 'yellow' ? 'alert-triangle' : 'check-circle', { size: 16 })}<span>${rf ? '<b>Open red-flag alert</b> – see Care team actions. ' : ''}${esc(rf ? reasons.split(' · ').filter((r) => !/red.flag/i.test(r)).join(' · ') : reasons)}${p.status_basis === 'yesterday' ? ' (based on yesterday – before 8 am)' : ''}</span></div>` : ''}
         </div>
-        <div class="kv" style="flex:2;min-width:300px;margin:0;grid-template-columns:repeat(4,minmax(0,1fr))">
-          <div><div class="k">Done / due</div><div class="v">${p.done_today ?? 0} / ${p.due_today ?? 0}</div></div>
-          <div><div class="k">Best today</div><div class="v">${fmtMl(p.best_today)}</div></div>
-          <div><div class="k">Target</div><div class="v">${fmtMl(p.target_ml)}</div></div>
-          <div title="Best-breath volume, last 3 days vs the 3 days before"><div class="k">${SB.ui.TREND_LABEL}</div><div class="v small">${trendHTML(p.trend, p)}</div></div>
-        </div>`;
+        <div class="ph-actions no-print">
+          <button class="btn primary" id="ph-call" type="button" title="A nurse calls: your phone rings first, then the patient">${ic('phone')}Call patient</button>
+          <button class="btn" id="ph-print" type="button" title="Print an A4 summary">${ic('printer')}Print</button>
+        </div></div>`;
+      $('#ph-call').addEventListener('click', (e) => {
+        if (SB.api.state.mock) { toast('Calls need the live server', 'bad'); return; }
+        busy(e.currentTarget, async () => {
+          const r = await SB.comms.api.callPatient(Number(id), SB.comms.me());
+          toast(r.dry_run ? `Dry run – would ring ${SB.comms.me()}'s phone first, then connect ${p.name}` : r.error ? 'Call failed – ' + r.error : 'Calling – your phone rings first', r.error ? 'bad' : r.dry_run ? '' : 'good', 6000);
+        }).catch(() => {});
+      });
+      $('#ph-print').addEventListener('click', () => window.print());
+      $('#crumb-name').textContent = p.name;
       document.title = p.name + ' – SpiroBuddy';
     }
 
-    const SLOT_TEXT = { done: ['✅', 'Done'], missed: ['✖', 'Missed'], pending: ['⏳', 'Due now'], upcoming: ['·', 'Upcoming'] };
+    function renderKpis(p) {
+      const due = p.due_today || 0, done = p.done_today || 0;
+      const best = Number(p.best_today) || 0, goal = Number(p.target_ml) || 0;
+      const pct = best && goal ? best / goal : 0;
+      $('#kpis').innerHTML = `
+        <div class="kpi"><div class="k">Sessions today</div><div class="v">${done}<small> of ${due} due</small></div>${meter(due ? done / due : 0, !due ? 'brand' : done / due >= 0.7 ? 'good' : done / due >= 0.4 ? 'warn' : 'bad', `${done} of ${due} sessions done`)}</div>
+        <div class="kpi"><div class="k">Best today</div><div class="v">${best ? Math.round(best).toLocaleString('en-IN') + '<small> mL</small>' : '—'}</div>${meter(pct, pct >= 0.8 ? 'good' : 'warn', best ? Math.round(pct * 100) + '% of goal' : 'no breath today')}<div class="s">${best ? Math.round(pct * 100) + '% of goal' : 'No breath recorded today'}</div></div>
+        <div class="kpi"><div class="k">Goal</div><div class="v">${goal ? goal.toLocaleString('en-IN') + '<small> mL</small>' : '—'}</div><div class="s">hold ${esc(p.hold_target_s ?? 3)} s${p.personal_best_ml ? ' · personal best ' + fmtMl(p.personal_best_ml) : ''}</div></div>
+        <div class="kpi"><div class="k">${SB.ui.TREND_LABEL}</div><div class="v" style="font-size:var(--fs-lg);margin-top:.35rem">${trendHTML(p.trend, p)}</div><div class="s">last 3 days vs the 3 before</div></div>`;
+    }
+
+    const SLOT = { done: ['check-circle', 'Done'], missed: ['x-circle', 'Missed'], pending: ['hourglass', 'Due now'], upcoming: ['circle', 'Upcoming'] };
     function renderSlots(today) {
       const box = $('#slots');
-      box.innerHTML = (today || []).map((s) => {
-        const [ic, txt] = SLOT_TEXT[s.status] || ['·', s.status];
-        const changed = prevSlots && prevSlots[s.hour] && prevSlots[s.hour] !== s.status;
-        return `<div class="slot ${esc(s.status)}${changed ? ' changed' : ''}" title="${hourLabel(s.hour)} – ${esc(txt)}"><div class="h">${hourLabel(s.hour)}</div><div class="ic" aria-hidden="true">${ic}</div><div class="s">${esc(txt)}</div></div>`;
-      }).join('') || '<div class="muted">No slots.</div>';
-      const map = {}; (today || []).forEach((s) => (map[s.hour] = s.status));
-      if (prevSlots) Object.keys(map).forEach((h) => { if (prevSlots[h] && prevSlots[h] !== map[h] && map[h] === 'done') toast(`✅ ${hourLabel(h)} session done`, 'good'); });
+      if (!today || !today.length) { box.innerHTML = '<div class="empty" style="grid-column:1/-1"><b>No sessions scheduled today</b></div>'; prevSlots = {}; return; }
+      box.innerHTML = today.map((s) => {
+        const [icon, txt] = SLOT[s.status] || ['circle', s.status];
+        const ch = prevSlots && prevSlots[s.hour] && prevSlots[s.hour] !== s.status;
+        return `<div class="slot ${esc(s.status)}${ch ? ' changed' : ''}" title="${hourLabel(s.hour)} – ${esc(txt)}"><div class="h">${hourLabel(s.hour)}</div><div class="ic">${ic(icon, { size: 18 })}</div><div class="s">${esc(txt)}</div></div>`;
+      }).join('');
+      const map = {}; today.forEach((s) => (map[s.hour] = s.status));
+      if (prevSlots) Object.keys(map).forEach((h) => { if (prevSlots[h] && prevSlots[h] !== map[h] && map[h] === 'done') toast(`${hourLabel(h)} session done`, 'good'); });
       prevSlots = map;
     }
 
@@ -139,7 +199,11 @@
         <td>${esc(dateTimeLabel(s.started_at))}</td><td>${s.slot_hour != null ? hourLabel(s.slot_hour) : '—'}</td>
         <td class="num">${esc(s.breaths_count)}</td><td class="num">${fmtMl(s.best_ml)}</td>
         <td class="num"><b>${s.avg_score != null ? Number(s.avg_score).toFixed(1) : '—'}</b> / 10</td><td>${labelChips(s.label_counts)}</td></tr>`).join('')
-        : '<tr><td colspan="6" class="muted">No sessions yet.</td></tr>';
+        : `<tr><td colspan="6"><div class="empty" style="margin:.5rem 0">${ic('activity', { size: 26 })}<b>No sessions yet</b>Sessions appear here as soon as the patient breathes into the device.</div></td></tr>`;
+      const agg = {};
+      list.forEach((s) => Object.entries(s.label_counts || {}).forEach(([k, v]) => (agg[k] = (agg[k] || 0) + (Number(v) || 0))));
+      $('#quality-sub').textContent = list.length ? `all breaths in the last ${list.length} session${list.length === 1 ? '' : 's'}` : 'no sessions yet';
+      SB.charts.qualityBar($('#quality'), agg);
     }
 
     function fillForm(p) {
@@ -153,24 +217,42 @@
     function renderMsgs(all) {
       const mine = all.filter((m) => String(m.patient_id) === String(id));
       const ids = new Set(mine.map((m) => m.id));
-      $('#msgs').innerHTML = mine.length ? mine.map((m) => `<div class="msg${lastMsgIds && !lastMsgIds.has(m.id) ? ' new' : ''}">
+      $('#msgs').innerHTML = mine.length ? mine.map((m) => `<div class="msg${lastMsgIds && !lastMsgIds.has(m.id) ? ' new flash-green' : ''}">
         <div class="head"><span class="tag ${esc(m.kind)}">${esc(m.kind)}</span><span>to ${esc(m.to_role || '')}</span>
         <span class="tag ${m.sent ? 'sent' : 'dry'}">${m.sent ? 'sent' : m.dry_run ? 'would send (dry run)' : 'failed'}</span><span>${esc(dateTimeLabel(m.created_at))}</span></div>
-        <div class="text">${esc(m.text)}</div></div>`).join('') : '<div class="muted">No messages yet.</div>';
+        <div class="text">${esc(m.text)}</div></div>`).join('') : `<div class="empty">${ic('message', { size: 24 })}<b>No messages yet</b>Summaries and alerts sent on WhatsApp show here.</div>`;
       lastMsgIds = ids;
     }
+
+    function liveLabel(ok) {
+      const off = SB.api.state.online === false && !SB.api.state.mock;
+      $('#live-state').classList.toggle('stale', off);
+      if (ok) liveLabel.at = new Date();
+      const t = liveLabel.at ? liveLabel.at.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true }) : '';
+      $('#updated').textContent = off ? `Offline · last data ${t}` : `Live · ${t}`;
+    }
+    SB.api.onChange(() => liveLabel(false));
 
     async function refresh() {
       const [p, sessions, msgs] = await Promise.all([SB.api.patient(id), SB.api.sessions(id, 20), SB.api.messages(50).catch(() => [])]);
       patient = p;
-      renderProfile(p);
-      renderSlots(p.today);
-      SB.charts.weekChart($('#week'), p.history || [], p.target_ml);
-      renderSessions(sessions || []);
-      renderMsgs(msgs || []);
+      const { today, history, ...head } = p;
+      if (changed('head', [head, family])) { const f = document.activeElement && document.activeElement.id; renderProfile(p); renderKpis(p); if (f && $('#' + f)) $('#' + f).focus(); }
+      if (changed('slots', today)) renderSlots(today);
+      if (changed('week', [history, p.target_ml])) SB.charts.weekChart($('#week'), history || [], p.target_ml);
+      if (changed('sessions', sessions)) renderSessions(sessions || []);
+      if (changed('msgs', (msgs || []).filter((m) => String(m.patient_id) === String(id)))) renderMsgs(msgs || []);
       if (!formFilled) fillForm(p);
-      $('#updated').textContent = 'Live · ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      liveLabel(true);
+      $('#print-when').textContent = 'Printed ' + istDate() + ', ' + istClock();
     }
+
+    // guardians come from the care-circle data (comms-patient.js)
+    document.addEventListener('sb:care-data', (e) => {
+      family = (e.detail && e.detail.guardians) || [];
+      const el = $('#ph-family'); if (el) el.textContent = familyText();
+    });
+    window.addEventListener('beforeprint', () => { $('#print-when').textContent = 'Printed ' + istDate() + ', ' + istClock(); });
 
     $('#settings').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -189,7 +271,7 @@
     });
 
     $('#btn-summary').addEventListener('click', (e) => busy(e.currentTarget, async () => {
-      $('#summary-text').innerHTML = '<span class="muted">Writing summary…</span>';
+      $('#summary-text').innerHTML = '<span class="skeleton" style="width:90%"></span><span class="skeleton" style="width:75%;margin-top:8px"></span><span class="skeleton" style="width:60%;margin-top:8px"></span>';
       const r = await SB.api.summary(id, $('#sum-lang').value || undefined);
       $('#summary-text').textContent = r.text || '';
       $('#summary-source').innerHTML = r.source === 'llm' ? '<span class="source-tag llm" title="Written by Claude">AI (Claude)</span>' : '<span class="source-tag" title="No AI key or the AI call failed – fixed template used">Template</span>';
@@ -199,7 +281,7 @@
       return busy(btn, async () => {
         const r = await SB.api.whatsapp(id, kind, to);
         const who = to === 'nurse' ? 'nurse' : 'family';
-        const head = r.sent ? `✅ Sent on WhatsApp to the ${who}` : r.dry_run ? `DRY RUN – would send to the ${who} (no Twilio keys, nothing was sent)` : `✖ Not sent – WhatsApp failed (logged)`;
+        const head = r.sent ? `Sent on WhatsApp to the ${who}` : r.dry_run ? `DRY RUN – would send to the ${who} (no Twilio keys, nothing was sent)` : `Not sent – WhatsApp failed (logged)`;
         $('#wa-result').innerHTML = `<div class="drybox${r.sent ? ' sent' : ''}"><div class="t">${esc(head)}</div><div class="text" style="white-space:pre-wrap">${esc(r.text || '')}</div></div>`;
         toast(r.sent ? 'WhatsApp sent' : r.dry_run ? 'Dry run – message logged as "would send"' : 'WhatsApp failed', r.sent ? 'good' : r.dry_run ? '' : 'bad');
         renderMsgs(await SB.api.messages(50));
@@ -213,7 +295,8 @@
       poll(async () => {
         try { await refresh(); }
         catch (e) {
-          if (e.status === 404) { $('#profile').innerHTML = `<div><h1>Patient not found</h1><p class="muted">There is no patient with id ${esc(id)}. <a href="${link('index.html')}">Back to all patients</a></p></div>`; }
+          liveLabel(false);
+          if (e.status === 404) { $('#profile').innerHTML = `<div class="empty">${ic('user', { size: 28 })}<b>Patient not found</b>There is no patient with id ${esc(id)}. <a href="${link('index.html')}">Back to all patients</a></div>`; $('#kpis').innerHTML = ''; }
           throw e;
         }
       }, 2000);

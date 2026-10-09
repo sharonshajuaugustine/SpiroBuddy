@@ -4,7 +4,7 @@
  * Needs api.js, ui.js, comms.js. */
 (function () {
   const SB = window.SB;
-  const { esc, $, $$, toast, busy, ago } = SB.ui;
+  const { esc, $, $$, toast, busy, ago, ic } = SB.ui;
   const C = SB.comms;
   const LANGS = { hi: 'Hindi', en: 'English', ta: 'Tamil', ml: 'Malayalam', te: 'Telugu', kn: 'Kannada', bn: 'Bengali', mr: 'Marathi', gu: 'Gujarati' };
   const CH = { both: 'WhatsApp + call', whatsapp: 'WhatsApp only', call: 'Call only', sms: 'SMS (dry run)' };
@@ -15,22 +15,22 @@
 
     /* ---------- actions card ---------- */
     els.actions.innerHTML = `
-      <div class="card-head"><h2 style="margin:0">Care team actions</h2><div class="spacer"></div><span id="cp-provider" class="muted small"></span></div>
+      <div class="card-head"><h2>${ic('phone')}Care team actions</h2><div class="spacer"></div><span id="cp-provider" class="muted small"></span></div>
       <div class="row" style="margin-bottom:.6rem">
-        <button class="btn primary" id="cp-call" type="button" title="A nurse calls: your phone rings first, then the patient – nobody sees the other's number">☎ Nurse: call patient now</button>
-        <button class="btn" id="cp-script" type="button" title="Opening lines for your call – it does not diagnose">✨ Call script</button>
+        <button class="btn primary" id="cp-call" type="button" title="A nurse calls: your phone rings first, then the patient – nobody sees the other's number">${ic('phone')}Nurse: call patient now</button>
+        <button class="btn" id="cp-script" type="button" title="Opening lines for your call – it does not diagnose">${ic('sparkles')}Call script</button>
         <span class="muted small">Calling as <b id="cp-me"></b></span>
       </div>
       <div class="row" style="margin-bottom:.6rem">
-        <button class="btn sm" id="cp-checkin" type="button" title="Automated AI check-in call: asks if they are okay and why the exercise was missed (needs recorded consent)">🗣 AI check-in call – optional, where consent allows</button>
+        <button class="btn sm" id="cp-checkin" type="button" title="Automated AI check-in call: asks if they are okay and why the exercise was missed (needs recorded consent)">AI check-in call – optional, where consent allows</button>
         <span class="muted small">A nurse calls first; the AI call is only a backup. Some reminder calls need consent renewed weekly.</span>
       </div>
       <div id="cp-call-res" aria-live="polite"></div>
       <div class="script-box" id="cp-script-box" hidden></div>
       <div id="cp-trend" style="margin-top:.6rem"></div>
-      <h3 style="margin:1rem 0 .25rem">Check-in call notes</h3>
+      <h3 class="section-title">Check-in call notes</h3>
       <ul class="call-res" id="cp-calls"><li class="muted" style="border:0;background:none;padding:0">No AI check-in calls yet.</li></ul>
-      <h3 style="margin:1rem 0 .25rem">Open alerts</h3>
+      <h3 class="section-title">Open alerts for this patient</h3>
       <ul class="alerts" id="cp-alerts" style="max-height:300px"><li class="muted">–</li></ul>`;
     $('#cp-me', els.actions).textContent = C.me();
     $('#cp-call', els.actions).addEventListener('click', (e) => busy(e.currentTarget, async () => {
@@ -57,13 +57,13 @@
 
     /* ---------- ladder card ---------- */
     els.ladder.innerHTML = `
-      <div class="card-head"><h2 style="margin:0">Escalation ladder</h2><span class="muted small">beep → WhatsApp → call → family → nurse</span><div class="spacer"></div>
-        <button class="btn sm" id="lad-start" type="button" title="Start the ladder now at real speed">▶ Start now</button>
+      <div class="card-head"><h2>Escalation ladder</h2><span class="muted small">beep → WhatsApp → call → family → nurse</span><div class="spacer"></div>
+        <button class="btn sm" id="lad-start" type="button" title="Start the ladder now at real speed">${ic('play', { size: 14 })}Start now</button>
         <button class="btn sm" id="lad-fast" type="button" title="Demo: the whole ladder in about 60 seconds">⏩ Fast-forward</button>
         <button class="btn sm" id="lad-next" type="button" hidden>⏭ Next step now</button>
         <button class="btn sm danger" id="lad-stop" type="button" hidden>■ Stop</button></div>
       <div id="lad-run"><div class="muted">No ladder running. It starts by itself after missed sessions (see Care circle).</div></div>
-      <h3 style="margin:.75rem 0 .25rem">Timeline</h3>
+      <h3 class="section-title">Communications timeline</h3>
       <ul class="timeline" id="lad-tl"><li class="muted">Loading…</li></ul>`;
     const act = (fn) => (e) => busy(e.currentTarget, async () => { await fn(); await refresh(); }).catch(() => {});
     $('#lad-start', els.ladder).addEventListener('click', act(() => C.api.startRun(pid, { speed: 'real', reason: 'manual' })));
@@ -73,7 +73,7 @@
 
     /* ---------- care circle card ---------- */
     els.care.innerHTML = `
-      <div class="card-head"><h2 style="margin:0">Care circle &amp; reminders</h2><span class="muted small">who is told, how and when (IST)</span></div>
+      <div class="card-head"><h2>${ic('users')}Care circle &amp; reminders</h2><span class="muted small">who is told, how and when (IST)</span></div>
       <form id="cc-form" class="mini-form" autocomplete="off">
         <div class="field"><label for="cc-phone">Patient's phone</label><input id="cc-phone" type="tel" placeholder="+91 98xxx xxxxx"></div>
         <div class="field"><label for="cc-qs">Quiet from</label><input id="cc-qs" type="time"></div>
@@ -92,7 +92,7 @@
       <div class="script-box" id="cc-consent-text" hidden></div>
       <details style="margin:.5rem 0"><summary><b>Ladder steps and delays</b></summary><div class="steps-edit" id="cc-steps" style="margin-top:.5rem"></div></details>
       <div class="row" style="margin:.5rem 0 1rem"><button class="btn primary" id="cc-save" type="button">Save settings</button><span class="muted small">Quiet hours hold calls and messages, except red-flag.</span></div>
-      <h3 style="margin:0 0 .4rem">Family (guardians)</h3>
+      <h3 class="section-title">Family (guardians)</h3>
       <div class="guardians" id="cc-guardians"></div>
       <details style="margin-top:.75rem"><summary><b>＋ Add a family member</b></summary>
         <form id="cc-add" class="mini-form" style="margin-top:.5rem" autocomplete="off">
@@ -205,8 +205,8 @@
       $('#cp-alerts', els.actions).innerHTML = list.length ? list.map((a) => `<li class="alert-item sev-${esc(a.severity)} st-${esc(a.status)}" data-id="${a.id}">
         <div class="alert-main"><div class="alert-top"><span class="sev sev-${esc(a.severity)}">${esc(C.SEV_TEXT[a.severity] || a.severity)}</span><span class="tag">${esc(a.kind_label)}</span>${a.status !== 'open' ? `<span class="tag dry">${esc(a.status)}</span>` : ''}${a.assigned_to ? `<span class="chip">👤 ${esc(a.assigned_to)}</span>` : ''}<span class="muted small" style="margin-left:auto">${esc(ago(a.created_at))}</span></div>
         <div class="alert-title">${esc(a.title)}</div>${a.detail ? `<div class="small muted" style="white-space:pre-wrap">${esc(a.detail)}</div>` : ''}</div>
-        <div class="alert-actions">${a.status === 'open' ? '<button class="btn sm primary" data-act="ack" type="button">✓ Acknowledge</button>' : ''}<button class="btn sm" data-act="assign" type="button">👤 Assign to me</button><button class="btn sm good" data-act="resolve" type="button">✔ Resolve</button></div></li>`).join('')
-        : '<li class="empty">No open alerts for this patient.</li>';
+        <div class="alert-actions">${a.status === 'open' ? `<button class="btn sm primary" data-act="ack" type="button">${ic('check', { size: 14 })}Acknowledge</button>` : ''}<button class="btn sm" data-act="assign" type="button">${ic('user-check', { size: 14 })}Assign to me</button><button class="btn sm good" data-act="resolve" type="button">${ic('check-circle', { size: 14 })}Resolve</button></div></li>`).join('')
+        : `<li class="empty">${ic('check-circle', { size: 24 })}<b>No open alerts</b>Nothing needs action for this patient.</li>`;
     }
     async function refresh(forceCare) {
       if (SB.api.state.mock) { [els.actions, els.ladder, els.care].forEach((el) => { if (!el.dataset.mockNote) { el.dataset.mockNote = 1; el.insertAdjacentHTML('afterbegin', '<div class="banner mock" style="margin:0 0 .5rem">Needs the live server – not available in mock mode.</div>'); } }); return; }
@@ -236,7 +236,7 @@
       if (!careFilled || forceCare) { fillCare(d.settings); }
       consentNote(d.settings);
       const gsig = JSON.stringify(d.guardians);
-      if (gsig !== refresh.gsig) { refresh.gsig = gsig; renderGuardians(d.guardians); }
+      if (gsig !== refresh.gsig) { refresh.gsig = gsig; renderGuardians(d.guardians); document.dispatchEvent(new CustomEvent('sb:care-data', { detail: { guardians: d.guardians } })); }
       const lang = (d.guardians[0] && d.guardians[0].language) === 'hi' ? 'hi' : 'en';
       $('#cc-card-view', els.care).href = `/api/comms/card/${pid}.png?lang=${lang}`;
     }

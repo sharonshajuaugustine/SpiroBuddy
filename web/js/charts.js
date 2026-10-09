@@ -11,45 +11,68 @@
     return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * p;
   }
 
-  /* 7-day chart: bars = best mL per day, dashed line = target, green line = sessions done (right axis, 0–14). */
+  const fmt = (v) => Math.round(v).toLocaleString('en-IN');
+
+  /* 7-day chart (honest by design): one measure only – best breath per day in mL, y-axis from 0,
+   * labelled axis, dashed goal line with its value, each bar labelled with its number, sessions done
+   * written under each day (no second axis). Bars under 80% of the goal are amber. Also writes a
+   * screen-reader table with the same numbers. */
   function weekChart(el, history, target) {
-    const W = 640, H = 290, L = 56, R = 44, T = 30, B = 40;
+    const W = 680, H = 300, L = 60, R = 64, T = 26, B = 52;
     const iw = W - L - R, ih = H - T - B;
     const data = (history || []).slice(-7);
-    const rawMax = Math.max(target || 0, ...data.map((d) => d.best_ml || 0), 500) * 1.08;
-    const step = rawMax <= 3200 ? 500 : 1000;
+    if (!data.length) { el.innerHTML = '<div class="empty"><b>No history yet</b>The chart fills in after the first day of sessions.</div>'; return; }
+    const rawMax = Math.max(target || 0, ...data.map((d) => d.best_ml || 0), 500) * 1.1;
+    const step = rawMax <= 1600 ? 250 : rawMax <= 3200 ? 500 : 1000;
     const ticks = Math.ceil(rawMax / step);
     const maxMl = ticks * step;
-    const maxS = 14;
-    const n = Math.max(data.length, 1);
-    const bw = (iw / n) * 0.55;
+    const n = data.length;
+    const bw = Math.min(56, (iw / n) * 0.56);
     const x = (i) => L + (iw / n) * (i + 0.5);
     const y = (v) => T + ih - (v / maxMl) * ih;
-    const y2 = (v) => T + ih - (v / maxS) * ih;
-    let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Best breath per day for the last 7 days, compared with the target, and sessions done per day">`;
+    const today = new Date().toDateString();
+    let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Bar chart: best breath per day for the last ${n} days in millilitres, with the goal of ${target ? fmt(target) : '—'} mL. The same numbers are in the table below.">`;
     s += '<g class="grid">';
     for (let i = 0; i <= ticks; i++) {
       const v = step * i;
-      s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${Math.round(v)}</text>`;
+      s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"${i === 0 ? ' class="baseline"' : ''}/><text x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${fmt(v)}</text>`;
     }
-    for (let i = 0; i <= 7; i++) s += `<text x="${W - R + 8}" y="${y2(i * 2) + 4}">${i * 2}</text>`;
     s += '</g>';
-    s += `<text x="${L - 8}" y="${T - 14}" text-anchor="end" style="font-weight:600">mL</text><text x="${W - R + 8}" y="${T - 14}" style="font-weight:600">sess.</text>`;
+    s += `<text class="axis-title" transform="translate(14 ${T + ih / 2}) rotate(-90)" text-anchor="middle">Best breath (mL)</text>`;
     data.forEach((d, i) => {
       const v = d.best_ml || 0;
-      const under = target && v < 0.8 * target;
+      const under = target && v > 0 && v < 0.8 * target;
       const dt = new Date(d.date + 'T00:00:00');
-      const lbl = isNaN(dt) ? d.date : dt.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' });
-      s += `<rect class="bar${under ? ' under' : ''}" x="${x(i) - bw / 2}" y="${y(v)}" width="${bw}" height="${Math.max(0, T + ih - y(v))}" rx="4"><title>${esc(lbl)}: best ${Math.round(v)} mL, ${d.sessions_done || 0} sessions${d.avg_score != null ? ', avg score ' + d.avg_score : ''}</title></rect>`;
-      s += `<text x="${x(i)}" y="${H - B + 18}" text-anchor="middle">${esc(lbl)}</text>`;
+      const isToday = !isNaN(dt) && dt.toDateString() === today;
+      const lbl = isNaN(dt) ? d.date : isToday ? 'Today' : dt.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' });
+      const tip = `${lbl}: best ${v ? fmt(v) + ' mL' : 'no breath'}, ${d.sessions_done || 0} sessions${d.avg_score != null ? ', average score ' + d.avg_score + ' / 10' : ''}`;
+      if (v > 0) {
+        s += `<rect class="bar${under ? ' under' : ''}" x="${x(i) - bw / 2}" y="${y(v)}" width="${bw}" height="${Math.max(0, T + ih - y(v))}" rx="3"><title>${esc(tip)}</title></rect>`;
+        s += `<text class="val" x="${x(i)}" y="${y(v) - 6}" text-anchor="middle">${fmt(v)}</text>`;
+      } else {
+        s += `<rect class="bar none" x="${x(i) - bw / 2}" y="${T + ih - 4}" width="${bw}" height="4" rx="2"><title>${esc(tip)}</title></rect>`;
+        s += `<text class="sess" x="${x(i)}" y="${T + ih - 10}" text-anchor="middle">none</text>`;
+      }
+      s += `<text x="${x(i)}" y="${T + ih + 18}" text-anchor="middle"${isToday ? ' style="font-weight:700"' : ''}>${esc(lbl)}</text>`;
+      s += `<text class="sess" x="${x(i)}" y="${T + ih + 34}" text-anchor="middle">${d.sessions_done || 0} sess.</text>`;
     });
-    if (target) s += `<line class="target" x1="${L}" x2="${W - R}" y1="${y(target)}" y2="${y(target)}"><title>Target ${target} mL</title></line>`;
-    if (data.length) {
-      s += `<polyline class="line" points="${data.map((d, i) => `${x(i)},${y2(d.sessions_done || 0)}`).join(' ')}"/>`;
-      data.forEach((d, i) => { s += `<circle class="pt" cx="${x(i)}" cy="${y2(d.sessions_done || 0)}" r="4.5"><title>${d.sessions_done || 0} sessions done</title></circle>`; });
+    if (target) {
+      s += `<line class="target" x1="${L}" x2="${W - R}" y1="${y(target)}" y2="${y(target)}"><title>Goal ${fmt(target)} mL</title></line>`;
+      s += `<text class="target-lbl" x="${W - R + 6}" y="${y(target) - 3}">Goal</text><text class="target-lbl" x="${W - R + 6}" y="${y(target) + 11}">${fmt(target)}</text>`;
     }
     s += '</svg>';
+    s += `<div class="sr-only"><table><caption>Best breath per day</caption><thead><tr><th>Day</th><th>Best breath (mL)</th><th>Sessions done</th><th>Average score</th></tr></thead><tbody>${data.map((d) => `<tr><td>${esc(d.date)}</td><td>${d.best_ml ? fmt(d.best_ml) : 'none'}</td><td>${d.sessions_done || 0}</td><td>${d.avg_score != null ? esc(d.avg_score) : '—'}</td></tr>`).join('')}</tbody></table></div>`;
     el.innerHTML = s;
+  }
+
+  /* Breath quality: one stacked bar + a list with counts and percentages (colour is never the only cue). */
+  const Q = [['good', 'Good'], ['too_fast', 'Too fast'], ['too_shallow', 'Too shallow'], ['no_hold', 'No hold']];
+  function qualityBar(el, counts) {
+    const total = Q.reduce((a, [k]) => a + (Number(counts && counts[k]) || 0), 0);
+    if (!total) { el.innerHTML = '<div class="empty"><b>No breaths recorded yet</b>Quality appears after the first session.</div>'; return; }
+    const pct = (k) => ((Number(counts[k]) || 0) / total) * 100;
+    el.innerHTML = `<div class="qbar" role="img" aria-label="${Q.map(([k, l]) => `${l} ${Math.round(pct(k))}%`).join(', ')}">${Q.filter(([k]) => counts[k]).map(([k, l]) => `<span class="q-${k}" style="width:${pct(k).toFixed(1)}%" title="${l}: ${counts[k]}"></span>`).join('')}</div>
+      <ul class="qlist">${Q.map(([k, l]) => `<li><span class="sw q-${k}" aria-hidden="true"></span>${l}<b>${Number(counts[k]) || 0}</b><span class="pct">${Math.round(pct(k))}%</span></li>`).join('')}</ul>`;
   }
 
   /* Live volume graph on a canvas. push(t_ms, ml) then it redraws on animation frames. */
@@ -92,8 +115,9 @@
         g.fillRect(x(this.points[i - 1].t), T, Math.max(1, x(p.t) - x(this.points[i - 1].t) + 0.5), ih); g.globalAlpha = 1;
       }
       // target line
-      g.setLineDash([6, 4]); g.strokeStyle = col('--red'); g.lineWidth = 2; g.beginPath(); g.moveTo(L, y(this.target)); g.lineTo(w - R, y(this.target)); g.stroke(); g.setLineDash([]);
-      g.fillStyle = col('--red'); g.fillText('target ' + this.target, w - R - 90, y(this.target) - 5);
+      // goal line is neutral (red is reserved for "a person is needed now")
+      g.setLineDash([6, 4]); g.strokeStyle = col('--text-2'); g.lineWidth = 1.5; g.beginPath(); g.moveTo(L, y(this.target)); g.lineTo(w - R, y(this.target)); g.stroke(); g.setLineDash([]);
+      g.fillStyle = col('--text'); g.fillText('goal ' + this.target + ' mL', w - R - 100, y(this.target) - 5);
       // curve
       g.strokeStyle = col('--brand'); g.lineWidth = 2.5; g.beginPath();
       this.points.forEach((p, i) => (i ? g.lineTo(x(p.t), y(p.ml)) : g.moveTo(x(p.t), y(p.ml)))); g.stroke();
@@ -105,5 +129,5 @@
     }
   }
 
-  SB.charts = { weekChart, LiveChart, niceMax };
+  SB.charts = { weekChart, qualityBar, LiveChart, niceMax };
 })();
