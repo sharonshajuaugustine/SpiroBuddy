@@ -1,6 +1,6 @@
 # Handoff – read this first in every new session
 
-**Last updated:** 9 Oct 2026, lead session – 5 subagents started
+**Last updated:** 10 Oct 2026, lead session – UI 1 saved; UI 2 + critical testing running
 
 ## Scope (decided by the user, 9 Oct 2026)
 - **Everything is DEMO for now:** fake patients, no login, demo control buttons.
@@ -19,7 +19,13 @@
 - **Always keep one research subagent running** (docs/research/RESEARCH_PROMPT.md). If none is running at session start, launch one with the next gaps from docs/research/KNOWLEDGE_BASE.md. It must never re-read a URL in docs/research/SOURCES_LEDGER.md.
 - Code is on GitHub: https://github.com/sharonshajuaugustine/SpiroBuddy (branch `main`; local `master` tracks `origin/main`). gh's active account is sharonshajuaugustine.
 
-## Next steps (in order)
+## Status 10 Oct 2026 (read this before the older notes)
+- **Done and pushed:** deploy-readiness (schema fix, DEPLOY.md, 77 tests), Malayalam/Tamil messages, **UI 1** = hospital-grade nurse/doctor screens (index, patient, collect + styles.css, ui.js, icons.js), commit 48fa19c.
+- **In progress (background agents; if the session died, check `git status` and re-launch):** **UI 2** = restyle `web/guardian.html`, `web/demo.html`, `web/showcase/*` to match DESIGN_SYSTEM.md. **Critical testing** = security, safety, failure and load tests → `tests/test_critical.py` + `docs/CRITICAL_TEST_REPORT.md` (may fix backend bugs, must not touch `web/`).
+- **After both land:** QA review (docs/QA_PROMPT.md), then Q-04 click-through + `docs/DEMO_GUIDE.md`, commit, push.
+- **Waiting on the user:** (1) authorise the Supabase connector (type /mcp in the session) or follow docs/DEPLOY.md by hand; a Render connector exists in the directory but is not installed. (2) Sarvam AI has no connector: paste the key after `SARVAM_API_KEY=` in `.env`. (3) WaBI question: can the server send through WaBI with an API key, or should we use Meta's WhatsApp Cloud API directly?
+
+## Next steps (older list)
 1. When the agents finish: start the server (`scripts\run.ps1`), test every endpoint, walk the demo story (REQUIREMENTS §3) in the browser, open `/showcase/`, play the videos. Fix the seams.
 2. Update PROGRESS.md and this file, commit.
 3. Deploy: follow `docs/DEPLOY.md` (Supabase project + Render Blueprint) – needs the user's accounts.
