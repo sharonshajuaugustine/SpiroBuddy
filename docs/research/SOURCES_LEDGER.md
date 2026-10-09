@@ -58,3 +58,14 @@ Grades: A = peer-reviewed / guideline / regulator data · B = reputable org, maj
 | 50 | 2026-10-09 | https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI:10.2196/46653&resultType=core&format=json | Burns et al. 2023, data capture device for clinical IS (abstract) | JMIR Biomed Eng via Europe PMC | A | F-COMP-4 |
 | 51 | 2026-10-09 | https://mhealth.jmir.org/2019/2/e12204/ | Soh et al. 2019 Go-breath RCT | JMIR mHealth uHealth | A | empty page; alias of #52 |
 | 52 | 2026-10-09 | https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI:10.2196/12204&resultType=core&format=json | Soh et al. 2019, Go-breath app RCT, Korea (abstract) | JMIR mHealth uHealth via Europe PMC | A | F-ADH-5, F-COMP-5 |
+| 53 | 2026-10-09 | https://www.sarvam.ai/api-pricing | Sarvam API Pricing (via Jina Reader) | Sarvam AI official page | B | F-VOICE-1, F-VOICE-2 |
+| 54 | 2026-10-09 | https://docs.sarvam.ai/api/getting-started/models/bulbul.md | Bulbul model page (v4 Flash, v3) | Sarvam docs | B | F-VOICE-3, C9 |
+| 55 | 2026-10-09 | https://docs.sarvam.ai/api/getting-started/ratelimits.md | Credits & Rate Limits (₹100 free credits) | Sarvam docs | B | F-VOICE-1, F-VOICE-3 |
+| 56 | 2026-10-09 | https://docs.sarvam.ai/api/getting-started/commercial-licensing.md | Commercial Licensing | Sarvam docs | B | F-VOICE-4 |
+| 57 | 2026-10-09 | https://docs.sarvam.ai/llms.txt | Sarvam docs index | Sarvam docs | B | F-VOICE-5, F-VOICE-6 |
+| 58 | 2026-10-09 | https://docs.sarvam.ai/api/integration/build-voice-agent-with-twilio.md | Build a voice agent or WhatsApp bot using Twilio | Sarvam docs | B | F-VOICE-6 |
+| 59 | 2026-10-09 | https://docs.sarvam.ai/conversations/overview.md | Voice Agents overview | Sarvam docs | B | F-VOICE-6 |
+| 60 | 2026-10-09 | https://www.twilio.com/en-us/guidelines/in/voice | India: Voice Guidelines (page dated 8 Oct 2026) | Twilio official | B | F-COMMS-1 |
+| 61 | 2026-10-09 | https://developers.facebook.com/docs/whatsapp/pricing | WhatsApp Business Platform pricing (effective 1 Oct 2026) | Meta for Developers | B | F-COMMS-2 |
+| 62 | 2026-10-09 | https://scontent-atl3-1.xx.fbcdn.net/v/t39.8562-6/830985615_1819783359150737_3237041219299440415_n.csv (linked from #61 as "INR list rates") | WhatsApp INR rate card (xlsx), effective 1 Oct 2026 | Meta | B | F-COMMS-2 |
+| 63 | 2026-10-09 | https://pmc.ncbi.nlm.nih.gov/articles/PMC10942208 | HMIS-based surgical rates in India | PMC | A | NOT READ: session limit hit; retry next round |
