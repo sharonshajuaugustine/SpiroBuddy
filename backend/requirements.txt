@@ -10,3 +10,4 @@ twilio
 httpx
 tzdata
 python-multipart
+pytest

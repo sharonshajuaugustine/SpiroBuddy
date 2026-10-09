@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parents[2]          # repo root
 BACKEND_DIR = ROOT / "backend"
-DATA_DIR = BACKEND_DIR / "data"
+DATA_DIR = Path(os.getenv("SPIROBUDDY_DATA_DIR") or BACKEND_DIR / "data")   # tests point this at a temp folder
 WEB_DIR = ROOT / "web"
 ML_DIR = ROOT / "ml"
 DB_PATH = DATA_DIR / "spirobuddy.db"
