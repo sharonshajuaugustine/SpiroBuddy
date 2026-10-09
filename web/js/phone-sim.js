@@ -270,7 +270,7 @@
           </div>
           <div class="row" style="margin-bottom:.6rem">
             <button class="btn primary" id="cd-nurse" type="button" title="A person calls: the nurse's phone rings first, then the patient (click-to-call)">☎ Nurse calls patient</button>
-            <button class="btn sm" id="cd-checkin" type="button" title="Backup: ring the patient now with the automated AI check-in call (needs consent; some reminder calls need consent renewed weekly)">🗣 Automated check-in call (backup)</button>
+            <button class="btn sm" id="cd-checkin" type="button" title="Backup: ring the patient now with the automated AI check-in call (needs consent; some reminder calls need consent renewed weekly)">🗣 AI check-in call – optional, where consent allows</button>
           </div>
           <div class="row" style="margin-bottom:.6rem">
             <select id="cd-sample" class="sm-select" aria-label="Saved Sarvam call result"><option value="pain">Loading samples…</option></select>

@@ -101,7 +101,7 @@ States: `IDLE → INHALING → HOLDING → FALLING → IDLE`
 | Method & path | Body / query | Returns |
 |---|---|---|
 | GET /api/health | – | `{ok, model_loaded, llm_enabled, whatsapp_enabled, data_backend:"demo"\|"supabase", demo_mode:bool}` |
-| GET /api/patients | – | list of `{id, name, age, sex, surgery, surgery_date, language, target_ml, status, done_today, due_today, best_today, personal_best_ml, trend, last_session_at}` |
+| GET /api/patients | – | list of `{id, name, age, sex, surgery, surgery_date, language, target_ml, status, done_today, due_today, best_today, personal_best_ml, trend, last_session_at, red_flag_open}` (`red_flag_open` = an unresolved red-flag alert exists; added Q-06) |
 | GET /api/patients/{id} | – | patient + `today` (list of `{hour, status:"done"\|"missed"\|"pending"\|"upcoming", session_id?}`) + `history` (7 days: `{date, best_ml, sessions_done, avg_score}`) |
 | PUT /api/patients/{id} | `{target_ml?, hold_target_s?, language?, family_phone?}` | patient |
 | GET /api/patients/{id}/sessions | `?limit=20` | list of `{id, started_at, slot_hour, breaths_count, best_ml, avg_score, label_counts:{good,too_fast,too_shallow,no_hold}}` |
@@ -111,7 +111,7 @@ States: `IDLE → INHALING → HOLDING → FALLING → IDLE`
 | POST /api/train | – | runs ml/train.py and reloads the model → metrics |
 | GET /api/model | – | metrics.json |
 | POST /api/summary/{id} | `{language?}` | `{text, source:"llm"\|"template"}` |
-| POST /api/whatsapp/{id} | `{kind:"summary"\|"missed", to?:"family"\|"nurse"}` | `{sent:bool, dry_run:bool, text}` |
+| POST /api/whatsapp/{id} | `{kind:"summary"\|"missed", to?:"family"\|"nurse"}` | `{sent:bool, dry_run:bool, text, to_role}`; when consent blocks it also `blocked:true, blocked_reason, error` (sent=false, dry_run=false). Goes through `comms.messages.send_care_update` (consent/STOP, AI disclosure, footer, throttle; Q-01). `family` = primary guardian in their language (Malayalam falls back to English) |
 | GET /api/messages | `?limit=50` | recent message log `{id, patient_id, patient_name, kind, to_role, text, sent, dry_run, created_at}` |
 | POST /api/demo/simulate/{id} | `{quality?:"good"\|"mixed"\|"poor", breaths?:10}` | server makes a realistic session with ml/synth, classifies and stores it → same as POST /api/sessions + `breaths` |
 | POST /api/demo/miss/{id} | – | marks the last 2 slots missed and triggers the missed alert |
@@ -123,6 +123,7 @@ States: `IDLE → INHALING → HOLDING → FALLING → IDLE`
 - red: 2+ consecutive missed slots up to now, or done/due < 0.4
 - yellow: done/due < 0.7, or best today < 0.8 × personal best
 - green: otherwise
+- override: an unresolved red-flag alert (open, acknowledged or snoozed) always makes the status red, with reason "Open red-flag alert" first (`service.red_flag_patient_ids`)
 - `due` = slots from 8:00 up to the current hour (max 14). Times use `TZ_NAME` (default `Asia/Kolkata`).
 
 ### D2 – comms (`backend/app/routes_comms.py`, prefix `/api/comms`; plain-English guide: `docs/COMMS.md`)

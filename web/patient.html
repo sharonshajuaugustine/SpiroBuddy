@@ -108,7 +108,7 @@
       $('#profile').innerHTML = `
         <div class="avatar" aria-hidden="true">${esc(initials(p.name))}</div>
         <div style="flex:1;min-width:220px">
-          <h1 style="margin:0">${esc(p.name)} ${statusPill(p.status)}</h1>
+          <h1 style="margin:0">${esc(p.name)} ${p.red_flag_open ? '<span class="status-pill status-red redflag-badge" title="Open red-flag alert – see the alerts below">🚨 Red flag</span> ' : ''}${statusPill(p.red_flag_open ? 'red' : p.status)}</h1>
           <div class="muted">${esc(p.age)} y · ${esc(p.sex || '')} · ${esc(p.surgery || '')}${pod != null ? ` · day ${pod} after surgery` : ''} · ${esc(LANG[p.language] || p.language || '')}</div>
           ${Array.isArray(p.status_reasons) && p.status_reasons.length ? `<div class="small"><b>Status:</b> ${esc(p.status_reasons.join(' · '))}${p.status_basis === 'yesterday' ? ' (based on yesterday – before 8 am)' : ''}</div>` : ''}
         </div>

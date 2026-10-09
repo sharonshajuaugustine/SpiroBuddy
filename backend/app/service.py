@@ -77,7 +77,19 @@ def load_window(now: datetime, patient_id: int | None = None, days: int = 7):
     return sessions, slots
 
 
-def compute_patient(p: dict, sessions: list[dict], slots: list[dict], now: datetime) -> dict:
+def red_flag_patient_ids() -> set[int]:
+    """Patients with an unresolved red-flag alert (open, acknowledged or snoozed). Such a patient is
+    always shown red ("Needs a call") on the nurse side, never "On track"."""
+    try:
+        rows = store().select("alerts", [("kind", "eq", "red_flag"), ("status", "neq", "resolved")],
+                              columns="patient_id")
+    except Exception:          # comms tables not created yet → no red flags
+        return set()
+    return {int(r["patient_id"]) for r in rows if r.get("patient_id") is not None}
+
+
+def compute_patient(p: dict, sessions: list[dict], slots: list[dict], now: datetime,
+                    red_flags: set[int] | None = None) -> dict:
     """Patient object as in contract D (list fields) plus `today`, `history`, status details."""
     pid = p["id"]
     today = now.date().isoformat()
@@ -119,11 +131,17 @@ def compute_patient(p: dict, sessions: list[dict], slots: list[dict], now: datet
         trend = "up" if r > o * 1.05 else ("down" if r < o * 0.95 else "flat")
 
     today_sessions = by_day_sessions.get(today, [])
+    red_flag_open = pid in (red_flags if red_flags is not None else red_flag_patient_ids())
+    status, reasons = ev["status"], list(ev["reasons"])
+    if red_flag_open:
+        status = "red"
+        reasons = ["Open red-flag alert"] + [r for r in reasons if r != "on track"]
     out = public_patient(p)
     out["personal_best_ml"] = round(pb, 1)
     out.update({
-        "status": ev["status"],
-        "status_reasons": ev["reasons"],
+        "status": status,
+        "status_reasons": reasons,
+        "red_flag_open": red_flag_open,
         "status_basis": "today" if basis == today else "yesterday",
         "done_today": sum(1 for s in today_slots if s["status"] == "done"),
         "due_today": rules.due_count(today_slots),
@@ -139,16 +157,17 @@ def compute_patient(p: dict, sessions: list[dict], slots: list[dict], now: datet
 
 LIST_KEYS = ["id", "name", "age", "sex", "surgery", "surgery_date", "language", "target_ml",
              "status", "done_today", "due_today", "best_today", "personal_best_ml", "trend",
-             "last_session_at", "status_reasons", "status_basis", "hold_target_s"]
+             "last_session_at", "status_reasons", "status_basis", "hold_target_s", "red_flag_open"]
 
 
 def list_patients(now: datetime | None = None) -> list[dict]:
     now = now or now_local()
     patients = store().select("patients", order="id")
     sessions, slots = load_window(now)
+    flags = red_flag_patient_ids()
     out = []
     for p in patients:
-        full = compute_patient(p, sessions, slots, now)
+        full = compute_patient(p, sessions, slots, now, flags)
         out.append({k: full[k] for k in LIST_KEYS})
     return out
 

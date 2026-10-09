@@ -22,8 +22,8 @@
         <span class="muted small">Calling as <b id="cp-me"></b></span>
       </div>
       <div class="row" style="margin-bottom:.6rem">
-        <button class="btn sm" id="cp-checkin" type="button" title="Automated AI check-in call: asks if they are okay and why the exercise was missed (needs recorded consent)">🗣 Automated check-in call (secondary)</button>
-        <span class="muted small">A person calls first; the automated call is a backup. Some reminder calls need consent renewed weekly.</span>
+        <button class="btn sm" id="cp-checkin" type="button" title="Automated AI check-in call: asks if they are okay and why the exercise was missed (needs recorded consent)">🗣 AI check-in call – optional, where consent allows</button>
+        <span class="muted small">A nurse calls first; the AI call is only a backup. Some reminder calls need consent renewed weekly.</span>
       </div>
       <div id="cp-call-res" aria-live="polite"></div>
       <div class="script-box" id="cp-script-box" hidden></div>

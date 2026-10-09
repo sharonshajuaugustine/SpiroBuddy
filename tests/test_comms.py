@@ -470,3 +470,23 @@ def test_guardian_abroad_number(fresh):
                                            "consent": True}).json()
     assert g["phone"] == "+44 7700 900123" and g["consent_ok"]
     assert len(fresh.get(f"{C}/care/1").json()["guardians"]) >= 3
+
+
+def test_red_flag_badge_on_patient_list(fresh):
+    """Q-06: an unresolved red-flag alert makes the patient red with `red_flag_open` (never 'On track')."""
+    pats = fresh.get("/api/patients").json()
+    p = next(x for x in pats if not x["red_flag_open"])
+    assert fresh.post(f"{C}/demo/red-flag/{p['id']}", json={}).status_code == 200
+    row = next(x for x in fresh.get("/api/patients").json() if x["id"] == p["id"])
+    assert row["red_flag_open"] is True and row["status"] == "red"
+    assert row["status_reasons"][0] == "Open red-flag alert" and "on track" not in row["status_reasons"]
+    assert fresh.get(f"/api/patients/{p['id']}").json()["red_flag_open"] is True
+    # acknowledged is still unresolved → still red; resolved → flag gone
+    for a in fresh.get(f"{C}/alerts?status=active&patient_id={p['id']}").json():
+        if a["kind"] == "red_flag":
+            fresh.post(f"{C}/alerts/{a['id']}/ack", json={"by": "Nurse"})
+    assert next(x for x in fresh.get("/api/patients").json() if x["id"] == p["id"])["red_flag_open"]
+    for a in fresh.get(f"{C}/alerts?status=all&patient_id={p['id']}").json():
+        if a["kind"] == "red_flag":
+            fresh.post(f"{C}/alerts/{a['id']}/resolve", json={"by": "Nurse"})
+    assert not next(x for x in fresh.get("/api/patients").json() if x["id"] == p["id"])["red_flag_open"]

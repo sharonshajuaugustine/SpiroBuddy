@@ -90,18 +90,21 @@
       return html;
     }
 
+    // Red flag = the API field (unresolved red-flag alert) or an open red-flag alert in the inbox.
+    const isRF = (p) => !!p.red_flag_open || redFlags.has(String(p.id));
     function card(p, changes) {
-      const st = ['red', 'yellow', 'green'].includes(p.status) ? p.status : 'green';
+      const rf = isRF(p);
+      const st = rf ? 'red' : ['red', 'yellow', 'green'].includes(p.status) ? p.status : 'green';   // a red flag is never "On track"
       const best = p.best_today ? p.best_today : null;
       const pct = best != null && p.target_ml ? Math.round((best / p.target_ml) * 100) : null;
       const animateFrom = changes && changes.doneUp ? changes.prevDone : null;
       const reasons = Array.isArray(p.status_reasons) && p.status_reasons.length && st !== 'green' ? p.status_reasons.join(' · ') : '';
       const alertTxt = reasons ? (st === 'red' ? reasons + ' – please call' : reasons) : st === 'red' ? (p.due_today && p.done_today / p.due_today < 0.4 ? 'Few sessions done today – please call' : 'Missed sessions in a row – please call') : '';
-      return `<a class="pcard ${st}" href="${link('patient.html?id=' + encodeURIComponent(p.id))}" data-id="${esc(p.id)}" aria-label="${esc(p.name)}, status ${esc(SB.ui.STATUS_TEXT[st])}${redFlags.has(String(p.id)) ? ', open red-flag alert' : ''}">
+      return `<a class="pcard ${st}" href="${link('patient.html?id=' + encodeURIComponent(p.id))}" data-id="${esc(p.id)}" aria-label="${esc(p.name)}, status ${esc(SB.ui.STATUS_TEXT[st])}${rf ? ', open red-flag alert' : ''}">
         <div class="top">
           <div><div class="name">${esc(p.name)}</div>
           <div class="meta">${esc(p.age)} ${esc(p.sex || '')} · ${esc(p.surgery || '')}</div></div>
-          <div class="pills">${redFlags.has(String(p.id)) ? '<span class="status-pill status-red redflag-badge" title="Open red-flag alert – see the alerts inbox">🚨 Red flag</span>' : ''}${statusPill(st)}</div>
+          <div class="pills">${rf ? '<span class="status-pill status-red redflag-badge" title="Open red-flag alert – see the alerts inbox">🚨 Red flag</span>' : ''}${statusPill(st)}</div>
         </div>
         ${alertTxt ? `<div class="alert" style="${st === 'yellow' ? 'color:var(--yellow)' : ''}">${st === 'red' ? '⚠ ' : ''}${esc(alertTxt)}</div>` : ''}
         <div class="kv">
@@ -124,8 +127,8 @@
         if (sort === 'name') return String(a.name).localeCompare(b.name);
         if (sort === 'last') return String(b.last_session_at || '').localeCompare(String(a.last_session_at || ''));
         if (sort === 'adherence') return ratio(a) - ratio(b);
-        const rf = (p) => (redFlags.has(String(p.id)) ? 0 : 1);   // open red flag first
-        return rf(a) - rf(b) || (STATUS_RANK[a.status] ?? 3) - (STATUS_RANK[b.status] ?? 3) || ratio(a) - ratio(b) || String(a.name).localeCompare(b.name);
+        const rfRank = (p) => (isRF(p) ? 0 : 1);   // open red flag first
+        return rfRank(a) - rfRank(b) || (STATUS_RANK[a.status] ?? 3) - (STATUS_RANK[b.status] ?? 3) || ratio(a) - ratio(b) || String(a.name).localeCompare(b.name);
       });
       const box = $('#patients');
       box.setAttribute('aria-busy', 'false');

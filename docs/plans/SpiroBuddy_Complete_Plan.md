@@ -630,9 +630,9 @@ Quiet hours: no messages between 10 pm and 8 am.
    - Wipe with alcohol between users.
 
 ### 11.3 Regulation (what to tell judges)
-- India's regulator, **CDSCO**, classes medical devices from A (lowest risk) to D (highest). We couldn't confirm the class for incentive spirometers.
+- India's regulator, **CDSCO**, classes medical devices from A (lowest risk) to D (highest). The plain spirometer is CDSCO Class A (lowest risk, not diagnostic). Our measuring clip-on will need its own registration and licence.
 - CDSCO finalised guidance for medical device software in **July 2026**. General **wellness** apps are excluded, and what the maker says the product is *for* decides how software is treated.
-- **Answer:** "Today it's an exercise coach and tracker, not a diagnostic. Before launch we'd get an official ruling through CDSCO's online classification portal."
+- **Answer:** "Today it's an exercise coach and tracker, not a diagnostic. The plain spirometer is CDSCO Class A; our measuring clip-on will need its own registration and licence before launch."
 
 ---
 
@@ -788,7 +788,7 @@ Anthropic (API key + credits), Sarvam AI, Twilio, GitHub, Vercel or Netlify, Clo
 | "What about iPhones, or no smartphone?" | "The unit works alone with beeps and lights, and the family gets WhatsApp. Native apps and voice-call reminders for basic phones are next." |
 | "Is the AI safe?" | "It only coaches and summarises. Warning words go straight to a fixed 'call your nurse' message. Alerts come from rules a nurse agreed to." |
 | "Privacy?" | "Minimum data, consent in the patient's language, shared only with people they choose. We follow the DPDP Act principles, and the demo uses fake patients." |
-| "Regulation?" | "Today it's an exercise coach. Before launch we'd get an official ruling through CDSCO's classification portal." |
+| "Regulation?" | "Today it's an exercise coach and tracker, not a diagnostic. The plain spirometer is CDSCO Class A; our measuring clip-on will need its own registration and licence before launch." |
 | "Hygiene?" | "The laser is outside the breathing path. The spirometer stays with one patient; the unit is wiped and reused." |
 | "Who pays?" | "Hospitals lend units at discharge and reuse them. See the cost per patient on slide 9." |
 | "Battery life?" | "We measured X days per charge." |

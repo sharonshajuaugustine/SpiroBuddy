@@ -2,6 +2,10 @@
 
 Newest entries at the top. Format: date/time – who – what was done – how it was tested.
 
+- 10 Oct 2026 – QA controller – Review 2 (HEAD f91b58f): Q-01 and Q-03 verified (live server on 8010: new demo patients after reset, summary WhatsApp has disclosure + footer, nurse path works); CDSCO "Class A + clip-on needs its own licence" wording in docs/plans; CONTRACT D /api/whatsapp row updated. No code changed.
+- 10 Oct 2026 – comms + India-fit (commit f91b58f) – Q-01: /api/whatsapp/{pid} goes through comms `send_care_update` (consent/STOP block, AI disclosure, footer, throttle; new test). Q-03: 12-hour slot labels/ticks, India-fit demo patients (CABG 63 M, knee 66 F, cholecystectomy 44 F, post-TB 50 M, Malayalam patient Sreedevi Nair), Sarvam pace 0.85 + temperature 0.7 (from docs.sarvam.ai TTS page). 62 tests pass.
+
+- 10 Oct 2026 – web engineer – Q-06/Q-23: unresolved red-flag alert now forces status red + new `red_flag_open` field on /api/patients (ARCHITECTURE contract D updated), "🚨 Red flag" badge on dashboard card and patient page; AI check-in call relabelled "optional, where consent allows" (human nurse call stays primary); test added.
 - 9 Oct 2026 – QA controller – Review 1: no blockers; Indian date/number formats, no-cache static files, guardian page sizes, comms feed chip fixed; WORK_QUEUE.md created. 61 tests pass.
 - 9 Oct 2026 – research rounds 3–4 – TRAI A2P rules, LASI elderly data, VL53L1X accuracy, DPDP/CDSCO, PM-JAY rates, cost anchors, post-TB rehab, 25 judge Q&As.
 - 9 Oct 2026 – comms – escalation ladder, IVR + simulators, Sarvam voice-agent provider/webhook/replay, consent, guardian page, alerts inbox, COMMS.md, tests/test_comms.py.

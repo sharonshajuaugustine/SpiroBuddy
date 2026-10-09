@@ -44,7 +44,7 @@
 | `emlearn` can put the model on the ESP32 | ✅ **True** | Converts a scikit-learn model to C code. The best-tested ESP32 route is emlearn-micropython. |
 | Preventing one complication saves ₹50,000–2,50,000 | ❌ **No Indian source found** | Don't use this number. See section 3 for numbers that do have sources. |
 | Reusable cap costs under ₹55 per patient | ❌ **Unsourced** | It's a calculation, not a fact. If you use it, show the maths. |
-| CDSCO Class A device | ❓ **Unconfirmed** | See section 6. |
+| CDSCO Class A device | ✅ **True for the plain spirometer** | The plain spirometer is CDSCO Class A (lowest risk, not diagnostic). Our measuring clip-on will need its own registration and licence. See section 6. |
 
 ---
 
@@ -86,9 +86,9 @@
 
 ## 6. Regulation (India): what to say if asked
 
-- India's regulator (CDSCO) classes devices A (lowest risk) to D (highest). We couldn't confirm the class for incentive spirometers.
+- India's regulator (CDSCO) classes devices A (lowest risk) to D (highest). The plain spirometer is CDSCO Class A (lowest risk, not diagnostic). Our measuring clip-on will need its own registration and licence.
 - CDSCO finalised guidance for **medical device software in July 2026**. General **wellness** apps are excluded, and what the maker says the product is for decides whether software counts as a medical device.
-- **Safe answer for judges:** "Today it's an exercise coach and tracker, not a diagnostic. Before launch we'd get an official ruling through CDSCO's online classification tool, launched in November 2025."
+- **Safe answer for judges:** "Today it's an exercise coach and tracker, not a diagnostic. The plain spirometer is CDSCO Class A; our measuring clip-on will need its own registration and licence before launch."
 
 ---
 

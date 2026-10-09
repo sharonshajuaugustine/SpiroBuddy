@@ -1,6 +1,6 @@
 # QA report – quality & efficiency controller
 
-**Last reviewed commit:** `23d8b0b` (HEAD, 9 Oct 2026) + the small fixes listed below (not committed).
+**Last reviewed commit:** `f91b58f` (Review 2, 10 Oct 2026) + the doc fixes listed in Review 2 (not committed). Review 1 was `23d8b0b`.
 Severity: 🔴 blocks the demo · 🟠 fix before the demo · 🟡 later.
 
 ---
@@ -88,3 +88,40 @@ Round 4 items folded into WORK_QUEUE as Q-22 (done), Q-23 calibration table, Q-2
 - Leftover `console.log` in `web/showcase/showcase.js` (harmless).
 - `.claude/launch.json` has an uncommitted reformat + a "comms-test-8003" entry: fine to commit or drop; add "qa-8004" only if useful.
 - No agent is re-doing finished work. The research ledger has 142 entries and the round-3 gaps don't repeat round-2 sources.
+
+---
+
+## Review 2 – Q-01, Q-03, research round 5 (10 Oct 2026, ~01:10 IST, HEAD `f91b58f`)
+
+**Scope:** diff `23d8b0b..f91b58f` (code: `main.py`, `comms/messages.py`, `voice.py`, `seed.py`, `seed_comms.py`, `supabase/seed.sql`, `llm.py`, web time labels), live API check on port 8010 (server stopped afterwards; no stray servers on 8000/8003/8004/8010). Web agent's in-progress Q-06/Q-23 files (`ui.js`, `service.py`, `index.html` cards) not reviewed.
+
+### Verdict
+Q-01 and Q-03 meet their "done when". No 🔴. One 🟠 (wording in the pitch plans, fixed). New 🟡s queued.
+
+| Check | Result | Notes |
+|---|---|---|
+| Q-01 summary goes through comms sender | ✅ | `main.py:246–257` → `messages.care_update_recipient` + `send_care_update`. Live: Ravi's family summary in Hindi with "स्वचालित देखभाल सहायक" disclosure + footer; nurse "missed" alert works (staff, not covered by family STOP). |
+| Q-01 STOP blocks + test | ✅ | `tests/test_comms.py::test_whatsapp_summary_endpoint_respects_consent_and_discloses`; blocked → `sent:false, dry_run:false, blocked, error`, nothing logged as sent. |
+| CONTRACT D shape | ✅ (doc updated) | Returns `{sent, dry_run, text, to_role}` (+ `blocked`, `blocked_reason`, `error` when blocked). ARCHITECTURE row still said `{sent, dry_run, text}` → **fixed** (additive, UI unaffected). |
+| Q-03 12-hour times | ✅ | Dashboard "slots 8 am–9 pm" via `hourRange`, patient page "8 am–9 pm", guardian ticks 12-hour (`guardian.html:99`); API keeps 24-hour numbers. |
+| Q-03 demo patients | ✅ | After **Reset demo data**: Abdul 63 CABG (red), Lakshmi 66 knee (yellow), Priya 44 cholecystectomy, Mohan 50 post-TB (red), **Sreedevi Nair 54, Malayalam** (green, husband Gopakumar `ml`, daughter in Dubai with quiet hours). Ids 1–7 kept; `seed.sql` matches. All fictional. |
+| Q-03 voice preset | ✅ not guessed | Pace 0.85, temperature 0.7 (clamped 0.01–1.0, sent only to bulbul v3/v4-flash, part of the cache key). Cited: `docs/VOICE.md:28` from docs.sarvam.ai TTS convert page + KNOWLEDGE_BASE F-VOICE-11 (Sarvam's "warm 0.7–0.8"). `/api/voice/status` shows both. |
+| Disease names kept out of family text | ✅ | `llm._prompt` no longer sends the operation; `_DIAGNOSIS_WORDS` adds tuberculosis/TB/cancer. Call script (nurse-facing) still gets the surgery – fine. |
+| "Never say" grep (web, backend, docs excl. research) | ✅ | "FDA" appears only as facts about InSee (competitor) and in the never-say lists. No "reduces readmissions", "first AI", "no licence needed", "prevents pneumonia" (except the never-say table), "clinically proven". |
+| CDSCO wording (round 5 URGENT) | 🟠 → fixed | Plans said "We couldn't confirm the class". |
+| Endpoints smoke | ✅ | health, patients, patient detail, simulate, messages, model, comms/status, voice/status, sessions; pages `/`, patient, guardian, demo, collect, showcase all 200. Server log: no errors. |
+| Tests | ⚪ not re-run | No code changed in this review; lead reports 62 passed at `f91b58f`. Web agent's files are mid-edit, so a run now would test their WIP. |
+
+### Issues
+🟡 15. **Malayalam family gets English.** Sreedevi's husband (`ml`) receives the summary, disclosure and footer in English, because comms has no Malayalam text (`comms/common.py:32` maps `ml` → `en` on purpose – better than Hindi). Malayalam is a showcase language → Q-28.
+🟡 16. **"0 of 0 sessions today" before 8 am.** A summary sent at night reads oddly; also "SpiroBuddy - Ravi Kumar:" repeats the brand after the disclosure line → Q-29.
+🟡 17. **Q-01/Q-03 had no PROGRESS line and HANDOFF wasn't refreshed** in `f91b58f`. PROGRESS line added now; HANDOFF → Q-30 (lead, at next commit).
+
+### Small fixes made (not committed)
+1. `docs/plans/SpiroBuddy_Complete_Plan.md:633,635,791` and `docs/plans/SpiroBuddy_Final_Research.md:47,89,91`: "couldn't confirm the class / get a ruling" → "The plain spirometer is CDSCO Class A (lowest risk, not diagnostic). Our measuring clip-on will need its own registration and licence." (judge answers aligned).
+2. `docs/ARCHITECTURE.md` CONTRACT D `/api/whatsapp/{id}` row: real response shape + consent note.
+3. `docs/PROGRESS.md`: Q-01/Q-03 line + Review 2 line.
+4. `docs/WORK_QUEUE.md`: Q-01, Q-02, Q-03, Q-05, Q-07, Q-08, Q-24, Q-26 done; new Q-28–Q-30; new "Next".
+
+### Waste
+None found: no duplicate work, no stray servers. Q-01 also removed most of 🟡-9 (two senders) – `whatsapp.py` is now only the transport plus `missed_text`.
