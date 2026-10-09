@@ -27,6 +27,12 @@
     answer: (id) => A().post(`/api/comms/calls/${id}/answer`, {}),
     press: (id, digit) => A().post(`/api/comms/calls/${id}/press`, { digit: String(digit) }),
     hangup: (id, reason) => A().post(`/api/comms/calls/${id}/hangup`, { reason }),
+    agentTurn: (id, text, source) => A().post(`/api/comms/calls/${id}/agent-turn`, { text, source: source || 'tap' }),
+    consentText: (pid, lang) => A().get(`/api/comms/consent-text/${pid}${lang ? '?lang=' + enc(lang) : ''}`),
+    consentAsk: (pid, to) => A().post(`/api/comms/consent/ask/${pid}`, { to: to || 'patient' }),
+    checkinCall: (pid) => A().post(`/api/comms/checkin-call/${pid}`, {}),
+    sarvamSamples: () => A().get('/api/comms/demo/sarvam-samples'),
+    sarvamReplay: (pid, sample) => A().post(`/api/comms/demo/sarvam-replay/${pid}`, { sample }),
     callPatient: (pid, nurseName) => A().post(`/api/comms/call-patient/${pid}`, { nurse_name: nurseName }),
     callScript: (pid) => A().post(`/api/comms/call-script/${pid}`, {}, { timeout: 45000 }),
     thread: (pid, role, gid) => A().get(`/api/comms/wa/thread/${pid}?role=${role}${gid ? '&guardian_id=' + gid : ''}`),
@@ -131,6 +137,21 @@
     return `<span class="tag ${run.status === 'resolved' ? 'sent' : run.status === 'completed' ? 'missed' : ''}">${esc(run.status)}</span> ${esc(OUT[run.outcome] || run.outcome || '')}`;
   }
 
+  /* check-in call result (Sarvam webhook / simulator / replay): neutral note, never a diagnosis */
+  const OUT_ICON = { red_flag: '🚨', needs_nurse_review: '⚠', unclear: '⚠', ok: '✓', no_answer: '📵', failed: '✖' };
+  function callResult(c) {
+    const r = c && c.result;
+    if (!r) return '';
+    const when = SB.ui.dateTimeLabel(c.created_at);
+    const via = c.provider === 'sarvam_agent' ? 'Sarvam Voice Agent' : c.provider === 'dry_run' ? 'phone simulator' : c.provider;
+    if (r.pending) return `<li class="o-pending"><b>🗣 AI check-in call – ${esc(r.label)}</b><div class="small muted">${esc(when)} · ${esc(via)}</div></li>`;
+    return `<li class="o-${esc(r.outcome)}"><b>${OUT_ICON[r.outcome] || '•'} ${esc(r.label)}</b>
+      ${r.possible_distress ? ' <span class="chip soft-warn" title="From call sentiment – low confidence, a nurse must confirm">possible distress – nurse to review</span>' : ''}
+      <div>${esc(r.neutral_note || '')}</div>
+      ${r.patient_words ? `<div class="words">Own words: “${esc(r.patient_words)}”</div>` : ''}
+      <div class="small muted">${esc(when)} · ${esc(via)}${r.transcript_reference ? ' · transcript ' + esc(r.transcript_reference) : ''}</div></li>`;
+  }
+
   /* ---------- header bell ---------- */
   function mountBell() {
     const right = document.querySelector('.header-right');
@@ -156,5 +177,5 @@
     }, 3000);
   }
 
-  SB.comms = { api, me, setMe, NURSES, speak, stopSpeaking, chime, ring, beep, unlockAudio, eventRow, stepper, runSummary, timeOnly, SEV_TEXT, BCP, mountBell };
+  SB.comms = { api, me, setMe, NURSES, speak, stopSpeaking, chime, ring, beep, unlockAudio, eventRow, stepper, runSummary, timeOnly, callResult, SEV_TEXT, BCP, mountBell };
 })();

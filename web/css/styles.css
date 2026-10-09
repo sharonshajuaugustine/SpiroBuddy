@@ -473,6 +473,22 @@ canvas.live { width: 100%; height: 260px; display: block; background: var(--surf
 .keypad button .k { width: 34px; height: 34px; border-radius: 50%; background: #fff; color: #0b6e8a; display: grid; place-items: center; font-size: 1.1rem; flex: none; }
 .keypad button:hover { background: rgba(255,255,255,.24); }
 .keypad .end { justify-content: center; background: #e53935; }
+/* conversational (AI agent) call in the phone simulator: speak, or tap a pre-written answer */
+.agent-talk { margin-top: auto; width: 100%; display: grid; gap: .45rem; padding-top: .6rem; }
+.agent-talk .mic { min-height: 64px; border-radius: 32px; border: 0; background: #fff; color: #0b6e8a; font: inherit; font-weight: 800; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; }
+.agent-talk .mic.rec { background: #e53935; color: #fff; animation: pulse 1s infinite; }
+.agent-talk .ans { min-height: 48px; border-radius: 14px; border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.12); color: #fff; font: inherit; font-size: .9rem; font-weight: 600; text-align: left; padding: .35rem .7rem; cursor: pointer; }
+.agent-talk .ans:hover { background: rgba(255,255,255,.22); }
+.agent-talk .hint { font-size: .75rem; opacity: .8; }
+.call-screen .agent-res { margin-top: .6rem; width: 100%; text-align: left; background: rgba(255,255,255,.95); color: #13202e; border-radius: 10px; padding: .55rem .7rem; font-size: .82rem; }
+.call-screen .agent-res b { display: block; margin-bottom: .2rem; }
+.call-res { list-style: none; margin: .25rem 0 0; padding: 0; display: grid; gap: .45rem; }
+.call-res li { border: 1px solid var(--border); border-left: 4px solid var(--brand); border-radius: var(--radius-sm); padding: .5rem .7rem; background: var(--surface); }
+.call-res li.o-red_flag { border-left-color: var(--red); background: var(--red-soft); }
+.call-res li.o-needs_nurse_review, .call-res li.o-unclear { border-left-color: var(--yellow-dot); }
+.call-res li.o-ok { border-left-color: var(--green-dot); }
+.call-res .words { font-style: italic; color: var(--text-2); }
+.chip.soft-warn { background: var(--yellow-soft); color: var(--yellow); border-color: var(--yellow-line); }
 .device { display: flex; align-items: center; gap: .75rem; border: 1px solid var(--border); border-radius: var(--radius); padding: .6rem .8rem; background: var(--surface-2); }
 .device .unit { width: 54px; height: 54px; border-radius: 14px; background: #e9eef3; border: 2px solid var(--border-strong); display: grid; place-items: center; flex: none; }
 .device .led { width: 18px; height: 18px; border-radius: 50%; background: #9aa7b4; box-shadow: inset 0 0 3px rgba(0,0,0,.35); }

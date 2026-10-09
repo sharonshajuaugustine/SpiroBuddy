@@ -7,10 +7,26 @@ one was set in the app, otherwise to DEMO_FAMILY_WHATSAPP / DEMO_NURSE_WHATSAPP.
 from __future__ import annotations
 
 import logging
+import threading
+import time
 
 from .config import env
 
 log = logging.getLogger("spirobuddy.whatsapp")
+
+MIN_GAP_S = 3.0          # Twilio WhatsApp sandbox: at most one message every 3 seconds
+_last_send = 0.0
+_send_lock = threading.Lock()
+
+
+def throttle() -> None:
+    """Wait so real WhatsApp sends are at least MIN_GAP_S apart (shared by every sender)."""
+    global _last_send
+    with _send_lock:
+        wait = MIN_GAP_S - (time.time() - _last_send)
+        if wait > 0:
+            time.sleep(wait)
+        _last_send = time.time()
 
 
 def whatsapp_enabled() -> bool:
@@ -36,6 +52,7 @@ def send(to_number: str | None, text: str) -> dict:
     """-> {sent, dry_run, error?}"""
     if not whatsapp_enabled() or not to_number:
         return {"sent": False, "dry_run": True}
+    throttle()
     try:
         from twilio.rest import Client
         client = Client(env("TWILIO_ACCOUNT_SID"), env("TWILIO_AUTH_TOKEN"))

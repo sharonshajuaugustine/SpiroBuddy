@@ -25,8 +25,8 @@ CIRCLES = {
              phone="+91 98450 1XXXX", is_primary=True, token="ravi-amit-demo"),
         dict(name="Pooja Kumar", relation="daughter-in-law", city="Lucknow (at home)", language="hi",
              channel="call", phone="+91 94150 3XXXX"),
-        dict(name="Neha Verma", relation="daughter", city="Pune", language="en", channel="whatsapp",
-             phone="+91 98220 4XXXX", quiet_start="22:30", quiet_end="07:00"),
+        dict(name="Neha Verma", relation="daughter", city="Dubai (lives abroad)", language="en",
+             channel="whatsapp", phone="+971 50 123 XXXX", quiet_start="22:30", quiet_end="07:00"),
     ]},
     2: {"phone": "+91 98100 5XXXX", "guardians": [
         dict(name="Rohit Sharma", relation="husband", city="Delhi (at home)", language="en",

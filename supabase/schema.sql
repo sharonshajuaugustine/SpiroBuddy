@@ -172,8 +172,8 @@ create table if not exists public.calls (
   to_role      text,
   to_name      text,
   to_number    text,
-  purpose      text,     -- reminder | guardian | nurse_bridge | red_flag
-  provider     text,     -- twilio | exotel | dry_run
+  purpose      text,     -- reminder | checkin (AI conversation) | guardian | guardian_red_flag | nurse_bridge
+  provider     text,     -- twilio | exotel | sarvam_agent | dry_run (provider_sid = Sarvam attempt_id)
   provider_sid text,
   status       text,
   digits       text,
@@ -215,6 +215,7 @@ create table if not exists public.inbound_messages (
 create index if not exists alerts_status_idx   on public.alerts (status, patient_id);
 create index if not exists events_patient_idx  on public.escalation_events (patient_id, created_at desc);
 create index if not exists calls_status_idx    on public.calls (status);
+create index if not exists calls_sid_idx       on public.calls (provider_sid);   -- Sarvam webhook lookup
 create index if not exists esc_status_idx      on public.escalations (status);
 
 alter table public.guardians         enable row level security;

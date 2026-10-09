@@ -125,6 +125,51 @@ States: `IDLE → INHALING → HOLDING → FALLING → IDLE`
 - green: otherwise
 - `due` = slots from 8:00 up to the current hour (max 14). Times use `TZ_NAME` (default `Asia/Kolkata`).
 
+### D2 – comms (`backend/app/routes_comms.py`, prefix `/api/comms`; plain-English guide: `docs/COMMS.md`)
+Everything works with no keys (dry run + browser simulators). Code: `backend/app/comms/` (common, guardians, alerts, messages, calls, sarvam, consent, escalation, trend, cards, script, audio, progress, seed_comms). Browser: `web/js/comms.js` (`SB.comms.api.*`), `comms-dashboard.js`, `comms-patient.js`, `phone-sim.js`, `web/guardian.html`.
+
+| Method & path | Body / query | Returns / does |
+|---|---|---|
+| GET /status | – | providers (`calls_provider`, `checkin_provider`: twilio\|exotel\|sarvam_agent\|dry_run), `sarvam_agent_ready`, `sarvam_agent_missing`, WhatsApp state + `whatsapp_hint` (sandbox rejoin) + `whatsapp_last`, quiet hours, ticker |
+| POST /tick | – | runs one ladder pass now |
+| GET /alerts | `?status=active\|open\|acknowledged\|snoozed\|resolved\|all&patient_id&limit` | alerts `{id, patient_id, patient_name, kind, kind_label, severity red\|amber\|info, title, detail, status, assigned_to, snooze_until, run_id, created_at}`; kinds: missed, red_flag, no_answer, low_trend, callback, help, question, call_review |
+| GET /alerts/counts | `?me=` | `{open, red, amber, acknowledged, snoozed, mine, by_patient}` |
+| POST /alerts/{id}/{action} | action = ack\|snooze\|assign\|resolve\|reopen; `{by, minutes?, to?}` | alert |
+| GET /escalations | `?patient_id&active&limit` | ladder runs `{id, status, speed, steps:[{key,label,state}], outcome, seconds_to_next, held_until, red_flag,…}` |
+| POST /escalations/start/{pid} | `{speed: real\|fast, reason?, override_quiet?}` | run |
+| POST /escalations/{id}/stop · /advance | `{by?}` | run (advance = run the next step now) |
+| POST /demo/ladder/{pid} | `{override_quiet?}` | demo fast-forward run (≈60 s) |
+| POST /demo/red-flag/{pid} · /demo/trend/{pid} | `{text?}` | red-flag flow / trend check |
+| GET /timeline/{pid} · GET /events | `?limit` · `?since_id&limit&patient_id` | timeline events `{id, kind, icon, title, detail, status, channel, actor, run_id, created_at}` |
+| GET /calls · GET /calls/{id} | `?active&patient_id&limit` | calls `{id, to_role, purpose: reminder\|checkin\|guardian\|guardian_red_flag\|nurse_bridge, provider, style: ivr\|agent, status, script, answers[], result:{pending, label, outcome, neutral_note, patient_words, red_flag, callback_requested, possible_distress, transcript_reference}\|null, simulated}` |
+| POST /calls/{id}/answer · /hangup | `{reason?: hangup\|declined}` | call (simulator) |
+| POST /calls/{id}/press | `{digit: 1\|2\|3}` | `{say, end, dial, call}` – keypad (IVR) calls only |
+| POST /calls/{id}/agent-turn | `{text, source: voice\|tap}` | `{say, end, stage, answers, result?, call}` – simulated AI conversation |
+| POST /checkin-call/{pid} | `{missed?}` | AI check-in call (Sarvam Voice Agent, else simulator); **409** without consent |
+| POST /webhooks/sarvam | `?token=SARVAM_WEBHOOK_SECRET`; Sarvam Instant Outbound payload | `{ok, duplicate, call_id, result}` (normalised: `{provider, status, outcome: ok\|needs_nurse_review\|red_flag\|unclear\|no_answer\|failed, reason_category, patient_words, neutral_note, red_flag, callback_requested, transcript_reference, possible_distress}`); 403 bad token, 404 unknown attempt; idempotent |
+| GET /demo/sarvam-samples · POST /demo/sarvam-replay/{pid} | `{sample: pain\|red_flag\|fine\|no_answer}` | saved webhook payloads (`comms/samples/sarvam_webhooks.json`) fed through the real handler |
+| POST /call-patient/{pid} | `{nurse_name, nurse_phone?}` | nurse click-to-call (nurse rings first) |
+| POST /call-script/{pid} | – | `{text, source: llm\|template, facts}` |
+| GET+POST /twilio/voice/{cid} · POST /twilio/gather/{cid} · /twilio/status/{cid} | Twilio form | TwiML |
+| GET /exotel/greeting · /exotel/gather · /exotel/passthru · POST /exotel/status/{cid} | Exotel applet query (`CustomField` = call id) | text / JSON |
+| POST /webhooks/whatsapp · /webhooks/whatsapp/status | Twilio form (From, Body, ButtonPayload) | `<Response/>`; keywords 1/2/3, done, status/स्थिति, help (red flag), STOP/रोको/நிறுத்து |
+| GET /wa/thread/{pid} | `?role=patient\|guardian&guardian_id` | simulator chat `{items:[{dir, kind, text, buttons, image?, audio?}]}` |
+| POST /wa/reply | `{patient_id, role, text?, payload?, guardian_id?}` | `{intent, reply}` (same logic as the webhook) |
+| GET /card/{pid}.png · POST /weekly-card/{pid} | `?lang` · `{to, language?}` | weekly progress card PNG / send it |
+| POST /voice-note/{pid} | `{to}` | evening summary voice note `{audio_url?, speak_text}` |
+| GET/PUT /care/{pid} | `{patient_phone, consent, renew_consent, quiet_start, quiet_end, trigger_missed, auto, snooze_min, ring_s, call_style: ivr\|agent, steps}` | `{settings (+consent_ok, consent_age_days, consent_renew_due), guardians}` |
+| POST /guardians · PUT/DELETE /guardians/{id} | `{patient_id, name, relation, phone (any country code), language, channel, quiet_*, is_primary, consent, new_link}` | guardian (+ magic `link`) |
+| GET /consent-text/{pid} | `?lang` | `{text, items[], valid_days: 7, stop_word, audio_url}` – read aloud to the patient |
+| POST /consent/ask/{pid} | `{to: patient\|family, guardian_id?}` | weekly WhatsApp question "keep reminders? ✅ yes / ⛔ STOP" |
+| GET /guardian/{token} | – | family page data (status, ticks, streak, last breath, call, cheers, quiet hours) |
+| POST /guardian/{token}/cheer · PUT /guardian/{token}/quiet · POST /guardian/{token}/call-log | `{preset}` · `{quiet_start, quiet_end}` · – | family actions (no login) |
+| GET /cheers/{pid} · POST /cheers/{id}/played | `?status` | cheers |
+| GET /trend/{pid} | – | `{flag, today_best, avg3, pct_below, text}` (observation, never a diagnosis) |
+| GET /patient/{pid} | – | one poll for the patient page: active run, runs, alerts, trend, calls, guardians, settings |
+
+Rules in code, not in the AI: red flags = fixed word lists (`voice.red_flag` + `messages.RED_FLAG_RE`); consent = flag + date, real automated calls only while consent is under 7 days old (`common.consent_current`); quiet hours default 21:00–07:00 IST; real WhatsApp sends ≥ 3 s apart; every automated call/message opens with the AI disclosure in the person's language.
+Tables added (SQLite + `supabase/schema.sql`): guardians, care_settings, alerts, escalations, escalation_events, calls, cheers, inbound_messages.
+
 ## 7. ML
 - `ml/synth.py` generates volume curves per label with noise, so a model exists before any real data. It also exposes `make_breath(label, target_ml, rng)` → `(samples, features)` used by `/api/demo/simulate`.
 - `ml/train.py` trains on synthetic + `backend/data/breaths_labelled.csv` (real data weighted ×3). It saves `ml/model.joblib` and `ml/metrics.json`.
@@ -136,6 +181,7 @@ States: `IDLE → INHALING → HOLDING → FALLING → IDLE`
 
 ## 9. Environment variables (.env locally, Render dashboard when hosted)
 `DEMO_MODE=1`, `DATA_BACKEND=demo|supabase` (default `demo`), `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (server only, never sent to the browser), `TZ_NAME=Asia/Kolkata`, `ANTHROPIC_API_KEY`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM` (e.g. `whatsapp:+14155238886`), `DEMO_FAMILY_WHATSAPP`, `DEMO_NURSE_WHATSAPP`, `SARVAM_API_KEY` (optional), `PORT=8000`.
+Comms (calls, WhatsApp, Sarvam Voice Agent, demo routing, quiet hours): `CALL_PROVIDER`, `TWILIO_VOICE_FROM`, `EXOTEL_*`, `SARVAM_AGENT_*`/`SARVAM_ORG_ID`/`SARVAM_WORKSPACE_ID`/`SARVAM_CONNECTION_ID`/`SARVAM_WEBHOOK_SECRET`, `DEMO_PATIENT_PHONE`/`DEMO_GUARDIAN_PHONE`/`DEMO_NURSE_PHONE`, `NURSE_DESK_PHONE`, `QUIET_HOURS`, `COMMS_*` – listed with comments in `.env.example`, explained in `docs/COMMS.md` §8.
 If `DATA_BACKEND=supabase` but the keys are missing or Supabase is unreachable at start-up → log a warning and use demo (SQLite).
 
 ## 10. Data store (same tables in SQLite and Supabase Postgres)

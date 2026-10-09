@@ -55,6 +55,9 @@
       demoCall: { en: 'Demo: this would dial {P}\'s phone ({num}).', hi: 'डेमो: यह {P} का फ़ोन ({num}) मिलाएगा।', ta: 'டெமோ: இது {P}-இன் தொலைபேசியை ({num}) அழைக்கும்.' },
       foot: { en: 'Automated updates from SpiroBuddy. SpiroBuddy does not diagnose. In an emergency, call 112.', hi: 'SpiroBuddy से स्वचालित जानकारी। SpiroBuddy बीमारी नहीं बताता। आपातकाल में 112 पर कॉल करें।', ta: 'SpiroBuddy தானியங்கி தகவல்கள். இது நோயைக் கண்டறியாது. அவசரத்தில் 112 ஐ அழைக்கவும்.' },
       bad: { en: 'This link is not valid any more. Please ask the hospital for a new one.', hi: 'यह लिंक अब मान्य नहीं है। कृपया अस्पताल से नया लिंक माँगें।', ta: 'இந்த இணைப்பு இனி செல்லாது. மருத்துவமனையிடம் புதியதைக் கேளுங்கள்.' },
+      quietT: { en: '🌙 Quiet hours – no calls or messages to you', hi: '🌙 शांत समय – आपको कोई कॉल या संदेश नहीं', ta: '🌙 அமைதி நேரம் – உங்களுக்கு அழைப்பு, செய்தி இல்லை' },
+      quietSub: { en: 'Except an emergency (red flag). Tap to change:', hi: 'आपातकाल (रेड फ़्लैग) को छोड़कर। बदलने के लिए दबाएँ:', ta: 'அவசரம் தவிர. மாற்ற தட்டவும்:' },
+      quietSaved: { en: 'Saved ✓', hi: 'सेव हो गया ✓', ta: 'சேமிக்கப்பட்டது ✓' },
       offline: { en: 'No internet right now – showing the last update.', hi: 'अभी इंटरनेट नहीं है – पिछली जानकारी दिख रही है।', ta: 'இணையம் இல்லை – கடைசி தகவல்.' },
     };
     const BCP = { en: 'en-IN', hi: 'hi-IN', ta: 'ta-IN' };
@@ -107,6 +110,8 @@
         <div class="g-card"><div class="g-label">${esc(t('last'))}</div><div class="g-big" style="font-size:2rem">${d.last ? esc(agoText(d.last.minutes_ago)) : esc(t('none'))}</div>${d.last && d.last.best_ml ? `<div class="g-label">${Math.round(d.last.best_ml).toLocaleString()} mL</div>` : ''}</div>
         <div class="g-card"><div class="g-label">${esc(t('ticks'))}</div><div class="g-ticks">${ticks}</div></div>
         ${d.cheers_queued ? `<p class="g-label" style="text-align:center">💛 ${esc(t('queued', { n: d.cheers_queued }))}</p>` : ''}
+        ${d.quiet ? `<div class="g-card"><div class="g-label"><b>${esc(t('quietT'))}</b></div><div class="g-big" style="font-size:2rem">${esc(d.quiet.start)} – ${esc(d.quiet.end)}</div><div class="g-label">${esc(t('quietSub'))}</div>
+          <div class="g-choices">${(d.quiet.presets || []).map(([a, b]) => `<button type="button" data-quiet="${esc(a)}|${esc(b)}" aria-pressed="${a === d.quiet.start && b === d.quiet.end}">${esc(a)} – ${esc(b)}${a === d.quiet.start && b === d.quiet.end ? ' ✓' : ''}</button>`).join('')}</div></div>` : ''}
         <button class="g-btn listen" type="button" data-listen>${esc(t('listen'))}</button>`;
     }
 
@@ -122,6 +127,16 @@
       if (call) {
         fetch(`/api/comms/guardian/${encodeURIComponent(token)}/call-log`, { method: 'POST' }).catch(() => {});
         if (!d.call.tel) { e.preventDefault(); sentMsg = t('demoCall', { P: P(), num: d.call.display || '—' }); render(); }
+        return;
+      }
+      const qb = e.target.closest('[data-quiet]');
+      if (qb) {
+        const [qs, qe] = qb.dataset.quiet.split('|');
+        qb.disabled = true;
+        try {
+          await fetch(`/api/comms/guardian/${encodeURIComponent(token)}/quiet`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quiet_start: qs, quiet_end: qe }) });
+          sentMsg = t('quietSaved'); await load();
+        } catch (_) { qb.disabled = false; }
         return;
       }
       const pr = e.target.closest('[data-preset]');

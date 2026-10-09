@@ -6,7 +6,8 @@ import copy
 import secrets
 
 from ..config import iso
-from .common import (LANGS, call_name, default_quiet, first_name, now, st, to_dt, valid_hm)
+from .common import (CONSENT_RENEW_DAYS, LANGS, call_name, consent_age_days, default_quiet,
+                     first_name, has_consent, now, st, to_dt, valid_hm)
 
 STEP_KEYS = ["device", "patient_whatsapp", "patient_call", "guardian", "nurse"]
 STEP_LABELS = {
@@ -19,6 +20,7 @@ STEP_LABELS = {
 DEFAULT_DELAYS = {"device": 0, "patient_whatsapp": 10, "patient_call": 10, "guardian": 15,
                   "nurse": 15}
 CHANNELS = ("whatsapp", "call", "sms", "both")
+CALL_STYLES = ("ivr", "agent")
 
 
 def default_config() -> dict:
@@ -34,6 +36,9 @@ def default_config() -> dict:
         "auto": True,                 # start the ladder automatically
         "snooze_min": 15,
         "ring_s": 30,                 # how long a real call rings before "no answer"
+        # Patient reminder call: "ivr" = press 1/2/3 menu; "agent" = conversational AI check-in
+        # ("Are you okay? Why did you miss it?" – Sarvam Voice Agent, or the browser simulator).
+        "call_style": "ivr",
         "steps": [{"key": k, "enabled": True, "delay_min": DEFAULT_DELAYS[k]} for k in STEP_KEYS],
     }
 
@@ -77,12 +82,18 @@ def put_settings(pid: int, patch: dict) -> dict:
             cfg[k] = n
     if patch.get("auto") is not None:
         cfg["auto"] = bool(patch["auto"])
+    if patch.get("call_style") is not None:
+        if patch["call_style"] not in CALL_STYLES:
+            raise ValueError("call_style must be ivr or agent")
+        cfg["call_style"] = patch["call_style"]
     if patch.get("consent") is not None:
         if bool(patch["consent"]) and not cfg.get("consent"):
             cfg["consent_at"] = iso(now())
         cfg["consent"] = bool(patch["consent"])
         if not cfg["consent"]:
             cfg["consent_at"] = None
+    if patch.get("renew_consent") and cfg.get("consent"):
+        cfg["consent_at"] = iso(now())          # consent re-confirmed today
     if isinstance(patch.get("steps"), list):
         by_key = {s.get("key"): s for s in patch["steps"] if isinstance(s, dict)}
         new = []
@@ -107,7 +118,16 @@ def settings_public(pid: int) -> dict:
     cfg = copy.deepcopy(get_settings(pid))
     for s in cfg["steps"]:
         s["label"] = STEP_LABELS[s["key"]]
+    _consent_info(cfg, cfg)
     return cfg
+
+
+def _consent_info(out: dict, src: dict) -> None:
+    """consent_ok = flag + date recorded; renew_due = older than 7 days (TRAI 'ongoing use')."""
+    age = consent_age_days(src)
+    out["consent_ok"] = has_consent(src)
+    out["consent_age_days"] = age
+    out["consent_renew_due"] = bool(out["consent_ok"] and age is not None and age >= CONSENT_RENEW_DAYS)
 
 
 # ----------------------------------------------------------------------------- guardians
@@ -217,6 +237,7 @@ def public_guardian(g: dict, patient: dict | None = None) -> dict:
     out["consent"] = bool(g.get("consent"))
     ca = to_dt(g.get("consent_at"))
     out["consent_at"] = iso(ca) if ca else None
+    _consent_info(out, g)
     out["link"] = f"guardian.html?t={g.get('token')}"
     if patient:
         out["calls_patient"] = call_name(g.get("relation"), patient, g.get("language") or "en")

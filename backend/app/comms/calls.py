@@ -1,6 +1,9 @@
 """Automated calls (IVR: press 1 / 2 / 3) and nurse click-to-call.
 
-Providers (CALL_PROVIDER = auto | twilio | exotel | dry_run, default auto):
+Providers (CALL_PROVIDER = auto | twilio | exotel | sarvam_agent | dry_run, default auto):
+  - sarvam_agent : conversational AI check-in call ("Are you okay? Why did you miss it?") through a
+             Sarvam Voice Agent on an Indian number (comms/sarvam.py). Used for the patient's call
+             when the care setting call_style = "agent". Spoken answers (Sarvam DTMF is planned).
   - exotel : Indian caller ID (ExoPhone) – the production choice for India. Needs EXOTEL_* and a
              call flow built in the Exotel dashboard that points at our webhooks (docs/COMMS.md).
   - twilio : demo provider. Twilio calls to Indian numbers show an *international* caller ID
@@ -42,12 +45,24 @@ def exotel_ready() -> bool:
                 and env("EXOTEL_CALLER_ID"))
 
 
-def provider() -> tuple[str, str]:
-    """-> (provider, note)."""
+def sarvam_ready() -> bool:
+    from . import sarvam
+    return sarvam.ready()
+
+
+def provider(purpose: str | None = None) -> tuple[str, str]:
+    """-> (provider, note). purpose="checkin" = the conversational AI call (Sarvam or simulator);
+    anything else = the keypad (IVR) call through Exotel / Twilio / simulator."""
     pref = env("CALL_PROVIDER", "auto").lower()
     if pref == "dry_run":
         return "dry_run", "CALL_PROVIDER=dry_run"
     base = public_base()
+    if purpose == "checkin":
+        if pref in ("auto", "sarvam_agent") and sarvam_ready():
+            if not base:
+                return "dry_run", "Sarvam agent settings found but PUBLIC_BASE_URL missing (Sarvam can't reach our webhook)"
+            return "sarvam_agent", "Sarvam Voice Agent (AI check-in call, Indian number)"
+        return "dry_run", "no Sarvam Voice Agent settings – the AI check-in call runs in the browser phone simulator"
     want = []
     if pref in ("auto", "exotel"):
         want.append("exotel")
@@ -169,15 +184,21 @@ def nurse_desk_number() -> str | None:
 # ----------------------------------------------------------------------------- rows
 
 def public_call(c: dict) -> dict:
+    from . import sarvam
     lang = lang_of(c.get("language"), "en")
     created, ring = to_dt(c.get("created_at")), to_dt(c.get("ring_until"))
-    return {"id": c.get("id"), "patient_id": c.get("patient_id"), "run_id": c.get("run_id"),
+    meta = c.get("meta") if isinstance(c.get("meta"), dict) else {}
+    style = meta.get("style") or "ivr"
+    return {"style": style, "result": sarvam.public_result(c), "note": meta.get("note"),
+            "answers": (sarvam.ANSWERS[min(int(meta.get("stage") or 0), 1)][lang]
+                        if style == "agent" and not meta.get("result") else []),
+            "id": c.get("id"), "patient_id": c.get("patient_id"), "run_id": c.get("run_id"),
             "guardian_id": c.get("guardian_id"), "to_role": c.get("to_role"),
             "to_name": c.get("to_name"), "to_number": c.get("to_number"),
             "purpose": c.get("purpose"), "provider": c.get("provider"),
             "status": c.get("status"), "digits": c.get("digits"), "outcome": c.get("outcome"),
             "language": lang, "browser_lang": BROWSER_LANG[lang], "script": c.get("script"),
-            "audio_url": (c.get("meta") or {}).get("audio_url") if isinstance(c.get("meta"), dict) else None,
+            "audio_url": meta.get("audio_url"),
             "simulated": c.get("provider") == "dry_run",
             "ring_until": iso(ring) if ring else None,
             "created_at": iso(created) if created else None}
@@ -207,19 +228,28 @@ def list_calls(active_only: bool = False, patient_id: int | None = None, limit: 
 
 def place_call(patient: dict, purpose: str, to_role: str, to_name: str, stored_number: str | None,
                lang: str, run_id: int | None = None, guardian: dict | None = None,
-               ring_s: int = 30, consent: bool = True, missed: int = 2) -> dict | None:
+               ring_s: int = 30, consent: bool = False, missed: int = 2,
+               style: str = "ivr", consent_fresh: bool = True) -> dict | None:
     """Create a call row and ring it (real provider or the browser simulator).
+    `consent` must be True (flag + date recorded, common.has_consent) or the call is skipped.
+    style="agent" turns the patient's reminder into the conversational AI check-in call.
     Returns the public call, or None when skipped (no consent)."""
     lang = lang_of(lang, "en")
     actor = "guardian" if to_role == "guardian" else "patient"
     kind = "guardian_call" if to_role == "guardian" else "call"
     if not consent:
         log_event(patient["id"], kind, f"Call to {to_name} skipped – no recorded consent for automated calls",
-                  detail="Record consent in Care circle settings (TRAI / Twilio India rules).",
+                  detail="Record consent (yes + date) in Care circle settings before any automated call "
+                         "(TRAI 2026 A2P rules, Twilio India guidelines, DPDP Act).",
                   channel="call", actor=actor, to_name=to_name, status="skipped", run_id=run_id)
         return None
+    if to_role == "patient" and purpose == "reminder" and style == "agent":
+        return _place_checkin(patient, to_name, stored_number, lang, run_id, ring_s, missed,
+                              consent_fresh)
     script = menu_text(purpose, patient, lang, guardian, missed)
     prov, note = provider()
+    if prov != "dry_run" and not consent_fresh:
+        prov, note = "dry_run", "consent is older than 7 days (TRAI 'ongoing use' rule) – real call blocked until the person says yes again; simulator only"
     number = resolve_number(stored_number, "guardian" if to_role == "guardian" else "patient")
     if prov != "dry_run" and not number:
         prov, note = "dry_run", "no real number for this person (demo placeholder) – simulator only"
@@ -254,10 +284,54 @@ def place_call(patient: dict, purpose: str, to_role: str, to_name: str, stored_n
         return public_call(get_call(cid) or call)
     label = {"dry_run": "ringing in the phone simulator (dry run)", "twilio": "via Twilio",
              "exotel": "via Exotel"}[prov]
+    if prov == "twilio" and number and number.startswith("+91"):
+        label += " (international caller ID – Twilio India rule)"
     log_event(patient["id"], kind, f"Automated call to {to_name} – {label}",
               detail=script, channel="call", actor=actor, to_name=to_name,
               status="dry_run" if prov == "dry_run" else "sent", run_id=run_id, ref_id=cid)
     return public_call(get_call(cid) or call)
+
+
+def _place_checkin(patient: dict, to_name: str, stored_number: str | None, lang: str,
+                   run_id: int | None, ring_s: int, missed: int,
+                   consent_fresh: bool = True) -> dict:
+    """Conversational AI check-in call: Sarvam Voice Agent, or the browser simulator."""
+    from . import sarvam
+    script = sarvam.greeting(patient, lang, missed)
+    prov, note = provider("checkin")
+    if prov != "dry_run" and not consent_fresh:
+        prov, note = "dry_run", "consent is older than 7 days (TRAI 'ongoing use' rule) – real call blocked until the person says yes again; simulator only"
+    number = resolve_number(stored_number, "patient")
+    if prov != "dry_run" and not number:
+        prov, note = "dry_run", "no real number for this person (demo placeholder) – simulator only"
+    t = now()
+    row = {"patient_id": patient["id"], "run_id": run_id, "guardian_id": None, "to_role": "patient",
+           "to_name": to_name, "to_number": stored_number or number, "purpose": "checkin",
+           "provider": prov, "provider_sid": None,
+           "status": "ringing" if prov == "dry_run" else "queued", "digits": None, "outcome": None,
+           "language": lang, "script": script,
+           "meta": {"style": "agent", "note": note, "missed": missed, "stage": 0,
+                    "result_pending": True, "audio_url": audio.tts_url(script, lang)},
+           "ring_until": iso(t + timedelta(seconds=ring_s if prov == "dry_run" else 90)),
+           "created_at": iso(t), "updated_at": iso(t)}
+    call = st().insert("calls", [row])[0]
+    if prov == "sarvam_agent":
+        err = sarvam.place(call, patient, number, lang, missed)
+        if err:
+            _update(call["id"], provider="dry_run", status="ringing",
+                    ring_until=iso(now() + timedelta(seconds=ring_s)),
+                    meta={**row["meta"], "error": err, "note": f"Sarvam call failed: {err[:120]}"})
+            log_event(patient["id"], "call",
+                      f"Sarvam AI call to {to_name} failed – would call; ringing in the phone simulator instead",
+                      detail=err, channel="call", actor="patient", to_name=to_name, status="failed",
+                      run_id=run_id, ref_id=call["id"])
+            return public_call(get_call(call["id"]) or call)
+    label = ("via Sarvam Voice Agent – result pending until Sarvam's webhook arrives"
+             if prov == "sarvam_agent" else "ringing in the phone simulator (AI conversation, dry run)")
+    log_event(patient["id"], "call", f"AI check-in call to {to_name} – {label}", detail=script,
+              channel="call", actor="patient", to_name=to_name,
+              status="sent" if prov == "sarvam_agent" else "dry_run", run_id=run_id, ref_id=call["id"])
+    return public_call(get_call(call["id"]) or call)
 
 
 def _twilio_client():
@@ -420,7 +494,11 @@ def expire_simulated() -> int:
         elif c["status"] == "in-progress":
             upd = to_dt(c.get("updated_at"))
             if upd and (t - upd).total_seconds() > 90:
-                finish(c["id"], "completed", "simulator (hung up)")
+                if isinstance(c.get("meta"), dict) and c["meta"].get("style") == "agent":
+                    from . import sarvam
+                    sarvam.sim_finish(c["id"], "simulator (no reply for 90 s)")
+                else:
+                    finish(c["id"], "completed", "simulator (hung up)")
                 n += 1
     return n
 

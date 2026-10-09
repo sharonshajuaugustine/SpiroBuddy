@@ -114,6 +114,7 @@ CREATE TABLE IF NOT EXISTS inbound_messages (
 CREATE INDEX IF NOT EXISTS idx_alerts_status ON alerts(status, patient_id);
 CREATE INDEX IF NOT EXISTS idx_events_patient ON escalation_events(patient_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_calls_status ON calls(status);
+CREATE INDEX IF NOT EXISTS idx_calls_sid ON calls(provider_sid);
 CREATE INDEX IF NOT EXISTS idx_sessions_patient ON sessions(patient_id, slot_date);
 CREATE INDEX IF NOT EXISTS idx_breaths_session ON breaths(session_id);
 CREATE INDEX IF NOT EXISTS idx_slots_date ON slots(slot_date);

@@ -1,0 +1,111 @@
+{
+  "_about": "Saved Sarvam Voice Agent 'Instant Outbound' webhook payloads for the demo replay (POST /api/comms/demo/sarvam-replay/{patient_id}). Shape copied from https://docs.sarvam.ai/conversations/api/instant-outbound/webhook-payload (read 9 Oct 2026). attempt_id and webhook_config.metadata are filled in at replay time. final_agent_variables are the OUTPUT variables we ask the agent to extract (docs/COMMS.md section 5). Fake patients only.",
+  "samples": {
+    "pain": {
+      "label": "Ravi: mild pain near the incision (nurse review)",
+      "patient_id": 1,
+      "payload": {
+        "attempt_id": "REPLACED_AT_REPLAY",
+        "status": "connected",
+        "channel_info": {"channel_type": "v2v", "channel_provider": "vobiz", "agent_phone_number": "+91804XXXXXXX"},
+        "duration": 48.2,
+        "interaction_id": "20261009/demo-ravi-pain",
+        "failure_reason": null,
+        "final_agent_variables": {
+          "patient_id": "1",
+          "patient_name": "Ravi",
+          "language": "Hindi",
+          "missed_slots": "2",
+          "callback_number": "+91XXXXXXXXXX",
+          "reason_category": "pain",
+          "patient_words": "I had mild pain near the incision this morning.",
+          "callback_requested": "yes",
+          "sentiment": "neutral"
+        },
+        "webhook_config": {"url": "REPLACED_AT_REPLAY", "metadata": null},
+        "interaction_transcript": [
+          {"role": "agent", "en_text": "Namaste, this is SpiroBuddy's automated care assistant, calling from the hospital. Ravi ji, we noticed you missed your breathing exercise twice. Are you okay, and would you like to tell me why?"},
+          {"role": "user", "en_text": "I had mild pain near the incision this morning."},
+          {"role": "agent", "en_text": "Thank you for telling me. I will pass that to your care team. If the pain is severe, new, or you feel breathless, please seek urgent help. Would you like your nurse to call you back?"},
+          {"role": "user", "en_text": "Yes, please."},
+          {"role": "agent", "en_text": "Okay, your nurse will call you back soon. Please try ten slow, deep breaths when you can. Goodbye."}
+        ]
+      }
+    },
+    "red_flag": {
+      "label": "Ravi: \"I can't breathe properly\" (red flag)",
+      "patient_id": 1,
+      "payload": {
+        "attempt_id": "REPLACED_AT_REPLAY",
+        "status": "connected",
+        "channel_info": {"channel_type": "v2v", "channel_provider": "vobiz", "agent_phone_number": "+91804XXXXXXX"},
+        "duration": 31.5,
+        "interaction_id": "20261009/demo-ravi-redflag",
+        "failure_reason": null,
+        "final_agent_variables": {
+          "patient_id": "1",
+          "patient_name": "Ravi",
+          "language": "Hindi",
+          "missed_slots": "2",
+          "callback_number": "+91XXXXXXXXXX",
+          "reason_category": "other",
+          "patient_words": "I can't breathe properly since last night.",
+          "callback_requested": "yes",
+          "sentiment": "negative"
+        },
+        "webhook_config": {"url": "REPLACED_AT_REPLAY", "metadata": null},
+        "interaction_transcript": [
+          {"role": "agent", "en_text": "Namaste, this is SpiroBuddy's automated care assistant, calling from the hospital. Ravi ji, we noticed you missed your breathing exercise twice. Are you okay, and would you like to tell me why?"},
+          {"role": "user", "en_text": "I can't breathe properly since last night."},
+          {"role": "agent", "en_text": "Please contact your nurse now. If it's an emergency, call 112. I am telling your nurse right away."}
+        ]
+      }
+    },
+    "fine": {
+      "label": "Ravi: forgot, will do it now (no concern)",
+      "patient_id": 1,
+      "payload": {
+        "attempt_id": "REPLACED_AT_REPLAY",
+        "status": "connected",
+        "channel_info": {"channel_type": "v2v", "channel_provider": "vobiz", "agent_phone_number": "+91804XXXXXXX"},
+        "duration": 27.9,
+        "interaction_id": "20261009/demo-ravi-fine",
+        "failure_reason": null,
+        "final_agent_variables": {
+          "patient_id": "1",
+          "patient_name": "Ravi",
+          "language": "Hindi",
+          "missed_slots": "2",
+          "callback_number": "+91XXXXXXXXXX",
+          "reason_category": "forgot",
+          "patient_words": "I forgot, I was watching TV. I will do it now.",
+          "callback_requested": "no",
+          "sentiment": "positive"
+        },
+        "webhook_config": {"url": "REPLACED_AT_REPLAY", "metadata": null},
+        "interaction_transcript": [
+          {"role": "agent", "en_text": "Namaste, this is SpiroBuddy's automated care assistant, calling from the hospital. Ravi ji, we noticed you missed your breathing exercise twice. Are you okay, and would you like to tell me why?"},
+          {"role": "user", "en_text": "I forgot, I was watching TV. I will do it now."},
+          {"role": "agent", "en_text": "That's good to hear. Would you like your nurse to call you back?"},
+          {"role": "user", "en_text": "No, I am fine."},
+          {"role": "agent", "en_text": "Okay. Please try ten slow, deep breaths now. Goodbye."}
+        ]
+      }
+    },
+    "no_answer": {
+      "label": "Nobody picked up",
+      "patient_id": 1,
+      "payload": {
+        "attempt_id": "REPLACED_AT_REPLAY",
+        "status": "no_answer",
+        "channel_info": {"channel_type": "v2v", "channel_provider": "vobiz", "agent_phone_number": "+91804XXXXXXX"},
+        "duration": null,
+        "interaction_id": null,
+        "failure_reason": null,
+        "final_agent_variables": null,
+        "webhook_config": {"url": "REPLACED_AT_REPLAY", "metadata": null},
+        "interaction_transcript": null
+      }
+    }
+  }
+}

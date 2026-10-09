@@ -41,14 +41,14 @@ def first_name(name: str | None) -> str:
 # ----------------------------------------------------------------------------- quiet hours (IST)
 
 def default_quiet() -> tuple[str, str]:
-    """QUIET_HOURS env like '21:30-07:30' (IST). Default 21:30–07:30."""
-    raw = env("QUIET_HOURS", "21:30-07:30")
+    """QUIET_HOURS env like '21:00-07:00' (IST). Default 21:00–07:00 (research F-COMMS round 3)."""
+    raw = env("QUIET_HOURS", "21:00-07:00")
     try:
         a, b = [x.strip() for x in raw.split("-")]
         parse_hm(a), parse_hm(b)
         return a, b
     except Exception:
-        return "21:30", "07:30"
+        return "21:00", "07:00"
 
 
 def parse_hm(s: str) -> tuple[int, int]:
@@ -185,7 +185,7 @@ EVENT_ICONS = {
     "no_answer": "📵", "guardian_whatsapp": "💬", "guardian_call": "📞", "nurse_alert": "🚨",
     "quiet_hold": "🌙", "resolved": "✅", "inbound": "↩", "cheer": "💛", "click_to_call": "☎",
     "red_flag": "🚨", "snooze": "⏰", "trend": "📉", "start": "▶", "stopped": "■",
-    "voice_note": "🎧", "weekly_card": "🖼", "sms": "✉",
+    "voice_note": "🎧", "weekly_card": "🖼", "sms": "✉", "call_result": "🗒", "consent": "✍",
 }
 
 
@@ -214,3 +214,50 @@ def public_event(e: dict) -> dict:
 
 def is_demo() -> bool:
     return demo_mode()
+
+
+# ----------------------------------------------------------------------------- consent & disclosure
+
+CONSENT_RENEW_DAYS = 7     # TRAI 2026: "ongoing use" A2P-call consent lasts 7 days (renewable)
+
+
+def has_consent(obj: dict | None) -> bool:
+    """A real automated call/message needs BOTH the consent flag and the date it was recorded
+    (care settings for the patient, the guardian row for family). TRAI / Twilio India / DPDP."""
+    return bool(obj and obj.get("consent") and to_dt(obj.get("consent_at")))
+
+
+def consent_current(obj: dict | None) -> bool:
+    """Consent recorded AND younger than 7 days. A REAL automated call needs this; once it has
+    lapsed, calls only ring in the simulator until the person says "yes, keep calling" again."""
+    age = consent_age_days(obj)
+    return has_consent(obj) and age is not None and age < CONSENT_RENEW_DAYS
+
+
+def consent_age_days(obj: dict | None) -> int | None:
+    t = to_dt((obj or {}).get("consent_at"))
+    return None if t is None else max(0, (now() - t).days)
+
+
+# Every automated call and message starts by saying it is an automated (AI) assistant, in the
+# person's language (Sarvam terms of service + FEATURE_PLAN idea 70).
+DISCLOSURE = {
+    "en": "Namaste, this is SpiroBuddy's automated care assistant.",
+    "hi": "नमस्ते, यह SpiroBuddy की स्वचालित देखभाल सहायक है।",
+    "ta": "வணக்கம், இது SpiroBuddy-இன் தானியங்கி பராமரிப்பு உதவியாளர்.",
+}
+DISCLOSURE_TAG = {      # short form for replies inside a conversation the person already started
+    "en": "🤖 SpiroBuddy automated assistant:",
+    "hi": "🤖 SpiroBuddy स्वचालित सहायक:",
+    "ta": "🤖 SpiroBuddy தானியங்கி உதவியாளர்:",
+}
+
+
+def disclosed(text: str, lang: str = "en", short: bool = False) -> str:
+    """Prefix the AI disclosure unless the text already carries it."""
+    lang = lang_of(lang, "en")
+    low = (text or "").lower()
+    if "automated" in low or "स्वचालित" in (text or "") or "தானியங்கி" in (text or ""):
+        return text
+    tag = (DISCLOSURE_TAG if short else DISCLOSURE)[lang]
+    return f"{tag} {text}" if short else f"{tag}\n{text}"

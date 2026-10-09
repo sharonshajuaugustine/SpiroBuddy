@@ -2,7 +2,7 @@
 patient (press 1/2/3) -> guardian WhatsApp + call -> nurse alert (red on the dashboard).
 
 - Per-patient steps and delays (care settings). "fast" speed = the demo fast-forward (~60 s).
-- Quiet hours (default 21:30–07:30 IST, per patient and per guardian) hold every step that
+- Quiet hours (default 21:00–07:00 IST, per patient and per guardian) hold every step that
   would disturb someone, except red-flag. The nurse alert is never held (it's a dashboard).
 - Every step is an event in the patient's timeline (escalation_events).
 - A real session (device/app/demo), a "1 / Done" reply, a guardian "I'll check" or a nurse
@@ -19,8 +19,8 @@ from datetime import timedelta
 from .. import service
 from ..config import FIRST_SLOT, LAST_SLOT, env_flag, iso
 from . import alerts, calls, messages
-from .common import (first_name, in_quiet, log_event, now, patient, patient_names,
-                     quiet_end_after, st, to_dt)
+from .common import (consent_current, first_name, has_consent, in_quiet, log_event, now, patient,
+                     patient_names, quiet_end_after, st, to_dt)
 from .guardians import (STEP_KEYS, STEP_LABELS, get_settings, guardian_label, guardian_quiet,
                         list_guardians)
 
@@ -34,6 +34,7 @@ MAX_SNOOZES = 1
 _lock = threading.RLock()
 _last_scan = 0.0
 _last_trend = 0.0
+_last_consent = 0.0
 _seen_sessions: dict[int, int] | None = None
 
 
@@ -248,8 +249,8 @@ def _execute(run: dict, key: str, p: dict, cfg: dict, meta: dict) -> None:
                   detail="A soft chime; a press on the device snoozes it for 15 min.",
                   channel="device", actor="patient", to_name=fn, status="ok", run_id=rid)
     elif key == "patient_whatsapp":
-        if not cfg.get("consent"):
-            log_event(p["id"], "whatsapp", f"WhatsApp to {fn} skipped – no recorded consent",
+        if not has_consent(cfg):
+            log_event(p["id"], "whatsapp", f"WhatsApp to {fn} skipped – no recorded consent (flag + date)",
                       channel="whatsapp", actor="patient", status="skipped", run_id=rid)
         else:
             messages.send_reminder(p, cfg, missed, run_id=rid)
@@ -257,7 +258,8 @@ def _execute(run: dict, key: str, p: dict, cfg: dict, meta: dict) -> None:
         calls.place_call(p, "reminder", "patient", p["name"], cfg.get("patient_phone"),
                          p.get("language") or "en", run_id=rid,
                          ring_s=FAST_RING_S if fast else int(cfg.get("ring_s") or 30),
-                         consent=bool(cfg.get("consent")), missed=missed)
+                         consent=has_consent(cfg), missed=missed,
+                         style=cfg.get("call_style") or "ivr", consent_fresh=consent_current(cfg))
     elif key == "guardian":
         _guardian_step(run, p, cfg, meta, fast, missed)
     elif key == "nurse":
@@ -281,8 +283,8 @@ def _guardian_step(run, p, cfg, meta, fast, missed) -> None:
             log_event(p["id"], "quiet_hold", f"{label}: quiet hours ({qs}–{qe}) – not contacted",
                       channel="system", actor="guardian", to_name=label, status="held", run_id=rid)
             continue
-        if not g.get("consent"):
-            log_event(p["id"], "guardian_whatsapp", f"{label}: skipped – no recorded consent",
+        if not has_consent(g):
+            log_event(p["id"], "guardian_whatsapp", f"{label}: skipped – no recorded consent (flag + date)",
                       channel="system", actor="guardian", to_name=label, status="skipped", run_id=rid)
             continue
         ch = g.get("channel") or "both"
@@ -298,7 +300,8 @@ def _guardian_step(run, p, cfg, meta, fast, missed) -> None:
             calls.place_call(p, "guardian_red_flag" if red else "guardian", "guardian", label,
                              g.get("phone"), g.get("language") or "hi", run_id=rid, guardian=g,
                              ring_s=FAST_RING_S if fast else int(cfg.get("ring_s") or 30),
-                             consent=True, missed=missed)
+                             consent=has_consent(g), missed=missed,
+                             consent_fresh=consent_current(g))
 
 
 def _nurse_step(run, p, meta, missed) -> None:
@@ -525,6 +528,14 @@ def tick() -> dict:
                 started = auto_trigger()
             except Exception as e:
                 log.warning("auto trigger failed: %s", e)
+        global _last_consent
+        if time.time() - _last_consent > 3600 and env_flag("COMMS_CONSENT_RENEWAL", "1"):
+            _last_consent = time.time()
+            try:
+                from . import consent
+                consent.weekly_check()
+            except Exception as e:
+                log.warning("consent renewal check failed: %s", e)
         if time.time() - _last_trend > 600:
             _last_trend = time.time()
             try:

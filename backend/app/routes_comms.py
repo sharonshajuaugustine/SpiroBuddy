@@ -13,10 +13,10 @@ from fastapi import APIRouter, Body, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, PlainTextResponse, Response
 
 from . import llm, service, whatsapp
-from .comms import (alerts, audio, calls, cards, escalation, guardians, messages, progress,
-                    script, seed_comms, trend)
-from .comms.common import (call_name, e164, first_name, in_quiet, lang_of, now, public_base,
-                           public_event, st, to_dt)
+from .comms import (alerts, audio, calls, cards, consent, escalation, guardians, messages,
+                    progress, sarvam, script, seed_comms, trend)
+from .comms.common import (DISCLOSURE, call_name, consent_current, e164, first_name, has_consent, in_quiet,
+                           lang_of, now, public_base, public_event, st, to_dt)
 from .config import demo_mode, env, env_flag, iso
 
 log = logging.getLogger("spirobuddy.comms.api")
@@ -105,9 +105,17 @@ def status():
     prov, note = calls.provider()
     qs, qe = guardians.default_config()["quiet_start"], guardians.default_config()["quiet_end"]
     t = now()
+    cprov, cnote = calls.provider("checkin")
     return {"ok": True, "calls_provider": prov, "calls_note": note,
+            "checkin_provider": cprov, "checkin_note": cnote,
+            "sarvam_agent_ready": sarvam.ready(), "sarvam_agent_missing": sarvam.missing(),
+            "sarvam_webhook_secret": bool(env("SARVAM_WEBHOOK_SECRET")),
             "twilio_voice_ready": calls.twilio_ready(), "exotel_ready": calls.exotel_ready(),
             "whatsapp_enabled": whatsapp.whatsapp_enabled(),
+            "whatsapp_sandbox": messages.is_sandbox(),
+            "whatsapp_hint": messages.sandbox_hint() if whatsapp.whatsapp_enabled() else None,
+            "whatsapp_last": dict(messages.last_result) or None,
+            "whatsapp_min_gap_s": messages.MIN_GAP_S,
             "whatsapp_buttons": bool(messages.content_sid_for("reminder")),
             "public_base_url": public_base() or None, "voice_tts": audio.available(),
             "llm_enabled": llm.llm_enabled(), "hindi_card": cards.hindi_ok(),
@@ -267,15 +275,39 @@ def press_key(cid: int, body: dict = Body(...)):
     digit = str(body.get("digit") or "")
     if digit not in ("1", "2", "3", ""):
         raise HTTPException(400, "digit must be 1, 2 or 3")
+    c = calls.get_call(cid)
+    if c and isinstance(c.get("meta"), dict) and c["meta"].get("style") == "agent":
+        raise HTTPException(400, "this is a conversational AI call – answer by voice (POST /agent-turn)")
     try:
         return calls.press(cid, digit, "phone simulator")
     except KeyError:
         raise HTTPException(404, f"call {cid} not found")
 
 
+@router.post("/calls/{cid}/agent-turn")
+def agent_turn(cid: int, body: dict = Body(...)):
+    """Conversational (Sarvam-style) call in the browser phone simulator: the patient's spoken
+    answer (Voice.record -> /api/voice/stt) or a tapped pre-written answer. The final result goes
+    through the same normalise + apply as the real Sarvam webhook."""
+    c = calls.get_call(cid)
+    if not c:
+        raise HTTPException(404, f"call {cid} not found")
+    if not (isinstance(c.get("meta"), dict) and c["meta"].get("style") == "agent"):
+        raise HTTPException(400, "this is a keypad (IVR) call – use /press")
+    if c.get("provider") != "dry_run":
+        raise HTTPException(400, "only simulated calls take answers here – the real call talks to Sarvam")
+    src = "voice" if (body or {}).get("source") == "voice" else "tap"
+    return sarvam.sim_turn(cid, str((body or {}).get("text") or ""),
+                           f"phone simulator ({'spoken' if src == 'voice' else 'tapped answer'})")
+
+
 @router.post("/calls/{cid}/hangup")
 def hangup(cid: int, body: dict | None = Body(None)):
     reason = (body or {}).get("reason") or "hangup"
+    cur = calls.get_call(cid)
+    if cur and reason != "declined" and cur.get("status") == "in-progress" \
+            and isinstance(cur.get("meta"), dict) and cur["meta"].get("style") == "agent":
+        return sarvam.sim_finish(cid, f"phone simulator ({reason})")
     c = calls.finish(cid, "no-answer" if reason == "declined" else "completed",
                      f"phone simulator ({reason})")
     if c is None:
@@ -289,6 +321,63 @@ def call_patient(pid: int, body: dict | None = Body(None)):
     body = body or {}
     nurse = (body.get("nurse_name") or "Nurse").strip()[:60]
     return calls.click_to_call(p, nurse, body.get("nurse_phone"), guardians.get_settings(pid))
+
+
+@router.post("/checkin-call/{pid}")
+def checkin_call(pid: int, body: dict | None = Body(None)):
+    """AI check-in call now ("Are you okay? Why did you miss it?"): Sarvam Voice Agent when it is
+    set up, otherwise the browser phone simulator. Needs recorded consent (flag + date)."""
+    p = _patient_or_404(pid)
+    cfg = guardians.get_settings(pid)
+    d = service.patient_detail(pid) or {}
+    missed = int((body or {}).get("missed") or max(2, int(d.get("trailing_missed") or 0)))
+    run = escalation.active_run(pid)
+    c = calls.place_call(p, "reminder", "patient", p["name"], cfg.get("patient_phone"),
+                         p.get("language") or "en", run_id=run["id"] if run else None,
+                         ring_s=int(cfg.get("ring_s") or 30), consent=has_consent(cfg),
+                         missed=missed, style="agent", consent_fresh=consent_current(cfg))
+    if c is None:
+        raise HTTPException(409, "No recorded consent (yes + date) for automated calls to this patient – "
+                                 "record it in Care circle settings first.")
+    return c
+
+
+# ----- Sarvam Voice Agent webhook + demo replay (comms/sarvam.py, docs/COMMS.md §5)
+
+@router.post("/webhooks/sarvam")
+async def sarvam_webhook(request: Request, token: str | None = None):
+    """Sarvam 'Instant Outbound' webhook (sent once per call attempt). Our shared secret is in
+    the URL (?token=) because Sarvam documents no signature; only attempts we placed count."""
+    if not sarvam.check_token(token or request.headers.get("X-Webhook-Token")):
+        raise HTTPException(403, "bad or missing webhook token")
+    try:
+        payload = await request.json()
+    except Exception:
+        raise HTTPException(400, "body must be JSON")
+    if not isinstance(payload, dict):
+        raise HTTPException(400, "body must be a JSON object")
+    res = sarvam.handle_webhook(payload)
+    if not res.get("ok"):
+        raise HTTPException(404, res.get("error") or "unknown call")
+    return res
+
+
+@router.get("/demo/sarvam-samples")
+def sarvam_samples():
+    return [{"key": k, "label": v.get("label") or k, "status": (v.get("payload") or {}).get("status")}
+            for k, v in sarvam.load_samples().items()]
+
+
+@router.post("/demo/sarvam-replay/{pid}")
+def sarvam_replay(pid: int, body: dict | None = Body(None)):
+    """Demo: feed a saved Sarvam webhook payload through the real webhook handler, so the
+    nurse note appears even if the live call fails."""
+    _require_demo()
+    _patient_or_404(pid)
+    try:
+        return sarvam.replay(pid, (body or {}).get("sample") or "pain")
+    except ValueError as e:
+        _bad(e)
 
 
 @router.post("/call-script/{pid}")
@@ -536,14 +625,15 @@ def send_voice_note(pid: int, body: dict | None = Body(None)):
             text = voice.translate(text, "en", "ta")
         except Exception:
             pass
-    rel = audio.tts_url(text, lang)
-    absolute = audio.tts_url(text, lang, absolute=True)
+    spoken = f"{DISCLOSURE[lang]} {text}"           # the voice note starts with the AI disclosure
+    rel = audio.tts_url(spoken, lang)
+    absolute = audio.tts_url(spoken, lang, absolute=True)
     res = messages.send(p, "family" if g else "patient",
                         (g or {}).get("phone") if g else guardians.get_settings(pid).get("patient_phone"),
                         "🎧 " + text, "voice_note", lang, media_url=absolute,
                         to_name=guardians.guardian_label(g) if g else first_name(p["name"]))
     res.update({"audio_url": rel, "summary_source": s["source"], "language": lang,
-                "browser_lang": calls.BROWSER_LANG[lang], "speak_text": text})
+                "browser_lang": calls.BROWSER_LANG[lang], "speak_text": spoken})
     if not rel:
         res["note"] = "No SARVAM_API_KEY – the browser reads the note aloud instead."
     return res
@@ -601,6 +691,34 @@ def remove_guardian(gid: int):
     return {"ok": True}
 
 
+# ----------------------------------------------------------------------------- consent
+
+@router.get("/consent-text/{pid}")
+def consent_text(pid: int, lang: str | None = None):
+    """The consent statement in the patient's language (read aloud to them), with the itemised
+    list of data kept and the one-word STOP. Valid 7 days, renewed weekly."""
+    p = _patient_or_404(pid)
+    out = consent.consent_text(lang or p.get("language") or "en")
+    out["audio_url"] = audio.tts_url(out["text"], out["language"])
+    out["browser_lang"] = calls.BROWSER_LANG[out["language"]]
+    return out
+
+
+@router.post("/consent/ask/{pid}")
+def consent_ask(pid: int, body: dict | None = Body(None)):
+    """Send the weekly one-question renewal now ("keep the reminders? ✅ yes / ⛔ STOP")."""
+    _patient_or_404(pid)
+    body = body or {}
+    to = body.get("to") or "patient"
+    if to not in ("patient", "family"):
+        raise HTTPException(400, "to must be patient or family")
+    g = guardians.get_guardian(int(body["guardian_id"])) if body.get("guardian_id") else None
+    try:
+        return consent.ask(pid, to, g)
+    except ValueError as e:
+        _bad(e)
+
+
 # ----------------------------------------------------------------------------- guardian page
 
 STATUS_PLAIN = {"green": "good", "yellow": "nudge", "red": "call"}
@@ -642,6 +760,8 @@ def guardian_view(token: str):
                   "best_ml": last["best_ml"], "slot_hour": last["slot_hour"]} if last else None),
         "call": {"tel": tel, "display": cfg.get("patient_phone"), "demo": tel is None},
         "cheers_queued": len(queued),
+        "quiet": {"start": guardians.guardian_quiet(g, cfg)[0], "end": guardians.guardian_quiet(g, cfg)[1],
+                  "own": bool(g.get("quiet_start")), "presets": QUIET_PRESETS},
         "cheer_presets": messages.CHEER_PRESETS[lang],
         "updated_at": iso(now()),
     }
@@ -663,6 +783,26 @@ def guardian_cheer(token: str, body: dict | None = Body(None)):
     p = service.get_patient_row(g["patient_id"]) or {}
     return {"ok": True, "cheer_id": c.get("id"), "text": presets[i],
             "message": messages.reply_text("cheer", lang, who=call_name(g.get("relation"), p, lang))}
+
+
+QUIET_PRESETS = [["21:00", "07:00"], ["22:00", "07:00"], ["20:00", "08:00"]]
+
+
+@router.put("/guardian/{token}/quiet")
+def guardian_quiet_hours(token: str, body: dict = Body(...)):
+    """The family member sets their own quiet hours (no calls/messages to them then, except a
+    red flag). One tap on the family page – no typing."""
+    g = _guardian_or_404(token)
+    try:
+        guardians.update_guardian(g["id"], {"quiet_start": body.get("quiet_start"),
+                                            "quiet_end": body.get("quiet_end")})
+    except ValueError as e:
+        _bad(e)
+    from .comms.common import log_event
+    log_event(g["patient_id"], "quiet_hold", f"{guardians.guardian_label(g)} set quiet hours "
+              f"{body.get('quiet_start')}–{body.get('quiet_end')} on the family page",
+              channel="web", actor="guardian", to_name=first_name(g["name"]), status="info")
+    return {"ok": True, "quiet_start": body.get("quiet_start"), "quiet_end": body.get("quiet_end")}
 
 
 @router.post("/guardian/{token}/call-log")

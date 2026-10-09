@@ -24,7 +24,13 @@
   const T = {
     incoming: { en: 'Incoming call…', hi: 'इनकमिंग कॉल…', ta: 'அழைப்பு வருகிறது…' },
     auto: { en: 'SpiroBuddy Care · automated call', hi: 'SpiroBuddy केयर · स्वचालित कॉल', ta: 'SpiroBuddy · தானியங்கி அழைப்பு' },
+    agent: { en: 'AI care assistant · check-in call', hi: 'AI देखभाल सहायक · हाल-चाल कॉल', ta: 'AI பராமரிப்பு உதவியாளர் · நலம் விசாரிப்பு' },
+    speak: { en: '🎤 Tap and speak', hi: '🎤 दबाएँ और बोलें', ta: '🎤 அழுத்திப் பேசுங்கள்' },
+    stop: { en: '■ Tap when done', hi: '■ बोल लिया? दबाएँ', ta: '■ முடிந்ததும் அழுத்தவும்' },
+    listening: { en: 'Listening…', hi: 'सुन रहे हैं…', ta: 'கேட்கிறது…' },
+    orTap: { en: 'Presenter: or tap an answer', hi: 'प्रस्तुतकर्ता: या कोई जवाब चुनें', ta: 'அல்லது ஒரு பதிலைத் தட்டவும்' },
   };
+  const OUT_TXT = { red_flag: '🚨 Red flag – nurse alerted now', needs_nurse_review: '⚠ Nurse review requested', unclear: '⚠ Unclear – nurse review requested', ok: '✓ No concern raised' };
 
   function create(el, opts) {
     const role = opts.role; // 'patient' | 'guardian'
@@ -99,8 +105,9 @@
     function showRinging(c) {
       call = c; phase = 'ringing';
       callEl.className = 'call-screen ringing';
-      callEl.innerHTML = `<div class="cstate">${esc(T.incoming[lang()] || T.incoming.en)}</div><div class="cav">📞</div>
-        <div class="cname">SpiroBuddy Care</div><div class="cstate">${esc(T.auto[lang()] || T.auto.en)}</div>
+      const sub = c.style === 'agent' ? T.agent : T.auto;
+      callEl.innerHTML = `<div class="cstate">${esc(T.incoming[lang()] || T.incoming.en)}</div><div class="cav">${c.style === 'agent' ? '🗣' : '📞'}</div>
+        <div class="cname">SpiroBuddy Care</div><div class="cstate">${esc(sub[lang()] || sub.en)}</div>
         <div class="cstate small">to ${esc(c.to_name)} · ${esc(c.to_number || '')}</div>
         <div class="call-actions"><button class="dec" type="button" aria-label="Decline call">✕</button><button class="acc" type="button" aria-label="Answer call">✆</button></div>`;
       C.ring(); stopRing(); ringTimer = setInterval(() => phase === 'ringing' && C.ring(), 2600);
@@ -113,6 +120,7 @@
       phase = 'talking';
       const c = await C.api.answer(call.id).catch(() => call);
       call = Object.assign({}, call, c);
+      if (call.style === 'agent') return agentCall();
       const keys = KEYS[role][lang()] || KEYS[role].en;
       callEl.className = 'call-screen';
       callEl.innerHTML = `<div class="cname">SpiroBuddy Care</div><div class="cstate" data-timer>00:00 · ${esc(T.auto[lang()] || T.auto.en)}</div>
@@ -140,6 +148,77 @@
         }
       } catch (e) { toast(e.message, 'bad'); }
     }
+    /* ---- conversational (Sarvam-style) call: the agent speaks, the presenter answers by voice
+       (Voice.record -> /api/voice/stt, or the browser's own recognition) or taps an answer ---- */
+    let rec = null;
+    function agentCall() {
+      const L = lang();
+      callEl.className = 'call-screen';
+      callEl.innerHTML = `<div class="cname">SpiroBuddy Care</div><div class="cstate">${esc(T.agent[L] || T.agent.en)}</div>
+        <div class="ctext" data-text aria-live="polite">${esc(call.script || '')}</div>
+        <div class="agent-talk" data-talk></div>`;
+      renderAnswers(call.answers || []);
+      C.speak(call.script, L, { audioUrl: call.audio_url, interrupt: true });
+    }
+    function renderAnswers(answers) {
+      const L = lang();
+      const box = $('[data-talk]', callEl); if (!box) return;
+      const canRec = !!(window.Voice && Voice.record);
+      box.innerHTML = `${canRec ? `<button type="button" class="mic" data-mic>${esc(T.speak[L] || T.speak.en)}</button>` : ''}
+        ${answers.length ? `<div class="hint">${esc(T.orTap[L] || T.orTap.en)}</div>` : ''}
+        ${answers.map((a) => `<button type="button" class="ans" data-ans>${esc(a)}</button>`).join('')}
+        <div class="keypad" style="margin-top:.2rem;padding-top:0"><button type="button" class="end" data-end aria-label="End call">✕ End call</button></div>`;
+      $$('[data-ans]', box).forEach((b) => b.addEventListener('click', () => sendAnswer(b.textContent, 'tap')));
+      const mic = $('[data-mic]', box);
+      if (mic) mic.addEventListener('click', toggleMic);
+      $('[data-end]', box).addEventListener('click', () => {
+        C.stopSpeaking(); if (rec) { rec.cancel(); rec = null; }
+        C.api.hangup(call.id, 'hangup').then(showResult).catch(() => {});
+        phase = 'ended'; closeCall(3500);
+      });
+    }
+    function toggleMic(e) {
+      const L = lang();
+      const btn = e.currentTarget;
+      if (rec) { rec.stop(); btn.textContent = T.listening[L] || T.listening.en; btn.disabled = true; return; }
+      C.stopSpeaking();
+      rec = Voice.record({ lang: L, speak: false });
+      btn.classList.add('rec'); btn.textContent = T.stop[L] || T.stop.en;
+      rec.done.then((r) => {
+        rec = null;
+        if (r && r.text) return sendAnswer(r.text, 'voice');
+        btn.classList.remove('rec'); btn.disabled = false; btn.textContent = T.speak[L] || T.speak.en;
+        if (r && !r.cancelled) toast((r && r.error) || 'Nothing was heard – tap an answer instead', '', 5000);
+      }).catch(() => { rec = null; });
+    }
+    async function sendAnswer(text, source) {
+      if (!call || phase !== 'talking') return;
+      C.stopSpeaking();
+      $$('[data-talk] button', callEl).forEach((b) => { b.disabled = true; });
+      const t = $('[data-text]', callEl);
+      t.innerHTML = `<div style="opacity:.8">🧓 “${esc(text)}”</div>`;
+      try {
+        const r = await C.api.agentTurn(call.id, text, source);
+        t.insertAdjacentHTML('beforeend', `<div style="margin-top:.35rem">🤖 ${esc(r.say || '')}</div>`);
+        t.scrollTop = t.scrollHeight;
+        const spoken = C.speak(r.say, r.language || lang(), { audioUrl: r.audio_url, interrupt: true });
+        if (r.end) {
+          phase = 'ended';
+          showResult(r.call || { result: r.result });
+          await spoken;
+          closeCall(6000);
+          refreshThread();
+        } else renderAnswers(r.answers || []);
+      } catch (e) { toast(e.message, 'bad'); renderAnswers(call.answers || []); }
+    }
+    function showResult(c) {
+      const res = c && c.result; const box = $('[data-talk]', callEl);
+      if (!res || !box) return;
+      box.innerHTML = `<div class="agent-res"><b>${esc(OUT_TXT[res.outcome] || res.label || '')}</b>${esc(res.neutral_note || '')}<div class="small" style="opacity:.75;margin-top:.25rem">Sent to the nurse dashboard · decided by fixed rules, not the AI</div></div>`;
+      if (res.outcome === 'red_flag') toast('🚨 Red flag on the check-in call – nurse + family alerted', 'bad', 7000);
+      else if (res.outcome) toast('🗒 Check-in call note sent to the nurse', 'good', 5000);
+    }
+
     async function pollCalls() {
       if (SB.api.state.mock) return;
       const list = await C.api.calls(pid, true);
@@ -183,6 +262,18 @@
             <button class="btn" id="cd-voice" type="button">🎧 Voice note</button>
             <a class="btn" id="cd-guardian" target="_blank" rel="noopener">👪 Family page ↗</a>
           </div>
+          <div class="row" style="margin-bottom:.6rem">
+            <label class="small" for="cd-style">Patient's call</label>
+            <select id="cd-style" class="sm-select" title="How the ladder's automated call to the patient works">
+              <option value="ivr">⌨ Keypad menu (press 1 / 2 / 3)</option>
+              <option value="agent">🗣 AI conversation (Sarvam-style)</option></select>
+            <button class="btn" id="cd-checkin" type="button" title="Ring the patient now with the AI check-in call">🗣 AI check-in call now</button>
+          </div>
+          <div class="row" style="margin-bottom:.6rem">
+            <select id="cd-sample" class="sm-select" aria-label="Saved Sarvam call result"><option value="pain">Loading samples…</option></select>
+            <button class="btn" id="cd-replay" type="button" title="Backup if a live call fails: feeds a saved Sarvam webhook through the real handler">⏯ Replay saved Sarvam result</button>
+          </div>
+          <ul class="call-res" id="cd-results" aria-live="polite"></ul>
           <div class="muted small" id="cd-hint"></div>
           <div id="cd-run" style="margin:.5rem 0"></div>
           <div class="device" id="cd-device" title="The SpiroBuddy unit on the spirometer"><div class="unit"><div class="led"></div></div><div><b>SpiroBuddy unit</b><div class="small muted" id="cd-device-t">Idle · light off</div></div></div>
@@ -201,6 +292,21 @@
       phoneP.setPatient(pid, p ? `${p.name.split(' ')[0]}'s phone (patient)` : 'Patient phone');
       phoneG.setPatient(pid, g ? `${g.name.split(' ')[0]}'s phone (${g.relation || 'family'}${g.city ? ', ' + g.city.replace(/ \(.*\)/, '') : ''})` : 'Guardian phone (none in care circle)');
       $('#cd-guardian', el).href = g ? SB.ui.link(g.link) : '#';
+      if (care && care.settings) $('#cd-style', el).value = care.settings.call_style || 'ivr';
+    }
+    $('#cd-style', el).addEventListener('change', (e) => {
+      C.api.putCare(pid, { call_style: e.target.value })
+        .then((r) => { care = Object.assign({}, care, r); toast(e.target.value === 'agent' ? '🗣 The ladder now calls with the AI conversation' : '⌨ The ladder now calls with the keypad menu', 'good'); })
+        .catch((err) => toast(err.message, 'bad'));
+    });
+    C.api.sarvamSamples().then((list) => {
+      $('#cd-sample', el).innerHTML = list.map((s) => `<option value="${esc(s.key)}">${esc(s.label)}</option>`).join('');
+    }).catch(() => {});
+    async function refreshResults() {
+      if (SB.api.state.mock) return;
+      const list = (await C.api.calls(pid, false)).filter((c) => c.result).slice(0, 3);
+      const html = list.map(C.callResult).join('');
+      if (html !== refreshResults.last) { refreshResults.last = html; $('#cd-results', el).innerHTML = html; }
     }
     async function loadPatients() {
       patients = await SB.api.patients();
@@ -223,6 +329,16 @@
       toast('🚨 Red flag: fixed 112 message sent, nurse + family alerted', 'bad', 6000);
       C.speak(r.reply, (patients.find((x) => x.id === pid) || {}).language || 'hi', { interrupt: true });
     }));
+    $('#cd-checkin', el).addEventListener('click', run(async () => {
+      const c = await C.api.checkinCall(pid);
+      toast(c.provider === 'sarvam_agent' ? '🗣 Sarvam is dialling the real phone – result appears when its webhook arrives' : '🗣 AI check-in call ringing on the patient phone', 'good', 6000);
+    }));
+    $('#cd-replay', el).addEventListener('click', run(async () => {
+      const r = await C.api.sarvamReplay(pid, $('#cd-sample', el).value);
+      const res = r.result || {};
+      toast(res.outcome === 'red_flag' ? '🚨 Replayed: red flag – nurse + family alerted' : `🗒 Replayed: ${res.neutral_note || res.outcome}`, res.outcome === 'red_flag' ? 'bad' : 'good', 7000);
+      refreshResults.last = null; await refreshResults();
+    }));
     $('#cd-card', el).addEventListener('click', run(async () => { const r = await C.api.weeklyCard(pid, 'family'); toast(r.sent ? 'Weekly card sent' : 'Weekly card – dry run (see the family phone)', r.sent ? 'good' : ''); }));
     $('#cd-voice', el).addEventListener('click', run(async () => { const r = await C.api.voiceNote(pid, 'family'); C.speak(r.speak_text, r.language, { audioUrl: r.audio_url, interrupt: true }); }));
     document.addEventListener('keydown', (e) => {
@@ -233,14 +349,15 @@
     let curRun = null;
     async function refreshRun() {
       if (SB.api.state.mock) { $('#cd-run', el).innerHTML = '<div class="banner mock" style="margin:0">Needs the live server – simulators are off in mock mode.</div>'; return; }
-      const [runs, st] = await Promise.all([C.api.runs(pid), refreshRun.st ? Promise.resolve(refreshRun.st) : C.api.status()]);
-      refreshRun.st = st;
+      const [runs, st] = await Promise.all([C.api.runs(pid), refreshRun.st && Date.now() - refreshRun.stAt < 15000 ? Promise.resolve(refreshRun.st) : C.api.status()]);
+      if (st !== refreshRun.st) { refreshRun.st = st; refreshRun.stAt = Date.now(); }
       const r = runs[0];
       curRun = r && r.status === 'active' ? r : null;
       $('#cd-run', el).innerHTML = r ? `<div class="row">${C.runSummary(r)}</div>${C.stepper(r)}` : '<div class="muted small">No ladder yet for this patient.</div>';
       $('#cd-stop', el).hidden = !curRun; $('#cd-next', el).hidden = !curRun;
       const q = st.quiet_hours || {};
-      $('#cd-hint', el).textContent = `Calls: ${st.calls_provider === 'dry_run' ? 'simulated here (no call keys)' : st.calls_provider} · WhatsApp: ${st.whatsapp_enabled ? 'live (Twilio)' : 'dry run'} · voices: ${st.voice_tts ? 'Sarvam' : 'browser'} · quiet hours ${q.start}–${q.end} IST${q.now_quiet ? ' – it is quiet hours now: untick “Respect quiet hours” to play calls' : ''}.`;
+      const wl = st.whatsapp_last;
+      $('#cd-hint', el).textContent = `Keypad calls: ${st.calls_provider === 'dry_run' ? 'simulated here (no call keys)' : st.calls_provider} · AI check-in calls: ${st.checkin_provider === 'sarvam_agent' ? 'Sarvam Voice Agent (live)' : 'simulated here'} · WhatsApp: ${st.whatsapp_enabled ? 'live (Twilio)' : 'dry run'} · voices: ${st.voice_tts ? 'Sarvam' : 'browser'} · quiet hours ${q.start}–${q.end} IST${q.now_quiet ? ' – it is quiet hours now: untick “Respect quiet hours” to play calls' : ''}.${wl && wl.hint ? ' ⚠ WhatsApp: ' + wl.hint : st.whatsapp_hint ? ' ' + st.whatsapp_hint : ''}`;
       if (refreshRun.first == null) { refreshRun.first = true; $('#cd-quiet', el).checked = !q.now_quiet; }
     }
 
@@ -275,6 +392,7 @@
 
     loadPatients().catch(() => {});
     SB.ui.poll(() => refreshRun().catch(() => {}), 1000);
+    SB.ui.poll(() => refreshResults().catch(() => {}), 2500);
     SB.ui.poll(() => pollFeed().catch(() => {}), 1500);
   }
 

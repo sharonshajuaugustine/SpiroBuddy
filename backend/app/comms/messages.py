@@ -15,8 +15,8 @@ import re
 
 from .. import service, whatsapp
 from ..config import env, iso
-from .common import (call_name, e164, first_name, honorific, lang_of, log_event, now,
-                     resolve_number, st)
+from .common import (call_name, disclosed, e164, first_name, honorific, lang_of, log_event,
+                     now, resolve_number, st)
 
 log = logging.getLogger("spirobuddy.comms.messages")
 
@@ -50,8 +50,11 @@ GUARDIAN_BUTTONS = {
     "hi": [("guardian_ack", "👍 मैं देखता हूँ"), ("status", "📊 स्थिति"), ("nurse", "📞 नर्स")],
     "ta": [("guardian_ack", "👍 பார்க்கிறேன்"), ("status", "📊 நிலை"), ("nurse", "📞 செவிலியர்")],
 }
+from .consent import RENEW_BUTTONS  # noqa: E402  (weekly "keep calling? yes / STOP")
+
 BUTTONS_BY_KIND = {"reminder": ("patient", PATIENT_BUTTONS),
-                   "guardian_alert": ("guardian", GUARDIAN_BUTTONS)}
+                   "guardian_alert": ("guardian", GUARDIAN_BUTTONS),
+                   "consent_renewal": ("any", RENEW_BUTTONS)}
 
 
 def numbered(buttons: list[tuple[str, str]], lang: str) -> str:
@@ -71,13 +74,13 @@ def addr(patient: dict, lang: str) -> str:
 def reminder_text(patient: dict, lang: str, missed: int) -> str:
     a = addr(patient, lang)
     if lang == "hi":
-        return (f"🔔 नमस्ते {a}, साँस के व्यायाम का समय हो गया है – SpiroBuddy के साथ 10 धीमी, "
-                f"गहरी साँसें। क्या आपने कर लिया?")
+        return (f"🔔 नमस्ते {a}, यह SpiroBuddy की स्वचालित देखभाल सहायक है। साँस के व्यायाम का समय "
+                f"हो गया है – 10 धीमी, गहरी साँसें। क्या आपने कर लिया?")
     if lang == "ta":
-        return (f"🔔 வணக்கம் {a}, மூச்சுப் பயிற்சி நேரம் – SpiroBuddy உடன் 10 மெதுவான, ஆழ்ந்த "
-                f"மூச்சுகள். முடித்துவிட்டீர்களா?")
-    return (f"🔔 Namaste {a}, it's time for your breathing exercise – 10 slow, deep breaths with "
-            f"your SpiroBuddy. Have you done it?")
+        return (f"🔔 வணக்கம் {a}, இது SpiroBuddy-இன் தானியங்கி பராமரிப்பு உதவியாளர். மூச்சுப் பயிற்சி "
+                f"நேரம் – 10 மெதுவான, ஆழ்ந்த மூச்சுகள். முடித்துவிட்டீர்களா?")
+    return (f"🔔 Namaste {a}, this is SpiroBuddy's automated care assistant. It's time for your "
+            f"breathing exercise – 10 slow, deep breaths. Have you done it?")
 
 
 def guardian_alert_text(patient: dict, guardian: dict, missed: int, patient_answered: bool,
@@ -86,24 +89,27 @@ def guardian_alert_text(patient: dict, guardian: dict, missed: int, patient_answ
     who = call_name(guardian.get("relation"), patient, lang)
     fn = first_name(patient.get("name"))
     gname = first_name(guardian.get("name"))
+    me = {"hi": "यह SpiroBuddy की स्वचालित देखभाल सहायक है।",
+          "ta": "இது SpiroBuddy-இன் தானியங்கி பராமரிப்பு உதவியாளர்.",
+          "en": "this is SpiroBuddy's automated care assistant."}[lang]
     if red_flag:
         if lang == "hi":
-            return (f"🚨 {gname} जी, {who} ({fn}) ने SpiroBuddy पर मदद माँगी है। नर्स को बता दिया गया है। "
+            return (f"🚨 {gname} जी, {me} {who} ({fn}) ने SpiroBuddy पर मदद माँगी है। नर्स को बता दिया गया है। "
                     f"कृपया तुरंत उनसे बात करें। आपातकाल हो तो 112 पर कॉल करें।")
         if lang == "ta":
-            return (f"🚨 {gname}, {who} ({fn}) SpiroBuddy-இல் உதவி கேட்டுள்ளார். செவிலியருக்குத் "
+            return (f"🚨 {gname}, {me} {who} ({fn}) SpiroBuddy-இல் உதவி கேட்டுள்ளார். செவிலியருக்குத் "
                     f"தெரிவிக்கப்பட்டது. உடனே பேசுங்கள். அவசரம் என்றால் 112 ஐ அழைக்கவும்.")
-        return (f"🚨 {gname}, {who} ({fn}) asked for help on SpiroBuddy. The nurse has been told. "
+        return (f"🚨 {gname}, {me} {who} ({fn}) asked for help on SpiroBuddy. The nurse has been told. "
                 f"Please speak to them now. In an emergency, call 112.")
     if lang == "hi":
         tail = "और हमारी रिमाइंडर कॉल का जवाब नहीं दिया" if not patient_answered else ""
-        return (f"नमस्ते {gname} जी, {who} ({fn}) ने लगातार {missed} साँस-व्यायाम छोड़ दिए हैं {tail}। "
+        return (f"नमस्ते {gname} जी, {me} {who} ({fn}) ने लगातार {missed} साँस-व्यायाम छोड़ दिए हैं {tail}। "
                 f"क्या आप एक बार उनका हाल पूछ लेंगे?").replace("  ", " ").replace(" ।", "।")
     if lang == "ta":
-        return (f"வணக்கம் {gname}, {who} ({fn}) தொடர்ந்து {missed} மூச்சுப் பயிற்சிகளைத் "
+        return (f"வணக்கம் {gname}, {me} {who} ({fn}) தொடர்ந்து {missed} மூச்சுப் பயிற்சிகளைத் "
                 f"தவறவிட்டுள்ளார். ஒருமுறை அவரை விசாரிப்பீர்களா?")
     tail = " and didn't answer our reminder call" if not patient_answered else ""
-    return (f"Namaste {gname}, {who} ({fn}) has missed {missed} breathing sessions in a row{tail}. "
+    return (f"Namaste {gname}, {me} {who} ({fn}) has missed {missed} breathing sessions in a row{tail}. "
             f"Could you check on them?")
 
 
@@ -219,9 +225,12 @@ def detect_intent(body: str, role: str, payload: str | None = None) -> str:
         p = payload.strip().lower()
         valid = ("done", "snooze", "call_me", "status") if role == "patient" else \
             ("guardian_ack", "status", "nurse", "cheer")
-        if p in valid:
+        if p in valid or p in ("consent_yes", "stop"):
             return p
     text = (body or "").strip()
+    from .consent import STOP_RE
+    if STOP_RE.match(text):                 # DPDP: one word withdraws consent
+        return "stop"
     from .audio import red_flag as voice_red_flag
     if RED_FLAG_RE.search(text) or voice_red_flag(text):
         return "red_flag"
@@ -248,6 +257,9 @@ def send(patient: dict, role: str, stored_number: str | None, text: str, kind: s
     role: 'patient' | 'family' (guardian) | 'nurse'. Real sends go to the stored number if it is
     real, otherwise to the DEMO_* number for that role (never to a placeholder).
     """
+    lang = lang_of(lang, "en")
+    # AI disclosure first (reminders/alerts carry it in their own wording; replies get a short tag)
+    text = disclosed(text, lang, short=(kind == "reply"))
     body = text + (f"\n\n{FOOTER[lang]}" if footer else "")
     number = resolve_number(stored_number, "guardian" if role == "family" else role)
     to = f"whatsapp:{number}" if number else None
@@ -255,18 +267,20 @@ def send(patient: dict, role: str, stored_number: str | None, text: str, kind: s
     res = {"sent": False, "dry_run": True}
     mode = "dry_run"
     if whatsapp.whatsapp_enabled() and to:
-        _throttle()
         if sid:
+            whatsapp.throttle()
             res = _send_content(to, sid, content_vars or {"1": first_name(patient.get("name"))})
             mode = "buttons"
         else:
             real_body = body + (f"\n{numbered(buttons, lang)}" if buttons else "")
             if media_url and media_url.startswith("http"):
+                whatsapp.throttle()
                 res = _send_media(to, real_body, media_url)
                 mode = "media"
             else:
-                res = whatsapp.send(to, real_body)
+                res = whatsapp.send(to, real_body)      # throttles itself (≥3 s between sends)
                 mode = "text"
+        _remember_result(res)
     logged = service.log_message(patient, kind, role, stored_number or number, body,
                                  res.get("sent", False), res.get("dry_run", True))
     status = "sent" if res.get("sent") else ("dry_run" if res.get("dry_run") else "failed")
@@ -285,19 +299,28 @@ def send(patient: dict, role: str, stored_number: str | None, text: str, kind: s
     return out
 
 
-_last_send = 0.0
-_send_lock = __import__("threading").Lock()
-MIN_GAP_S = 3.0      # Twilio WhatsApp sandbox: at most 1 message every 3 seconds
+MIN_GAP_S = whatsapp.MIN_GAP_S      # Twilio WhatsApp sandbox: at most 1 message every 3 seconds
+SANDBOX_FROM = "+14155238886"
+last_result: dict = {}             # last real WhatsApp attempt (for /api/comms/status)
 
 
-def _throttle() -> None:
-    import time
-    global _last_send
-    with _send_lock:
-        wait = MIN_GAP_S - (time.time() - _last_send)
-        if wait > 0:
-            time.sleep(wait)
-        _last_send = time.time()
+def _remember_result(res: dict) -> None:
+    last_result.clear()
+    last_result.update({"at": iso(now()), "sent": bool(res.get("sent")),
+                        "error": res.get("error"),
+                        "hint": error_hint(res["error"]) if res.get("error") else None})
+
+
+def is_sandbox() -> bool:
+    return SANDBOX_FROM in env("TWILIO_WHATSAPP_FROM").replace(" ", "")
+
+
+def sandbox_hint() -> str | None:
+    if not is_sandbox():
+        return None
+    return ("Twilio WhatsApp sandbox: every phone must send 'join <your code>' to +1 415 523 8886. "
+            "The sandbox session ends after 3 days – rejoin on demo morning (it also opens the "
+            "24-hour window for free-form messages).")
 
 
 def error_hint(err: str) -> str:
@@ -415,6 +438,13 @@ def handle_inbound(body: str, from_number: str | None = None, payload: str | Non
 
     lang = lang_of((guardian or {}).get("language") if role == "guardian" else patient.get("language"), "en")
     intent = detect_intent(body or payload or "", role, payload)
+    if intent not in ("stop", "consent_yes", "red_flag") and _last_out_kind(patient["id"], role, guardian) == "consent_renewal":
+        # the last question was "keep the reminders?": 1/yes = keep, 2 = stop
+        low = (body or "").strip().lower().strip(" .!।")
+        if low in ("1", "yes", "haan", "हाँ", "हां", "ஆம்", "ok", "okay") or intent in ("done", "guardian_ack"):
+            intent = "consent_yes"
+        elif low in ("2", "no", "nahi", "नहीं", "இல்லை"):
+            intent = "stop"
     a = addr(patient, lang)
     g_first = first_name((guardian or {}).get("name")) or "ji"
     who = call_name((guardian or {}).get("relation"), patient, lang)
@@ -428,6 +458,16 @@ def handle_inbound(body: str, from_number: str | None = None, payload: str | Non
         escalation.red_flag(patient["id"], body, source=f"{actor} message ({channel})",
                             from_guardian=guardian)
         reply = RED_FLAG_TEXT[lang] + " " + NURSE_TOLD[lang]
+    elif intent in ("stop", "consent_yes"):
+        from . import consent
+        consent.apply(patient["id"], role, guardian, intent == "consent_yes",
+                      f"Reply “{body or payload}” via {channel}")
+        reply = consent.REPLY[intent][lang]
+        if intent == "stop":
+            run = escalation.active_run(patient["id"])
+            if run and role == "patient":
+                escalation.resolve(run, "stopped_by_patient", "Patient said STOP – automated steps stopped "
+                                   "(nurse alert still possible)", "patient")
     elif role == "patient" and intent in ("done", "snooze", "call_me"):
         escalation.patient_response(patient["id"], intent, source=f"WhatsApp ({channel})")
         reply = reply_text(intent, lang, a=a)
@@ -455,6 +495,20 @@ def handle_inbound(body: str, from_number: str | None = None, payload: str | Non
         out["reply_sent"] = r["sent"]
         out["reply_dry_run"] = r["dry_run"]
     return out
+
+
+def _last_out_kind(pid: int, role: str, guardian: dict | None) -> str | None:
+    """Kind of the newest automated message (not a reply) sent to this person."""
+    to_role = "family" if role == "guardian" else "patient"
+    rows = st().select("messages", [("patient_id", "eq", int(pid)), ("to_role", "eq", to_role)],
+                       order="id", desc=True, limit=6)
+    for m in rows:
+        if m.get("kind") == "reply":
+            continue
+        if role == "guardian" and guardian and m.get("to_number") not in (guardian.get("phone"), None):
+            continue
+        return m.get("kind")
+    return None
 
 
 # ----------------------------------------------------------------------------- cheers

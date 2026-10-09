@@ -19,11 +19,14 @@
       <div class="row" style="margin-bottom:.6rem">
         <button class="btn primary" id="cp-call" type="button" title="Your phone rings first, then the patient – nobody sees the other's number">☎ Call patient</button>
         <button class="btn" id="cp-script" type="button">✨ AI call script</button>
+        <button class="btn" id="cp-checkin" type="button" title="Automated AI check-in call: asks if they are okay and why the exercise was missed (needs recorded consent)">🗣 AI check-in call</button>
         <span class="muted small">Calling as <b id="cp-me"></b></span>
       </div>
       <div id="cp-call-res" aria-live="polite"></div>
       <div class="script-box" id="cp-script-box" hidden></div>
       <div id="cp-trend" style="margin-top:.6rem"></div>
+      <h3 style="margin:1rem 0 .25rem">Check-in call notes</h3>
+      <ul class="call-res" id="cp-calls"><li class="muted" style="border:0;background:none;padding:0">No AI check-in calls yet.</li></ul>
       <h3 style="margin:1rem 0 .25rem">Open alerts</h3>
       <ul class="alerts" id="cp-alerts" style="max-height:300px"><li class="muted">–</li></ul>`;
     $('#cp-me', els.actions).textContent = C.me();
@@ -37,6 +40,11 @@
       box.hidden = false; box.textContent = 'Writing a call script…';
       const r = await C.api.callScript(pid);
       box.innerHTML = `<div class="row" style="margin-bottom:.35rem"><b>Call script</b>${r.source === 'llm' ? '<span class="source-tag llm">AI (Claude)</span>' : '<span class="source-tag" title="No AI key or the AI call failed – fixed template">Template</span>'}<span class="muted small">Helps you open the call – it does not diagnose.</span></div>${esc(r.text)}`;
+    }).catch(() => {}));
+    $('#cp-checkin', els.actions).addEventListener('click', (e) => busy(e.currentTarget, async () => {
+      const c = await C.api.checkinCall(pid);
+      toast(c.provider === 'sarvam_agent' ? 'Sarvam is calling – the note appears when the result arrives' : 'Dry run – the AI check-in call rings in the phone simulator (Demo page)', c.provider === 'sarvam_agent' ? 'good' : '', 6000);
+      await refresh();
     }).catch(() => {}));
     $('#cp-alerts', els.actions).addEventListener('click', (e) => {
       const b = e.target.closest('button[data-act]'); if (!b) return;
@@ -67,11 +75,18 @@
         <div class="field"><label for="cc-phone">Patient's phone</label><input id="cc-phone" type="tel" placeholder="+91 98xxx xxxxx"></div>
         <div class="field"><label for="cc-qs">Quiet from</label><input id="cc-qs" type="time"></div>
         <div class="field"><label for="cc-qe">Quiet until</label><input id="cc-qe" type="time"></div>
+        <div class="field"><label for="cc-style">Patient's call</label><select id="cc-style"><option value="ivr">Keypad menu (press 1/2/3)</option><option value="agent">AI conversation (spoken answers)</option></select></div>
         <div class="field"><label for="cc-trig">Start after missed</label><select id="cc-trig">${[1, 2, 3, 4].map((n) => `<option value="${n}">${n} in a row</option>`).join('')}</select></div>
         <div class="field"><label class="row" style="gap:.4rem"><input type="checkbox" id="cc-auto"> Start automatically</label>
           <label class="row" style="gap:.4rem"><input type="checkbox" id="cc-consent"> Consent recorded</label></div>
       </form>
       <div class="muted small" id="cc-consent-note" style="margin:.35rem 0"></div>
+      <div class="row" style="margin:.25rem 0 .5rem">
+        <button class="btn sm" id="cc-read" type="button" title="Play the consent statement to the patient in their language (itemised data list, one-word STOP)">🔊 Read consent aloud</button>
+        <button class="btn sm" id="cc-renew" type="button" hidden title="Consent for ongoing reminder calls lasts 7 days under TRAI's 2026 rules">↻ Consent re-confirmed today</button>
+        <button class="btn sm" id="cc-ask" type="button" title="Send the weekly one-tap question on WhatsApp: keep the reminders? ✅ yes / ⛔ STOP">📨 Ask “keep reminders?”</button>
+      </div>
+      <div class="script-box" id="cc-consent-text" hidden></div>
       <details style="margin:.5rem 0"><summary><b>Ladder steps and delays</b></summary><div class="steps-edit" id="cc-steps" style="margin-top:.5rem"></div></details>
       <div class="row" style="margin:.5rem 0 1rem"><button class="btn primary" id="cc-save" type="button">Save settings</button><span class="muted small">Quiet hours hold calls and messages, except red-flag.</span></div>
       <h3 style="margin:0 0 .4rem">Family (guardians)</h3>
@@ -80,7 +95,7 @@
         <form id="cc-add" class="mini-form" style="margin-top:.5rem" autocomplete="off">
           <div class="field"><label for="ga-name">Name</label><input id="ga-name" required placeholder="e.g. Amit Kumar"></div>
           <div class="field"><label for="ga-rel">Relation</label><select id="ga-rel">${RELS.map((r) => `<option>${r}</option>`).join('')}</select></div>
-          <div class="field"><label for="ga-phone">Phone (+91)</label><input id="ga-phone" type="tel" placeholder="+91 98xxx xxxxx"></div>
+          <div class="field"><label for="ga-phone">Phone (with country code)</label><input id="ga-phone" type="tel" placeholder="+91 98xxx xxxxx · +971 / +44 … abroad"></div>
           <div class="field"><label for="ga-lang">Language</label><select id="ga-lang">${Object.entries(LANGS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div>
           <div class="field"><label for="ga-ch">How to reach</label><select id="ga-ch">${Object.entries(CH).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div>
           <div class="field"><label class="row" style="gap:.4rem"><input type="checkbox" id="ga-consent" checked> Consent recorded</label></div>
@@ -95,28 +110,46 @@
 
     function fillCare(s) {
       $('#cc-phone', els.care).value = s.patient_phone || '';
-      $('#cc-qs', els.care).value = s.quiet_start || '21:30';
-      $('#cc-qe', els.care).value = s.quiet_end || '07:30';
+      $('#cc-qs', els.care).value = s.quiet_start || '21:00';
+      $('#cc-qe', els.care).value = s.quiet_end || '07:00';
       $('#cc-trig', els.care).value = String(s.trigger_missed || 2);
+      $('#cc-style', els.care).value = s.call_style || 'ivr';
       $('#cc-auto', els.care).checked = !!s.auto;
       $('#cc-consent', els.care).checked = !!s.consent;
       $('#cc-steps', els.care).innerHTML = s.steps.map((st) => `<label data-key="${esc(st.key)}"><input type="checkbox" ${st.enabled ? 'checked' : ''}> ${esc(st.label)} <span class="muted small">after</span> <input type="number" min="0" max="180" value="${esc(st.delay_min)}" aria-label="minutes before ${esc(st.label)}"> <span class="muted small">min</span></label>`).join('');
       careFilled = true;
     }
     function consentNote(s) {
-      $('#cc-consent-note', els.care).textContent = s.consent
-        ? `Consent for automated calls/WhatsApp recorded${s.consent_at ? ' on ' + new Date(s.consent_at).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' }) : ''} (TRAI rules). Automated calls in production go through an Indian telephony partner (Exotel); in this demo they ring in the phone simulator.`
-        : '⚠ No consent recorded – the ladder will skip calls and WhatsApp to the patient (device beep and nurse alert still work).';
+      const when = s.consent_at ? new Date(s.consent_at).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+      $('#cc-consent-note', els.care).textContent = s.consent_ok
+        ? `Consent for automated calls/WhatsApp recorded on ${when} (TRAI rules).${s.consent_renew_due ? ` ⚠ It is ${s.consent_age_days} days old – TRAI's "ongoing use" consent lasts 7 days: please re-confirm with the patient.` : ''} Automated calls in production go through an Indian provider (Exotel or a Sarvam-rented number); in this demo they ring in the phone simulator.`
+        : '⚠ No consent recorded (yes + date) – the ladder will skip automated calls and WhatsApp to the patient (device beep and nurse alert still work).';
+      $('#cc-renew', els.care).hidden = !s.consent_ok;
     }
+    $('#cc-read', els.care).addEventListener('click', (e) => busy(e.currentTarget, async () => {
+      const r = await C.api.consentText(pid);
+      const box = $('#cc-consent-text', els.care);
+      box.hidden = false;
+      box.innerHTML = `<b>Consent statement (${esc(LANGS[r.language] || r.language)}) – read aloud, then tick “Consent recorded” if the patient says yes:</b><div style="margin:.35rem 0">${esc(r.text)}</div><div class="small muted">Data kept: ${r.items.map(esc).join(' · ')} · valid ${esc(r.valid_days)} days · stop word: ${esc(r.stop_word)}</div>`;
+      C.speak(r.text, r.language, { audioUrl: r.audio_url, interrupt: true });
+    }).catch(() => {}));
+    $('#cc-ask', els.care).addEventListener('click', (e) => busy(e.currentTarget, async () => {
+      const r = await C.api.consentAsk(pid, 'patient');
+      toast(r.sent ? 'Renewal question sent on WhatsApp' : 'Dry run – the renewal question is in the patient\'s WhatsApp (Demo page)', r.sent ? 'good' : '', 6000);
+    }).catch(() => {}));
+    $('#cc-renew', els.care).addEventListener('click', (e) => busy(e.currentTarget, async () => {
+      const s = await C.api.putCare(pid, { renew_consent: true });
+      consentNote(s.settings); toast('Consent date updated to today', 'good');
+    }).catch(() => {}));
     function renderGuardians(gs) {
       $('#cc-guardians', els.care).innerHTML = gs.length ? gs.map((g) => `<div class="guardian-row" data-id="${g.id}">
         <div class="who"><b>${esc(g.name)}</b> <span class="muted">· ${esc(g.relation || 'family')}${g.city ? ' · ' + esc(g.city) : ''}</span>${g.is_primary ? ' <span class="chip ok">primary</span>' : ''}
-          <div class="small muted">${esc(g.phone || 'no phone')} · ${esc(LANGS[g.language] || g.language)} · ${esc(CH[g.channel] || g.channel)}${g.quiet_start ? ` · quiet ${esc(g.quiet_start)}–${esc(g.quiet_end)}` : ''} · calls the patient “${esc(g.calls_patient || '')}” · ${g.consent ? '✓ consent' : '⚠ no consent'}</div></div>
+          <div class="small muted">${esc(g.phone || 'no phone')} · ${esc(LANGS[g.language] || g.language)} · ${esc(CH[g.channel] || g.channel)}${g.quiet_start ? ` · quiet ${esc(g.quiet_start)}–${esc(g.quiet_end)}` : ''} · calls the patient “${esc(g.calls_patient || '')}” · ${g.consent_ok ? `✓ consent ${esc(new Date(g.consent_at).toLocaleDateString([], { day: 'numeric', month: 'short' }))}${g.consent_renew_due ? ' (re-confirm: over 7 days)' : ''}` : '⚠ no consent'}</div></div>
         <a class="btn sm" href="${esc(SB.ui.link(g.link))}" target="_blank" rel="noopener" title="Magic link – no login">Family page ↗</a>
         <button class="btn sm" data-g="copy" type="button">Copy link</button>
         <select class="sm-select" data-g="channel" aria-label="How to reach ${esc(g.name)}">${Object.entries(CH).map(([k, v]) => `<option value="${k}" ${k === g.channel ? 'selected' : ''}>${v}</option>`).join('')}</select>
         ${g.is_primary ? '' : '<button class="btn sm" data-g="primary" type="button">Make primary</button>'}
-        <button class="btn sm" data-g="consent" type="button">${g.consent ? 'Withdraw consent' : 'Record consent'}</button>
+        ${g.consent_ok && g.consent_renew_due ? '<button class="btn sm" data-g="renew" type="button">↻ Re-confirm consent</button>' : ''}<button class="btn sm" data-g="consent" type="button">${g.consent_ok ? 'Withdraw consent' : 'Record consent'}</button>
         <button class="btn sm danger" data-g="del" type="button" aria-label="Remove ${esc(g.name)}">✕</button></div>`).join('') : '<div class="muted">No family members yet.</div>';
     }
     $('#cc-guardians', els.care).addEventListener('click', (e) => {
@@ -132,7 +165,8 @@
       busy(b, async () => {
         if (b.dataset.g === 'del') await C.api.delGuardian(id);
         if (b.dataset.g === 'primary') await C.api.editGuardian(id, { is_primary: true });
-        if (b.dataset.g === 'consent') await C.api.editGuardian(id, { consent: !g.consent });
+        if (b.dataset.g === 'consent') await C.api.editGuardian(id, { consent: !g.consent_ok });
+        if (b.dataset.g === 'renew') await C.api.editGuardian(id, { consent: true });
         toast('Saved', 'good'); await refresh(true);
       }).catch(() => {});
     });
@@ -142,7 +176,7 @@
     });
     $('#cc-save', els.care).addEventListener('click', (e) => busy(e.currentTarget, async () => {
       const steps = $$('#cc-steps label', els.care).map((l) => ({ key: l.dataset.key, enabled: l.querySelector('input[type=checkbox]').checked, delay_min: Number(l.querySelector('input[type=number]').value) || 0 }));
-      const s = await C.api.putCare(pid, { patient_phone: $('#cc-phone', els.care).value.trim() || null, quiet_start: $('#cc-qs', els.care).value, quiet_end: $('#cc-qe', els.care).value, trigger_missed: Number($('#cc-trig', els.care).value), auto: $('#cc-auto', els.care).checked, consent: $('#cc-consent', els.care).checked, steps });
+      const s = await C.api.putCare(pid, { patient_phone: $('#cc-phone', els.care).value.trim() || null, quiet_start: $('#cc-qs', els.care).value, quiet_end: $('#cc-qe', els.care).value, trigger_missed: Number($('#cc-trig', els.care).value), auto: $('#cc-auto', els.care).checked, call_style: $('#cc-style', els.care).value, consent: $('#cc-consent', els.care).checked, steps });
       fillCare(s.settings); consentNote(s.settings); toast('Settings saved', 'good');
     }).catch(() => {}));
     $('#cc-add', els.care).addEventListener('submit', (e) => {
@@ -176,7 +210,9 @@
       const [d, tl, st] = await Promise.all([C.api.patient(pid), C.api.timeline(pid, 60), refresh.status ? Promise.resolve(refresh.status) : C.api.status().catch(() => null)]);
       refresh.status = st;
       data = d;
-      if (st) $('#cp-provider', els.actions).textContent = st.calls_provider === 'dry_run' ? 'Calls: dry run (simulator)' : `Calls: ${st.calls_provider}`;
+      if (st) $('#cp-provider', els.actions).textContent = `Calls: ${st.calls_provider === 'dry_run' ? 'dry run (simulator)' : st.calls_provider} · AI check-in: ${st.checkin_provider === 'sarvam_agent' ? 'Sarvam' : 'simulator'}`;
+      const cr = (d.calls || []).filter((c) => c.result).map(C.callResult).join('');
+      if (cr !== refresh.csig) { refresh.csig = cr; $('#cp-calls', els.actions).innerHTML = cr || '<li class="muted" style="border:0;background:none;padding:0">No AI check-in calls yet.</li>'; }
       const tr = d.trend;
       $('#cp-trend', els.actions).innerHTML = tr && tr.flag ? `<div class="observation"><b>📉 Lower than usual (observation)</b><br>${esc(tr.text)}</div>`
         : tr && tr.avg3 ? `<div class="muted small">Today's best vs own 3-day average (${Number(tr.avg3).toLocaleString()} mL): ${tr.pct_below ? tr.pct_below + '% lower' : 'not lower'} – no flag.</div>` : '';
