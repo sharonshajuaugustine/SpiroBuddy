@@ -237,3 +237,19 @@ Also: added FUTURE_ARCHITECTURE W1–W16 to the ledger (#191–#206) without ope
 | 2026-10-10 | curl / Jina / WebFetch | TPG PDF at covid19dashboard.mohfw.gov.in, nmcn.in, mohfw.gov.in, vikaspedia | None (blocked / empty) |
 | 2026-10-10 | WebSearch | "Telemedicine Practice Guidelines" text "WhatsApp" "Facebook Messenger" "chat" "Mobile App" RMP section 3 technology "Text / Chat based" | Medium: secondary summaries quote WhatsApp line (F-REG-8) |
 | 2026-10-10 | WebSearch | PIB MyGov Corona Helpdesk WhatsApp chatbot 9013151515 launched vaccination certificate download WhatsApp | Medium: F-INDLOC-10 (news snippets) |
+
+## Round 9 plan (10 Oct 2026, capped at ~12 sources): WaBI vs Meta Cloud API vs Twilio sandbox
+One question that blocks a build decision: can our server send through WaBI with an API key? Identify WaBI first (repo notes say: Coyot AI's own product), then API, onboarding, price, comparison.
+
+| date | channel | query | useful? |
+|---|---|---|---|
+| 2026-10-10 | repo grep | "wabi" / "coyot" in docs/ | High: KB round 8 says WaBI = the team's own platform (Coyot AI) |
+| 2026-10-10 | WebSearch | WaBI Coyot AI WhatsApp Business API platform India | None (not indexed) |
+| 2026-10-10 | WebSearch | "WaBI" WhatsApp Business API India provider pricing API docs | None for WaBI; general provider fees only |
+| 2026-10-10 | WebSearch | "Coyot AI" WhatsApp | None |
+| 2026-10-10 | WebSearch | "WaBI" "WhatsApp Business" Coyot OR coyot.ai OR "wabi.in" OR "getwabi" Kerala | None (found an unrelated "Wabi" iPhone app) |
+| 2026-10-10 | curl | coyot.ai (+ guessed domains and paths) | High: WaBI section, link to the app |
+| 2026-10-10 | curl | coyot-wabi.vercel.app, /terms, /privacy, /login | High: Tech Provider model, Meta bills directly; no public API docs or prices |
+| 2026-10-10 | internal | the team's own private WaBI documents and code (read-only) | High: server API, keys, webhooks, onboarding (F-COMMS-17, 18) |
+| 2026-10-10 | internal | India local-storage setting in the WaBI code | None found (search may be incomplete) |
+| 2026-10-10 | curl | Meta docs .md: get-started, messages/send-messages, webhooks/overview, templates/template-review, solution-providers/get-started-for-tech-providers, business-phone-numbers/phone-numbers, access-tokens | High: F-COMMS-19; test-number recipient limit not stated |

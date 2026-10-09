@@ -1209,3 +1209,70 @@ Context: family updates may go through WaBI (the team's own Indian WhatsApp Busi
 3. DPDP Act s. 44 / IT Act s. 43A status, and whether any s. 16 restricted-country list has been notified (open the Act text, #196).
 4. Whether WaBI supports `data_localization_region: IN` when registering numbers, and whose business name the sender shows.
 5. Meta Commerce Policy and WhatsApp Business Data Processing Terms (sub-processor list) – not opened; low priority.
+
+## Round 9 – WaBI vs Meta Cloud API (10 Oct 2026)
+
+**Privacy note:** this repo is public. Part of this round used the team's own private WaBI material. Only the conclusions are kept here; request formats, internal prices and hosting details were removed on purpose. Ask the WaBI team for the developer guide.
+
+**Short answer:** yes, our server can send WhatsApp messages through WaBI by itself with an API key. WaBI is Coyot AI's own product and it *is* Meta's Cloud API underneath, so "WaBI or Meta direct" is really "use the layer we already built, or write that layer again inside SpiroBuddy". For the demo, keep the Twilio sandbox that is already coded. For the pilot, use WaBI with the hospital's own WhatsApp number, after the fixes listed below.
+
+**Which WaBI? (identification: high confidence)** WaBI = **Coyot WaBI**, made by **Coyot AI** (coyot.ai). The coyot.ai home page calls it "an existing Coyot AI product". It is not one of the well-known Indian providers (Wati, Interakt, Gupshup, AiSensy) and web search finds nothing about it. An unrelated iPhone app also called "Wabi" is **not** this product.
+
+**Evidence labels:** **[INTERNAL]** = the team's own private WaBI documents and code (not public). **[MARKETING]** = a public marketing or legal page. **[DOCS, Meta]** = developers.facebook.com. **[NOT CONFIRMED]** = could not confirm. **Nothing was test-sent this round.**
+
+### F-COMMS-17: WaBI has a real server API: an API key, a call to send a template, a call to send a free-form reply, and signed webhooks for incoming replies
+- Detail **[INTERNAL]**: keys are created by an owner or admin inside WaBI's settings. A server can send an approved template (business-started message) or a free-form text (only inside WhatsApp's 24-hour window, and only if that person has already messaged us), and can check a send. Incoming replies, delivery status and opt-outs arrive at our server as signed webhooks. Sends are once-only (a repeat does not send twice) and an opted-out contact is never sent a template.
+- Detail **[MARKETING, coyot.ai + WaBI terms/privacy pages]**: described only as a dashboard (bulk campaigns, shared team inbox, contacts, delivery/read insights). It connects to Meta's Cloud API as a registered Tech Provider, the customer connects their own WhatsApp Business Account, and **Meta bills the customer directly** for messages. The public pages do not mention the API.
+- Source: ledger #219, #221, #222 – Grade B (company's own material, not a published spec).
+- Use in build: a WaBI sender would sit beside the Twilio one in `backend/app/whatsapp.py`; replies ("STOP", "status", 1/2/3) would arrive on a new webhook route.
+- Caveat – limits that matter for SpiroBuddy **[INTERNAL]**:
+  - Only **text** and **templates without a media header**. No image (the weekly progress card), no voice note, no free-form buttons.
+  - A person who types **STOP** is opted out inside WaBI. Our own consent record must be updated from the opt-out event too.
+  - Hosting is **not in India yet**, and India local storage of message data is **[NOT CONFIRMED]**.
+
+### F-COMMS-18: WaBI onboarding and price: the slow parts are Meta's (business verification, payment method, display name, template review), not WaBI's
+- Detail **[INTERNAL]**: connecting a new number needs a phone number not already on WhatsApp, a Meta Business Portfolio, Meta **business verification** (days, not hours), a payment method on the WhatsApp account and a display name Meta accepts. Coyot AI's own number is already connected and verified.
+- **Per-message price:** WaBI adds none. Meta charges the WhatsApp account directly (utility template in India ₹0.115, F-COMMS-2). WaBI's own subscription price is not published.
+- Detail **[NOT CONFIRMED]**: any sandbox or test number inside WaBI; public pricing; uptime promise.
+- Source: #221, #222 – Grade B.
+
+### F-COMMS-19: Meta's Cloud API used directly: free test number at once, one REST call to send, webhooks for replies, templates reviewed within about 24 hours
+- Detail **[DOCS, Meta]**:
+  - Getting started needs only a Facebook account and developer registration. Creating the app gives a **test business phone number automatically** and a **temporary access token**; you add a "To" number and send.
+  - **Send (templates and free-form use the same call):** `POST https://graph.facebook.com/v25.0/<PHONE_NUMBER_ID>/messages` with header `Authorization: Bearer <token>` and `"messaging_product": "whatsapp"`.
+  - **Free-form messages** only within 24 hours of the user's last message; otherwise an approved template.
+  - **Replies and delivery status** arrive as webhooks (JSON) on our URL; needs the `whatsapp_business_messaging` permission.
+  - **Long-lived token** for a server: a System User token (if we send only from our own account). Sending from **another** business's account (a hospital's) needs a Tech Provider's "business token", which means Meta business verification + App Review.
+  - **Template review:** "can take up to 24 hours"; appeal decisions also within 24 hours.
+- Detail **[NOT CONFIRMED in the pages read]**: the commonly quoted limit of 5 recipient numbers on the test number; how long the temporary token lasts; Meta's own stated time for business verification.
+- Source: Meta for Developers – get-started (#224), send-messages (#225), webhooks overview (#226), template review (#227), Become a Tech Provider (#228), phone numbers (#229), access tokens (#230) – Grade B. Price: F-COMMS-2.
+- Caveat: none of this is written in SpiroBuddy yet. It would be a new sender, a new webhook reader, token handling and a consent/opt-out layer, which is what WaBI already has.
+
+### Comparison (for the build decision)
+
+| | **WaBI** (Coyot AI's own) | **Meta Cloud API direct** | **Twilio WhatsApp sandbox** (already coded) |
+|---|---|---|---|
+| Server can send with a key? | Yes [INTERNAL] | Yes: Bearer token [DOCS] | Yes: account SID + token (COMMS.md §4, F-COMMS-6) |
+| Send template / free-form | Both; text only, no images or voice notes | Both; all message types | Free-form in the sandbox; Twilio's own templates only |
+| Replies ("STOP", "status") | Signed webhook | Webhook from Meta | Webhook, already wired (`/api/comms/webhooks/whatsapp`) |
+| Sender the family sees | Indian number, "Coyot AI" today; the hospital's name once the hospital connects its own number | Meta test number for a demo; own number later | Twilio's shared US number |
+| Work left in SpiroBuddy | New sender + new webhook route (small) | New sender, webhook, tokens, consent layer (larger) | **None** |
+| Ready for a demo in a few hours? | **Probably**, with a small adapter. Untested. | **Possible** with the test number, but more new code on demo eve | **Yes, about 15 minutes**; each phone must send the join code, again on demo morning (expires after 3 days) |
+| Right for a hospital pilot? | **Yes, with fixes** (below) | Yes, but we would rebuild what WaBI has | **No** (sandbox, shared foreign number, no own templates) |
+| Cost | Meta's fee only (utility ₹0.115) | Meta's fee only | Meta's fee + Twilio $0.005 per message (F-COMMS-10) |
+
+### Recommendation
+- **Demo: keep the Twilio sandbox plus the built-in phone simulators.** It is the only path that needs no new code the night before. A WaBI adapter is a nice extra only if a real test send works first.
+- **Pilot: WaBI, with the hospital's own verified WhatsApp number,** so families see the hospital's name. It is Meta's Cloud API anyway (same price, same rules, F-COMMS-14 to 16, F-REG-7); consent, STOP handling, send-once safety and signed webhooks already exist; the team controls the code. **Before the first real patient:** (1) host WaBI in India; (2) register pilot numbers with India local storage (F-REG-7); (3) add image / voice-note / button sends if the pilot needs the progress card.
+- If WaBI cannot meet (1) and (2) in time, fall back to Meta Cloud API direct on the hospital's own account.
+
+### Risks found (round 9)
+- **R-WA-6: Using Coyot AI's live number for patient-family messages.** Its existing chatbots may answer a family member's reply, the sender shows "Coyot AI" (not a hospital), and a family STOP opts that person out of Coyot AI's own messages. For a demo, use a separate number if one exists, or accept this knowingly.
+- **R-WA-7: WaBI's API is documented only privately.** A future session without access must ask the WaBI team for the developer guide.
+- **R-WA-8: Free-form messages need the person to write first.** Otherwise only an approved template works, and review can take up to 24 hours. Submit SpiroBuddy's utility templates early if WaBI will be shown live.
+
+### Still uncertain (round 9)
+1. A live end-to-end send through WaBI (nobody has tested it for SpiroBuddy).
+2. Whether WaBI supports India local storage at number registration (open gap 4 from round 8: **still open**).
+3. Whether a separate, bot-free number exists in WaBI for the demo.
+4. Meta's recipient limit on test numbers and the temporary token's lifetime (not on the pages read).
