@@ -55,3 +55,46 @@ Every query run by the research agent, with date and usefulness, so no query is 
 | 2026-10-09 | WebSearch | flow-oriented versus volume-oriented incentive spirometer randomized trial India patients | High: Mangalore RCT |
 | 2026-10-09 | WebSearch | PM-JAY Ayushman Bharat most common surgical procedures claimed top specialities general surgery orthopaedics cardiology | High |
 | 2026-10-09 | YouTube (yt-dlp) | ytsearch6: incentive spirometer kaise use kare hindi | Medium: 3-ball devices dominate |
+
+## Round 3 plan (9 Oct 2026)
+1. COMMS: TRAI TCCCPR Third Amendment text; SMS DLT; Twilio WhatsApp fee; Plivo/Exotel India price + KYC.
+2. INDLOC: demographics by surgery; caregiver/living arrangements (LASI); vision/hearing/literacy; naming and format conventions.
+3. TECH: VL53L1X datasheet accuracy; camera tracking of IS; open-source projects.
+4. REG: CDSCO MDSW guidance + class of spirometers; DPDP Rules 2025 text.
+5. VOICE: Bulbul latency, voices for elderly, Bhashini terms. 6. BIZ: PM-JAY HBP rates; India complication cost; hospital RPM models. 7. COMP: Indian/PCT patents; Indian respiratory startups. 8. JUDGE section.
+(A previous round-3 agent was stopped before logging anything; its DPDP reading was redone here.)
+
+| date | channel | query | useful? |
+|---|---|---|---|
+| 2026-10-09 | curl + pdftotext | TRAI Regulation_18092026.pdf (Jina returned empty) | High: primary text read |
+| 2026-10-09 | WebSearch | DLT registration SMS India sender ID header template approval time cost entity registration Jio Vilpower 2026 | High: steps/timelines; fee conflicting |
+| 2026-10-09 | WebSearch | Twilio WhatsApp pricing India per message fee Twilio markup 2026 | Medium: led to Twilio page |
+| 2026-10-09 | Jina Reader | twilio.com/en-us/whatsapp/pricing; developer.exotel.com dlt-guide | High |
+| 2026-10-09 | Jina Reader | plivo.com/voice/pricing/in; support.plivo.com India requirements | High |
+| 2026-10-09 | WebSearch | Exotel account KYC verification documents how many days activation virtual number outbound calls per minute rate | High: KYC; no official rate |
+| 2026-10-09 | Jina Reader | developer.exotel.com kyc-verification | High |
+| 2026-10-09 | Europe PMC | (CABG OR "coronary artery bypass") AND (India OR Indian) AND "mean age" 2018–2026 | Low: noisy |
+| 2026-10-09 | WebSearch | Indian patients undergoing CABG mean age male percentage diabetes multicentre registry India study | Medium: single-centre snippets |
+| 2026-10-09 | Jina Reader | amrita.edu 4,024-CABG publication page | Low: abstract without numbers |
+| 2026-10-09 | Europe PMC | DOI:10.1007/s12055-014-0318-5 | None (not indexed) |
+| 2026-10-09 | Europe PMC | "total knee arthroplasty" India "mean age" female multicentre/registry 2019–2026 | High |
+| 2026-10-09 | Europe PMC | TITLE "coronary artery bypass" India AFF "mean age" 2017–2026 | Medium |
+| 2026-10-09 | Europe PMC | TITLE cholecystectomy India "mean age" female 2019–2026; "post-tuberculosis lung disease" India age | High |
+| 2026-10-09 | WebSearch | LASI wave 1 India older adults living arrangements living alone with children spouse percentage caregiver daughter-in-law | High: led to LASI factsheet |
+| 2026-10-09 | curl + pdftotext | VL53L1X datasheet (st.com blocked; Pololu mirror) | High |
+| 2026-10-09 | GitHub (gh) | search repos "incentive spirometer"; "spirometer computer vision ball" | Medium / none |
+| 2026-10-09 | Europe PMC | "incentive spirometer" AND (camera OR smartphone OR "computer vision" OR video OR sensor) 2019–2026 | High |
+| 2026-10-09 | WebSearch | DPDP Rules 2025 notified November 2025 phased implementation 18 months consent manager data breach 72 hours health data exemptions Fourth Schedule healthcare | High |
+| 2026-10-09 | WebSearch | meity.gov.in DPDP Rules 2025 gazette notification PDF G.S.R. 846(E) | High: primary PDF link |
+| 2026-10-09 | WebSearch | CDSCO guidance document medical device software 2026 SaMD wellness software excluded risk classification final guidance | High |
+| 2026-10-09 | WebSearch | CDSCO classification list respiratory devices "incentive spirometer" risk class A OR B notification anaesthesiology pulmonology | Medium: IS not listed |
+| 2026-10-09 | WebSearch | Sarvam Bulbul v3 latency milliseconds time to first audio benchmark streaming TTS | Medium: vendor claim only |
+| 2026-10-09 | Europe PMC | synthetic speech / TTS older adults speech rate intelligibility | None |
+| 2026-10-09 | WebSearch | Bhashini ULCA API access startups free registration terms TTS ASR inference API key Dhruva | Low: third-party only |
+| 2026-10-09 | WebSearch | PM-JAY HBP 2022 package rate CABG rupees coronary artery bypass graft package price Ayushman Bharat cholecystectomy package rate | High: led to HBP 2022 sheet |
+| 2026-10-09 | WebSearch | India hospital cost postoperative pneumonia OR pulmonary complication rupees additional cost per patient study tertiary hospital readmission cost INR | Low: VAP proxy only |
+| 2026-10-09 | Europe PMC | ventilator-associated pneumonia attributable cost India 2015 | Medium |
+| 2026-10-09 | WebSearch | Indian hospital post-discharge remote patient monitoring program subscription fee rupees Apollo OR Narayana OR Manipal OR Medanta home care monitoring 2025 | Medium: models, no current prices |
+| 2026-10-09 | WebSearch | patents.google.com IN incentive spirometer sensor monitoring device Indian patent application 202 | Low: US only |
+| 2026-10-09 | Google Patents xhr | q=("incentive spirometer")&country=IN; q=spirometer&country=IN; q=spirometer + incentive/exerciser/lung &country=IN; q=spirometer&assignee=Tidal | Medium: found Tidal PCT |
+| 2026-10-09 | WebSearch | Indian startup pulmonary rehabilitation digital app COPD home monitoring India 2025 2026 funding respiratory healthtech | High: Respira Health |
