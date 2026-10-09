@@ -105,6 +105,11 @@ const D = {
 };
 D.pistonRestBottom = D.zeroY - S.pistonH;                 // B12/B14
 D.restDist = D.seatY + D.pistonRestBottom - D.sensorFaceY;  // D05
+// Patient outline (illustration only): a 400 x 600 mm card; the mouth is at canvas px (364, 296) of 512 x 768.
+const FIGURE = { w: 400, h: 600, at: [-274, 216, 70] };
+FIGURE.mouth = new THREE.Vector3(FIGURE.at[0] + (364 - 256) * FIGURE.w / 512, FIGURE.at[1] + FIGURE.h / 2 - 296 * FIGURE.h / 768, FIGURE.at[2]);
+FIGURE.hoseEnd = new THREE.Vector3(FIGURE.mouth.x + S.filterL + S.mouthL - 6, FIGURE.mouth.y - 3, FIGURE.mouth.z);
+const FIGURE_NOTE = 'The patient breathes in slowly';
 const LBL = { good: 'Good', too_fast: 'Too fast', too_shallow: 'Too shallow', no_hold: 'No hold' };
 const LBL_HI = { good: 'बहुत बढ़िया!', too_fast: 'अगली बार धीरे', too_shallow: 'और गहरी साँस लें', no_hold: 'थोड़ा रोकें' };
 const TIP = { good: 'Great breath!', too_fast: 'Too fast – slower next time', too_shallow: 'Breathe in deeper', no_hold: 'Hold a little longer' };
@@ -256,7 +261,7 @@ const rim = new THREE.DirectionalLight(0xcfe8ff, 1.1); rim.position.set(-400, 30
 function gradientTexture() {
   const c = document.createElement('canvas'); c.width = 16; c.height = 512;
   const g = c.getContext('2d'), gr = g.createLinearGradient(0, 0, 0, 512);
-  gr.addColorStop(0, '#f4f6f9'); gr.addColorStop(0.55, '#e3e9ef'); gr.addColorStop(1, '#bfcad6');
+  gr.addColorStop(0, '#dde5ed'); gr.addColorStop(0.55, '#b4c2d0'); gr.addColorStop(1, '#8395a8');   // mid-tone so clear plastic reads on a projector
   g.fillStyle = gr; g.fillRect(0, 0, 16, 512);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
@@ -268,7 +273,7 @@ function gradientTexture() {
   g.fillStyle = gr; g.fillRect(0, 0, 256, 256);
   const alpha = new THREE.CanvasTexture(c);
   const floor = new THREE.Mesh(new THREE.CircleGeometry(1400, 96),
-    new THREE.MeshStandardMaterial({ color: 0xe9eef2, roughness: 0.85, metalness: 0, transparent: true, alphaMap: alpha, depthWrite: false }));
+    new THREE.MeshStandardMaterial({ color: 0xc5d0db, roughness: 0.85, metalness: 0, transparent: true, alphaMap: alpha, depthWrite: false }));
   floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; floor.name = 'floor';
   scene.add(floor);
 }
@@ -277,7 +282,7 @@ function gradientTexture() {
 // MATERIALS & HELPERS
 // =====================================================================================
 const M = {
-  clear: () => new THREE.MeshPhysicalMaterial({ color: 0xf4fbff, roughness: 0.04, metalness: 0, transparent: true, opacity: 0.17,
+  clear: () => new THREE.MeshPhysicalMaterial({ color: 0xf4fbff, roughness: 0.04, metalness: 0, transparent: true, opacity: 0.22,
     clearcoat: 1, clearcoatRoughness: 0.04, side: THREE.DoubleSide, depthWrite: false, envMapIntensity: 1.4 }),
   frosted: () => new THREE.MeshPhysicalMaterial({ color: 0xf1f5f8, roughness: 0.45, transparent: true, opacity: 0.86, clearcoat: 0.4 }),
   blue: () => new THREE.MeshPhysicalMaterial({ color: 0x3aa7d9, roughness: 0.32, clearcoat: 0.6, clearcoatRoughness: 0.2 }),
@@ -424,7 +429,7 @@ function buildSpirometer() {
   // piston / plunger (B12) — moves; "ml Inspired Volume" print, side vent slots
   {
     const p = new THREE.Group(); p.name = 'piston';
-    const pm = M.blueTrans(); pm.opacity = 0.9;
+    const pm = M.blueTrans(); pm.opacity = 0.97; pm.color.set(0x1b86c8);   // the moving disc is the thing to watch
     p.add(at(cyl(S.pistonD / 2, S.pistonD / 2, S.pistonH, pm, 'piston_body', 48), 0, S.pistonH / 2, 0));
     p.add(at(cyl(S.pistonD / 2 - 1, S.pistonD / 2 - 1, 1.2, M.blue(), 'piston_top'), 0, S.pistonH - 0.6, 0));
     p.add(at(cyl(4, 4, 2.5, M.blue(), 'piston_knob'), 0, S.pistonH + 1.0, 0));
@@ -554,12 +559,12 @@ function ribbedTube(curve, r, pitch, amp, radial = 16) {
   g.computeVertexNormals(); return g;
 }
 let hoseKey = '';
-function updateHose(spiro, groupWorldPos) {
+function updateHose(spiro, groupWorldPos, fig = 0) {
   // The hose starts at the connector-tube port and lies on the table; the end stays put in the world.
   const p = spiro.parts.port, start = new THREE.Vector3(D.midX, S.portY, S.midOD / 2 + 11);
-  const endW = new THREE.Vector3(-150, S.hoseOD / 2, 128);
+  const endW = new THREE.Vector3(-150, S.hoseOD / 2, 128).lerp(FIGURE.hoseEnd, fig);
   const end = endW.clone().sub(groupWorldPos);
-  const k = `${end.x.toFixed(1)},${end.y.toFixed(1)},${end.z.toFixed(1)}`;
+  const k = `${end.x.toFixed(1)},${end.y.toFixed(1)},${end.z.toFixed(1)},${fig.toFixed(3)}`;
   if (k === hoseKey) return; hoseKey = k;
   const floorY = -groupWorldPos.y + S.hoseOD / 2;
   // forward out of the port, down in front of the base unit, then to the left along the table
@@ -573,6 +578,18 @@ function updateHose(spiro, groupWorldPos) {
     new THREE.Vector3(end.x + 30, floorY, end.z + 3),
     end,
   ];
+  if (fig > 0) {   // lifted to the patient's mouth: a loose arc from the port up to the mouthpiece
+    const up = [
+      start,
+      new THREE.Vector3(start.x - 2, start.y - 4, start.z + 14),
+      new THREE.Vector3(start.x - 12, start.y - 14, start.z + 42),
+      new THREE.Vector3(lerp(start.x, end.x, 0.5), (start.y + end.y) / 2 - 62, end.z + 48),
+      new THREE.Vector3(end.x + 62, end.y - 26, end.z + 14),
+      new THREE.Vector3(end.x + 26, end.y - 4, end.z + 2),
+      end,
+    ];
+    pts.forEach((q, i) => q.lerp(up[i], fig));
+  }
   const curve = new THREE.CatmullRomCurve3(pts, false, 'centripetal');
   spiro.parts.hose.geometry.dispose();
   spiro.parts.hose.geometry = ribbedTube(curve, S.hoseOD / 2 - S.hoseRib / 2, S.hosePitch, S.hoseRib / 2);
@@ -767,6 +784,32 @@ beam.add(beamCone, beamCore, beamSpot); scene.add(beam);
 const glowSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: canvasTex(128, 128, (c) => { const gr = c.createRadialGradient(64, 64, 2, 64, 64, 64); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.3, 'rgba(255,255,255,0.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = gr; c.fillRect(0, 0, 128, 128); }), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false }));
 glowSprite.scale.set(90, 26, 1); glowSprite.userData.fx = true; scene.add(glowSprite);
 
+// Patient figure: a flat, one-colour outline (head and shoulders in profile) at the mouthpiece. It only
+// shows how the spirometer is used and gives scale – it is deliberately not a realistic person.
+const figure = (() => {
+  const tex = canvasTex(512, 768, c => {
+    c.beginPath(); c.moveTo(250, 70);
+    c.bezierCurveTo(330, 70, 372, 120, 362, 170);                                  // forehead
+    c.lineTo(394, 238); c.lineTo(366, 252); c.lineTo(376, 282);                    // nose, upper lip
+    c.lineTo(364, 296); c.lineTo(372, 316);                                        // mouth, lower lip
+    c.bezierCurveTo(372, 345, 350, 362, 318, 362); c.lineTo(296, 372);             // chin, jaw
+    c.bezierCurveTo(296, 420, 310, 450, 350, 480);                                 // neck (front)
+    c.bezierCurveTo(400, 520, 410, 620, 410, 768); c.lineTo(20, 768);              // chest
+    c.bezierCurveTo(20, 600, 60, 500, 150, 460);                                   // back, shoulder
+    c.bezierCurveTo(175, 440, 180, 400, 172, 360);                                 // neck (back)
+    c.bezierCurveTo(120, 320, 110, 230, 130, 170);
+    c.bezierCurveTo(150, 100, 200, 70, 250, 70); c.closePath();
+    c.fillStyle = 'rgba(11,110,138,0.30)'; c.fill();                              // light fill + firm outline
+    c.strokeStyle = '#0b6e8a'; c.lineWidth = 7; c.lineJoin = 'round'; c.stroke();
+    c.globalCompositeOperation = 'destination-in';                                 // fade out towards the table
+    const gr = c.createLinearGradient(0, 0, 0, 768); gr.addColorStop(0, '#000'); gr.addColorStop(0.62, '#000'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    c.fillStyle = gr; c.fillRect(0, 0, 512, 768);
+  });
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(FIGURE.w, FIGURE.h), new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
+  m.name = 'fx_patient_outline'; m.userData.fx = true; m.position.set(...FIGURE.at); m.visible = false; scene.add(m);
+  return m;
+})();
+
 // X-ray outline: edges of the shell parts, shown when the shell turns see-through
 const xrayEdges = [];
 for (const part of [unit.parts.tray, unit.parts.lid]) {
@@ -820,7 +863,9 @@ function applyState(st) {
   spiro.group.position.set(0, (st.spiroY ?? D.seatY) + 135 * ex, 0);
   phone.group.position.set(CFG.phone.at[0] + (st.phoneX || 0), CFG.phone.at[1], CFG.phone.at[2]);
   phone.group.visible = (st.phoneX || 0) < 900;
-  updateHose(spiro, spiro.group.position);
+  const fig = st.figure || 0;
+  updateHose(spiro, spiro.group.position, fig);
+  figure.visible = fig > 0.01; figure.material.opacity = fig;
   // breath
   const be = breathEval(st.sched || [], st.tB ?? 0);
   const co = coachEval(be, st.tB ?? 0);
@@ -1011,14 +1056,15 @@ const VIDEOS = {
     sched: [{ t0: 3.2, type: 'too_fast' }, { t0: 34.8, type: 'good' }, { t0: 49.0, type: 'too_fast' }, { t0: 54.6, type: 'good' }, { t0: 65.0, type: 'too_shallow' }, { t0: 72.6, type: 'no_hold' }],
     countOffset: 2,
     tracks: {
-      cam: [[0, C(28, 12, 560, 0, 100, 0)], [9, C(-12, 12, 520, 0, 100, 0)], [11, C(-6, 14, 660, 0, 125, 0)], [17, C(22, 16, 660, 10, 115, 0)], [20.5, C(32, 22, 760, 0, 150, 0)],
+      cam: [[0, C(20, 9, 980, -90, 215, 0)], [9, C(-4, 9, 940, -90, 215, 0)], [11, C(-6, 14, 660, 0, 125, 0)], [17, C(22, 16, 660, 10, 115, 0)], [20.5, C(32, 22, 760, 0, 150, 0)],
             [26, C(-34, 24, 800, 0, 165, 0)], [30.5, C(-26, 22, 800, 0, 165, 0)], [33.5, C(-18, 18, 680, 0, 125, 0)],
             // chapter 4 – close-up from the front-right so the two chambers sit side by side (looking along the x axis
             // lines them up one behind the other and, with X-ray on, reads as a doubled spirometer)
             [35, C(32, 12, 520, D.volX, 80, 0)], [41, C(42, 10, 540, D.volX, 84, 0)], [46, C(36, 11, 530, D.volX, 84, 0)],
             [48.5, C(14, 12, 560, 90, 108, 25)], [63, C(-6, 13, 545, 90, 108, 25)], [65, C(18, 11, 545, 90, 110, 25)], [76, C(6, 10, 530, 90, 110, 25)],
             [78, C(24, 6, 330, 200, 86, 60)], [85.5, C(18, 7, 320, 200, 86, 60)], [88.5, C(14, 16, 760, 60, 105, 10)], [92, C(4, 16, 800, 60, 105, 10)]],
-      unitX: [[0, 560], [11.6, 560], [14.2, 0]],
+      unitX: [[0, 700], [11.6, 560], [14.2, 0]],
+      figure: [[0, 1], [9.0, 1], [10.0, 0]],
       spiroY: [[0, 0], [10.6, 0], [12.0, SEAT + 34], [14.4, SEAT + 34], [16.0, SEAT]],
       phoneX: [[0, 1000], [44, 1000], [47, 0]],
       explode: [[0, 0], [20.5, 0], [23.5, 1], [30.5, 1], [33.5, 0]],
@@ -1038,7 +1084,7 @@ const VIDEOS = {
       [39.6, 46.8, 'Distance → mL, calibrated with the spirometer’s own printed marks. (The 940 nm beam is invisible – drawn for illustration.)'],
       [47, 54.4, 'Too fast? The light turns amber and the phone says “Slower…” – “धीरे…”'],
       [54.4, 63.8, 'A slow, deep breath with a 3-second hold: green light, a beep, and a score out of 10.'],
-      [64, 71, 'Our own trained model labels every breath — here: too shallow…'],
+      [64, 71, 'Our trained model labels every breath, with simple rules as the backup — here: too shallow…'],
       [71, 76.8, '…and no hold. Each label comes with one simple tip.'],
       [77, 81.6, "Each hourly session ticks itself off on today's checklist."],
       [81.6, 85.8, 'Every evening the family gets a short WhatsApp update. Alerts come from rules, not AI.'],
@@ -1063,7 +1109,7 @@ const VIDEOS = {
   },
   exploded: {
     title: 'Exploded view', duration: 15, chapters: [[0, "What's inside"]], sched: [], countOffset: 0,
-    tracks: { cam: [[0, C(-40, 22, 720, 0, 130, 0)], [15, C(60, 24, 720, 0, 130, 0)]], unitX: [[0, 0]], spiroY: [[0, SEAT]], phoneX: [[0, 1000]], explode: [[0, 0], [1, 0], [4, 1], [11, 1], [14, 0]], xray: [[0, 0], [1, 0], [2.5, 1], [12.5, 1], [14, 0]], labels: [[0, 0], [3.5, 0], [4.5, 1], [10.6, 1], [11.6, 0]], laser: [[0, 0]] },
+    tracks: { cam: [[0, C(-40, 22, 840, 0, 172, 0)], [15, C(60, 24, 840, 0, 172, 0)]], unitX: [[0, 0]], spiroY: [[0, SEAT]], phoneX: [[0, 1000]], explode: [[0, 0], [1, 0], [4, 1], [11, 1], [14, 0]], xray: [[0, 0], [1, 0], [2.5, 1], [12.5, 1], [14, 0]], labels: [[0, 0], [3.5, 0], [4.5, 1], [10.6, 1], [11.6, 0]], laser: [[0, 0]] },
     phone: () => ({ screen: 'live' }), captions: [[0.3, 3.5, 'SpiroBuddy base unit — exploded view'], [11.8, 15, 'Everything fits in a 46 mm-tall base under the spirometer.']], labelGroups: () => ['unit', 'spiro'],
   },
 };
@@ -1071,7 +1117,7 @@ function videoState(id, t) {
   const v = VIDEOS[id], T = v.tracks;
   return {
     cam: (c => ({ ...c, dist: c.dist * (v.camScale ?? 1.25) }))(track(T.cam, t)), hud: v.hud ? v.hud(t) : true, unitX: track(T.unitX, t), spiroY: track(T.spiroY, t), phoneX: track(T.phoneX, t),
-    explode: track(T.explode, t), xray: track(T.xray, t), labels: track(T.labels, t), laser: track(T.laser, t),
+    explode: track(T.explode, t), figure: T.figure ? track(T.figure, t) : 0, xray: track(T.xray, t), labels: track(T.labels, t), laser: track(T.laser, t),
     sched: v.sched, tB: t, countOffset: v.countOffset, phone: v.phone(t), caption: captionAt(v.captions, t),
     labelGroups: v.labelGroups(t), chapters: v.chapters, duration: v.duration, t, panel: v.panel, title: v.title,
   };
@@ -1129,7 +1175,7 @@ function drawBeamNote(ctx, Wpx, Hpx, alpha, scale, info, callout = false) {
     // phone at home (interactive mode, breath-types video): small tag under the sensor, clear of the phone
     const p = project(unit.parts.sensor, [0, D.sensorFaceY + 30, 0], Wpx, Hpx); if (!p) { ctx.restore(); return; }
     ctx.font = `600 ${14 * scale}px ${FONT}`; const tw = ctx.measureText(l2).width;
-    const x = p.x + 40 * scale, y = p.y + 50 * scale;
+    const x = p.x - tw / 2 - 10 * scale, y = p.y + 92 * scale;
     ctx.fillStyle = 'rgba(253,236,236,0.96)'; rr(ctx, x, y - 14 * scale, tw + 20 * scale, 28 * scale, 8 * scale); ctx.fill();
     ctx.strokeStyle = 'rgba(198,40,40,0.55)'; ctx.stroke();
     ctx.fillStyle = '#c62828'; ctx.fillText(l2, x + 10 * scale, y + 1);
@@ -1167,7 +1213,8 @@ function drawVideoOverlay(ctx, st, info, Wpx, Hpx) {
   ctx.fillStyle = '#4a5868'; ctx.font = `500 17px ${FONT}`; ctx.fillText('Healthcare & Wellbeing · hackathon demo', Wpx - 56, 116);
   ctx.textAlign = 'left';
   // HUD
-  if (st.unitX < 300 && st.hud) drawHUD(ctx, info, 48, 136);
+  if (st.unitX < 300 && st.hud && st.labels < 0.98) { ctx.globalAlpha = 1 - st.labels; drawHUD(ctx, info, 48, 136); ctx.globalAlpha = 1; }
+  if (st.figure > 0.01) drawFigureNote(ctx, st, info, Wpx, Hpx);
   // breath-type panel
   if (st.panel) drawBreathPanel(ctx, st, info, Wpx);
   // caption
@@ -1199,6 +1246,19 @@ function drawVideoOverlay(ctx, st, info, Wpx, Hpx) {
   }
   ctx.restore();
 }
+// Small callout at the patient's mouth (only while the outline figure is on screen)
+function drawFigureNote(ctx, st, info, Wpx, Hpx) {
+  tmpV.copy(FIGURE.mouth); const p = tmpV.clone().project(camera); if (p.z > 1) return;
+  const mx = (p.x * 0.5 + 0.5) * Wpx, my = (-p.y * 0.5 + 0.5) * Hpx;
+  const text = FIGURE_NOTE;
+  ctx.save(); ctx.globalAlpha = st.figure; ctx.font = `700 24px ${FONT}`; ctx.textBaseline = 'middle';
+  const tw = ctx.measureText(text).width, bw = tw + 36, bh = 46, x = Math.max(48, mx - bw - 150), y = my - 150;
+  ctx.strokeStyle = 'rgba(19,32,46,0.7)'; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(x + bw - 30, y + bh); ctx.lineTo(mx - 6, my - 10); ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.95)'; rr(ctx, x, y, bw, bh, 12); ctx.fill();
+  ctx.strokeStyle = 'rgba(11,110,138,0.55)'; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.fillStyle = '#13202e'; ctx.fillText(text, x + 18, y + bh / 2 + 1);
+  ctx.restore();
+}
 function currentChapter(chs, t) { let i = 0; for (let k = 0; k < chs.length; k++) if (t >= chs[k][0]) i = k; return { i, name: chs[i][1] }; }
 function hudRows(info) {
   const be = info.be;
@@ -1225,6 +1285,7 @@ function drawBreathPanel(ctx, st, info, Wpx) {
     if (active) { ctx.strokeStyle = '#0b6e8a'; ctx.lineWidth = 3; ctx.stroke(); }
     const r = BREATH_RESULTS[type], cb = CFG.breaths[type];
     ctx.fillStyle = '#13202e'; ctx.font = `800 24px ${FONT}`; ctx.fillText(LBL[type], x + 20, y + 36);
+    const titleW = ctx.measureText(LBL[type]).width;
     ctx.fillStyle = '#6b7888'; ctx.font = `500 15px ${FONT}`; ctx.fillText(`peak ${cb.peak} · rise ${cb.rise}s · hold ${cb.hold}s · fall ${cb.fall}s`, x + 20, y + 60);
     // mini curve
     const px = x + 20, py = y + 72, pw = 230, ph = 80, tmax = 9;
@@ -1242,7 +1303,7 @@ function drawBreathPanel(ctx, st, info, Wpx) {
     });
     if (done) {
       ctx.fillStyle = '#13202e'; ctx.font = `800 26px ${FONT}`; ctx.textAlign = 'right'; ctx.fillText(`${r.score.toFixed(1)} / 10`, x + w - 20, y + 38); ctx.textAlign = 'left';
-      chip(ctx, fx, y + 22, `rule: ${LBL[r.label]}`, LABEL_BG[r.label], '#fff', 15);
+      chip(ctx, x + 20 + titleW + 14, y + 12, `label: ${LBL[r.label]}`, LABEL_BG[r.label], '#fff', 14);
     }
   });
 }
