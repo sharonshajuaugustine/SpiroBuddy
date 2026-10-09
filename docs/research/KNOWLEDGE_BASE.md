@@ -370,8 +370,19 @@ Kept by the research agent; saved by the lead for round 1. Grades: **A** = peer-
 32. **(Round 6)** 29% of over-60s (35% of older women) have difficulty making a phone call (LASI, F-INDLOC-7). A design that asks the patient to dial, type or navigate menus will fail for many; keep the patient's part to "answer and listen" or "breathe into the device".
 33. **(Round 6)** Kilkari, India's biggest voice-message programme, had **no effect on its main outcome** in an RCT, and only half of calls are answered on the first try (F-INDLOC-6). Voice reminders alone are not enough; don't present "AI calls" as the thing that changes behaviour.
 34. **(Round 6)** The RBIPMT guidance that names the incentive spirometer is a **draft** for **supervised centre** rehab, not home use (F-VIS-5). Don't say "the TB programme recommends SpiroBuddy at home".
+35. **(Round 7)** Under India's device law, an accessory is classed **on its own**, and a battery device that supplies monitoring information is an "active diagnostic medical device"; if it is for monitoring a vital body process it is **Class B** (F-REG-6). So the clip-on probably can't borrow the spirometer's low-risk Class A status. Say "we expect Class B; we'd confirm with CDSCO", never "it's just an accessory, no approval needed".
+36. **(Round 7)** Kilkari reach figures conflict: one paper says 99.5% are reached by the 9th call (F-INDLOC-6), a later ARMMAN/Google preprint says about 23% are **not** reached despite 9 attempts (F-INDLOC-9). Different cohorts and definitions. Quote "half answer the first call" and "retries matter", not a single reach rate.
 
-## Open gaps (priority order, after round 6)
+## Open gaps (priority order, after round 7)
+1. **TECH (hands-on, team):** caliper measurements of the Breazer 2500 and a 4x4-window bench test inside the tube (the web has nothing).
+2. **REG (person):** Romsons Chapter IIIB registration for the Breazer (read the box label, or search cdscomdonline.gov.in). Two more web searches in round 7 found nothing; GeM bids aren't indexed. For our own class, the law points to Class B (F-REG-6); confirm with a CDSCO pre-submission query or a regulatory consultant.
+3. **BIZ: Indian 30-day readmission after CABG — stop web searching.** Rounds 5, 6 and 7 (four Europe PMC searches incl. a journal-filtered one on IJTCVS / Ann Card Anaesth / Indian Heart J, plus web searches, ~8 papers checked) found none. Use the global 12.9% (F-BIZ-8) and the Indian abdominal 4.7% (F-BIZ-10), or ask a cardiac surgeon for their unit's figure.
+4. **COMMS (person):** TRAI Third Amendment Gazette date; "human-assisted" call exclusion (search our local copy of #106).
+5. **ADH (person):** CTRI search by hand for Indian post-discharge incentive-spirometer trials; otherwise accept "no Indian home data exists; our pilot would create it".
+6. **INDLOC/VOICE:** personal (not household) phone ownership for 60+ still not found on the web (NSS 78th round tables not indexed; LASI Wave 2 not yet found). A person could open MoSPI's NSS 78th round "Multiple Indicator Survey" report tables by hand. No usable data on WhatsApp voice-note use by older Indians (only small, non-representative studies). mMitra-specific listening data still not found (the ARMMAN preprint read was about Kilkari).
+7. **VIS:** the India TB Report's own table (to cross-check the WHO-data split, F-VIS-7); whether RBIPMT guidance has a final version.
+
+## Open gaps (priority order, after round 6; kept for history)
 1. **TECH (hands-on, team):** caliper measurements of the Breazer 2500 and a 4x4-window bench test inside the tube (the web has nothing).
 2. **REG:** Romsons Chapter IIIB registration for the Breazer (needs a person on cdscomdonline.gov.in or the box label); CDSCO class for a *measuring* incentive-spirometer accessory.
 3. **COMMS:** TRAI Third Amendment Gazette date; whether "human-assisted" calls are excluded (search our local copy of #106).
@@ -1061,3 +1072,57 @@ About 30 reads (ledger #106–#134). Note: the imported Sarvam/InSee section abo
 | J33 | "Will older people even pick up a phone call?" | "The government's Kilkari service shows half pick up on the first try and three in four by the third. And 29% of over-60s find making a call hard. So we retry, the patient only has to listen, and the family gets WhatsApp." | F-INDLOC-6, F-INDLOC-7 |
 | J34 | "Is incentive spirometry used for TB survivors in India?" | "Yes. The 2024 RBIPMT pulmonary-rehab guidance on the national TB portal lists the incentive spirometer among the breathing exercises." | F-VIS-5 |
 | J35 | "Do older rural patients keep up home exercise?" | "In the Thar Desert, 76% of older COPD patients were still exercising after 8 weeks of phone-guided Hindi rehab, and 58% after a year." | F-ADH-9 |
+
+# Round 7 additions (10 Oct 2026)
+
+## REG (round 7)
+
+### F-REG-6: India's device law classes an accessory on its own, not by the device it clips onto. A battery-powered device that supplies monitoring information is an "active diagnostic medical device", which is Class B if it monitors a vital body process, and Class A only if no such rule applies
+- Detail (read in the primary text, Medical Devices Rules 2017, consolidated CDSCO copy, First Schedule Part I):
+  - **Basic principle (ii):** if devices are used together, each is classified separately; "Accessories are classified in their own right". **Principle (iii):** software that drives or influences a device falls in that device's class.
+  - **Rule 2(c):** an "active diagnostic medical device" is any active device that supplies information for detecting, diagnosing or **monitoring** a physiological condition or state of health. **Rule 2(d):** "active" means it runs on electricity or another energy source other than the body or gravity.
+  - **Para (xiii)(a)(3):** an active diagnostic device is **Class B** if it is for direct diagnosis or **monitoring of vital physiological processes**. **(xiii)(c)(1):** **Class C** if it monitors vital parameters where a change could put the patient in immediate danger (the rule names respiration as an example).
+  - **Para (xiv):** any other active device not covered by (xii) or (xiii) is **Class A**.
+  - Romsons' registration status: two more searches (CDSCO, GeM) found nothing (gap remains; needs a person).
+- **Team reading (not a ruling):** SpiroBuddy's clip-on is battery-powered, measures inhaled volume and alerts a nurse, so it is very likely an active diagnostic device. If CDSCO sees breathing-exercise volume as "monitoring a vital physiological process", it is **Class B**; if it is seen as exercise tracking only, it could fall to **Class A** under (xiv). It should **not** be Class C, as long as we never claim real-time danger monitoring. This matches F-REG-2 (CDSCO lists "monitoring spirometer" as Class B) and F-REG-4 (software that alerts about a condition is not wellness).
+- Source: Medical Devices Rules 2017 (consolidated, 211 pages), CDSCO – https://cdsco.gov.in/opencms/resources/UploadCDSCOWeb/2022/m_device/Medical%20Devices%20Rules%2C%202017.pdf (ledger #183) – Grade A (primary law).
+- Use in pitch: J36 below. Shows the team knows the exact rule and has planned for it.
+- Caveat: our own reading of the rules; CDSCO decides. Avoid words like "real-time monitoring", "detects deterioration" or "prevents pneumonia" in product claims, which push the class up.
+
+## VIS (round 7)
+
+### F-VIS-7: India's exact TB split from WHO's official notification data: in 2024, 26% of new and relapse TB cases notified in India were outside the lungs, so about 74% (about 18.5 lakh people) had lung TB
+- Detail: WHO notification dataset, India, 2024: new + relapse cases 24,98,584. Pulmonary (lab-confirmed + clinically diagnosed, new + relapse) 18,49,397; extrapulmonary (new + relapse) 6,49,187 = **26.0%**. Extrapulmonary share by year: 2019 22.2%, 2020 29.2%, 2021 24.5%, 2022 24.8%, 2023 24.7%, 2024 26.0%. Pulmonary lab-confirmed new cases 2024: 10,90,789.
+- **Team estimate (not a source):** about 18.5 lakh lung-TB cases × 90% treatment success (F-VIS-4) ≈ **about 16–17 lakh people a year finish treatment for lung TB**. If roughly half have lasting lung impairment (Madurai 59%), that is several lakh people a year who could use breathing rehab.
+- Source: WHO Global TB Programme notifications dataset (CSV), https://extranet.who.int/tme/generateCSV.asp?ds=notifications (ledger #187) – Grade A (official data reported by India to WHO). Consistent with F-VIS-6 (WHO says India's extrapulmonary share is ">20%").
+- Use in pitch: replaces the "under 80%" guess in F-VIS-6 with a real number: "about 3 in 4 TB patients in India have it in the lungs, about 18 lakh a year".
+- Caveat: the 24.99 lakh (new + relapse) is lower than PIB's 26.07 lakh total notified (PIB counts all notified, incl. other retreatment). We computed the split ourselves from WHO's columns; the India TB Report table itself was not found (single source).
+
+## INDLOC / VOICE (round 7)
+
+### F-INDLOC-8: Among people aged 45+ at Telangana health centres, only about 1 in 5 rural and 1 in 3 urban had a smartphone; only 20% had good digital health literacy
+- Detail: 318 adults aged 45 or over visiting rural and urban primary health centres, Hyderabad area, March 2023. Smartphones: urban 36.5%, rural 19.5%. Basic ("standard analogue") phones: urban 45.9%, rural 38.4%. Good eHealth literacy: 20.4% (rural 20.1%, urban 20.8%). Owning a mobile phone, education and recent computer use predicted better digital literacy.
+- Source: *Med J Armed Forces India* 2024, PMID 38799990, doi 10.1016/j.mjafi.2023.09.006 (ledger #184) – Grade A (single district, clinic sample).
+- Use in pitch: "Among older patients at Telangana health centres, only 1 in 5 rural patients had a smartphone." Supports a design where the patient needs no smartphone (voice call + clip-on), and the family member gets the WhatsApp.
+- Caveat: ages 45+, not 60+; one region; clinic attenders. Still **no national personal-ownership figure for 60+** (NSS 78th round tables not reachable by search). DAHLIA (rural Karnataka, #179 snippet) found 50% own any mobile phone.
+
+### F-INDLOC-9: In India's Kilkari voice programme, about 23% of women were never reached even after 9 call attempts over 4 days; morning slots had the best pickup; listening dipped around festivals, and listening (not just pickup) is the better success measure
+- Detail: ARMMAN / Google Research analysis of Kilkari call logs (arXiv preprint, Nov 2023). Each message gets up to 9 attempts over 4 days. "Engagement" = listening for more than 30 seconds of a roughly 90-second message. Beneficiaries were grouped by pickup and engagement; some picked up often but listened little (a family member may answer). One low-pickup group had only about 20% technically successful calls (network failures). After 6 weeks with no listening, people are dropped. Listening fell around New Year, likely around major festivals too. Kilkari has reached over 3 crore women, 30 lakh active.
+- Source: "Analyzing and Predicting Low-Listenership Trends in a Large-Scale Mobile Health Program", arXiv 2311.07139, 2023 (ledger #186) – Grade B (preprint, not peer-reviewed).
+- Use in pitch / build: design rules for our reminder calls: retry at different times, prefer morning slots, count a call as done only if the patient listened (or breathed into the device), not just if someone picked up, and pause or soften reminders on festival days.
+- Caveat: young mothers, not older patients. Conflicts with F-INDLOC-6's "99.5% reached by the 9th call" (different cohort and measure; see Contradictions 36). mMitra-specific data not found.
+
+## BIZ (round 7) – null result
+
+### F-BIZ-12 (null): Three rounds of searching found no published Indian 30-day hospital readmission rate after CABG
+- Detail: Round 7 checked a 618-patient CABG cohort (septuagenarians), the COHOS hybrid-vs-CABG study (Indian Heart J 2025; readmission given only as a hazard ratio over 3.6 years), an Amrita off-pump CABG cohort (2014–19; mortality only; notes that off-pump is "the default" in India) and a journal-filtered search of the three main Indian cardiac journals. None reports a 30-day readmission rate. Indian cohorts usually report in-hospital and mid-term mortality, not readmission.
+- Source: ledger #180, #181, #188, #189 – Grade A (papers), null result.
+- Use in pitch: if asked, say "Indian bypass centres don't publish 30-day readmission rates; that gap is itself a reason for remote follow-up. Our pilot would measure it." Use the global 12.9% (F-BIZ-8) as the reference.
+- Caveat: absence of published evidence, not proof that the rate is low.
+
+## JUDGE – round 7 additions (J36–J38)
+| # | Question | Short answer | Evidence |
+|---|---|---|---|
+| J36 | "Isn't your clip-on just an accessory to a Class A device?" | "No. Indian law classes an accessory on its own. Because ours is battery-powered and gives monitoring information, we expect Class B, and we'll confirm with CDSCO before selling. The demo is a prototype, not a medical device on sale." | F-REG-6, F-REG-5 |
+| J37 | "How many TB survivors are we talking about?" | "In 2024 India notified about 18.5 lakh lung-TB cases (74% of new and relapse cases, WHO data). With 90% treated successfully, that's roughly 16–17 lakh people a year finishing treatment; studies find about half still have weak lungs." | F-VIS-7, F-VIS-4 |
+| J38 | "What's the 30-day readmission rate after bypass in India?" | "Indian centres don't publish it; we searched three rounds. Worldwide it's about 1 in 8. Measuring it is part of our pilot." | F-BIZ-12, F-BIZ-8 |

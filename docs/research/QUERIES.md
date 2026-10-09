@@ -192,3 +192,26 @@ Every query run by the research agent, with date and usefulness, so no query is 
 | 2026-10-10 | WebFetch | WHO GTB 2025 case notifications – India / SEAR extrapulmonary share | Medium: India EPTB ">20%" |
 | 2026-10-10 | WebSearch | physiotherapy at home per session charges ₹ 2026 Apollo HomeCare OR Portea OR "Max@Home" OR "Care24" price | Low (aggregator snippet only) |
 | 2026-10-10 | Jina | apollohomecare.com/physiotherapy-at-home – grep ₹/price | Low: packages incl. "Chest Physiotherapy", no prices |
+
+## Round 7 plan (10 Oct 2026, capped at ~12 sources; person-only gaps skipped: calipers, CTRI, InPASS, TRAI Gazette)
+1. BIZ: Indian 30-day readmission after CABG / cardiac surgery (stop after ~4 sources).
+2. REG: Romsons Breazer CDSCO registration; which MDR 2017 rule would class a *measuring* clip-on.
+3. INDLOC/VOICE: personal phone ownership 60+; WhatsApp/voice-note use by older Indians; mMitra listening data.
+4. VIS: India pulmonary vs extrapulmonary TB split.
+
+| date | channel | query | useful? |
+|---|---|---|---|
+| 2026-10-10 | Europe PMC | (readmission OR readmitted OR "re-admission" OR rehospitali*) AND ("coronary artery bypass" OR CABG OR "valve replacement" OR "open heart") AND (India OR Indian OR Kerala OR Chennai OR Delhi OR Vellore OR Trivandrum) 2010–2026 | Low: 1,410 hits, no Indian 30-day rate in top 40 |
+| 2026-10-10 | Europe PMC full text | PMC11473761, PMC12138072 – grep readmi/pneumonia | None (no 30-day rate) |
+| 2026-10-10 | WebSearch | "30-day readmission" cardiac surgery Indian tertiary centre study post-operative pulmonary complications readmitted India 2022 2023 2024 | None (only paediatric 2018 + non-Indian) |
+| 2026-10-10 | Europe PMC | JOURNAL (IJTCVS OR Ann Card Anaesth OR Indian Heart J) AND (readmission OR readmitted OR rehospitalization) AND (CABG OR "coronary artery bypass" OR "cardiac surgery") 2012–2026 | Low: no Indian 30-day rate; gap closed for agents |
+| 2026-10-10 | WebSearch | Romsons Scientific & Surgical Industries CDSCO registration certificate Class A medical device Agra incentive spirometer | None |
+| 2026-10-10 | WebSearch | GeM incentive spirometer volumetric 5000 ml bid specification CDSCO registration required | None (GeM bids not indexed) |
+| 2026-10-10 | WebSearch | Medical Devices Rules 2017 First Schedule Part I classification rules "active device" "intended for diagnosis" "accessory" cdsco.gov.in pdf | High: link to primary MDR PDF |
+| 2026-10-10 | curl + pdftotext | MDR 2017 PDF – grep accessor / active diagnostic / monitoring / software | High: F-REG-6 |
+| 2026-10-10 | WebSearch | NSS 78th round Comprehensive Annual Modular Survey 2022-23 mobile phone use by age group 60 years and above percentage persons owning mobile phone | None |
+| 2026-10-10 | Europe PMC | ("own a mobile phone" OR "mobile phone ownership" OR "personal mobile phone" OR "WhatsApp use") AND (older adults OR elderly OR aged 60 OR geriatric) AND India 2019–2026 | Medium: Telangana 45+ smartphone figures |
+| 2026-10-10 | WebSearch | mMitra ARMMAN voice call listenership percentage of calls listened "more than 30 seconds" engagement drop-off study | Medium: Kilkari listenership preprint (no mMitra-specific figure) |
+| 2026-10-10 | WebSearch | India TB Report 2025 "extra-pulmonary" notified 2024 per cent "pulmonary" TB patients notified tbcindia | Low (report PDF still not found) |
+| 2026-10-10 | curl (WHO TME CSV) | WHO notifications dataset, India 2019–2024: new_labconf, new_clindx, new_ep, ret_rel_* | High: F-VIS-7 (EP 26.0% in 2024) |
+| 2026-10-10 | WebSearch | older adults India WhatsApp use voice messages survey senior citizens 60+ percent use WhatsApp 2023 2024 study | None (small studies, snippets only) |
