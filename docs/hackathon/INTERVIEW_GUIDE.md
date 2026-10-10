@@ -34,6 +34,7 @@ Write down: **first name or initials, role, city, date, and whether we may quote
 6. When a patient is not doing it, who do you tell, and what do you do?
 7. Have you seen a patient come back with a chest problem that you think the exercises might have helped? What happened? (No names.)
 8. Which spirometer brand and type do you give? The one with a single disc, or the one with three balls? Who pays for it?
+8b. If the hospital paid per patient for a tool like this, would ₹200, ₹500 or ₹1,000 be acceptable? Who would sign for it, and from which budget?
 9. Which languages do your patients speak? How do the elderly ones cope with written instructions?
 10. If you could see one thing about your patients' breathing exercises on a screen, what would it be?
 11. What would make you **ignore** a tool like that? (Too many alerts? Extra typing? Another login?)

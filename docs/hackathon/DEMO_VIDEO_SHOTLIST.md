@@ -1,6 +1,6 @@
 # Demo video – shot list (you record the screen, you add the voice-over)
 
-**Deadline:** upload with the submission by **Sun 11 Oct, 3:00 pm**. **Format:** one MP4 file, under 100 MB, English or Hindi.
+**Deadline:** upload with the submission by **Mon 12 Oct 2026, 11:00 AM IST** (organisers' email; replaces Sun 11 Oct, 3 pm). **Format:** one MP4 file, under 100 MB, English or Hindi.
 **Target length:** 2 minutes 30 seconds to 3 minutes. The form says the video must "show the Prototype/MVP in action", so most of it should be the live app, not the 3D animation.
 
 ## Before you record

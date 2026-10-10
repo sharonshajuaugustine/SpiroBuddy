@@ -1078,7 +1078,7 @@ const VIDEOS = {
       [5, 9.8, 'At home nobody sees if they use it — or if they breathe too fast, too shallow, or skip the hold.'],
       [10, 15.6, 'Meet SpiroBuddy: a base unit. The spirometer simply stands on it.'],
       [15.6, 19.8, "Nothing touches the patient's breath — the air path stays exactly as Romsons designed it."],
-      [20, 27, 'Inside: a VL53L1X laser distance sensor, a XIAO ESP32-C3 and a 500 mAh LiPo battery…'],
+      [20, 27, "Today's prototype design: a VL53L1X laser distance sensor, a XIAO board and a LiPo cell…"],
       [27, 33.8, '…a piezo beeper, a WS2812B status light, a start button, and USB-C charging.'],
       [34, 39.6, 'The sensor looks up through a light tunnel at the underside of the piston, 30 times a second.'],
       [39.6, 46.8, 'Distance → mL, calibrated with the spirometer’s own printed marks. (The 940 nm beam is invisible – drawn for illustration.)'],

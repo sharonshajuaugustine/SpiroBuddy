@@ -578,7 +578,7 @@ Most of Part B is **general knowledge plus search snippets**. It is a list of th
 - "Prototypes are made under a ₹500 test licence. Our first patient study will be hospital-led with a registered ethics committee, and we will take CDSCO's written view on central permission before enrolling anyone." (B4-4, L-1)
 - "The AI never diagnoses or counsels. Indian rules reserve that for doctors, and our design sends every symptom to the nurse." (L-8)
 - "Today the demo uses only fake patients. We build to the data law that takes full effect on 13 May 2027." (L-7)
-- "The radio module we will use is already approved in India; an India-made unit using it unchanged needs no separate radio approval." (L-2)
+- ~~"The radio module we will use is already approved in India…"~~ **Do not say yet** (cross-check C4, 10 Oct): no module is chosen and the hardware file disagrees. Say it only once the module's ETA number is in hand. (L-2)
 
 **Do not say**
 - "We only need an ethics committee" / "no CDSCO permission is needed." Not established. (L-1)

@@ -1,12 +1,14 @@
 # SpiroBuddy – business brief (one page from five research files)
 
+> **Update 10 Oct 2026:** unit cost and per-episode figures in this brief are replaced by `docs/plan/03_COSTS_AND_BUDGET.md` §2: about ₹2,500 a unit, ₹470–673 an episode to us, price about ₹1,000 an episode.
+
 **Written:** 10 Oct 2026. Built from the five files in this folder (100 findings, 90 newly opened sources, listed in `docs/research/SOURCES_LEDGER.md` as #232–#321). Each line names its finding, for example `B2-11`. **This is a map with sources, not legal, medical or investment advice.** Prices and reuse counts are our own estimates until a hospital says otherwise.
 
 ## The story in six lines
 1. **Customer:** the hospital buys; the head of surgery or physiotherapy asks for it; the purchase head signs small items. (01)
 2. **Start:** heart-surgery units in mid-size private or mission hospitals, piloted through one teaching hospital, in the state the team lives in. Kerala has startup-friendly state buying rules (not confirmed current). (01)
 3. **We cannot sell yet.** It is a measuring device, so it needs a manufacturing licence. Until then every deployment is a free, ethics-approved research pilot. (02, 04)
-4. **Business model:** lend the unit, charge the hospital per patient episode (about ₹500); donor or CSR money for government hospitals. (02)
+4. **Business model:** lend the unit, charge the hospital per patient episode (about ₹1,000); donor or CSR money for government hospitals. (02)
 5. **Money first comes from grants, not investors:** NIDHI-PRAYAS (up to ₹10 lakh, individuals), then BIRAC BIG (up to ₹50 lakh). (03)
 6. **Evidence in order:** bench test → healthy volunteers → 30–50 patient pilot → controlled study. (05)
 

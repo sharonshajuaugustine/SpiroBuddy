@@ -48,7 +48,7 @@ Laid out in the organisers' four stages: Problem → Technology → Innovation �
 |---|---|---|
 | See each breath without touching the air path | A small **laser distance sensor** under the exerciser, measuring how high the disc rises | Nothing touches the patient's breath, so the exerciser stays exactly as its maker designed it. The same sensing idea is used by a US-cleared product (InSee, 2025). (F-COMP-1) |
 | Judge the breath | **Our own small model** trained on breath curves, with simple rules as the backup: good / too fast / too shallow / no hold | Runs on the server, cheap, explainable. Each label has one plain tip. |
-| Coach people who can't read small text | **Voice in 11 Indian languages** (Sarvam AI, an Indian speech company), slowed for older listeners; 341 pre-recorded clips so it works offline | Voice suits low literacy and low vision. Offline clips mean no internet is needed for coaching. |
+| Coach people who can't read small text | **Voice in 10 Indian languages and English** (Sarvam AI, an Indian speech company), slowed for older listeners; 341 pre-recorded clips so it works offline | Voice suits low literacy and low vision. Offline clips mean no internet is needed for coaching. |
 | Tell the nurse who needs help | **Web dashboard**, most urgent patient first | No app to install; works on any ward computer or phone. |
 | Reach the family | **WhatsApp** message and optional phone call, with recorded consent and a one-word STOP | The family already uses it. Nearly every home has a phone. |
 | Write the daily summary | A language model (Claude), with a fixed template when it is unavailable | It only summarises. It never diagnoses. |
@@ -81,7 +81,7 @@ Laid out in the organisers' four stages: Problem → Technology → Innovation �
 5. Each evening the family gets one short update.
 
 **Smallest useful version (what exists today)**
-- **Working:** nurse and doctor dashboard, patient page, family page, breath model, voice coach in 11 languages, reminder ladder, consent and STOP handling, 3D showroom and 4 videos, over 400 automated tests. Live at the link above.
+- **Working:** nurse and doctor dashboard, patient page, family page, breath model, voice coach in 11 languages (10 Indian + English), reminder ladder, consent and STOP handling, 3D showroom and 4 videos, over 400 automated tests. Live at the link above.
 - **Simulated, and we say so:** the device. **We have no hardware yet**, so breaths come from a built-in simulator and the device is shown as a 3D model with cited dimensions. WhatsApp and phone calls run as on-screen previews ("would send"), not real sends.
 - **Readiness level, honestly:** a working software prototype, not yet tested with real users (about TRL 3–4 on the organisers' scale).
 
@@ -109,9 +109,9 @@ It is counted automatically by the base, needs nobody to fill a form, and is the
 **Evidence plan**
 1. **Today:** 3 interviews.
 2. **Next 4 weeks:** build one real unit; measure sensor accuracy against the exerciser's printed marks; record real breaths to re-train the model (today it has only practice data).
-3. **Pilot:** one hospital, about 50 patients, with ethics approval; compare completed sessions against usual care.
+3. **Pilot:** one hospital, 30–50 patients, with ethics approval and CDSCO's written view on central permission first; compare completed sessions against usual care.
 
-**Scale path:** units are lent at discharge and reused. Estimated parts cost ₹1,000–1,700 per unit, or about ₹100–170 per patient when reused (team estimate). The same tool fits lung rehabilitation after TB and for long-term lung disease.
+**Scale path:** units are lent at discharge and reused. Estimated parts cost about ₹2,500 per pilot unit with Bluetooth and battery (a hand-built cable prototype is about ₹1,365). Price idea: about ₹1,000 per patient episode, with the unit lent and reused (team estimate). The same tool fits lung rehabilitation after TB and for long-term lung disease.
 
 ---
 
