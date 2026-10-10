@@ -206,7 +206,7 @@
 
     let pid = Number(q.get('id')) || Number(localStorage.getItem('sb_app_pid')) || 1;
     let P = null, lang = 'hi', target = 2000, holdT = 3;
-    let source = null, detector = null, median = new B.MedianFilter(5), identity = new B.Calibration([]);
+    let source = null, detector = null, median = new B.MedianFilter(5), identity = new B.Calibration([]), calib = identity;
     let running = false, breaths = [], startedAt = null, lastSlower = 0, autoTimer = null, coachCue = 'idle';
 
     /* ---------- language + static text ---------- */
@@ -300,7 +300,7 @@
       });
     }
     function onSample(s) {
-      const ml = median.push(identity.toMl(s.raw));
+      const ml = median.push(calib.toMl(s.raw));
       detector.push({ t: s.t, ml });
       const pct = Math.max(0, Math.min(100, (ml / maxMl()) * 100));
       $('#disc').style.bottom = `calc(${pct}% * 0.9)`; $('#fill').style.height = `calc(${pct}% * 0.9)`;
@@ -326,6 +326,11 @@
     /* ---------- session ---------- */
     async function startSource(kind) {
       if (source) { try { await source.stop(); } catch (_) { /* ignore */ } }
+      if (kind === 'usb') {   // a real unit sends millimetres: it needs the calibration made on the nurse's "Record breaths" page
+        const c = B.Calibration.load('sb_calibration_serial');
+        if (c.isIdentity) throw new Error('This unit is not calibrated yet. Open "Record breaths" on the nurse site, add 2 or more calibration points, then come back.');
+        calib = c;
+      } else calib = identity;
       source = kind === 'usb' ? new SB.sources.SerialSource() : new SB.sources.SimulatorSource({ targetMl: target });
       source.onSample = onSample; source.onError = (e) => console.warn(e);
       await source.start();
