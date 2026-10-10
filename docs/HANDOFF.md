@@ -19,6 +19,17 @@
 - **Always keep one research subagent running** (docs/research/RESEARCH_PROMPT.md). If none is running at session start, launch one with the next gaps from docs/research/KNOWLEDGE_BASE.md. It must never re-read a URL in docs/research/SOURCES_LEDGER.md.
 - Code is on GitHub: https://github.com/sharonshajuaugustine/SpiroBuddy (branch `main`; local `master` tracks `origin/main`). gh's active account is sharonshajuaugustine.
 
+## HACKATHON FACTS (from the organisers' slides, 10 Oct 2026) – read first
+- **Social Impact Hackathon 2026** (Cloud Counselage × DTI), 10–11 Oct, online. Our track: Health & Well-being (SDG 3).
+- **Sat 10 Oct:** 2 pm problem validation with users · 4–7 pm Zoom session 2 · **6 pm Checkpoint 1 (problem + concept)**.
+- **Sun 11 Oct:** 1 pm Checkpoint 2 (demo review) · **3 pm SUBMISSION** at https://social-impact-hackathon-submission.netlify.app/ · 3:30 pm final 5-minute pitches.
+- **Mandatory submission:** pitch deck (organisers' template, Google Drive link on their slide), prototype link, demo video (English or Hindi), GitHub link, problem statement, impact statement, team information.
+- **Pitch order:** Problem → Who is affected → Our solution → Demo → Technology/AI → Impact → Scale → Future roadmap. Need not be a startup.
+- **They expect:** ≥3 user interviews per team, an SDG mapping, one measurable impact metric, an honest readiness (TRL) level.
+- **Our gaps (10 Oct, 12:45 pm):** 0 interviews (guide: `docs/hackathon/INTERVIEW_GUIDE.md`); no pitch deck; no narrated demo video; problem/impact statements only as `docs/hackathon/CHECKPOINT_1.md`. No hardware: the device is shown as a simulator + 3D model.
+- **Keep-awake:** Supabase cron job `keep-spirobuddy-awake` visits the Render health page every 5 minutes (`supabase/keepalive.sql`); verified working. Without it the free Render service slept and took minutes to wake.
+- **Uncommitted from the night:** critical-testing fixes in `backend/` + `tests/test_critical.py` (full suite: 419 pass, 14 xfail, 1 FAIL = `test_supabase_store.py::test_demo_seed_and_api_run_on_supabase_store`, cause not yet found; no `docs/CRITICAL_TEST_REPORT.md` yet). The `infffff/` folder holds the organisers' screenshots (names visible): do not commit it.
+
 ## Status 10 Oct 2026 (read this before the older notes)
 - **Done and pushed:** deploy-readiness (schema fix, DEPLOY.md, 77 tests), Malayalam/Tamil messages, **UI 1** = hospital-grade nurse/doctor screens (index, patient, collect + styles.css, ui.js, icons.js), commit 48fa19c.
 - **LIVE (10 Oct, 2:10 am IST):** https://spirobuddy.onrender.com (Render free plan, service `srv-db4l1c49v7es73a7sqog`, Singapore, auto-deploys on every push to `main`). Data: Supabase project `spirobuddy` (ref `lnhdiedfjlqasrtkxweb`, Mumbai, free plan); schema applied, demo data auto-seeded (7 patients, 14 guardians, 308 sessions). `/api/health` says `data_backend: supabase`. No AI/WhatsApp/Sarvam keys set on Render yet (fallbacks in use). Free plan sleeps after ~15 min idle: open the site a minute before demoing.
