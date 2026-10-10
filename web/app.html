@@ -1,11 +1,12 @@
 <!doctype html>
-<html lang="hi">
+<html lang="hi" translate="no">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>SpiroBuddy</title>
   <meta name="description" content="SpiroBuddy patient app: voice-coached breathing exercise (demo, fake patient). Coaching only, never a diagnosis.">
   <meta name="robots" content="noindex">
+  <meta name="google" content="notranslate">
   <meta name="theme-color" content="#0b6e8a">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -82,6 +83,10 @@
     .pa-demo button { min-height: 52px; border-radius: 12px; border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
     .pa-demo button.wide { grid-column: 1 / -1; background: var(--brand, #0b6e8a); color: #fff; border-color: transparent; }
     .pa-demo p { font-size: .9375rem; color: var(--text-2); margin: 8px 0 0; }
+    .pa-quick { border-style: dashed; padding: 14px; }
+    .pa-quick-h { display: flex; align-items: center; gap: 8px; font-weight: 700; margin-bottom: 8px; }
+    .pa-quick .g { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pa-quick button { min-height: 56px; border-radius: 12px; border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
     .hidden { display: none !important; }
     @media (max-width: 360px) { .pa-stage { grid-template-columns: 76px 1fr; gap: 12px; } .pa-ml { font-size: 3.25rem; } .pa-coach { font-size: 1.5rem; } }
     @media (prefers-reduced-motion: no-preference) { .pa-disc, .pa-fill { transition: bottom .06s linear, height .06s linear; } }
@@ -117,6 +122,16 @@
     <div id="actions">
       <button class="pa-btn primary" id="start" type="button"></button>
     </div>
+
+    <section class="pa-card pa-quick hidden" id="quick" aria-label="Demo: make a breath">
+      <div class="pa-quick-h"><span data-icon="flask"></span><span id="quick-h"></span></div>
+      <div class="g">
+        <button data-sim="good" type="button">Good breath</button>
+        <button data-sim="too_fast" type="button">Too fast</button>
+        <button data-sim="too_shallow" type="button">Too shallow</button>
+        <button data-sim="no_hold" type="button">No hold</button>
+      </div>
+    </section>
 
     <section class="pa-card pa-cheer hidden" id="cheer"></section>
 
@@ -192,7 +207,7 @@
     let pid = Number(q.get('id')) || Number(localStorage.getItem('sb_app_pid')) || 1;
     let P = null, lang = 'hi', target = 2000, holdT = 3;
     let source = null, detector = null, median = new B.MedianFilter(5), identity = new B.Calibration([]);
-    let running = false, breaths = [], startedAt = null, lastSlower = 0, autoTimer = null, coachCue = 'ready';
+    let running = false, breaths = [], startedAt = null, lastSlower = 0, autoTimer = null, coachCue = 'idle';
 
     /* ---------- language + static text ---------- */
     function setLang(l) {
@@ -214,14 +229,16 @@
       $('#s-done-l').textContent = tr('done'); $('#s-best-l').textContent = tr('best');
       $('#legend').innerHTML = [['check', 'l_done'], ['x', 'l_missed'], ['clock', 'l_now'], ['circle', 'l_later']].map(([i, k]) => `<span>${ic(i, { size: 16 })}${esc(tr(k))}</span>`).join('');
       $('#foot').textContent = tr('foot');
+      $('#quick').classList.toggle('hidden', !(running && source && source.kind === 'simulator'));
+      $('#quick-h').textContent = 'No device connected: tap to make a demo breath';
       $('#target-line').style.bottom = Math.min(96, (target / maxMl()) * 100) + '%';
       setCoach(coachCue); paintCount(); paintToday();
     }
     function setCoach(c, mood) {
       coachCue = c;
-      const text = c === 'ready' ? tr('ready') : cue(c);
+      const text = c === 'idle' ? tr('ready') : cue(c);
       $('#coach').textContent = text;
-      const en = c === 'ready' ? T.en.ready : (V.cueText && V.cueText(c, 'en')) || '';
+      const en = c === 'idle' ? T.en.ready : (V.cueText && V.cueText(c, 'en')) || '';
       $('#coach-en').textContent = lang === 'en' ? '' : en;
       if (mood) $('#stage').dataset.mood = mood;
     }
@@ -327,7 +344,7 @@
       const done = breaths.slice(), good = done.filter((b) => b.label === 'good').length;
       const best = done.reduce((m, b) => Math.max(m, b.features.peak_ml), 0);
       paintStatic();
-      if (!done.length) { setCoach('ready', 'idle'); return; }
+      if (!done.length) { setCoach('idle', 'idle'); return; }
       let ok = true;
       try { await SB.api.post('/api/sessions', { patient_id: pid, started_at: startedAt.toISOString(), source: 'app', breaths: done }); } catch (e) { ok = false; console.warn(e); }
       setCoach('session_complete', 'good');
@@ -364,7 +381,7 @@
     }
 
     /* ---------- wiring ---------- */
-    $('#langs').addEventListener('click', (e) => { const b = e.target.closest('[data-l]'); if (b) { setLang(b.dataset.l); V.say(running ? coachCue : 'ready', null, { interrupt: true }); } });
+    $('#langs').addEventListener('click', (e) => { const b = e.target.closest('[data-l]'); if (b) { setLang(b.dataset.l); V.say(running && coachCue !== 'idle' ? coachCue : 'ready', null, { interrupt: true }); } });
     $('#start').addEventListener('click', () => (running ? finish() : start()));
     $('#help').addEventListener('click', unwell);
     $('#d-auto').addEventListener('click', autoSession);
