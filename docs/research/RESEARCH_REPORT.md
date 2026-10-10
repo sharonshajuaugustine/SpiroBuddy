@@ -2,6 +2,8 @@
 
 **Written:** 10 Oct 2026. **What this is:** one document that pulls together all research already in this repo (research rounds 1–9, the plans, and the hardware, voice, comms and architecture notes). Nothing new was looked up for it and no web page was opened.
 
+**Added later on 10 Oct 2026:** section 4.2a (how InSee is mounted). This one part *is* new: the InSee website, its US patent and the IEEE Spectrum interview were re-opened for it.
+
 **How to read the references**
 - `F-…` = a finding in `docs/research/KNOWLEDGE_BASE.md` (for example F-CLIN-1).
 - `#n` = a row in `docs/research/SOURCES_LEDGER.md`. The full list with web addresses is in section 12.
@@ -209,6 +211,23 @@ Single-hospital studies, not national averages.
 **Where the comparison breaks:** a well has one bottom. A narrow plastic tube also reflects light off its walls, which makes the reading too short (section 4.3).
 
 **This idea is not ours.** InSee reads the piston with the same kind of infrared time-of-flight sensor, built at a university lab in 2020. (F-COMP-5, #88, B)
+
+### 4.2a How InSee is mounted (checked 10 Oct 2026)
+**Main point:** InSee uses the same layout as our base unit: a reusable tray under a disposable spirometer, with the sensor looking up at the piston from below.
+
+| What was seen | Where | Grade |
+|---|---|---|
+| The product picture shows a pink tray. The AirLife spirometer stands in it. A raised white block with a small sensor window sits in the middle of the tray, directly under the main piston tube. | InSee home page, product picture (#102) | B |
+| "An infrared sensor monitors the movement of the spirometer's internal cylinder"; time-of-flight is converted to volume. The spirometer is called disposable and the InSee reusable. | InSee "How InSee Works" page (#103) | B |
+| The patent claims "a plurality of connectors disposed on a top of the device configured to mate with a base of the incentive spirometer", and a sensor that tracks the piston's displacement by time of flight. It also lists a **sound**-based time-of-flight option. | US10610129B1, claims 1–2 and description (#86) | A |
+| The 2020 interview repeats the website's description. | IEEE Spectrum (#88) | B |
+
+- **No source says whether the floor under the piston tube is an open hole or thin clear plastic.** None of the four mentions an opening. The FDA summary (#3) was not re-read this time.
+- **What it supports:** the light does reach the piston from below on the AirLife, with no cutting or gluing. The sound-based option in the patent hints at an open air path (sound can't pass through solid plastic). This is a hint, not a fact.
+- **What it does not prove:** anything about the Romsons Breazer. The AirLife is clear plastic all over. The Breazer has a **blue seat** under its piston, so our laser may meet blue plastic even if InSee's does not. Check B26 in section 4.7 is still open.
+- **Effect on our design: none.** Our base unit (section 4.5) is already a tray with the sensor under the volume tube looking up through a short dark tunnel. InSee's tray is thinner (about 29 mm against our 46 mm); ours is taller on purpose, to keep the sensor at least 5 cm from the piston.
+- **Fallbacks if the Breazer's floor is closed** (team reasoning, not sourced): (1) test whether the blue plastic lets infrared through, by pointing a TV remote through it at a phone camera, then run the sensor's crosstalk calibration; (2) cut an opening in the floor, which is the room-air side of the piston so the seal is not affected (demo only); (3) a camera watching the piston through the clear wall (roadmap). Never cut the top: that is the suction side.
+- **Safe wording for the pitch:** "the same layout as the FDA-cleared InSee: a reusable tray under a disposable spirometer". Don't say "the Breazer has an open base" until a real unit has been checked.
 
 ### 4.3 Sensor accuracy facts
 | Fact | Ref | Grade |
@@ -606,6 +625,7 @@ Collected from `PITCH_FACTS.md`, `HANDOFF.md`, the plans and the Sarvam/InSee re
 - Ward-level nurse-to-patient ratios.
 - Any published size or mL-per-mm figure for the Breazer; any published test of this sensor inside a spirometer.
 - InSee's price and any India distributor.
+- Whether the floor under the piston tube is open, on the AirLife or on the Breazer (section 4.2a).
 - An Indian smart incentive spirometer (absence of evidence only).
 - Official current home-care prices from Portea, Apollo or Max.
 - An Indian **hospital** using the WhatsApp Business API for patient or family updates.

@@ -142,7 +142,7 @@ The unit is our design. Its sizes are **derived** from the spirometer rows (B), 
 | D09 | USB-C access | 11 × 5 mm cut-out in the left wall; XIAO's USB-C at the wall | Plan: "USB-C stays reachable" |
 | D10 | Front | Frosted light bar 60 × 5 mm with the WS2812B behind it; Ø 8 mm start-button cap (6 mm switch E12) | our design |
 | D11 | Layout (x, z mm from centre) | Sensor under the volume-chamber axis (x = +20.6); XIAO at the left wall (−78, −14); LiPo in its own ribbed bay (−22, +16); buzzer (+64, −22); LED (+12, front); button (+66, front); light bar / button centre 22 mm above the table | our design |
-| – | Mounting choice | **Base mount** (sensor looks up at the piston underside). Why: the official IFU shows air entering both chambers from below (B25), and the Breazer's cap is opaque blue plastic, so a top mount would have to look through it. **Risk:** B26 – if the floor under the piston turns out to be closed plastic, run VL53L1X crosstalk calibration through it or switch to a side/top bracket. | |
+| – | Mounting choice | **Base mount** (sensor looks up at the piston underside). Why: the official IFU shows air entering both chambers from below (B25), and the Breazer's cap is opaque blue plastic, so a top mount would have to look through it. **Risk:** B26 – if the floor under the piston turns out to be closed plastic, run VL53L1X crosstalk calibration through it or switch to a side/top bracket. **10 Oct 2026:** InSee's product picture shows the same layout (tray, sensor block under the piston tube, looking up) – see RESEARCH_REPORT.md §4.2a. No change to this model; B26 is still open. | |
 
 ## P – Phone (illustrative)
 
