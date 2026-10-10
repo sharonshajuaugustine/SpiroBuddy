@@ -11,3 +11,6 @@ tools/render/_frames/
 backend/data/tts_cache/
 backend/data/translate_cache.json
 backend/data/voice_prefs.json
+
+# Organisers' screenshots with real names – never commit
+infffff/

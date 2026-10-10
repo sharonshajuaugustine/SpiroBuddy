@@ -1,6 +1,13 @@
 # Handoff – read this first in every new session
 
-**Last updated:** 10 Oct 2026, lead session – UI 1 saved; UI 2 + critical testing running
+**Last updated:** 10 Oct 2026, late evening – planning files committed; costs file being written
+
+## Planning pass (10 Oct 2026, evening) – read this first
+- The founder's requests are in `docs/plan/00_FOUNDER_NOTES.md`. Answers, one file per section, in `docs/plan/`:
+  01 hardware review · 02 mobile app + Bluetooth · 04 gaps and risks · 05 expansion and customers · 06 legal deep dive – **all written and committed**.
+- **03_COSTS_AND_BUDGET.md is missing.** Its agent died with the old session. Being redone in this session; if it is still missing, re-run it from 01 (real parts and prices) + 04's "Hand to the costs file" list + 06's fees.
+- Key hardware change: a pilot unit costs about ₹2,300–2,500, not ₹1,000–1,700 (that figure only fits the cable prototype). Pricing sums made earlier on 10 Oct must be redone in 03.
+- `infffff/` is now in `.gitignore` (organisers' screenshots with real names).
 
 ## Scope (decided by the user, 9 Oct 2026)
 - **Everything is DEMO for now:** fake patients, no login, demo control buttons.
