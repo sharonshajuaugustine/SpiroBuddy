@@ -1,6 +1,6 @@
 # SpiroBuddy – business brief (one page from five research files)
 
-**Written:** 10 Oct 2026. Built from the five files in this folder (89 findings, about 90 newly opened sources, all listed in `docs/research/SOURCES_LEDGER.md` from #232). Each line names its finding, for example `B2-11`. **This is a map with sources, not legal, medical or investment advice.** Prices and reuse counts are our own estimates until a hospital says otherwise.
+**Written:** 10 Oct 2026. Built from the five files in this folder (100 findings, 90 newly opened sources, listed in `docs/research/SOURCES_LEDGER.md` as #232–#321). Each line names its finding, for example `B2-11`. **This is a map with sources, not legal, medical or investment advice.** Prices and reuse counts are our own estimates until a hospital says otherwise.
 
 ## The story in six lines
 1. **Customer:** the hospital buys; the head of surgery or physiotherapy asks for it; the purchase head signs small items. (01)
