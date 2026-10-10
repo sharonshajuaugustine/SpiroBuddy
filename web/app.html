@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SpiroBuddy</title>
+  <meta name="description" content="SpiroBuddy patient app: voice-coached breathing exercise (demo, fake patient). Coaching only, never a diagnosis.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0b6e8a">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Patient phone app. Elderly users: one column, text >= 18 px, buttons >= 56 px, status never by colour alone. */
+    .pa-body { background: var(--bg); font-size: 1.125rem; line-height: 1.45; -webkit-tap-highlight-color: transparent; }
+    .pa-wrap { max-width: 460px; margin: 0 auto; padding: 12px 16px calc(24px + env(safe-area-inset-bottom)); min-height: 100dvh; display: flex; flex-direction: column; gap: 14px; }
+    .pa-top { display: flex; align-items: center; gap: 10px; }
+    .pa-top svg.logo { width: 40px; height: 40px; flex: none; }
+    .pa-top .t { font-weight: 800; font-size: 1.25rem; line-height: 1.15; flex: 1; min-width: 0; }
+    .pa-top .t small { display: block; font-weight: 500; font-size: 1.125rem; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pa-iconbtn { width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); display: grid; place-items: center; cursor: pointer; flex: none; }
+    .pa-iconbtn[aria-pressed="true"] { background: var(--surface-3); color: var(--text-3); }
+    .pa-lang { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+    .pa-lang button { flex: none; min-height: 48px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); font: inherit; font-weight: 600; cursor: pointer; }
+    .pa-lang button[aria-pressed="true"] { background: var(--brand, #0b6e8a); border-color: var(--brand, #0b6e8a); color: #fff; }
+    .pa-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 18px; }
+
+    /* the breath stage */
+    .pa-stage { display: grid; grid-template-columns: 96px 1fr; gap: 18px; align-items: stretch; border-width: 3px; transition: border-color .25s, background-color .25s; }
+    .pa-stage[data-mood="breathe"] { border-color: #14a3b8; }
+    .pa-stage[data-mood="fast"] { border-color: var(--yellow-dot); background: var(--yellow-soft); }
+    .pa-stage[data-mood="good"] { border-color: var(--green-dot); background: var(--green-soft); }
+    .pa-tube { position: relative; height: 290px; border-radius: 22px 22px 14px 14px; border: 3px solid var(--border-strong); background: var(--surface-2); overflow: hidden; }
+    .pa-fill { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: linear-gradient(#56c2e8, #1b86c8); opacity: .30; }
+    .pa-disc { position: absolute; left: 8px; right: 8px; bottom: 0; height: 26px; margin-bottom: -4px; border-radius: 8px; background: #1b86c8; box-shadow: 0 2px 6px rgba(16, 28, 39, .25); }
+    .pa-target { position: absolute; left: 0; right: 0; height: 0; border-top: 3px dashed var(--green-dot); }
+    .pa-target span { position: absolute; right: 4px; top: -24px; font-size: .8125rem; font-weight: 700; color: var(--green); background: var(--surface); border-radius: 6px; padding: 0 5px; }
+    .pa-read { display: flex; flex-direction: column; min-width: 0; }
+    .pa-ml { font-size: 4rem; font-weight: 800; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+    .pa-ml small { font-size: 1.25rem; font-weight: 600; color: var(--text-2); letter-spacing: 0; }
+    .pa-goal { color: var(--text-2); margin-top: 2px; }
+    .pa-coach { margin-top: auto; font-size: 1.75rem; font-weight: 800; line-height: 1.2; min-height: 4.2em; display: flex; flex-direction: column; justify-content: flex-end; }
+    .pa-coach small { display: block; font-size: 1.125rem; font-weight: 500; color: var(--text-2); margin-top: 4px; }
+    .pa-count { margin-top: 10px; font-weight: 700; }
+    .pa-dots { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+    .pa-dots i { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border-strong); background: var(--surface); display: grid; place-items: center; color: #fff; }
+    .pa-dots i.good { background: var(--green-dot); border-color: var(--green-dot); }
+    .pa-dots i.try { background: var(--yellow-dot); border-color: var(--yellow-dot); }
+    .pa-dots i svg { width: 14px; height: 14px; }
+
+    .pa-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 68px; border-radius: 18px; border: 2px solid transparent; font: inherit; font-size: 1.375rem; font-weight: 800; cursor: pointer; text-decoration: none; }
+    .pa-btn.primary { background: var(--brand, #0b6e8a); color: #fff; }
+    .pa-btn.ghost { background: var(--surface); color: var(--text); border-color: var(--border-strong); }
+    .pa-btn.help { background: var(--surface); color: var(--red); border-color: var(--red-line); min-height: 60px; font-size: 1.1875rem; }
+    .pa-btn:focus-visible, .pa-iconbtn:focus-visible, .pa-lang button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+    .pa-row { display: flex; gap: 10px; }
+
+    .pa-h { font-size: 1.125rem; font-weight: 800; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+    .pa-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .pa-stat b { display: block; font-size: 1.75rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .pa-stat span { color: var(--text-2); }
+    .pa-ticks { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 12px; }
+    .pa-tick { text-align: center; font-size: .8125rem; color: var(--text-2); }
+    .pa-tick i { display: grid; place-items: center; width: 34px; height: 34px; margin: 0 auto 2px; border-radius: 50%; border: 2px solid var(--border-strong); color: var(--text-3); }
+    .pa-tick.done i { background: var(--green-dot); border-color: var(--green-dot); color: #fff; }
+    .pa-tick.missed i { background: var(--red-soft); border-color: var(--red); color: var(--red); }
+    .pa-tick.pending i { border-color: var(--brand, #0b6e8a); color: var(--brand, #0b6e8a); border-style: dashed; }
+    .pa-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: .9375rem; color: var(--text-2); }
+    .pa-legend span { display: inline-flex; align-items: center; gap: 5px; }
+
+    .pa-result { border-left: 6px solid var(--green-dot); }
+    .pa-result.try { border-left-color: var(--yellow-dot); }
+    .pa-result .big { font-size: 1.5rem; font-weight: 800; }
+    .pa-cheer { border-left: 6px solid #d6457a; }
+    .pa-alert { border: 3px solid var(--red); background: var(--red-soft); color: var(--text); }
+    .pa-alert .big { font-size: 1.5rem; font-weight: 800; color: var(--red); }
+    .pa-foot { color: var(--text-3); font-size: .9375rem; text-align: center; margin-top: auto; }
+    .pa-demo { border-style: dashed; }
+    .pa-demo summary { cursor: pointer; font-weight: 700; min-height: 44px; display: flex; align-items: center; gap: 8px; }
+    .pa-demo .g { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .pa-demo button { min-height: 52px; border-radius: 12px; border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
+    .pa-demo button.wide { grid-column: 1 / -1; background: var(--brand, #0b6e8a); color: #fff; border-color: transparent; }
+    .pa-demo p { font-size: .9375rem; color: var(--text-2); margin: 8px 0 0; }
+    .hidden { display: none !important; }
+    @media (max-width: 360px) { .pa-stage { grid-template-columns: 76px 1fr; gap: 12px; } .pa-ml { font-size: 3.25rem; } .pa-coach { font-size: 1.5rem; } }
+    @media (prefers-reduced-motion: no-preference) { .pa-disc, .pa-fill { transition: bottom .06s linear, height .06s linear; } }
+  </style>
+</head>
+<body class="pa-body">
+  <div class="pa-wrap">
+    <header class="pa-top">
+      <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#0b6e8a"/><rect x="9" y="6" width="6" height="20" rx="3" fill="#fff" opacity=".35"/><rect x="9" y="13" width="6" height="13" rx="3" fill="#fff"/><path d="M19 10c3 0 5 2 5 5M19 15c1.5 0 2.5 1 2.5 2.5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      <div class="t">SpiroBuddy<small id="hello">&nbsp;</small></div>
+      <button class="pa-iconbtn" id="mute" type="button" aria-pressed="false" aria-label="Voice on or off"></button>
+    </header>
+
+    <div class="pa-lang" role="group" aria-label="Language" id="langs"></div>
+
+    <section class="pa-card pa-stage" id="stage" data-mood="idle" aria-live="polite">
+      <div class="pa-tube" aria-hidden="true">
+        <div class="pa-target" id="target-line"><span id="target-tag"></span></div>
+        <div class="pa-fill" id="fill"></div>
+        <div class="pa-disc" id="disc"></div>
+      </div>
+      <div class="pa-read">
+        <div class="pa-ml"><span id="ml">0</span> <small>mL</small></div>
+        <div class="pa-goal" id="goal"></div>
+        <div class="pa-coach"><span id="coach"></span><small id="coach-en"></small></div>
+        <div class="pa-count" id="count"></div>
+        <div class="pa-dots" id="dots" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <section class="pa-card pa-result hidden" id="result" aria-live="polite"></section>
+
+    <div id="actions">
+      <button class="pa-btn primary" id="start" type="button"></button>
+    </div>
+
+    <section class="pa-card pa-cheer hidden" id="cheer"></section>
+
+    <section class="pa-card" id="today">
+      <h2 class="pa-h" id="today-h"></h2>
+      <div class="pa-stats">
+        <div class="pa-stat"><b id="s-done">–</b><span id="s-done-l"></span></div>
+        <div class="pa-stat"><b id="s-best">–</b><span id="s-best-l"></span></div>
+      </div>
+      <div class="pa-ticks" id="ticks"></div>
+      <div class="pa-legend" id="legend"></div>
+    </section>
+
+    <section class="pa-card pa-alert hidden" id="alert" role="alert"></section>
+    <button class="pa-btn help" id="help" type="button"></button>
+
+    <details class="pa-card pa-demo" id="demo">
+      <summary><span data-icon="flask"></span>Demo controls (no device connected)</summary>
+      <div class="g">
+        <button class="wide" id="d-auto" type="button">Play a full demo session (10 breaths)</button>
+        <button data-sim="good" type="button">Good breath</button>
+        <button data-sim="too_fast" type="button">Too fast</button>
+        <button data-sim="too_shallow" type="button">Too shallow</button>
+        <button data-sim="no_hold" type="button">No hold</button>
+        <button id="d-usb" type="button">Connect device (USB)</button>
+        <button id="d-who" type="button">Change patient</button>
+      </div>
+      <p>The breath comes from a built-in simulator because no SpiroBuddy unit is connected. Keys: G good · F fast · S shallow · N no hold · A full session.</p>
+    </details>
+
+    <p class="pa-foot" id="foot"></p>
+  </div>
+
+  <script src="js/icons.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/breath.js"></script>
+  <script src="js/sources.js"></script>
+  <script src="js/voice.js"></script>
+  <script>
+  (function () {
+    'use strict';
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const ic = (n, o) => SB.icon(n, o);
+    const V = window.Voice, B = SB.breath;
+    const q = new URLSearchParams(location.search);
+    const BREATHS = 10;
+
+    /* Screen text. ta and ml need a native-speaker check (same note as the voice cues). */
+    const T = {
+      en: { hello: 'Hello, {n}', start: 'Start my exercise', stop: 'Finish now', again: 'Do another session', goal: 'Goal {t} mL', count: 'Breath {n} of {m}', ready: 'Press start, then breathe in slowly.',
+            today: 'Today', done: 'sessions done', of: 'of', best: 'best breath today', saved: 'Session saved', savedSub: '{g} of {n} good breaths · best {b} mL', notSaved: 'Could not save. It will show after the next session.',
+            help: 'I do not feel well', nurse: 'Your nurse has been told.', call: 'Call 112', cheer: 'A message from {w}', foot: 'SpiroBuddy coaches your breathing exercise. It does not diagnose. Demo with a fake patient.',
+            l_done: 'Done', l_missed: 'Missed', l_now: 'Due now', l_later: 'Later', score: 'Score {s} out of 10' },
+      hi: { hello: 'नमस्ते, {n} जी', start: 'व्यायाम शुरू करें', stop: 'अभी समाप्त करें', again: 'एक और सत्र करें', goal: 'लक्ष्य {t} mL', count: 'साँस {n} / {m}', ready: 'शुरू दबाइए, फिर धीरे-धीरे साँस अंदर लीजिए।',
+            today: 'आज', done: 'सत्र पूरे', of: 'में से', best: 'आज की सबसे अच्छी साँस', saved: 'सत्र सहेज लिया गया', savedSub: '{n} में से {g} अच्छी साँसें · सबसे अच्छी {b} mL', notSaved: 'सहेज नहीं पाए। अगले सत्र के बाद दिखेगा।',
+            help: 'मेरी तबीयत ठीक नहीं है', nurse: 'आपकी नर्स को बता दिया गया है।', call: '112 पर कॉल करें', cheer: '{w} का संदेश', foot: 'SpiroBuddy साँस के व्यायाम में मदद करता है। यह कोई निदान नहीं करता। नकली मरीज़ के साथ डेमो।',
+            l_done: 'हो गया', l_missed: 'छूट गया', l_now: 'अभी', l_later: 'बाद में', score: '10 में से {s} अंक' },
+      ta: { hello: 'வணக்கம், {n}', start: 'பயிற்சியைத் தொடங்கு', stop: 'இப்போது முடி', again: 'இன்னொரு முறை செய்', goal: 'இலக்கு {t} mL', count: 'மூச்சு {n} / {m}', ready: 'தொடங்கு அழுத்தி, மெதுவாக மூச்சை உள்ளிழுங்கள்.',
+            today: 'இன்று', done: 'முறைகள் முடிந்தன', of: 'இல்', best: 'இன்றைய சிறந்த மூச்சு', saved: 'பயிற்சி சேமிக்கப்பட்டது', savedSub: '{n} இல் {g} நல்ல மூச்சுகள் · சிறந்தது {b} mL', notSaved: 'சேமிக்க முடியவில்லை. அடுத்த முறைக்குப் பின் தெரியும்.',
+            help: 'எனக்கு உடல்நிலை சரியில்லை', nurse: 'உங்கள் செவிலியருக்குத் தெரிவிக்கப்பட்டது.', call: '112 ஐ அழை', cheer: '{w} அனுப்பிய செய்தி', foot: 'SpiroBuddy மூச்சுப் பயிற்சிக்கு உதவுகிறது. இது நோயறிதல் செய்யாது. போலி நோயாளியுடன் டெமோ.',
+            l_done: 'முடிந்தது', l_missed: 'தவறியது', l_now: 'இப்போது', l_later: 'பின்னர்', score: '10 இல் {s} மதிப்பெண்' },
+      ml: { hello: 'നമസ്കാരം, {n}', start: 'വ്യായാമം തുടങ്ങുക', stop: 'ഇപ്പോൾ നിർത്തുക', again: 'ഒന്നുകൂടി ചെയ്യുക', goal: 'ലക്ഷ്യം {t} mL', count: 'ശ്വാസം {n} / {m}', ready: 'തുടങ്ങുക അമർത്തി, പതുക്കെ ശ്വാസം ഉള്ളിലേക്ക് എടുക്കുക.',
+            today: 'ഇന്ന്', done: 'സെഷനുകൾ കഴിഞ്ഞു', of: 'ൽ', best: 'ഇന്നത്തെ മികച്ച ശ്വാസം', saved: 'സെഷൻ സേവ് ചെയ്തു', savedSub: '{n} ൽ {g} നല്ല ശ്വാസങ്ങൾ · മികച്ചത് {b} mL', notSaved: 'സേവ് ചെയ്യാനായില്ല. അടുത്ത സെഷനു ശേഷം കാണാം.',
+            help: 'എനിക്ക് സുഖമില്ല', nurse: 'നിങ്ങളുടെ നഴ്സിനെ അറിയിച്ചിട്ടുണ്ട്.', call: '112 വിളിക്കുക', cheer: '{w} അയച്ച സന്ദേശം', foot: 'SpiroBuddy ശ്വസന വ്യായാമത്തിന് സഹായിക്കുന്നു. ഇത് രോഗനിർണയം നടത്തുന്നില്ല. വ്യാജ രോഗിയുമായുള്ള ഡെമോ.',
+            l_done: 'കഴിഞ്ഞു', l_missed: 'വിട്ടുപോയി', l_now: 'ഇപ്പോൾ', l_later: 'പിന്നീട്', score: '10 ൽ {s} മാർക്ക്' },
+    };
+    const SHOW = ['hi', 'en', 'ta', 'ml'];
+    const fill = (s, o) => String(s).replace(/\{(\w+)\}/g, (_, k) => (o && o[k] != null ? o[k] : ''));
+    const tr = (k, o) => fill((T[lang] || T.en)[k] || T.en[k] || k, o);
+    const cue = (c) => (V.cueText && V.cueText(c, lang)) || (V.cueText && V.cueText(c, 'en')) || '';
+
+    let pid = Number(q.get('id')) || Number(localStorage.getItem('sb_app_pid')) || 1;
+    let P = null, lang = 'hi', target = 2000, holdT = 3;
+    let source = null, detector = null, median = new B.MedianFilter(5), identity = new B.Calibration([]);
+    let running = false, breaths = [], startedAt = null, lastSlower = 0, autoTimer = null, coachCue = 'ready';
+
+    /* ---------- language + static text ---------- */
+    function setLang(l) {
+      lang = T[l] ? l : 'en';
+      document.documentElement.lang = lang;
+      V.setLang(lang);
+      $('#langs').innerHTML = SHOW.map((c) => `<button type="button" data-l="${c}" aria-pressed="${c === lang}">${esc(V.LANGS[c].native)}</button>`).join('');
+      paintStatic();
+    }
+    function paintStatic() {
+      const first = P ? String(P.name).split(' ')[0] : '';
+      $('#hello').textContent = P ? tr('hello', { n: first }) : '';
+      $('#goal').textContent = tr('goal', { t: target.toLocaleString('en-IN') });
+      $('#target-tag').textContent = target.toLocaleString('en-IN');
+      $('#start').innerHTML = running ? ic('stop', { size: 26 }) + esc(tr('stop')) : ic('play', { size: 26 }) + esc(tr(breaths.length ? 'again' : 'start'));
+      $('#start').className = 'pa-btn ' + (running ? 'ghost' : 'primary');
+      $('#help').innerHTML = ic('phone', { size: 22 }) + esc(tr('help'));
+      $('#today-h').innerHTML = ic('calendar', { size: 20 }) + esc(tr('today'));
+      $('#s-done-l').textContent = tr('done'); $('#s-best-l').textContent = tr('best');
+      $('#legend').innerHTML = [['check', 'l_done'], ['x', 'l_missed'], ['clock', 'l_now'], ['circle', 'l_later']].map(([i, k]) => `<span>${ic(i, { size: 16 })}${esc(tr(k))}</span>`).join('');
+      $('#foot').textContent = tr('foot');
+      $('#target-line').style.bottom = Math.min(96, (target / maxMl()) * 100) + '%';
+      setCoach(coachCue); paintCount(); paintToday();
+    }
+    function setCoach(c, mood) {
+      coachCue = c;
+      const text = c === 'ready' ? tr('ready') : cue(c);
+      $('#coach').textContent = text;
+      const en = c === 'ready' ? T.en.ready : (V.cueText && V.cueText(c, 'en')) || '';
+      $('#coach-en').textContent = lang === 'en' ? '' : en;
+      if (mood) $('#stage').dataset.mood = mood;
+    }
+    function paintCount() {
+      const n = breaths.length;
+      $('#count').textContent = running || n ? tr('count', { n: Math.min(n + (running ? 1 : 0), BREATHS), m: BREATHS }) : '';
+      $('#dots').innerHTML = Array.from({ length: BREATHS }, (_, i) => {
+        const b = breaths[i]; if (!b) return '<i></i>';
+        return b.label === 'good' ? `<i class="good">${ic('check')}</i>` : `<i class="try">${ic('minus')}</i>`;
+      }).join('');
+    }
+    const maxMl = () => Math.max(2500, target * 1.25);
+
+    /* ---------- today ---------- */
+    function hourLabel(h) { return ((h + 11) % 12 + 1) + (h < 12 ? 'am' : 'pm'); }
+    function paintToday() {
+      if (!P) return;
+      $('#s-done').textContent = `${P.done_today} ${tr('of')} ${P.due_today}`;
+      $('#s-best').textContent = P.best_today ? Math.round(P.best_today).toLocaleString('en-IN') + ' mL' : '–';
+      const I = { done: 'check', missed: 'x', pending: 'clock', upcoming: 'circle' };
+      const W = { done: 'l_done', missed: 'l_missed', pending: 'l_now', upcoming: 'l_later' };
+      $('#ticks').innerHTML = (P.today || []).map((s) => `<div class="pa-tick ${esc(s.status)}"><i>${ic(I[s.status] || 'circle', { size: 18, label: tr(W[s.status] || 'l_later') })}</i>${hourLabel(s.hour)}</div>`).join('');
+    }
+    async function loadPatient() {
+      try { P = await SB.api.patient(pid); } catch (e) { P = P || { id: pid, name: 'Ravi Kumar', language: 'hi', target_ml: 2000, hold_target_s: 3, done_today: 0, due_today: 0, today: [] }; }
+      target = Number(P.target_ml) || 2000; holdT = Number(P.hold_target_s) || 3;
+      try { localStorage.setItem('sb_app_pid', String(pid)); } catch (_) { /* private mode */ }
+    }
+    async function loadCheer() {
+      try {
+        const rows = await SB.api.get(`/api/comms/cheers/${pid}?status=queued`);
+        if (!rows || !rows.length) return;
+        const c = rows[rows.length - 1];
+        $('#cheer').classList.remove('hidden');
+        $('#cheer').innerHTML = `<h2 class="pa-h">${ic('heart', { size: 20 })}${esc(tr('cheer', { w: c.from_name || 'family' }))}</h2><div style="font-size:1.375rem;font-weight:700">${esc(c.text)}</div>`;
+        V.say(c.text, c.language || lang);
+        SB.api.post(`/api/comms/cheers/${c.id}/played`).catch(() => {});
+      } catch (_) { /* no cheers */ }
+    }
+
+    /* ---------- the breath pipeline (same detector and features as the nurse pages) ---------- */
+    function makeDetector() {
+      detector = new B.BreathDetector({
+        targetMl: target, holdTargetS: holdT,
+        onState(s) {
+          if (!running) return;
+          if (s === 'INHALING') { $('#result').classList.add('hidden'); setCoach('breathe_in', 'breathe'); V.say('breathe_in', null, { interrupt: true }); }
+          if (s === 'HOLDING') { setCoach('hold', $('#stage').dataset.mood === 'fast' ? 'fast' : 'breathe'); V.say('hold', null, { interrupt: true }); ['count_3', 'count_2', 'count_1'].forEach((c) => V.say(c)); }
+          if (s === 'FALLING') setCoach('breathe_out');
+        },
+        onEvent(ev) {
+          if (!running || ev.type !== 'too_fast_live') return;
+          setCoach('slower', 'fast');
+          const now = Date.now(); if (now - lastSlower < 3000) return;
+          lastSlower = now; V.tone('slower'); V.say('slower', null, { interrupt: true });
+          if (navigator.vibrate) navigator.vibrate(120);
+        },
+        onBreath,
+      });
+    }
+    function onSample(s) {
+      const ml = median.push(identity.toMl(s.raw));
+      detector.push({ t: s.t, ml });
+      const pct = Math.max(0, Math.min(100, (ml / maxMl()) * 100));
+      $('#disc').style.bottom = `calc(${pct}% * 0.9)`; $('#fill').style.height = `calc(${pct}% * 0.9)`;
+      onSample.n = (onSample.n || 0) + 1;
+      if (onSample.n % 2 === 0) $('#ml').textContent = Math.round(ml / 10) * 10;
+    }
+    const TIP = { good: 'great_breath', too_fast: 'too_fast', too_shallow: 'breathe_deeper', no_hold: 'hold_longer' };
+    async function onBreath(b) {
+      if (!running) return;
+      let label = b.rule_label;
+      try { const m = await B.classify(b.features); if (m && m.label) label = m.label; } catch (_) { /* rules */ }
+      breaths.push({ t: Date.now(), features: b.features, label, score: b.score });
+      const good = label === 'good', tip = TIP[label] || 'encourage_3', n = breaths.length;
+      setCoach(tip, good ? 'good' : 'fast');
+      $('#result').className = 'pa-card pa-result' + (good ? '' : ' try');
+      $('#result').innerHTML = `<div class="big">${ic(good ? 'check' : 'info', { size: 24 })} ${esc(cue(tip))}</div><div>${Math.round(b.features.peak_ml).toLocaleString('en-IN')} mL · ${esc(tr('score', { s: b.score }))}</div>`;
+      paintCount();
+      V.stop(); if (good) V.tone('good');
+      V.say(tip); V.say('breath_' + Math.min(n, 10));
+      if (n >= BREATHS) finish();
+    }
+
+    /* ---------- session ---------- */
+    async function startSource(kind) {
+      if (source) { try { await source.stop(); } catch (_) { /* ignore */ } }
+      source = kind === 'usb' ? new SB.sources.SerialSource() : new SB.sources.SimulatorSource({ targetMl: target });
+      source.onSample = onSample; source.onError = (e) => console.warn(e);
+      await source.start();
+    }
+    async function start() {
+      clearInterval(autoTimer);
+      breaths = []; startedAt = new Date(); running = true; median = new B.MedianFilter(5); makeDetector();
+      $('#result').classList.add('hidden'); $('#alert').classList.add('hidden');
+      if (!source || !source.connected) await startSource('sim');
+      setCoach('ready', 'breathe'); paintStatic();
+      V.say('ready', null, { interrupt: true });
+    }
+    async function finish() {
+      if (!running) return;
+      running = false; clearInterval(autoTimer);
+      const done = breaths.slice(), good = done.filter((b) => b.label === 'good').length;
+      const best = done.reduce((m, b) => Math.max(m, b.features.peak_ml), 0);
+      paintStatic();
+      if (!done.length) { setCoach('ready', 'idle'); return; }
+      let ok = true;
+      try { await SB.api.post('/api/sessions', { patient_id: pid, started_at: startedAt.toISOString(), source: 'app', breaths: done }); } catch (e) { ok = false; console.warn(e); }
+      setCoach('session_complete', 'good');
+      V.say('session_complete'); V.say('encourage_1');
+      $('#result').className = 'pa-card pa-result';
+      $('#result').classList.remove('hidden');
+      $('#result').innerHTML = `<div class="big">${ic('check', { size: 24 })} ${esc(tr(ok ? 'saved' : 'notSaved'))}</div><div>${esc(tr('savedSub', { g: good, n: done.length, b: Math.round(best).toLocaleString('en-IN') }))}</div>`;
+      await loadPatient(); paintStatic(); loadCheer();
+    }
+    function sim(label) {
+      if (!running) return start().then(() => setTimeout(() => source.breathe(label), 2600));
+      if (source && source.breathe) source.breathe(label);
+    }
+    async function autoSession() {
+      const order = ['good', 'too_fast', 'good', 'good', 'too_shallow', 'good', 'no_hold', 'good', 'good', 'good'];
+      await start();
+      let i = 0;
+      const next = () => { if (!running || i >= order.length) { clearInterval(autoTimer); return; } if (!source.busy) source.breathe(order[i++]); };
+      setTimeout(() => { next(); autoTimer = setInterval(next, 1800); }, 2800);
+    }
+
+    /* ---------- "I do not feel well": fixed safety message, never AI ---------- */
+    async function unwell() {
+      V.stop();
+      const msg = cue('red_flag') || 'Please contact your nurse now. If it is an emergency, call 112.';
+      $('#alert').classList.remove('hidden');
+      $('#alert').innerHTML = `<div class="big">${ic('flag', { size: 24 })} ${esc(msg)}</div><p id="alert-note" style="margin:.5rem 0 .75rem"></p><a class="pa-btn primary" href="tel:112">${ic('phone', { size: 24 })}${esc(tr('call'))}</a>`;
+      $('#alert').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      V.say('red_flag', null, { interrupt: true });
+      try {
+        await fetch('/api/comms/demo/red-flag/' + pid, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: 'chest pain – patient pressed "I do not feel well" in the app' }) });
+        $('#alert-note').textContent = tr('nurse');
+      } catch (_) { /* offline: the message above still shows */ }
+    }
+
+    /* ---------- wiring ---------- */
+    $('#langs').addEventListener('click', (e) => { const b = e.target.closest('[data-l]'); if (b) { setLang(b.dataset.l); V.say(running ? coachCue : 'ready', null, { interrupt: true }); } });
+    $('#start').addEventListener('click', () => (running ? finish() : start()));
+    $('#help').addEventListener('click', unwell);
+    $('#d-auto').addEventListener('click', autoSession);
+    document.querySelectorAll('[data-sim]').forEach((b) => b.addEventListener('click', () => sim(b.dataset.sim)));
+    $('#d-usb').addEventListener('click', async () => { try { await startSource('usb'); } catch (e) { alert(e.message); await startSource('sim'); } });
+    $('#d-who').addEventListener('click', async () => {
+      try { const list = await SB.api.patients(); const i = list.findIndex((x) => x.id === pid); pid = list[(i + 1) % list.length].id; } catch (_) { return; }
+      await loadPatient(); breaths = []; setLang(P.language); loadCheer();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const k = e.key.toLowerCase(), L = { g: 'good', f: 'too_fast', s: 'too_shallow', n: 'no_hold' }[k];
+      if (L) sim(L); else if (k === 'a') autoSession();
+    });
+    const paintMute = () => { $('#mute').innerHTML = ic(V.muted ? 'x' : 'volume', { size: 24 }); $('#mute').setAttribute('aria-pressed', String(V.muted)); };
+    $('#mute').addEventListener('click', () => { V.toggleMute(); paintMute(); });
+    document.querySelectorAll('[data-icon]').forEach((el) => { el.innerHTML = ic(el.dataset.icon, { size: 18 }); });
+
+    (async function boot() {
+      try { await SB.api.init(); } catch (_) { /* offline: mock data */ }
+      try { await V.loadCues(); } catch (_) { /* cue texts come later */ }
+      await loadPatient();
+      setLang(q.get('lang') || P.language || 'hi');
+      paintMute(); makeDetector();
+      startSource('sim').catch(() => {});
+      loadCheer();
+      if (q.get('auto') === '1') autoSession();
+    })();
+
+    if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  })();
+  </script>
+</body>
+</html>

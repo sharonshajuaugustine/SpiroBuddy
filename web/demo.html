@@ -95,6 +95,7 @@
             <button class="btn danger wide" type="button" data-act="miss">${ic('clock')}Simulate 2 missed slots</button>
             <button class="btn wide" type="button" data-act="wa">${ic('send')}Send summary to family (WhatsApp)</button>
             <a class="btn wide" href="${link('patient.html?id=' + encodeURIComponent(p.id))}" target="_blank" rel="noopener">${ic('external')}Open patient page</a>
+            <a class="btn wide" href="${link('app.html?id=' + encodeURIComponent(p.id))}" target="_blank" rel="noopener">${ic('phone')}Open patient phone app</a>
           </div>
           ${r ? `<div class="result">${r}</div>` : ''}
         </article>`;
