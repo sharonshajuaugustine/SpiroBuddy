@@ -133,7 +133,8 @@ def _consent_info(out: dict, src: dict) -> None:
 # ----------------------------------------------------------------------------- guardians
 
 def new_token() -> str:
-    return secrets.token_urlsafe(9)
+    """Magic-link token for the family page: 128 random bits (22 URL-safe characters)."""
+    return secrets.token_urlsafe(16)
 
 
 def list_guardians(pid: int) -> list[dict]:

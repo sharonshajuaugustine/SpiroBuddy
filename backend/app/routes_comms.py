@@ -97,6 +97,46 @@ def _bad(e: Exception):
     raise HTTPException(400, str(e))
 
 
+def _int(value, what: str) -> int:
+    """Whole number from a JSON body, or a clean 400 (never a 500) for text, lists, objects."""
+    try:
+        if isinstance(value, (bool, list, dict)):
+            raise TypeError(what)
+        return int(value)
+    except (TypeError, ValueError):
+        raise HTTPException(400, f"{what} must be a whole number")
+
+
+def _txt(value) -> str | None:
+    """Free text from a JSON body: numbers become text, lists/objects/empty become None."""
+    if value is None or isinstance(value, (bool, list, dict)):
+        return None
+    return str(value)
+
+
+def _consent_block(p: dict, to: str, g: dict | None, kind: str) -> dict | None:
+    """STOP / no recorded consent -> no automated WhatsApp to that person (weekly card, voice
+    note, renewal question). Same shape as POST /api/whatsapp/{pid} when consent blocks it."""
+    if to == "family":
+        ok = bool(g) and has_consent(g)
+        who = guardians.guardian_label(g) if g else "family"
+        reason = (f"{who} has not given consent or replied STOP – no automated WhatsApp sent" if g
+                  else "no guardian in the care circle")
+    else:
+        ok = has_consent(guardians.get_settings(p["id"]))
+        who = first_name(p["name"])
+        reason = f"{who} has not given consent or replied STOP – no automated WhatsApp sent"
+    if ok:
+        return None
+    from .comms.common import log_event
+    log_event(p["id"], "guardian_whatsapp" if to == "family" else "whatsapp",
+              f"WhatsApp to {who}: {kind.replace('_', ' ')} blocked – no consent", detail=reason,
+              channel="whatsapp", actor="guardian" if to == "family" else "patient", to_name=who,
+              status="skipped")
+    return {"sent": False, "dry_run": False, "text": "", "buttons": [], "mode": "blocked",
+            "blocked": True, "blocked_reason": reason, "error": reason}
+
+
 # ----------------------------------------------------------------------------- status
 
 @router.get("/status")
@@ -149,8 +189,8 @@ def alert_counts(me: str | None = None):
 def alert_action(aid: int, action: str, body: dict | None = Body(None)):
     body = body or {}
     try:
-        a = alerts.act(aid, action, body.get("by"), body.get("minutes"), body.get("to"))
-    except ValueError as e:
+        a = alerts.act(aid, action, _txt(body.get("by")), body.get("minutes"), _txt(body.get("to")))
+    except (ValueError, TypeError) as e:
         _bad(e)
     if a is None:
         raise HTTPException(404, f"alert {aid} not found")
@@ -173,7 +213,7 @@ def start_escalation(pid: int, body: dict | None = Body(None)):
     speed = body.get("speed") or "real"
     if speed not in ("real", "fast"):
         raise HTTPException(400, "speed must be real or fast")
-    return escalation.start(pid, reason=body.get("reason") or "manual", speed=speed,
+    return escalation.start(pid, reason=(_txt(body.get("reason")) or "manual")[:80], speed=speed,
                             override_quiet=bool(body.get("override_quiet")))
 
 
@@ -207,7 +247,7 @@ def demo_ladder(pid: int, body: dict | None = Body(None)):
 def demo_red_flag(pid: int, body: dict | None = Body(None)):
     _require_demo()
     _patient_or_404(pid)
-    text = (body or {}).get("text") or "सीने में दर्द है, साँस नहीं आ रही"
+    text = _txt((body or {}).get("text")) or "सीने में दर्द है, साँस नहीं आ रही"
     return messages.handle_inbound(text, patient_id=pid, role="patient", channel="simulator")
 
 
@@ -319,8 +359,8 @@ def hangup(cid: int, body: dict | None = Body(None)):
 def call_patient(pid: int, body: dict | None = Body(None)):
     p = _patient_or_404(pid)
     body = body or {}
-    nurse = (body.get("nurse_name") or "Nurse").strip()[:60]
-    return calls.click_to_call(p, nurse, body.get("nurse_phone"), guardians.get_settings(pid))
+    nurse = (_txt(body.get("nurse_name")) or "Nurse").strip()[:60]
+    return calls.click_to_call(p, nurse, _txt(body.get("nurse_phone")), guardians.get_settings(pid))
 
 
 @router.post("/checkin-call/{pid}")
@@ -330,7 +370,7 @@ def checkin_call(pid: int, body: dict | None = Body(None)):
     p = _patient_or_404(pid)
     cfg = guardians.get_settings(pid)
     d = service.patient_detail(pid) or {}
-    missed = int((body or {}).get("missed") or max(2, int(d.get("trailing_missed") or 0)))
+    missed = _int((body or {}).get("missed") or max(2, int(d.get("trailing_missed") or 0)), "missed")
     run = escalation.active_run(pid)
     c = calls.place_call(p, "reminder", "patient", p["name"], cfg.get("patient_phone"),
                          p.get("language") or "en", run_id=run["id"] if run else None,
@@ -375,7 +415,7 @@ def sarvam_replay(pid: int, body: dict | None = Body(None)):
     _require_demo()
     _patient_or_404(pid)
     try:
-        return sarvam.replay(pid, (body or {}).get("sample") or "pain")
+        return sarvam.replay(pid, _txt((body or {}).get("sample")) or "pain")
     except ValueError as e:
         _bad(e)
 
@@ -567,14 +607,16 @@ def wa_reply(body: dict = Body(...)):
     pid = body.get("patient_id")
     if pid is None:
         raise HTTPException(400, "patient_id is required")
-    _patient_or_404(int(pid))
+    pid = _int(pid, "patient_id")
+    _patient_or_404(pid)
     role = body.get("role") if body.get("role") in ("patient", "guardian") else "patient"
-    text = str(body.get("text") or "").strip()
-    payload = body.get("payload")
+    text = (_txt(body.get("text")) or "").strip()
+    payload = _txt(body.get("payload"))
     if not text and not payload:
         raise HTTPException(400, "text or payload is required")
-    return messages.handle_inbound(text or "", payload=payload, patient_id=int(pid), role=role,
-                                   guardian_id=body.get("guardian_id"), channel="simulator")
+    gid = _int(body["guardian_id"], "guardian_id") if body.get("guardian_id") else None
+    return messages.handle_inbound(text or "", payload=payload, patient_id=pid, role=role,
+                                   guardian_id=gid, channel="simulator")
 
 
 @router.get("/card/{pid}.png")
@@ -595,8 +637,11 @@ def send_weekly_card(pid: int, body: dict | None = Body(None)):
     if to not in ("family", "patient"):
         raise HTTPException(400, "to must be family or patient")
     g = guardians.primary_guardian(pid) if to == "family" else None
-    lang = lang_of(body.get("language") or ((g or {}).get("language") if g else p.get("language")), "hi")
+    lang = lang_of(_txt(body.get("language")) or ((g or {}).get("language") if g else p.get("language")), "hi")
     card_lang = "hi" if lang == "hi" else "en"
+    blocked = _consent_block(p, to, g, "weekly_card")
+    if blocked:
+        return blocked
     base = public_base()
     media = f"{base}/api/comms/card/{pid}.png?lang={card_lang}" if base else None
     res = messages.send(p, to, (g or {}).get("phone") if g else guardians.get_settings(pid).get("patient_phone"),
@@ -613,9 +658,12 @@ def send_voice_note(pid: int, body: dict | None = Body(None)):
     """Evening summary as a 20-second voice note in the guardian's/patient's language."""
     p = _patient_or_404(pid)
     body = body or {}
-    to = body.get("to") or "family"
+    to = "family" if (body.get("to") or "family") == "family" else "patient"
     g = guardians.primary_guardian(pid) if to == "family" else None
     lang = lang_of((g or {}).get("language") if g else p.get("language"), "hi")
+    blocked = _consent_block(p, to, g, "voice_note")
+    if blocked:
+        return {**blocked, "audio_url": None, "speak_text": "", "language": lang}
     d = service.patient_detail(pid)
     s = llm.summarize(llm.add_recent(service.summary_stats(d), d), "hi" if lang == "hi" else "en")
     text = s["text"]
@@ -665,9 +713,10 @@ def add_guardian(body: dict = Body(...)):
     pid = body.get("patient_id")
     if pid is None:
         raise HTTPException(400, "patient_id is required")
-    p = _patient_or_404(int(pid))
+    pid = _int(pid, "patient_id")
+    p = _patient_or_404(pid)
     try:
-        g = guardians.create_guardian(int(pid), body)
+        g = guardians.create_guardian(pid, body)
     except ValueError as e:
         _bad(e)
     return guardians.public_guardian(g, p)
@@ -707,12 +756,20 @@ def consent_text(pid: int, lang: str | None = None):
 @router.post("/consent/ask/{pid}")
 def consent_ask(pid: int, body: dict | None = Body(None)):
     """Send the weekly one-question renewal now ("keep the reminders? ✅ yes / ⛔ STOP")."""
-    _patient_or_404(pid)
+    p = _patient_or_404(pid)
     body = body or {}
     to = body.get("to") or "patient"
     if to not in ("patient", "family"):
         raise HTTPException(400, "to must be patient or family")
-    g = guardians.get_guardian(int(body["guardian_id"])) if body.get("guardian_id") else None
+    g = guardians.get_guardian(_int(body["guardian_id"], "guardian_id")) if body.get("guardian_id") else None
+    if g and g.get("patient_id") != pid:
+        raise HTTPException(404, f"guardian {g['id']} is not in this patient's care circle")
+    # A renewal only goes to someone whose consent is on record: after STOP the nurse records
+    # consent again in person (Care circle); SpiroBuddy never messages them to ask.
+    blocked = _consent_block(p, to, (g or guardians.primary_guardian(pid)) if to == "family" else None,
+                             "consent_renewal")
+    if blocked:
+        return blocked
     try:
         return consent.ask(pid, to, g)
     except ValueError as e:

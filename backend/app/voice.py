@@ -490,10 +490,15 @@ _RF_NORMAL = [unicodedata.normalize("NFC", w).lower()
               for words in RED_FLAG_WORDS.values() for w in words]
 
 
+_RF_PUNCT = re.compile(r"[\s\-_/.,;:!?।…\"()\[\]*]+")
+
+
 def red_flag(text: str) -> bool:
-    """True if the text contains any red-flag word in any of our languages."""
+    """True if the text contains any red-flag word in any of our languages. Extra spaces and
+    punctuation between words ("chest-pain", double spaces) do not hide a red flag."""
     t = unicodedata.normalize("NFC", text or "").lower()
-    t = t.replace("’", "'")
+    t = t.replace("’", "'").replace("‘", "'")
+    t = _RF_PUNCT.sub(" ", t)
     return any(w in t for w in _RF_NORMAL)
 
 

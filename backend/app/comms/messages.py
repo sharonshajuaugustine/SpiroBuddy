@@ -245,7 +245,8 @@ RED_FLAG_RE = re.compile(
     r"breathless|fever|blood|bleed|faint|dizzy|unconscious|emergency|\bsos\b|\bhelp\b|"
     r"सीने में दर्द|छाती में दर्द|साँस नहीं|सांस नहीं|साँस फूल|सांस फूल|बुखार|खून|चक्कर|बेहोश|मदद|बचाओ|"
     r"\bmadad\b|bachao|saans\s*nahi|seene\s*mein\s*dard|bukhar|"
-    r"நெஞ்சு வலி|மூச்சு திணறல்|காய்ச்சல்|ரத்தம்|மயக்கம்|உதவி", re.I)
+    r"நெஞ்சு வலி|மூச்சு திணறல்|காய்ச்சல்|ரத்தம்|மயக்கம்|உதவி|"
+    r"സഹായ|രക്ഷിക്ക", re.I)       # Malayalam "help" / "save me" (needs a native-speaker check, Q-28)
 
 _PATIENT_WORDS = {
     "done": r"^(1|✅.*|done|did it|ho gaya|ho gya|haan|ha|yes|हो गया|हाँ|हां|कर लिया|முடிந்தது|ஆம்|ചെയ്തു|അതെ)$",
@@ -513,7 +514,8 @@ def handle_inbound(body: str, from_number: str | None = None, payload: str | Non
             guardian = get_guardian(guardian_id) if guardian_id else primary_guardian(int(patient_id))
     else:
         patient, role, guardian = identify(from_number)
-    body = (body or "").strip()[:1000]
+    full_body = (body or "").strip()        # intent (STOP / red flag) is read from the WHOLE message
+    body = full_body[:1000]
     if not patient:
         reply = reply_text("unknown_sender", "en")
         st().insert("inbound_messages", [{"patient_id": None, "guardian_id": None,
@@ -523,7 +525,7 @@ def handle_inbound(body: str, from_number: str | None = None, payload: str | Non
         return {"intent": "unknown", "reply": reply, "patient_id": None, "role": None}
 
     lang = text_lang((guardian or {}).get("language") if role == "guardian" else patient.get("language"), "en")
-    intent = detect_intent(body or payload or "", role, payload)
+    intent = detect_intent(full_body or payload or "", role, payload)
     if intent not in ("stop", "consent_yes", "red_flag") and _last_out_kind(patient["id"], role, guardian) == "consent_renewal":
         # the last question was "keep the reminders?": 1/yes = keep, 2 = stop
         low = (body or "").strip().lower().strip(" .!।")

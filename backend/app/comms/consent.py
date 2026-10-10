@@ -76,7 +76,13 @@ REPLY = {
              "ta": "⛔ சரி – SpiroBuddy இனி தானியங்கி அழைப்புகள் அல்லது செய்திகளை அனுப்பாது. உங்கள் செவிலியர் இன்னும் அழைக்கலாம். அவசரத்தில் 112 ஐ அழைக்கவும்.",
              "ml": "⛔ ശരി – SpiroBuddy ഇനി ഓട്ടോമാറ്റിക് കോളുകളോ സന്ദേശങ്ങളോ അയയ്ക്കില്ല. നിങ്ങളുടെ നഴ്സിന് ഇപ്പോഴും വിളിക്കാം. അടിയന്തര സാഹചര്യത്തിൽ 112-ൽ വിളിക്കുക."},
 }
-STOP_RE = re.compile(r"^\s*(stop|unsubscribe|रोको|रोकें|बंद करो|बंद|நிறுத்து|நிறுத்தவும்|നിർത്തുക|നിർത്തൂ|നിർത്ത്|⛔.*)\s*[.!।]?\s*$", re.I)
+# The whole message must be the stop word, optionally with a polite word around it ("please stop",
+# "STOP it", "stop messages"); "I can't stop coughing" is NOT a stop. roko/ruko/band karo = typed Hindi.
+STOP_RE = re.compile(r"^\s*(?:(?:please|pls|kindly)\s+)?"
+                     r"(stop|unsubscribe|रोको|रोकें|बंद करो|बंद|நிறுத்து|நிறுத்தவும்|നിർത്തുക|നിർത്തൂ|നിർത്ത്|"
+                     r"roko|ruko|band karo|bandh karo|⛔.*)"
+                     r"(?:\s+(?:please|pls|it|now|this|all|everything|messages?|calls?|sending))*"
+                     r"\s*[.!।]*\s*$", re.I)
 
 
 def consent_text(lang: str) -> dict:

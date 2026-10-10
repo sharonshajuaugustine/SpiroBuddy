@@ -5,6 +5,7 @@ Run from the repo root:  uvicorn backend.app.main:app --port 8000
 from __future__ import annotations
 
 import logging
+import math
 from contextlib import asynccontextmanager
 from datetime import timedelta
 
@@ -67,6 +68,12 @@ async def validation_error(request: Request, exc: RequestValidationError):
                          "details": jsonable_errors(exc)}, status_code=422)
 
 
+@app.exception_handler(OverflowError)
+async def number_out_of_range(request: Request, exc: OverflowError):
+    """An absurdly large number in the URL or body (id, timestamp...) is a bad request, not a crash."""
+    return JSONResponse({"error": "number out of range", "status": 400}, status_code=400)
+
+
 @app.exception_handler(Exception)
 async def server_error(request: Request, exc: Exception):
     log.exception("Unhandled error on %s", request.url.path)
@@ -88,6 +95,16 @@ def _patient_or_404(pid: int) -> dict:
 def _require_demo():
     if not demo_mode():
         raise HTTPException(403, "demo endpoints are disabled (set DEMO_MODE=1)")
+
+
+def _int_or_400(value, what: str) -> int:
+    """Whole number from a JSON body, or a clean 400 (never a 500) for text, lists, objects."""
+    try:
+        if isinstance(value, (bool, list, dict)):
+            raise TypeError(what)
+        return int(value)
+    except (TypeError, ValueError):
+        raise HTTPException(400, f"{what} must be a whole number")
 
 
 def _maybe_autopilot():
@@ -128,6 +145,13 @@ def patient(pid: int):
 def update_patient(pid: int, body: dict = Body(...)):
     _patient_or_404(pid)
     values = {}
+    for k in ("target_ml", "hold_target_s"):          # text, lists, NaN -> 400, not a crash
+        v = body.get(k)
+        try:
+            if v is not None and (isinstance(v, (bool, list, dict)) or not math.isfinite(float(v))):
+                raise ValueError(k)
+        except ValueError:
+            raise HTTPException(400, f"{k} must be a number")
     if body.get("target_ml") is not None:
         t = int(float(body["target_ml"]))
         if not 250 <= t <= 5000:
@@ -169,10 +193,11 @@ def post_session(body: dict = Body(...)):
     pid = body.get("patient_id")
     if pid is None:
         raise HTTPException(400, "patient_id is required")
-    p = _patient_or_404(int(pid))
+    p = _patient_or_404(_int_or_400(pid, "patient_id"))
     breaths = body.get("breaths") or []
-    if not isinstance(breaths, list):
-        raise HTTPException(400, "breaths must be a list")
+    if not isinstance(breaths, list) or not all(
+            isinstance(b, dict) and isinstance(b.get("features") or {}, dict) for b in breaths):
+        raise HTTPException(400, "breaths must be a list of {t, features, label, score} objects")
     try:
         res = service.record_session(p, body.get("started_at"), breaths,
                                      source=body.get("source") or "app")
@@ -187,6 +212,8 @@ def collect(body: dict = Body(...)):
     label = body.get("label")
     if label not in LABELS:
         raise HTTPException(400, f"label must be one of {LABELS}")
+    if not isinstance(body.get("features") or {}, dict) or not isinstance(body.get("samples") or [], list):
+        raise HTTPException(400, "features must be an object and samples a list")
     try:
         counts = service.save_labelled(str(body.get("person") or "anon"), label,
                                        body.get("samples") or [], body.get("features") or {})
@@ -225,6 +252,8 @@ def summary(pid: int, body: dict | None = Body(None)):
     if d is None:
         raise HTTPException(404, f"patient {pid} not found")
     lang = (body or {}).get("language") or d.get("language") or "en"
+    if not isinstance(lang, str):
+        raise HTTPException(400, "language must be text, e.g. en, hi, ta or ml")
     return llm.summarize(service.summary_stats(d), lang)
 
 
@@ -282,9 +311,9 @@ def demo_simulate(pid: int, body: dict | None = Body(None)):
     p = _patient_or_404(pid)
     body = body or {}
     quality = body.get("quality") or "good"
-    if quality not in QUALITY_MIX:
+    if not isinstance(quality, str) or quality not in QUALITY_MIX:
         raise HTTPException(400, "quality must be good, mixed or poor")
-    n = int(body.get("breaths") or 10)
+    n = _int_or_400(body.get("breaths") or 10, "breaths")
     if not 1 <= n <= 30:
         raise HTTPException(400, "breaths must be 1..30")
     rng = np.random.default_rng()
@@ -327,7 +356,14 @@ def demo_miss(pid: int):
     hours = sorted(h for _, h in targets)
     lang = p.get("language") if p.get("language") in ("en", "hi") else "en"
     text = whatsapp.missed_text(p, hours, lang)
-    alerts = [_send(p, "missed", role, text) for role in ("nurse", "family")]
+    alerts = [_send(p, "missed", "nurse", text)]
+    # Family: only with recorded consent – a guardian who replied STOP gets nothing (same rule
+    # as POST /api/whatsapp/{pid}); the blocked attempt is shown in the timeline instead.
+    from .comms import messages as comms_messages
+    guardian, _, number, blocked = comms_messages.care_update_recipient(p, "family")
+    alerts.append(comms_messages.send_care_update(p, "missed", "family", text, lang, guardian=guardian,
+                                                  stored_number=number, blocked_reason=blocked)
+                  if guardian and blocked else _send(p, "missed", "family", text))
     d = service.patient_detail(pid)
     return {"ok": True, "patient_id": pid,
             "missed": [{"slot_date": d_, "slot_hour": h} for d_, h in targets],

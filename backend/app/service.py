@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import csv
 import logging
+import threading
 from collections import defaultdict
 from datetime import datetime, timedelta
 
@@ -14,6 +15,7 @@ log = logging.getLogger("spirobuddy.service")
 
 _store: Store | None = None
 _store_note = ""
+_best_lock = threading.Lock()       # personal-best read + write must not interleave (record_session)
 
 
 def init_store() -> Store:
@@ -233,8 +235,12 @@ def record_session(patient: dict, started_at, breaths: list[dict], source: str =
         st.insert("breaths", [{"session_id": sid, "patient_id": patient["id"], **b} for b in clean])
     st.upsert("slots", [{"patient_id": patient["id"], "slot_date": slot_date,
                          "slot_hour": slot_hour, "status": "done", "session_id": sid}])
-    if best > _num(patient.get("personal_best_ml")):
-        st.update("patients", [("id", "eq", patient["id"])], {"personal_best_ml": round(best, 1)})
+    # Compare with the value in the store NOW (under a lock), not the copy read when the request
+    # started: two sessions arriving together must never lower the personal best (lost update).
+    with _best_lock:
+        cur = st.select("patients", [("id", "eq", patient["id"])], columns="personal_best_ml")
+        if best > _num((cur[0] if cur else patient).get("personal_best_ml")):
+            st.update("patients", [("id", "eq", patient["id"])], {"personal_best_ml": round(best, 1)})
     counts = {l: 0 for l in LABELS}
     for b in clean:
         counts[b["label"]] += 1

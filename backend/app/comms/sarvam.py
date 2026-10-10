@@ -376,10 +376,15 @@ def find_call(payload: dict) -> dict | None:
         rows = st().select("calls", [("provider_sid", "eq", attempt)])
         if rows:
             return rows[0]
-    md = ((payload.get("webhook_config") or {}).get("metadata") or {})
+    wc = payload.get("webhook_config")
+    md = (wc.get("metadata") if isinstance(wc, dict) else None) or {}
     cid = md.get("call_id") if isinstance(md, dict) else None
+    try:        # a forged / malformed webhook must never crash the handler (it is just "unknown")
+        cid = int(cid) if cid and not isinstance(cid, (bool, list, dict)) else None
+    except (TypeError, ValueError):
+        cid = None
     if cid:
-        c = calls.get_call(int(cid))
+        c = calls.get_call(cid)
         if c and str(c.get("provider_sid") or "") in ("", attempt) and c.get("provider") == "sarvam_agent":
             return c
     return None

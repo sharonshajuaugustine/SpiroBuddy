@@ -72,11 +72,14 @@ def parse_dt(value) -> datetime:
     """Accept ISO strings (with or without offset) or epoch milliseconds; return aware local time."""
     if value is None or value == "":
         return now_local()
-    if isinstance(value, (int, float)):
-        return datetime.fromtimestamp(float(value) / 1000.0, TZ)
-    s = str(value).strip()
-    if s.isdigit():
-        return datetime.fromtimestamp(int(s) / 1000.0, TZ)
+    try:
+        if isinstance(value, (int, float)):
+            return datetime.fromtimestamp(float(value) / 1000.0, TZ)
+        s = str(value).strip()
+        if s.isdigit():
+            return datetime.fromtimestamp(int(s) / 1000.0, TZ)
+    except (OverflowError, OSError):        # absurd timestamps: bad input (ValueError), not a crash
+        raise ValueError(f"timestamp out of range: {value!r}")
     if s.endswith("Z"):
         s = s[:-1] + "+00:00"
     dt = datetime.fromisoformat(s)

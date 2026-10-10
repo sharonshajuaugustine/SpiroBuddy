@@ -92,12 +92,17 @@ def set_prefs(pid: int, body: dict = Body(...)):
         if "language" in body:
             cur["language"] = _lang_or_400(body["language"])
         if "speaker" in body:
-            spk = (body["speaker"] or "").strip().lower() or None
+            spk = (body["speaker"] if isinstance(body["speaker"], str) else "").strip().lower() or None
             if spk and spk not in voice.V3_SPEAKERS and "_" not in spk:
                 raise HTTPException(400, "unknown speaker")
             cur["speaker"] = spk
         if "pace" in body:
-            cur["pace"] = None if body["pace"] in (None, "") else min(2.0, max(0.5, float(body["pace"])))
+            try:
+                if isinstance(body["pace"], (bool, list, dict)):
+                    raise ValueError("pace")
+                cur["pace"] = None if body["pace"] in (None, "") else min(2.0, max(0.5, float(body["pace"])))
+            except ValueError:
+                raise HTTPException(400, "pace must be a number between 0.5 and 2")
         allp[str(pid)] = cur
         PREFS_FILE.write_text(json.dumps(allp, ensure_ascii=False, indent=1), encoding="utf-8")
     return get_prefs(pid, p)
