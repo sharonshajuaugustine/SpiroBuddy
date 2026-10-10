@@ -2,8 +2,8 @@
  *  - API calls (/api/...) are never cached: live data only.
  *  - Pages, scripts and styles: network first, cached copy only when offline (so nothing goes stale).
  *  - Voice clips (/audio/...): cache first – they never change and are the offline voice. */
-const CACHE = 'spirobuddy-v2';
-const SHELL = ['app.html', 'css/styles.css', 'js/icons.js', 'js/api.js', 'js/breath.js', 'js/sources.js', 'js/voice.js',
+const CACHE = 'spirobuddy-v3';
+const SHELL = ['app.html', 'css/styles.css', 'js/icons.js', 'js/api.js', 'js/breath.js', 'js/sources.js', 'js/voice.js', 'js/units-mock.js',
   'manifest.webmanifest', 'icons/icon-192.png', 'audio/cues.json'];
 
 self.addEventListener('install', (e) => {

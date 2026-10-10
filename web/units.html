@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpiroBuddy Units</title>
+  <meta name="description" content="SpiroBuddy unit hand-over: assign, return, clean, wipe (mock-up for the demo, no real units).">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Units page (mock). Uses the shared tokens; only what the shared sheet lacks is defined here. */
+    .status-blue { background: var(--brand-soft); color: var(--brand); border-color: var(--brand-line); }
+    .mock-banner { display: flex; gap: var(--sp-3); align-items: flex-start; border: 1px dashed var(--border-strong); background: var(--surface-2); border-radius: var(--r-lg); padding: var(--sp-3) var(--sp-4); margin-bottom: var(--sp-4); color: var(--text-2); }
+    .mock-banner b { color: var(--text); }
+    .flow { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; margin: var(--sp-2) 0 0; padding: 0; list-style: none; font-size: var(--fs-sm); color: var(--text-2); }
+    .flow li { display: inline-flex; align-items: center; gap: 6px; }
+    .flow li + li::before { content: "→"; color: var(--text-3); margin-right: 2px; }
+    .unit-code { font-family: var(--mono); font-weight: 700; font-size: var(--fs-base); }
+    .batt { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+    .batt i { display: inline-block; width: 34px; height: 12px; border: 1.5px solid var(--text-3); border-radius: 3px; position: relative; }
+    .batt i::after { content: ""; position: absolute; right: -4px; top: 3px; width: 2px; height: 4px; background: var(--text-3); border-radius: 0 1px 1px 0; }
+    .batt i b { position: absolute; left: 1px; top: 1px; bottom: 1px; border-radius: 1px; background: var(--green-dot); }
+    .batt.low i b { background: var(--red); } .batt.mid i b { background: var(--yellow-dot); }
+    .u-actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+    .units td { vertical-align: middle; }
+    .steps { counter-reset: s; list-style: none; padding: 0; margin: 0; display: grid; gap: var(--sp-3); }
+    .steps > li { counter-increment: s; border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--sp-3) var(--sp-4); background: var(--surface-2); }
+    .steps > li > b::before { content: counter(s) ". "; }
+    .steps > li.done { border-color: var(--green-line); background: var(--green-soft); }
+    .steps > li.locked { opacity: .55; }
+    .qr-row { display: flex; gap: var(--sp-4); align-items: center; margin-top: var(--sp-2); flex-wrap: wrap; }
+    .qr { width: 132px; height: 132px; background: #fff; padding: 8px; border-radius: var(--r-md); border: 1px solid var(--border); display: grid; place-items: center; color: #101c27; font-family: var(--mono); font-weight: 700; }
+    .qr img, .qr canvas { width: 116px !important; height: 116px !important; }
+    .checks { display: grid; gap: var(--sp-2); margin: var(--sp-2) 0; }
+    .checks label { display: flex; gap: var(--sp-2); align-items: flex-start; font-size: var(--fs-base); }
+    .log li { display: grid; grid-template-columns: 9.5rem 5.5rem 1fr; gap: var(--sp-3); padding: var(--sp-2) 0; border-bottom: 1px solid var(--border); font-size: var(--fs-md); }
+    .log { list-style: none; margin: 0; padding: 0; }
+    .log .who { color: var(--text-3); display: block; font-size: var(--fs-sm); }
+    @media (max-width: 720px) { .log li { grid-template-columns: 1fr; gap: 2px; } .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  </style>
+</head>
+<body>
+  <header id="app-header"></header>
+  <main id="main">
+    <div class="page-head">
+      <div>
+        <h1>Units</h1>
+        <p class="page-sub">Every SpiroBuddy unit on this ward: who has it, and where it is in its hand-over cycle.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn" id="btn-reset" type="button"><span data-icon="refresh"></span>Reset mock units</button>
+      </div>
+    </div>
+
+    <div class="mock-banner" role="note">
+      <span data-icon="flask"></span>
+      <div><b>Mock-up for the demo.</b> No real units exist yet, so this list lives only in this browser. It shows how a lent unit moves from one patient to the next.
+        <b>The unit itself stores nothing about a person:</b> language, breathing goal, schedule and family contacts stay on the patient's record, so handing a unit to a new patient is one scan.
+        <ul class="flow" aria-label="Life of a unit"><li>In stock</li><li>Handed over (scan + test breath)</li><li>In use at home</li><li>Returned</li><li>Cleaned and checked</li><li>Wiped</li><li>In stock</li></ul>
+      </div>
+    </div>
+
+    <section class="tiles" aria-label="Unit summary" id="tiles"></section>
+
+    <section class="card" style="margin-bottom:1rem">
+      <div class="card-head"><h2><span data-icon="database"></span>Ward stock</h2><div class="spacer"></div><span class="muted small" id="count-note"></span></div>
+      <div class="table-wrap">
+        <table class="units">
+          <thead><tr><th>Unit</th><th>Where it is</th><th>With</th><th>Since</th><th>Battery</th><th>Last heard from</th><th>Next step</th></tr></thead>
+          <tbody id="rows"><tr><td colspan="7"><span class="skeleton" style="height:20px;width:60%"></span></td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2><span data-icon="clock"></span>Hand-over log</h2><div class="spacer"></div><span class="muted small">who did what, and when</span></div>
+      <ul class="log" id="log"></ul>
+    </section>
+
+    <p class="footer-note">Demo data – fake patients only. Breaths from a unit that is not on loan are never added to anyone's record.</p>
+  </main>
+
+  <!-- hand over -->
+  <dialog class="modal" id="dlg-assign" aria-labelledby="da-h">
+    <div class="modal-head"><h2 id="da-h">Hand over a unit</h2><button class="btn sm" data-close type="button" aria-label="Close">✕</button></div>
+    <div class="modal-body">
+      <ol class="steps">
+        <li id="st-scan"><b>Scan the code on the unit</b>
+          <div class="qr-row"><div class="qr" id="qr" aria-label="QR code of the unit"></div>
+            <div><div class="unit-code" id="da-code"></div><p class="muted small" style="margin:.25rem 0 .5rem">Scanning stops the wrong unit being picked. (No camera in this demo: press the button.)</p>
+              <button class="btn" id="da-scan" type="button"><span data-icon="search"></span>Simulate scan</button></div></div></li>
+        <li id="st-patient" class="locked"><b>Pick the patient</b>
+          <div style="margin-top:.5rem"><select id="da-patient" disabled style="width:100%"></select></div>
+          <p class="muted small" id="da-settings" style="margin:.5rem 0 0">&nbsp;</p></li>
+        <li id="st-test" class="locked"><b>One test breath together</b>
+          <p class="muted small" style="margin:.25rem 0 .5rem">Shows the unit reads this patient's spirometer before they go home.</p>
+          <button class="btn" id="da-test" type="button" disabled><span data-icon="wind"></span>Run test breath</button> <span id="da-test-out" class="small"></span></li>
+      </ol>
+    </div>
+    <div class="modal-foot"><button class="btn" data-close type="button">Cancel</button><button class="btn primary" id="da-ok" type="button" disabled>Hand over</button></div>
+  </dialog>
+
+  <!-- clean and check -->
+  <dialog class="modal" id="dlg-clean" aria-labelledby="dc-h">
+    <div class="modal-head"><h2 id="dc-h">Clean and check</h2><button class="btn sm" data-close type="button" aria-label="Close">✕</button></div>
+    <div class="modal-body">
+      <p style="margin-top:0">Unit <span class="unit-code" id="dc-code"></span>. The base only touches hands. The patient keeps their own spirometer and mouthpiece; those are never re-issued.</p>
+      <div class="checks" id="dc-checks">
+        <label><input type="checkbox"> Cleaned, then wiped all over with a 70% alcohol wipe and left to dry</label>
+        <label><input type="checkbox"> No cracks; the sensor window is clear and unscratched</label>
+        <label><input type="checkbox"> Light, beeper and button work; charged</label>
+      </div>
+      <div class="field"><label for="dc-by">Checked by</label><input id="dc-by" value="Sister Anjali" maxlength="40"></div>
+    </div>
+    <div class="modal-foot"><button class="btn" data-close type="button">Cancel</button><button class="btn primary" id="dc-ok" type="button" disabled>Sign as cleaned</button></div>
+  </dialog>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/comms.js"></script>
+  <script src="js/units-mock.js"></script>
+  <script>
+  (function () {
+    const { esc, $, $$, ic, link, toast, ago, dateTimeLabel } = SB.ui;
+    const U = SB.units;
+    let patients = [], current = null;
+    const NURSE = 'Sister Anjali';
+    const appUrl = (u) => 'app.html?unit=' + encodeURIComponent(u.code) + (u.loan ? '&id=' + encodeURIComponent(u.loan.patientId) : '');
+    const when = (iso) => { try { return dateTimeLabel(iso); } catch (_) { return new Date(iso).toLocaleString('en-IN'); } };
+    const since = (iso) => { const d = Math.floor((Date.now() - new Date(iso)) / 864e5); return d <= 0 ? 'today' : d === 1 ? '1 day' : d + ' days'; };
+    const heard = (iso) => { try { return ago(iso); } catch (_) { return when(iso); } };
+    const pill = (state) => { const s = U.STATES[state]; return `<span class="status-pill ${s.cls}" title="${esc(s.hint)}">${ic(s.icon, { size: 14 })}${esc(s.label)}</span>`; };
+    const batt = (n) => `<span class="batt ${n < 20 ? 'low' : n < 50 ? 'mid' : ''}"><i><b style="width:${Math.max(4, Math.min(100, n)) * 0.3}px"></b></i>${n}%${n < 20 ? ' · low' : ''}</span>`;
+
+    function actions(u) {
+      const b = (act, icon, text, cls) => `<button class="btn sm ${cls || ''}" data-act="${act}" data-code="${esc(u.code)}" type="button">${ic(icon, { size: 15 })}${text}</button>`;
+      if (u.state === 'stock') return b('assign', 'user', 'Hand over', 'primary');
+      if (u.state === 'in_use') return b('return', 'refresh', 'Take back') + `<a class="btn sm" href="${esc(link(appUrl(u)))}" target="_blank" rel="noopener">${ic('phone', { size: 15 })}Patient app</a>` + b('lost', 'flag', 'Not returned');
+      if (u.state === 'returned') return b('clean', 'sparkles', 'Clean and check', 'primary') + b('faulty', 'x', 'Faulty');
+      if (u.state === 'cleaned') return b('wipe', 'database', 'Wipe unit', 'primary');
+      return b('found', 'check', u.state === 'lost' ? 'Found' : 'Repaired');
+    }
+    function render() {
+      const units = U.all(), n = (s) => units.filter((u) => u.state === s).length;
+      const tiles = [['users', 'In use at home', n('in_use'), 'on loan to a patient', ''], ['check', 'Ready to hand over', n('stock'), 'clean, wiped, charged', ''],
+        ['sparkles', 'Being turned round', n('returned') + n('cleaned'), 'returned · cleaning · wiping', n('returned') + n('cleaned') ? 'tile-amber has' : ''],
+        ['flag', 'Not returned or faulty', n('lost') + n('faulty'), 'out of service', n('lost') + n('faulty') ? 'tile-red has' : '']];
+      $('#tiles').innerHTML = tiles.map(([i, l, v, s, c]) => `<div class="tile ${c}"><span class="tile-label">${ic(i)}${l}</span><span class="tile-num">${v}</span><span class="tile-sub">${s}</span></div>`).join('');
+      $('#count-note').textContent = `${units.length} units`;
+      $('#rows').innerHTML = units.map((u) => {
+        const last = u.history[0];
+        const who = u.loan ? `<a href="${esc(link('patient.html?id=' + encodeURIComponent(u.loan.patientId)))}">${esc(u.loan.name)}</a>`
+          : `<span class="muted">nobody${last && last.name ? ' · last: ' + esc(last.name) : ''}</span>`;
+        return `<tr><td><span class="unit-code">${esc(u.code)}</span></td><td>${pill(u.state)}</td><td>${who}</td>
+          <td>${u.loan ? esc(since(u.loan.from)) : '<span class="muted">–</span>'}</td><td>${u.state === 'lost' ? '<span class="muted">unknown</span>' : batt(u.battery)}</td>
+          <td>${esc(heard(u.lastSeen))}</td><td><div class="u-actions">${actions(u)}</div></td></tr>`;
+      }).join('');
+      $('#log').innerHTML = U.log().slice(0, 12).map((e) => `<li><span>${esc(when(e.at))}</span><span class="unit-code">${esc(e.code)}</span><span>${esc(e.text)}<span class="who">${esc(e.by)}</span></span></li>`).join('')
+        || '<li class="empty">Nothing yet.</li>';
+    }
+
+    /* ---- hand over ---- */
+    function openAssign(code) {
+      current = U.find(code);
+      $('#da-code').textContent = current.code;
+      const q = $('#qr'); q.innerHTML = '';
+      const url = new URL('app.html?unit=' + encodeURIComponent(current.code), location.href).href;
+      try { new QRCode(q, { text: url, width: 116, height: 116, correctLevel: QRCode.CorrectLevel.M }); } catch (_) { q.textContent = current.code; }
+      const free = patients.filter((p) => !U.unitOfPatient(p.id));
+      $('#da-patient').innerHTML = '<option value="">Choose a patient…</option>' + free.map((p) => `<option value="${esc(p.id)}">${esc(p.name)} · ${esc(p.surgery || '')}</option>`).join('');
+      $('#da-patient').disabled = true; $('#da-test').disabled = true; $('#da-ok').disabled = true;
+      $('#da-test-out').textContent = ''; $('#da-settings').innerHTML = '&nbsp;';
+      $('#st-scan').className = ''; $('#st-patient').className = 'locked'; $('#st-test').className = 'locked';
+      $('#dlg-assign').showModal();
+    }
+    $('#da-scan').addEventListener('click', () => { $('#st-scan').className = 'done'; $('#st-patient').className = ''; $('#da-patient').disabled = false; $('#da-patient').focus(); });
+    $('#da-patient').addEventListener('change', (e) => {
+      const p = patients.find((x) => String(x.id) === e.target.value);
+      $('#st-patient').className = p ? 'done' : ''; $('#st-test').className = p ? '' : 'locked'; $('#da-test').disabled = !p; $('#da-ok').disabled = true; $('#da-test-out').textContent = '';
+      const L = { en: 'English', hi: 'Hindi', ta: 'Tamil', ml: 'Malayalam' };
+      $('#da-settings').innerHTML = p ? `This unit will use <b>${esc(p.name.split(' ')[0])}'s</b> settings: ${esc(L[p.language] || p.language)} voice · goal ${Number(p.target_ml).toLocaleString('en-IN')} mL · hold ${esc(p.hold_target_s)} s. Nothing is copied onto the unit.` : '&nbsp;';
+    });
+    $('#da-test').addEventListener('click', () => {
+      const p = patients.find((x) => String(x.id) === $('#da-patient').value); if (!p) return;
+      $('#da-test').disabled = true; $('#da-test-out').innerHTML = '<span class="live-dot"></span> breathing in…';
+      setTimeout(() => {
+        const ml = Math.round((Number(p.target_ml) || 2000) * (0.55 + Math.random() * 0.25) / 10) * 10;
+        $('#da-test-out').innerHTML = `${ic('check', { size: 15 })} read ${ml.toLocaleString('en-IN')} mL (simulated)`;
+        $('#st-test').className = 'done'; $('#da-ok').disabled = false;
+      }, 1800);
+    });
+    $('#da-ok').addEventListener('click', () => {
+      const p = patients.find((x) => String(x.id) === $('#da-patient').value);
+      try { U.assign(current.code, p, NURSE); toast(`${current.code} handed over to ${p.name}`, 'good'); $('#dlg-assign').close(); render(); } catch (e) { toast(e.message, 'bad', 6000); }
+    });
+
+    /* ---- clean ---- */
+    function openClean(code) {
+      current = U.find(code); $('#dc-code').textContent = current.code;
+      $$('#dc-checks input').forEach((c) => (c.checked = false)); $('#dc-ok').disabled = true; $('#dlg-clean').showModal();
+    }
+    $('#dc-checks').addEventListener('change', () => { $('#dc-ok').disabled = !$$('#dc-checks input').every((c) => c.checked) || !$('#dc-by').value.trim(); });
+    $('#dc-ok').addEventListener('click', () => { try { U.clean(current.code, $('#dc-by').value.trim()); toast(`${current.code} signed as cleaned`, 'good'); $('#dlg-clean').close(); render(); } catch (e) { toast(e.message, 'bad'); } });
+
+    $$('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+    $('#rows').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-act]'); if (!b) return;
+      const code = b.dataset.code, act = b.dataset.act;
+      try {
+        if (act === 'assign') return openAssign(code);
+        if (act === 'clean') return openClean(code);
+        if (act === 'return') { U.giveBack(code, NURSE); toast(`${code} taken back. Loan closed; the history stays with the patient.`, 'good', 5000); }
+        if (act === 'wipe') { U.wipe(code, NURSE); toast(`${code} wiped and back in stock`, 'good'); }
+        if (act === 'lost') { if (!confirm(`Mark ${code} as not returned? Breaths from it will no longer be accepted.`)) return; U.mark(code, 'lost', NURSE); }
+        if (act === 'faulty') U.mark(code, 'faulty', NURSE);
+        if (act === 'found') U.mark(code, 'stock', NURSE);
+        render();
+      } catch (err) { toast(err.message, 'bad', 6000); }
+    });
+    $('#btn-reset').addEventListener('click', async () => { U.reset(); await U.ensure(patients); render(); toast('Mock units reset'); });
+
+    SB.ui.boot('units').then(async () => {
+      try { patients = await SB.api.patients(); } catch (_) { patients = []; }
+      await U.ensure(patients);
+      render();
+    });
+  })();
+  </script>
+</body>
+</html>

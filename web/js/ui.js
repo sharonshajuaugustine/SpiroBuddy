@@ -15,6 +15,7 @@
     { group: 'Ward', href: 'index.html', label: 'Dashboard', key: 'dashboard', icon: 'dashboard' },
     { group: 'Ward', href: 'index.html#alerts', label: 'Alerts', key: 'alerts', icon: 'bell', count: true },
     { group: 'Ward', href: 'index.html#patients-card', label: 'Patients', key: 'patient', icon: 'users' },
+    { group: 'Ward', href: 'units.html', label: 'Units', key: 'units', icon: 'database' },
     { group: 'Tools', href: 'demo.html', label: 'Demo panel', key: 'demo', icon: 'sliders' },
     { group: 'Tools', href: 'collect.html', label: 'Record breaths', key: 'collect', icon: 'activity' },
     { group: 'Tools', href: 'showcase/', label: '3D showroom', key: 'showcase', icon: 'cube', ext: true },

@@ -96,11 +96,13 @@
   <div class="pa-wrap">
     <header class="pa-top">
       <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#0b6e8a"/><rect x="9" y="6" width="6" height="20" rx="3" fill="#fff" opacity=".35"/><rect x="9" y="13" width="6" height="13" rx="3" fill="#fff"/><path d="M19 10c3 0 5 2 5 5M19 15c1.5 0 2.5 1 2.5 2.5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-      <div class="t">SpiroBuddy<small id="hello">&nbsp;</small></div>
+      <div class="t">SpiroBuddy<small id="hello">&nbsp;</small><small id="unit-chip" class="hidden" style="font-size:.9375rem;color:var(--text-3)"></small></div>
       <button class="pa-iconbtn" id="mute" type="button" aria-pressed="false" aria-label="Voice on or off"></button>
     </header>
 
     <div class="pa-lang" role="group" aria-label="Language" id="langs"></div>
+
+    <section class="pa-card pa-alert hidden" id="no-unit" role="alert"></section>
 
     <section class="pa-card pa-stage" id="stage" data-mood="idle" aria-live="polite">
       <div class="pa-tube" aria-hidden="true">
@@ -170,6 +172,7 @@
   <script src="js/breath.js"></script>
   <script src="js/sources.js"></script>
   <script src="js/voice.js"></script>
+  <script src="js/units-mock.js"></script>
   <script>
   (function () {
     'use strict';
@@ -204,6 +207,11 @@
     const tr = (k, o) => fill((T[lang] || T.en)[k] || T.en[k] || k, o);
     const cue = (c) => (V.cueText && V.cueText(c, lang)) || (V.cueText && V.cueText(c, 'en')) || '';
 
+    /* Opened from a unit's QR code (?unit=SB-0011): the unit says who the patient is. The patient never logs in.
+     * Mock for the demo (js/units-mock.js): the loan is looked up in this browser, or taken from the link the
+     * nurse's screen made. A unit that is not on loan gets no session at all (design: docs/DEVICE_LIFECYCLE.md). */
+    const unitCode = (q.get('unit') || '').trim().toUpperCase();
+    let unitBlocked = false;
     let pid = Number(q.get('id')) || Number(localStorage.getItem('sb_app_pid')) || 1;
     let P = null, lang = 'hi', target = 2000, holdT = 3;
     let source = null, detector = null, median = new B.MedianFilter(5), identity = new B.Calibration([]), calib = identity;
@@ -408,6 +416,20 @@
     (async function boot() {
       try { await SB.api.init(); } catch (_) { /* offline: mock data */ }
       try { await V.loadCues(); } catch (_) { /* cue texts come later */ }
+      if (unitCode) {
+        try { await SB.units.ensure(); } catch (_) { /* no list in this browser */ }
+        const u = SB.units.find(unitCode);
+        if (u && u.loan && u.state === 'in_use') pid = Number(u.loan.patientId);   // loan found in this browser
+        else if (!q.get('id')) unitBlocked = true;                                // no loan here and none in the link
+        $('#unit-chip').classList.remove('hidden'); $('#unit-chip').textContent = 'Unit ' + unitCode;
+      }
+      if (unitBlocked) {
+        $('#no-unit').classList.remove('hidden');
+        $('#no-unit').innerHTML = `<div class="big">${ic('info', { size: 24 })} This unit is not set up for anyone yet.</div><p style="margin:.5rem 0 0">Unit ${esc(unitCode)} is not on loan to a patient, so no breathing session is recorded. Please ask your nurse to hand it over to you.</p>`;
+        ['#stage', '#actions', '#today', '#help', '#demo', '#langs'].forEach((s) => $(s).classList.add('hidden'));
+        $('#foot').textContent = T.en.foot; paintMute();
+        return;
+      }
       await loadPatient();
       setLang(q.get('lang') || P.language || 'hi');
       paintMute(); makeDetector();

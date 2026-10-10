@@ -30,6 +30,15 @@
 | 8 | 2:40–2:55 | **Family page** (open from the patient page, "Care circle" link) or the dashboard again | – | Impact: we measure the share of hourly sessions completed, automatically. A US trial showed reminders alone doubled use. We will not claim medical outcomes until a proper study. |
 | 9 | 2:55–3:00 | Tour video's last frame (logo) | – | SpiroBuddy. Coaching every breath at home. Team, track: Healthcare and Wellbeing. |
 
+## Extra shot: one unit, many patients (about 25 seconds, between shots 6 and 7)
+Open **Units** in the left menu of the nurse site (`/units.html`). First click **Reset mock units**.
+1. Point at the list: every unit, who has it, battery, and where it is in its cycle.
+2. On **SB-0011** (with Ravi) click **Take back**, then **Clean and check** (tick the three boxes, **Sign as cleaned**), then **Wipe unit**. It returns to "In stock".
+3. On the same unit click **Hand over**: **Simulate scan**, pick **Priya Sharma**, **Run test breath**, **Hand over**.
+4. Click **Patient app** on that row. The app opens greeting Priya, with her goal, and shows "Unit SB-0011".
+
+**What to say:** "Units are lent and reused. The unit stores nothing about a person. Language, goal and family contacts live on the patient's record, so moving a unit to the next patient is one scan. A unit that is not on loan records nothing." **Say plainly:** "This screen is a mock-up; no real units exist yet." The page also says so.
+
 ## Shortcuts that help while recording
 - **Patient app keys:** `G` good breath · `F` too fast · `S` too shallow · `N` no hold · `A` full 10-breath session.
 - **Demo panel keys (for Ravi):** `G` good session · `M` mixed · `P` poor · `X` 2 missed slots · `S` send summary · `L` play the reminder ladder.
