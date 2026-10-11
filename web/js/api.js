@@ -238,7 +238,7 @@
     { id: 1, name: 'Ravi Kumar', age: 58, sex: 'M', surgery: 'Abdominal surgery (open hernia repair)', days: 8, language: 'hi', target_ml: 2000, adherence: 0.85, quality: 0.8, pb: 1950 },
     { id: 2, name: 'Priya Sharma', age: 44, sex: 'F', surgery: 'Laparoscopic cholecystectomy (gallbladder)', days: 5, language: 'en', target_ml: 2500, adherence: 0.95, quality: 0.9, pb: 2400 },
     { id: 3, name: 'Abdul Rahman', age: 63, sex: 'M', surgery: 'Heart bypass surgery (CABG)', days: 9, language: 'en', target_ml: 1500, adherence: 0.3, quality: 0.5, pb: 1000, missLast: true },
-    { id: 4, name: 'Lakshmi Iyer', age: 66, sex: 'F', surgery: 'Total knee replacement', days: 6, language: 'ta', target_ml: 1500, adherence: 0.6, quality: 0.7, pb: 1300 },
+    { id: 4, name: 'Lakshmi Iyer', age: 66, sex: 'F', surgery: 'Lung surgery (lobectomy)', days: 6, language: 'ta', target_ml: 1500, adherence: 0.6, quality: 0.7, pb: 1300 },
     { id: 5, name: 'Mohan Das', age: 50, sex: 'M', surgery: 'Lung rehab after TB treatment (post-TB)', days: 7, language: 'hi', target_ml: 1750, adherence: 0.5, quality: 0.6, pb: 1450, missLast: true },
     { id: 6, name: 'Sreedevi Nair', age: 54, sex: 'F', surgery: 'Hysterectomy', days: 4, language: 'ml', target_ml: 2250, adherence: 0.9, quality: 0.85, pb: 2150 },
     { id: 7, name: 'Arjun Reddy', age: 41, sex: 'M', surgery: 'Appendix removal (appendectomy)', days: 3, language: 'en', target_ml: 3000, adherence: 0.9, quality: 0.55, pb: 2900 },

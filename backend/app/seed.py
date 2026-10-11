@@ -5,7 +5,7 @@ The mix is chosen so the dashboard always shows green, yellow AND red patients:
   2 Priya Sharma  – green          3 Abdul Rahman – red (very few sessions)
   4 Lakshmi Iyer  – yellow         5 Mohan Das    – red (last 2 slots missed, breathes too fast)
   6 Sreedevi Nair – green (Malayalam)  7 Arjun Reddy – yellow (best breath well below personal best)
-Ages/operations follow the India-fit list (docs/HANDOFF.md): CABG man in his 60s, knee replacement
+Ages/operations follow the India-fit list (docs/HANDOFF.md): CABG man in his 60s, lung surgery (was knee replacement until 12 Oct: breathing exercisers are for chest, heart and upper-abdominal surgery)
 woman in her 60s, gallbladder (cholecystectomy) woman in her 40s, man ~50 in post-TB lung rehab.
 All people and hospitals are fictional.
 Before ~9:00 the colour is judged on yesterday, which follows the same patterns.
@@ -44,7 +44,7 @@ PROFILES = {
     3: dict(name="Abdul Rahman", age=63, sex="M", surgery="Heart bypass surgery (CABG)",
             surgery_days_ago=9, language="en", target_ml=1500, ramp=(0.50, 0.65), today=0.62,
             err=0.40, errs=["too_shallow", "no_hold"], only={10, 14}, auto=False),
-    4: dict(name="Lakshmi Iyer", age=66, sex="F", surgery="Total knee replacement",
+    4: dict(name="Lakshmi Iyer", age=66, sex="F", surgery="Lung surgery (lobectomy)",
             surgery_days_ago=6, language="ta", target_ml=1500, ramp=(0.60, 0.85), today=0.62,
             err=0.30, errs=["too_shallow", "no_hold"], miss={10, 13, 15, 18, 20}, auto=True),
     5: dict(name="Mohan Das", age=50, sex="M", surgery="Lung rehab after TB treatment (post-TB)",
