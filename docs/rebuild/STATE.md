@@ -46,6 +46,7 @@
 - [ ] Gemini API key added on Render → Environment
 - [x] `supabase/schema_v2.sql` pasted into the Supabase SQL Editor and run (founder, Sun 11 Oct about 23:15 IST: result "setval 1000", no error)
 - [x] Push approved for P0 (founder, Sun 11 Oct about 23:35 IST: "yes, push when tests pass")
+- [x] PIN-login columns pasted into Supabase (founder, Mon 12 Oct 01:41 IST: "Success. No rows returned"; the lead then read the live database: `pin_hash`, `pin_failed`, `pin_locked_until` and the index `idx_patients_hospital_mrn` are there)
 - [ ] Push approved for P1
 - [ ] AIC server facts given (the fill-in table in `docs/SCALING_AND_COST.md` section 7d) – asked 11 Oct 18:20
 
