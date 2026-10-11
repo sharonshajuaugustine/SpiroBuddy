@@ -131,7 +131,7 @@
 | P4-4.1 | Update REQUIREMENTS, ARCHITECTURE, FEATURE_STATUS (generated), PROGRESS, HANDOFF (merge) | P0 | todo | | |
 | P4-4.2 | `README.md` for judges, with the founder's disclosure placeholder (verdict A1) | P0 | todo | | Do not write the disclosure yourself |
 | P4-4.3 | `docs/SETUP_STEPS.md` (Gemini key, Supabase paste, Render) | P0 | done (draft; re-check in Phase 4) | d0879ba | |
-| P4-4.4 | `docs/hackathon/DEMO_PATH.md` (about 2:30, timed) + `docs/hackathon/VIDEO_PAGE_MAP.md` | P0 | todo | | |
+| P4-4.4 | `docs/hackathon/DEMO_PATH.md` (about 2:30, timed) + `docs/hackathon/VIDEO_PAGE_MAP.md` | P0 | VIDEO_PAGE_MAP done; DEMO_PATH todo | | |
 | P4-4.5 | Founder config done (see the checkboxes above) | P0 | todo | | |
 | P4-4.6 | Push P0 (founder OK) → live check → demo reset | P0 | done except the demo reset (557857d, 23:40 IST) | | |
 | P4-4.7 | P1 work, verified and pushed (founder OK) | P1 | todo | | |
