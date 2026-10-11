@@ -17,14 +17,16 @@
 
 ## Now
 
-- **Next action:** Wave 1 workflow `wf_d3240333-b2a` running (session 7469796e, started 23:22 IST; builders on Sonnet to save the Pro plan's usage): builder **A = public story site** (P2-B7a–d + F-5; landing moves to `/`, the old nurse dashboard moves to `/dashboard.html`) and builder **B = digital prescription** (P2-RX, the founder's 23:00 decision below), each followed by one verify-and-fix agent. When it finishes: apply `docs/rebuild/story_integration.md` and `docs/rebuild/meds_integration.md`, flip the finished features to Live in `features.py`, run the full suite, ask the founder "push now?", push, check the live site, reset the demo. Then, if usage is left: README for judges, DEMO_PATH, VIDEO_PAGE_MAP, F-4 (shot 14 lines). Done meanwhile by the lead: comms isolation (02d913f), recording notes for `/dashboard.html` (3948e73).
+- **Next action:** Wave 1 is built, integrated and committed (see the rows). Full suite running (started 23:33 IST). When green: ask the founder "push now?", push `master` to `main`, wait for Render, check `/api/health`, `/`, `/dashboard.html`, `/app.html?id=1` → My medicines → pharmacy card → QR, then the founder restarts Render and resets the demo (SETUP_STEPS §2 steps 6–7). Then, if usage is left: README for judges, DEMO_PATH, VIDEO_PAGE_MAP, F-4 (shot 14 lines).
+- **Usage (Pro plan, 5-hour window resets 03:30 IST):** 75% used at 23:31 IST. The two verify agents were stopped at 23:32 to keep enough for the push; the lead checked the prescription path in the browser instead (patient app → My medicines in Hindi → pharmacy card → QR → public check says "Current"). A local DB made before the seed hook shows no medicines until **Reset demo data**.
+- **Time note:** earlier entries in this session said 23:12 and 23:45; the real IST times were about 22:45 and 23:00 (the shell clock was read as UTC).
 - **Founder decisions, Sun 11 Oct 22:55–23:05 IST (override the spec where they differ):**
   1. **Story site first**, then medicines. The account is a small Pro plan: at most about 4–6 agents until 03:30, so 2 builders + 2 verifiers.
   2. **Landing page at `/`; the nurse dashboard moves to `/dashboard.html`;** update the recording notes in `DEMO_VIDEO_SHOTLIST.md` ("Before you record", tab 5 and shot 9) to the new address and a "log in as Doctor" step.
   3. **Medicines = the doctor's prescription on the patient's phone, shown at the pharmacy counter, no paper.** It is **not** "AI reads a prescription photo" ("any AI could do that – that's not the app"). The doctor types the prescription in the hospital software → the patient sees every medicine on the phone → a "show at the pharmacy" screen with a QR the chemist can scan to check it. AI photo reading is at most a side helper (left In development); patient photo upload is Planned. Spec §8.7's Gemini pipeline is no longer the headline.
 - **Honesty pass on `features.py` (23:10):** every feature that is not built yet now says In development (31 keys + 7 public pages), and a new test fails if a Live or Simulated badge points at a page that does not exist. Builders flip their own keys back only when the feature works. New keys: `rx.patient_phone`, `rx.pharmacy_screen`, `rx.verify_qr`.
 - **Lock (active session):** Opus 5.5 ultracode session 7469796e (Pro plan account), taken Sun 11 Oct 22:40 IST. The previous session dd50472b's workflows ended at about 22:26 on its usage limit; no other session is running (checked).
-- **Last heartbeat:** Sun 11 Oct 23:45 IST.
+- **Last heartbeat:** Sun 11 Oct 23:33 IST.
 - **Schedule risk:** P0 was due 22:30 and Phase 2 is only starting now. Rule: ship only finished screens; everything else keeps its In development badge.
 - **Last good commit before the redesign:** `4c78e46`
 - **Live site** (https://spirobuddy.onrender.com): old version, not redeployed by the redesign yet
@@ -32,7 +34,7 @@
 **Founder config** (tick when done; never ask again for a ticked item):
 - [ ] Gemini API key added to `.env` (local)
 - [ ] Gemini API key added on Render → Environment
-- [ ] `supabase/schema_v2.sql` pasted into the Supabase SQL Editor and run
+- [x] `supabase/schema_v2.sql` pasted into the Supabase SQL Editor and run (founder, Sun 11 Oct about 23:15 IST: result "setval 1000", no error)
 - [ ] Push approved for P0
 - [ ] Push approved for P1
 - [ ] AIC server facts given (the fill-in table in `docs/SCALING_AND_COST.md` section 7d) – asked 11 Oct 18:20
@@ -71,7 +73,7 @@
 | P2-B2a | Triage list + patient chart header + tabs (Overview, Breathing, Medicines, Visits, Papers, Care team & consent, Notes, Timeline, Device) | P0 | todo | | |
 | P2-B2b | Enrol wizard + printable patient handout with QR | P0 | todo | | |
 | P2-B2c | Prescription review screen (photo + lines, unclear in amber, confirm all → approve, warnings) | P0 | todo | | |
-| P2-RX | **Digital prescription (founder, 23:00):** doctor types it → patient phone → pharmacy-counter screen + QR check | P0 | doing (7469796e, wave 1, 23:15) | | Replaces B3's photo pipeline as the headline |
+| P2-RX | **Digital prescription (founder, 23:00):** doctor types it → patient phone → pharmacy-counter screen + QR check | P0 | done (90f0bc3) | 5b0aecd, 90f0bc3, c7fe3f4 | Replaces B3's photo pipeline as the headline |
 | P2-B3a | Normaliser (`backend/app/meds/normalise.py`) + full table tests | P0 | todo | | |
 | P2-B3b | Prescription pipeline: typed / doctor upload / patient upload / manual; approve, stop, version | P0 | todo | | No dose events before approval (test) |
 | P2-B3c | Dose events, grace → missed → `missed_dose` alert, family notice with consent | P0 | todo | | |
@@ -82,10 +84,10 @@
 | P2-B6a | Patient app: Now card, Today list, 4 tabs, Help, medicine due card with voice, visit request, papers by camera (en + hi) | P0 | todo | | |
 | P2-B6b | Patient app strings in ta + ml; new voice clips if a Sarvam key exists | P1 | todo | | |
 | P2-B6c | Family page additions (medicine ticks, next visit, shared papers) | P1 | todo | | |
-| P2-B7a | Landing page | P0 | doing (7469796e, wave 1, 23:15) |  |  |
-| P2-B7b | Impact page (who, how many, funnel, calculator, live metrics, SDG) + `GET /api/impact` | P0 | doing (7469796e, wave 1, 23:15) |  | Numbers copied exactly from PITCH_PLAN · WIP `routes_public.py` (GET /api/impact, not registered) is in 8ebc65d |
-| P2-B7c | Trust (ICMR) page | P0 | doing (7469796e, wave 1, 23:15) |  |  |
-| P2-B7d | Vision (startup) page + architecture page + `docs/hackathon/architecture_v2.svg` | P0 | doing (7469796e, wave 1, 23:15) |  | Add the sections "Scale and cost" and "Works beside your hospital's software" (founder ask F-5) |
+| P2-B7a | Landing page | P0 | done (b0d2f4e) |  |  |
+| P2-B7b | Impact page (who, how many, funnel, calculator, live metrics, SDG) + `GET /api/impact` | P0 | done (b0d2f4e) |  | Numbers copied exactly from PITCH_PLAN · WIP `routes_public.py` (GET /api/impact, not registered) is in 8ebc65d |
+| P2-B7c | Trust (ICMR) page | P0 | done (b0d2f4e) |  |  |
+| P2-B7d | Vision (startup) page + architecture page + `docs/hackathon/architecture_v2.svg` | P0 | done (b0d2f4e) |  | Add the sections "Scale and cost" and "Works beside your hospital's software" (founder ask F-5) |
 | P2-B8a | `twin-model.js` refactor (showcase still works) + public `/twin.html` | P0 | todo |  | WIP `web/js/twin-model.js` (792 lines, not loaded by any page yet) is in 8ebc65d |
 | P2-B8b | Live twin in the hospital (`/api/live`, replay from `session_curves`) | P0 | todo |  | Never "real-time monitoring" |
 | P2-B8c | Fleet twin: server-backed devices page with lifecycle, actions, telemetry | P1 | todo |  |  |
@@ -103,7 +105,7 @@
 | F-2 | `docs/INTEROPERABILITY.md` + Contract L in ARCHITECTURE.md: SpiroBuddy sits beside the hospital's own software; data in, data out, moving hosts | P0 | done (2340b3f) | 2340b3f | The code is P2-X3 |
 | F-3 | `docs/COMPANY_STRUCTURE.md`: legal shell, organisation by stage, required roles, routines, hiring order | P0 | done (628cdef) | 628cdef | No invented people or salaries |
 | F-4 | Scaling and cost said in the demo video (shot 14) and in the pitch plan | P0 | todo (the integrator died on the usage limit; the video lines are in SCALING_AND_COST.md §9) | | The founder's ask overrides the spec's "do not edit the shot list". Only shots 14–15 and the totals change; the video stays at or under 5:55 |
-| F-5 | Public Vision page: sections "Scale and cost" and "Works beside your hospital's software" | P0 | doing (7469796e, wave 1, 23:15) | | Part of B7d |
+| F-5 | Public Vision page: sections "Scale and cost" and "Works beside your hospital's software" | P0 | done (b0d2f4e) | | Part of B7d |
 | F-6 | AIC server facts from the founder | P0 | blocked (waiting on the founder) | | Processor, memory, disk, graphics card, internet line, uptime, who looks after it |
 
 ### Phase 3 – Integration
