@@ -142,6 +142,12 @@ def wipe(st: Store) -> None:
             pass                                   # backend/app/seed_v2.py comes later
         except Exception as e:
             log.error("2.0 wipe failed: %s", e)
+    if _v2_ok(st):              # digital prescriptions point at patients: clear them first (meds/seed_meds.py)
+        try:
+            from .meds import seed_meds
+            seed_meds.wipe(st)
+        except Exception as e:
+            log.error("prescription wipe failed: %s", e)
     try:
         from . import seed_auth
         seed_auth.wipe(st)
@@ -232,6 +238,11 @@ def seed(st: Store, now: datetime | None = None) -> int:
             pass                                   # backend/app/seed_v2.py comes later
         except Exception as e:
             log.error("2.0 seed failed: %s", e)
+        try:                    # the demo patient's digital prescription (meds/seed_meds.py)
+            from .meds import seed_meds
+            seed_meds.seed(st, now)
+        except Exception as e:
+            log.error("prescription seed failed: %s", e)
     log.info("Seeded %d patients, %d sessions in %.1fs", len(patients), len(items),
              time.time() - t_start)
     return len(patients)

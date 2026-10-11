@@ -82,7 +82,8 @@ PUBLIC_PATHS = {"/api/health", "/api/features", "/api/auth/login", "/api/auth/si
                 "/api/auth/redeem", "/api/auth/me", "/api/auth/logout", "/api/me/session",
                 "/api/voice/status", "/api/voice/cues"}
 PUBLIC_PREFIXES = ("/api/impact", "/api/twin/sim", "/api/voice/clip/", "/api/voice/audio/",
-                   "/api/comms/card/", "/api/comms/guardian/") + WEBHOOK_PREFIXES
+                   "/api/comms/card/", "/api/comms/guardian/",
+                   "/api/rx-check/") + WEBHOOK_PREFIXES      # rx-check: the pharmacist's QR page
 # A patient session (or staff) is enough for these; everything else needs staff.
 PATIENT_PATHS = {"/api/sessions", "/api/classify", "/api/voice/tts", "/api/voice/stt",
                  "/api/voice/translate", "/api/voice/detect"}
