@@ -6,19 +6,22 @@ from __future__ import annotations
 
 import logging
 import math
+import re
+import uuid
 from contextlib import asynccontextmanager
 from datetime import timedelta
 
 from fastapi import Body, FastAPI, HTTPException, Query, Request
+from fastapi.concurrency import run_in_threadpool
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from . import llm, models_ml, rules, seed, service, whatsapp
-from .config import (FIRST_SLOT, LABELS, LAST_SLOT, WEB_DIR, demo_mode, env, env_flag, iso,
-                     now_local)
+from . import audit, authz, llm, models_ml, rules, seed, seed_auth, service, whatsapp
+from .config import (FIRST_SLOT, LABELS, LAST_SLOT, WEB_DIR, allow_training, demo_mode, env,
+                     env_flag, iso, now_local, show_api_docs)
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("spirobuddy")
@@ -36,11 +39,27 @@ async def lifespan(app: FastAPI):
             seed.seed(st)
     except Exception as e:
         log.error("Seeding failed: %s", e)
+    try:        # 2.0 logins: the demo hospitals, staff and keys (only what is missing)
+        if demo_mode() or not authz.ident(st).select("staff", limit=1, columns="id"):
+            seed_auth.ensure(st)
+    except Exception as e:
+        log.error("Login seeding failed: %s", e)
+    try:        # the private "documents" bucket (backend/app/storage.py, comes with Phase 1)
+        from . import storage
+        storage.ensure_bucket()
+    except ImportError:
+        pass
+    except Exception as e:
+        log.warning("storage bucket check failed: %s", e)
     models_ml.load()
     yield
 
 
-app = FastAPI(title="SpiroBuddy API", version="0.1.0", lifespan=lifespan)
+# The API docs stay hidden unless SHOW_API_DOCS=1 (spec §12).
+_DOCS = show_api_docs()
+app = FastAPI(title="SpiroBuddy API", version="0.2.0", lifespan=lifespan,
+              docs_url="/docs" if _DOCS else None, redoc_url="/redoc" if _DOCS else None,
+              openapi_url="/openapi.json" if _DOCS else None)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"],
                    allow_headers=["*"])
 
@@ -52,6 +71,178 @@ async def _revalidate_static(request, call_next):
     if not request.url.path.startswith("/api"):
         resp.headers.setdefault("Cache-Control", "no-cache")
     return resp
+
+
+# ----------------------------------------------------------------------------- who may call what
+# One place for the access policy (docs/REBUILD_PLAN.md §3.4). Permissions live in authz.py.
+
+SAFE_METHODS = ("GET", "HEAD", "OPTIONS")
+WEBHOOK_PREFIXES = ("/api/comms/webhooks/", "/api/comms/twilio/", "/api/comms/exotel/")
+PUBLIC_PATHS = {"/api/health", "/api/features", "/api/auth/login", "/api/auth/signup",
+                "/api/auth/redeem", "/api/auth/me", "/api/auth/logout", "/api/me/session",
+                "/api/voice/status", "/api/voice/cues"}
+PUBLIC_PREFIXES = ("/api/impact", "/api/twin/sim", "/api/voice/clip/", "/api/voice/audio/",
+                   "/api/comms/card/", "/api/comms/guardian/") + WEBHOOK_PREFIXES
+# A patient session (or staff) is enough for these; everything else needs staff.
+PATIENT_PATHS = {"/api/sessions", "/api/classify", "/api/voice/tts", "/api/voice/stt",
+                 "/api/voice/translate", "/api/voice/detect"}
+PATIENT_PREFIXES = ("/api/voice/prefs/", "/api/voice/summary-audio/", "/api/comms/cheers/",
+                    "/api/comms/demo/red-flag/")
+_PATIENT_CHART = re.compile(r"^/api/patients/[^/]+$")
+DEMO_PREFIXES = ("/api/demo/", "/api/comms/demo/")
+DEMO_HOSPITAL_ONLY = {"/api/demo/reset", "/api/demo/prepare-recording"}   # these wipe demo data
+TRAINING_PATHS = {"/api/collect", "/api/train"}
+# Pages of this site that this site itself shows inside a frame (the 3D twin and showroom).
+FRAMEABLE_PREFIXES = ("/twin.html", "/showcase/")
+
+
+def _deny(status: int, message: str) -> JSONResponse:
+    return JSONResponse({"error": message, "status": status}, status_code=status)
+
+
+def _is_public(path: str) -> bool:
+    return path in PUBLIC_PATHS or path.startswith(PUBLIC_PREFIXES)
+
+
+def _patient_allowed(path: str, method: str) -> bool:
+    return (path in PATIENT_PATHS or path.startswith(PATIENT_PREFIXES)
+            or (method == "POST" and path.startswith("/api/live/"))
+            or (method in ("GET", "HEAD") and _PATIENT_CHART.match(path) is not None))
+
+
+_route_table: tuple[int, list] = (-1, [])
+
+
+def _flatten_routes(routes, out: list) -> list:
+    """Every route as (path regex, methods), in order. FastAPI keeps an included router as one
+    nested entry (routes are no longer copied into app.routes), so those are opened up here."""
+    for r in routes:
+        nested = getattr(r, "effective_candidates", None)
+        if callable(nested):
+            _flatten_routes(nested(), out)
+        elif getattr(r, "path_regex", None) is not None:
+            out.append((r.path_regex, getattr(r, "methods", None)))
+    return out
+
+
+def api_route_table() -> list:
+    global _route_table
+    n = len(app.router.routes)
+    if _route_table[0] != n:
+        _route_table = (n, _flatten_routes(app.router.routes, []))
+    return _route_table[1]
+
+
+def _path_params(path: str, method: str) -> dict:
+    """Path parameters of the route this request will reach: the first route that matches the
+    path and method and names a checked parameter ({} if there is none)."""
+    for regex, methods in api_route_table():
+        if methods is not None and method not in methods:
+            continue
+        m = regex.match(path)
+        if m:
+            params = m.groupdict()
+            if any(k in authz.RESOURCE_PARAMS for k in params):
+                return params
+    return {}
+
+
+def _resource_error(params: dict, actor: authz.Actor, path: str) -> JSONResponse | None:
+    """404 if a path parameter points at something this actor can't see (other hospital, out of
+    scope, or not there at all). Runs before the handler and before body validation."""
+    for name, value in params.items():
+        if name not in authz.RESOURCE_PARAMS:
+            continue
+        try:
+            owner = authz.resolve_param_owner(name, value, path)
+        except ValueError:
+            continue                    # not a whole number: the route itself answers 422
+        if not authz.owner_visible(actor, owner):
+            return _deny(404, f"{authz.resource_label(name, path)} {value} not found")
+    return None
+
+
+def _decide(request: Request):
+    """-> (actor, second actor, error response or None). Blocking (reads the store)."""
+    path, method = request.url.path, request.method
+    public = _is_public(path)
+    try:
+        staff, patient = authz.resolve_actors(request)
+    except Exception:
+        if not public:
+            raise
+        staff = patient = None          # a public page must not fail because the store is down
+    if path.startswith("/api/me/"):     # the patient app: only the patient session counts
+        actor, alt = patient, None
+    else:
+        actor, alt = (staff or patient), (patient if staff else None)
+    # CSRF: a browser on another site can't add this header to a cross-site form post
+    if method not in SAFE_METHODS and not path.startswith(WEBHOOK_PREFIXES) \
+            and request.headers.get("x-sb") != "1":
+        return actor, alt, _deny(403, "missing X-SB header")
+    if public:
+        return actor, alt, None
+    if actor is None:
+        return None, None, _deny(401, "login needed")
+    patient_ok = path.startswith("/api/me/") or _patient_allowed(path, method)
+    if not patient_ok:                  # staff only
+        if staff is None:
+            return None, None, _deny(401, "login needed")
+        actor, alt = staff, None
+    if path.startswith(DEMO_PREFIXES):
+        if not demo_mode():
+            return actor, alt, _deny(403, "demo endpoints are disabled (set DEMO_MODE=1)")
+        if actor.kind == "staff" and actor.role not in ("admin", "doctor"):
+            return actor, alt, _deny(403, "demo controls are for the hospital admin and doctors")
+        if path in DEMO_HOSPITAL_ONLY and actor.hospital_id != seed_auth.DEMO_HOSPITAL_ID:
+            return actor, alt, _deny(403, "only the demo hospital can reset the demo data")
+    if path in TRAINING_PATHS and not (actor.role == "admin" and allow_training()):
+        return actor, alt, _deny(403, "training is switched off (needs an admin and ALLOW_TRAINING=1)")
+    params = _path_params(path, method)
+    err = _resource_error(params, actor, path)
+    if err is not None and alt is not None and _resource_error(params, alt, path) is None:
+        actor, alt, err = alt, None, None      # the patient cookie owns it, the staff one doesn't
+    return actor, alt, err
+
+
+def _harden(resp, path: str):
+    """Security headers on every response (spec §12)."""
+    resp.headers.setdefault("X-Content-Type-Options", "nosniff")
+    resp.headers.setdefault("Referrer-Policy", "same-origin")
+    resp.headers.setdefault("X-Frame-Options",
+                            "SAMEORIGIN" if path.startswith(FRAMEABLE_PREFIXES) else "DENY")
+    return resp
+
+
+@app.middleware("http")
+async def _gate(request: Request, call_next):
+    """Every /api/ request: find out who is asking, apply the policy, then run the handler."""
+    path = request.url.path
+    if not path.startswith("/api/") or request.method == "OPTIONS":
+        return _harden(await call_next(request), path)
+    request.state.request_id = uuid.uuid4().hex
+    try:
+        actor, alt, err = await run_in_threadpool(_decide, request)
+    except OverflowError:
+        return _harden(_deny(400, "number out of range"), path)
+    except Exception as exc:            # same JSON shape as server_error below
+        log.exception("Unhandled error on %s", path)
+        return _harden(_deny(500, f"{type(exc).__name__}: {exc}"), path)
+    if err is not None:
+        return _harden(err, path)
+    tokens = authz.set_actor(actor, alt)
+    try:
+        resp = await call_next(request)
+    finally:
+        authz.reset_actor(tokens)
+    # the chart view is audited here, once per request (staff only; a patient reads their own)
+    if request.method == "GET" and resp.status_code == 200 and actor is not None \
+            and actor.kind == "staff" and _PATIENT_CHART.match(path):
+        pid = path.rsplit("/", 1)[-1]
+        if pid.isdigit():
+            await run_in_threadpool(audit.write, "patient.view", "patient", int(pid), int(pid),
+                                    None, actor, request)
+    return _harden(resp, path)
 
 
 # ----------------------------------------------------------------------------- errors as JSON
@@ -142,7 +333,10 @@ def patient(pid: int):
 
 
 @app.put("/api/patients/{pid}")
-def update_patient(pid: int, body: dict = Body(...)):
+def update_patient(pid: int, request: Request, body: dict = Body(...)):
+    # targets = the care plan; language and family phone = patient details (spec §6)
+    plan = any(k in body for k in ("target_ml", "hold_target_s"))
+    actor = authz.require("careplan.edit" if plan else "patient.edit", pid)
     _patient_or_404(pid)
     values = {}
     for k in ("target_ml", "hold_target_s"):          # text, lists, NaN -> 400, not a crash
@@ -171,6 +365,8 @@ def update_patient(pid: int, body: dict = Body(...)):
             if body["family_phone"] is not None else None
     if values:
         service.store().update("patients", [("id", "eq", pid)], values)
+        audit.write("patient.update", "patient", pid, pid, {"fields": sorted(values)},
+                    actor=actor, request=request)
     return service.patient_detail(pid)
 
 
@@ -193,7 +389,9 @@ def post_session(body: dict = Body(...)):
     pid = body.get("patient_id")
     if pid is None:
         raise HTTPException(400, "patient_id is required")
-    p = _patient_or_404(_int_or_400(pid, "patient_id"))
+    pid = _int_or_400(pid, "patient_id")
+    authz.require("patient.view", pid)      # a patient posts their own sessions; staff: visible only
+    p = _patient_or_404(pid)
     breaths = body.get("breaths") or []
     if not isinstance(breaths, list) or not all(
             isinstance(b, dict) and isinstance(b.get("features") or {}, dict) for b in breaths):
@@ -248,6 +446,7 @@ def model():
 
 @app.post("/api/summary/{pid}")
 def summary(pid: int, body: dict | None = Body(None)):
+    authz.require("patient.view", pid)
     d = service.patient_detail(pid)
     if d is None:
         raise HTTPException(404, f"patient {pid} not found")
@@ -269,6 +468,7 @@ def _send(p: dict, kind: str, to_role: str, text: str) -> dict:
 
 @app.post("/api/whatsapp/{pid}")
 def send_whatsapp(pid: int, body: dict | None = Body(None)):
+    authz.require("comms.use", pid)
     body = body or {}
     kind = body.get("kind") or "summary"
     to_role = body.get("to") or ("nurse" if kind == "missed" else "family")
@@ -307,6 +507,7 @@ QUALITY_MIX = {"good": 0.1, "mixed": 0.4, "poor": 0.7}   # share of faulty breat
 @app.post("/api/demo/simulate/{pid}")
 def demo_simulate(pid: int, body: dict | None = Body(None)):
     _require_demo()
+    authz.require("demo.control", pid)
     import numpy as np
     p = _patient_or_404(pid)
     body = body or {}
@@ -340,6 +541,7 @@ def demo_simulate(pid: int, body: dict | None = Body(None)):
 @app.post("/api/demo/miss/{pid}")
 def demo_miss(pid: int):
     _require_demo()
+    authz.require("demo.control", pid)
     p = _patient_or_404(pid)
     now = now_local()
     targets = []                       # (date, hour) of the last 2 elapsed slots
@@ -371,21 +573,33 @@ def demo_miss(pid: int):
 
 
 @app.post("/api/demo/reset")
-def demo_reset():
+def demo_reset(request: Request):
     _require_demo()
+    actor = authz.require("demo.control")
     n = seed.reset(service.store())
     seed._last_autopilot = 0.0
+    audit.write("demo.reset", "demo", actor=actor, request=request)
     return {"ok": True, "patients": n}
 
 
 # Feature modules plug in here (each owns its own file). Must stay above the /api 404 catch-all.
-for _mod in ("routes_voice", "routes_comms"):
+# A module that isn't written yet is skipped. One that fails to load is skipped too, with an
+# error in the log (and in SKIPPED_MODULES), so one broken feature can't take the site down.
+SKIPPED_MODULES: dict[str, str] = {}
+for _mod in ("routes_voice", "routes_comms", "routes_auth", "features", "routes_admin",
+             "routes_patients", "routes_meds", "routes_appointments", "routes_documents",
+             "routes_me", "routes_public", "routes_twin", "routes_devices", "routes_consent"):
     try:
         app.include_router(__import__(f"{__package__}.{_mod}", fromlist=["router"]).router)
     except ModuleNotFoundError as e:
         if e.name != f"{__package__}.{_mod}":
-            raise
-        log.info("optional module %s not present yet", _mod)
+            SKIPPED_MODULES[_mod] = f"{type(e).__name__}: {e}"
+            log.error("module %s failed to load: %s", _mod, e)
+        else:
+            log.info("optional module %s not present yet", _mod)
+    except Exception as e:
+        SKIPPED_MODULES[_mod] = f"{type(e).__name__}: {e}"
+        log.error("module %s failed to load: %s", _mod, e)
 
 
 @app.get("/api/{rest:path}", include_in_schema=False)

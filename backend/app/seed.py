@@ -125,8 +125,28 @@ def bulk_insert(st: Store, items: list[tuple[dict, list]]) -> None:
     st.upsert("slots", slots)
 
 
+def _v2_ok(st: Store) -> bool:
+    """False for a Supabase project without the 2.0 tables (then only the old tables are seeded)."""
+    from . import authz
+    return authz.v2_ok(st)
+
+
 def wipe(st: Store) -> None:
     # Filters are always given: Supabase may block DELETE without a WHERE clause.
+    # --- 2.0 hooks: clinical 2.0 tables first (they point at patients), then demo-made logins ---
+    if _v2_ok(st):
+        try:
+            from . import seed_v2
+            seed_v2.wipe(st)
+        except ImportError:
+            pass                                   # backend/app/seed_v2.py comes later
+        except Exception as e:
+            log.error("2.0 wipe failed: %s", e)
+    try:
+        from . import seed_auth
+        seed_auth.wipe(st)
+    except Exception as e:
+        log.error("login wipe failed: %s", e)
     # --- comms hook: wipe comms tables first (backend/app/comms/seed_comms.py) ---
     try:
         from .comms import seed_comms
@@ -146,8 +166,12 @@ def seed(st: Store, now: datetime | None = None) -> int:
     now = now or now_local()
     today = now.replace(hour=0, minute=0, second=0, microsecond=0)
     patients = []
+    from . import seed_auth
+    v2 = _v2_ok(st)             # 2.0: every demo patient belongs to hospital 1 and has a doctor
     for pid, p in PROFILES.items():
         patients.append({
+            **({"hospital_id": seed_auth.DEMO_HOSPITAL_ID,
+                "primary_doctor_id": seed_auth.PRIMARY_DOCTOR.get(pid)} if v2 else {}),
             "id": pid, "name": p["name"], "age": p["age"], "sex": p["sex"],
             "surgery": p["surgery"],
             "surgery_date": (today - timedelta(days=p["surgery_days_ago"])).date().isoformat(),
@@ -155,6 +179,11 @@ def seed(st: Store, now: datetime | None = None) -> int:
             "family_phone": None, "nurse_phone": None, "personal_best_ml": 0,
             "created_at": iso(now - timedelta(days=p["surgery_days_ago"]))})
     st.insert("patients", patients)
+    # --- 2.0 hook: hospitals, staff logins, nurse keys, the second hospital (seed_auth.py) ---
+    try:
+        seed_auth.ensure(st, reset=True)
+    except Exception as e:
+        log.error("login seed failed: %s", e)
 
     items: list[tuple[dict, list]] = []
     for pid, p in PROFILES.items():
@@ -193,6 +222,15 @@ def seed(st: Store, now: datetime | None = None) -> int:
         seed_comms.seed(st, now)
     except Exception as e:
         log.warning("comms seed skipped: %s", e)
+    # --- 2.0 hook: prescriptions, doses, appointments, documents... (seed_v2.py) ---
+    if v2:
+        try:
+            from . import seed_v2
+            seed_v2.seed(st, now)
+        except ImportError:
+            pass                                   # backend/app/seed_v2.py comes later
+        except Exception as e:
+            log.error("2.0 seed failed: %s", e)
     log.info("Seeded %d patients, %d sessions in %.1fs", len(patients), len(items),
              time.time() - t_start)
     return len(patients)

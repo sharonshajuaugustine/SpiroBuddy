@@ -168,9 +168,20 @@ LIST_KEYS = ["id", "name", "age", "sex", "surgery", "surgery_date", "language", 
              "last_session_at", "status_reasons", "status_basis", "hold_target_s", "red_flag_open"]
 
 
+def visible_ids() -> set[int] | None:
+    """Patient ids the logged-in person may see (authz), or None when nobody is logged in for
+    this call (background ticker, seed, public pages): then nothing is filtered."""
+    from . import authz
+    actor = authz.current_actor()
+    return None if actor is None else authz.visible_patient_ids(actor)
+
+
 def list_patients(now: datetime | None = None) -> list[dict]:
     now = now or now_local()
     patients = store().select("patients", order="id")
+    visible = visible_ids()
+    if visible is not None:                        # 2.0: only the caller's own patients
+        patients = [p for p in patients if p["id"] in visible]
     sessions, slots = load_window(now)
     flags = red_flag_patient_ids()
     out = []
@@ -264,7 +275,12 @@ def log_message(patient: dict | None, kind: str, to_role: str, to_number: str | 
 
 
 def list_messages(limit: int = 50) -> list[dict]:
-    rows = store().select("messages", order="created_at", desc=True, limit=limit)
+    visible = visible_ids()
+    if visible is None:
+        rows = store().select("messages", order="created_at", desc=True, limit=limit)
+    else:                                          # 2.0: only messages about the caller's patients
+        rows = store().select("messages", [("patient_id", "in", sorted(visible))],
+                              order="created_at", desc=True, limit=limit)
     names = {p["id"]: p["name"] for p in store().select("patients", columns="id,name")}
     return [{"id": m["id"], "patient_id": m.get("patient_id"),
              "patient_name": names.get(m.get("patient_id")), "kind": m.get("kind"),
