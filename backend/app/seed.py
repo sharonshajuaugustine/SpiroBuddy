@@ -191,6 +191,11 @@ def seed(st: Store, now: datetime | None = None) -> int:
             "family_phone": None, "nurse_phone": None, "personal_best_ml": 0,
             "created_at": iso(now - timedelta(days=p["surgery_days_ago"]))})
     st.insert("patients", patients)
+    try:                        # registration numbers + Ravi's demo PIN (seed_patient_login.py)
+        from . import seed_patient_login
+        seed_patient_login.ensure(st)
+    except Exception as e:
+        log.warning("patient login seed skipped: %s", e)
 
     items: list[tuple[dict, list]] = []
     for pid, p in PROFILES.items():

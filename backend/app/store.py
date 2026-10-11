@@ -75,6 +75,7 @@ TS_COLS_BY_TABLE = {
     "audit_events": {"at"},
     "ai_events": {"reviewed_at"},
     "devices": {"last_seen_at"},
+    "patients": {"pin_locked_until"},
 }
 # Kept apart from PKS (tests/test_supabase_store.py checks every PKS entry against schema.sql).
 PKS_V2 = {"app_settings": ["key"]}
@@ -360,7 +361,14 @@ SQLITE_ADD_COLUMNS = [("guardians", "consent", "INTEGER DEFAULT 0"),
                       ("patients", "programme_status", "TEXT NOT NULL DEFAULT 'active'"),
                       ("patients", "routine", "TEXT"),
                       ("patients", "app_token_hash", "TEXT"),
-                      ("patients", "app_token_hint", "TEXT")]
+                      ("patients", "app_token_hint", "TEXT"),
+                      # patient login with the registration number + PIN (schema_v2.sql, same names)
+                      ("patients", "pin_hash", "TEXT"),
+                      ("patients", "pin_failed", "INTEGER NOT NULL DEFAULT 0"),
+                      ("patients", "pin_locked_until", "TEXT")]
+# These three exist on Supabase only after schema_v2.sql is pasted again. Until then the site must
+# keep running, so they are NOT probed by check_v2_tables() and patient login says "not set up yet".
+PATIENT_LOGIN_COLS = ("pin_hash", "pin_failed", "pin_locked_until")
 
 # run after SQLITE_ADD_COLUMNS (these index columns that older databases only get then)
 SQLITE_DDL_V2_AFTER = """
@@ -368,6 +376,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_patients_app_token ON patients(app_token_h
 CREATE INDEX IF NOT EXISTS idx_patients_hospital ON patients(hospital_id);
 CREATE INDEX IF NOT EXISTS idx_patients_doctor ON patients(primary_doctor_id);
 """
+SQLITE_PATIENT_MRN_INDEX = ("CREATE UNIQUE INDEX IF NOT EXISTS idx_patients_hospital_mrn "
+                            "ON patients(coalesce(hospital_id, 0), lower(mrn)) WHERE mrn IS NOT NULL")
 _V2 = set(TABLES_V2)
 
 _SQL_OPS = {"eq": "=", "neq": "!=", "gte": ">=", "lte": "<=", "gt": ">", "lt": "<"}
@@ -424,6 +434,10 @@ class SqliteStore(Store):
             if col not in have:
                 self.conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
         self.conn.executescript(SQLITE_DDL_V2_AFTER)
+        try:        # one registration number per hospital, ignoring case; a duplicate must not stop start-up
+            self.conn.execute(SQLITE_PATIENT_MRN_INDEX)
+        except sqlite3.Error as e:
+            log.warning("registration-number index not created (duplicate numbers?): %s", e)
         self.conn.commit()
 
     @staticmethod
@@ -517,7 +531,8 @@ def _pg_value(v) -> str:
     return s
 
 
-PATIENTS_V2_COLS = [c for t, c, _ in SQLITE_ADD_COLUMNS if t == "patients"]
+PATIENTS_V2_COLS = [c for t, c, _ in SQLITE_ADD_COLUMNS
+                    if t == "patients" and c not in PATIENT_LOGIN_COLS]
 
 
 class V2TablesMissing(RuntimeError):

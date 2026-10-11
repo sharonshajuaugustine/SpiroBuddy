@@ -58,7 +58,8 @@ SPEC_COLUMNS = {
     "app_settings": "key value",
 }
 PATIENT_COLUMNS = ("hospital_id primary_doctor_id ward bed mrn phone city emergency_contact allergies_text "
-                   "discharge_date programme_status routine app_token_hash app_token_hint").split()
+                   "discharge_date programme_status routine app_token_hash app_token_hint "
+                   "pin_hash pin_failed pin_locked_until").split()
 
 # The least each table needs for an insert (NOT NULL columns without a default).
 MINIMAL = {

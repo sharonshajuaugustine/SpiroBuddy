@@ -80,6 +80,7 @@ SAFE_METHODS = ("GET", "HEAD", "OPTIONS")
 WEBHOOK_PREFIXES = ("/api/comms/webhooks/", "/api/comms/twilio/", "/api/comms/exotel/")
 PUBLIC_PATHS = {"/api/health", "/api/features", "/api/auth/login", "/api/auth/signup",
                 "/api/auth/redeem", "/api/auth/me", "/api/auth/logout", "/api/me/session",
+                "/api/me/login", "/api/me/login-demo",          # patient login: number + PIN
                 "/api/voice/status", "/api/voice/cues"}
 PUBLIC_PREFIXES = ("/api/impact", "/api/twin/sim", "/api/voice/clip/", "/api/voice/audio/",
                    "/api/comms/card/", "/api/comms/guardian/",

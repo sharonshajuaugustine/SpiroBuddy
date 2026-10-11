@@ -103,6 +103,22 @@ alter table public.patients add column if not exists routine           jsonb;  -
 alter table public.patients add column if not exists app_token_hash    text;   -- sha256 of the patient app token
 alter table public.patients add column if not exists app_token_hint    text;
 
+-- Patient login with the hospital registration number (mrn) + a 6-digit PIN. Safe to run again.
+alter table public.patients add column if not exists pin_hash          text;   -- argon2 hash of the PIN, never the PIN itself
+alter table public.patients add column if not exists pin_failed        int not null default 0;
+alter table public.patients add column if not exists pin_locked_until  timestamptz;
+-- One registration number per hospital, ignoring case. Rows without a number are left out.
+-- If old rows already share a number the index is skipped (a notice is printed) and the rest of
+-- this script still runs; fix the duplicates and run this script again to get the index.
+do $$
+begin
+  create unique index if not exists idx_patients_hospital_mrn
+    on public.patients ((coalesce(hospital_id, 0)), (lower(mrn))) where mrn is not null;
+exception when others then
+  raise notice 'idx_patients_hospital_mrn not created (duplicate registration numbers?): %', sqlerrm;
+end
+$$;
+
 -- New patients get ids from 1000 up (the seed uses fixed small ids).
 select setval(pg_get_serial_sequence('public.patients','id'),
               greatest(1000, coalesce((select max(id) from public.patients),0)+1), false);
