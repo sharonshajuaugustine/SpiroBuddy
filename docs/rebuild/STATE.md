@@ -34,8 +34,8 @@
   2. **Landing page at `/`; the nurse dashboard moves to `/dashboard.html`;** update the recording notes in `DEMO_VIDEO_SHOTLIST.md` ("Before you record", tab 5 and shot 9) to the new address and a "log in as Doctor" step.
   3. **Medicines = the doctor's prescription on the patient's phone, shown at the pharmacy counter, no paper.** It is **not** "AI reads a prescription photo" ("any AI could do that – that's not the app"). The doctor types the prescription in the hospital software → the patient sees every medicine on the phone → a "show at the pharmacy" screen with a QR the chemist can scan to check it. AI photo reading is at most a side helper (left In development); patient photo upload is Planned. Spec §8.7's Gemini pipeline is no longer the headline.
 - **Honesty pass on `features.py` (23:10):** every feature that is not built yet now says In development (31 keys + 7 public pages), and a new test fails if a Live or Simulated badge points at a page that does not exist. Builders flip their own keys back only when the feature works. New keys: `rx.patient_phone`, `rx.pharmacy_screen`, `rx.verify_qr`.
-- **Lock (active session):** none – session 7469796e (Pro plan) ended on purpose at about 00:05 IST Mon 12 Oct, with its usage nearly used up. The next session takes the lock. The previous session dd50472b's workflows ended at about 22:26 on its usage limit; no other session is running (checked).
-- **Last heartbeat:** Sun 11 Oct 23:33 IST.
+- **Lock (active session):** session 65599109 (Opus 5.5 ultracode, fresh account), taken Mon 12 Oct 01:15 IST. Before that: none – session 7469796e (Pro plan) ended on purpose at about 00:05 IST Mon 12 Oct, with its usage nearly used up. The next session takes the lock. The previous session dd50472b's workflows ended at about 22:26 on its usage limit; no other session is running (checked).
+- **Last heartbeat:** Mon 12 Oct 01:18 IST.
 - **Schedule risk:** P0 was due 22:30 and Phase 2 is only starting now. Rule: ship only finished screens; everything else keeps its In development badge.
 - **Last good commit before the redesign:** `4c78e46`
 - **Live site** (https://spirobuddy.onrender.com): old version, not redeployed by the redesign yet
@@ -83,6 +83,9 @@
 | P2-B2b | Enrol wizard + printable patient handout with QR | P0 | todo | | |
 | P2-B2c | Prescription review screen (photo + lines, unclear in amber, confirm all → approve, warnings) | P0 | todo | | |
 | P2-RX | **Digital prescription (founder, 23:00):** doctor types it → patient phone → pharmacy-counter screen + QR check | P0 | done (90f0bc3) | 5b0aecd, 90f0bc3, c7fe3f4 | Replaces B3's photo pipeline as the headline |
+| P2-PIN | Patient login with hospital registration number + PIN (brief: REGNO_PIN_BRIEF.md) | P0 (founder) | doing (65599109, 01:20) | | Needs a Supabase re-paste by the founder before it works on the live site |
+| P2-BRAND | Branding lite: hospital name + logo inside the patient app, admin 'App branding' page (plan 12 section 6 step 2) | P1 (founder) | doing (65599109, 01:20) | | Fictional demo hospitals only |
+| P4-DECK | Pitch deck from the organisers' template -> docs/hackathon/SpiroBuddy_DTI_Pitch.pptx | P0 | doing (65599109, 01:20) | | Not committed; the founder checks it and fills in team names |
 | P2-B3a | Normaliser (`backend/app/meds/normalise.py`) + full table tests | P0 | todo | | |
 | P2-B3b | Prescription pipeline: typed / doctor upload / patient upload / manual; approve, stop, version | P0 | todo | | No dose events before approval (test) |
 | P2-B3c | Dose events, grace → missed → `missed_dose` alert, family notice with consent | P0 | todo | | |
@@ -140,6 +143,8 @@
 ---
 
 ## Session log (newest first)
+
+- **Mon 12 Oct 01:07-01:20 IST - session 65599109 (Opus 5.5 ultracode, fresh account):** start-up check done (git clean except the untracked deck template; nothing to recover; 0 unpushed commits). Lock taken. Launched ONE workflow, 4 agents at a time: (1) builder P = patient login with registration number + PIN (REGNO_PIN_BRIEF), then its checker; (2) builder BR = branding lite (plan 12 section 6 step 2), then its checker; (3) the pitch deck from the organisers' template -> `docs/hackathon/SpiroBuddy_DTI_Pitch.pptx` (not committed); (4) a checker for tonight's live pages (story site + prescription). Builders stop at 02:15, checkers at 02:35. **Exact next action if this session dies:** `git status` + `git log` to see what the builders committed; read `docs/rebuild/regno_integration.md` and `docs/rebuild/branding_integration.md`; apply their notes; run the area tests, then the full suite; ask the founder for the Supabase re-paste (new `patients` PIN columns in `supabase/schema_v2.sql`) and 'push?'; push; live check. Wave 2 items 2-4 (medicine reminder, visit request, twin page) are NOT started: no time before the freeze.
 
 - **Sun 11 Oct 23:15 – Mon 12 Oct 00:05 IST – session 7469796e (cont.):** wave 1 built story site (b0d2f4e) and digital prescription (5b0aecd, 90f0bc3); integration c7fe3f4; full suite 745 passed; **pushed P0 to main (557857d), live check all 200, Supabase v2 tables in**. README for judges (5008d46). Video Shot 12b + pitch slide 4b + DTI checklist (7e5e4a1, founder request). Founder: device not built; wait for the slide template. Usage nearly spent: lock released, wave 2 planned above for a fresh account.
 
