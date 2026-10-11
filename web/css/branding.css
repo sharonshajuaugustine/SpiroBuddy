@@ -21,7 +21,6 @@
   font-size: 1.375rem; font-weight: 800; line-height: 1.15;
   overflow-wrap: anywhere;
 }
-.brand-by { font-size: 1.25rem; font-weight: 500; line-height: 1.25; opacity: .92; }
+.brand-by { font-size: 1.25rem; font-weight: 500; line-height: 1.25; }
 #brand-slot > .brand-strip { margin-top: 8px; }
-@media (prefers-contrast: more) { .brand-by { opacity: 1; } }
 @media print { .brand-strip { border-color: currentColor; } }

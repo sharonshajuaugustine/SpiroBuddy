@@ -236,6 +236,22 @@ def save(hospital_id, values: dict) -> dict:
     return clean
 
 
+MAX_LOGO_PIXELS = 9_000_000                 # a small file can hold a huge picture: refuse before decoding it
+PIXEL_MSG = "This picture is too large. Please use a logo up to about 2000 by 2000 pixels."
+
+
+def _check_logo_pixels(data: bytes) -> None:
+    """Read only the picture's size from its header; refuse a picture with too many pixels."""
+    try:
+        from PIL import Image
+        with Image.open(io.BytesIO(data)) as probe:
+            w, h = probe.size
+    except Exception:
+        return                                  # not a picture Pillow knows: validate_upload says why
+    if w * h > MAX_LOGO_PIXELS:
+        raise ValueError(PIXEL_MSG)
+
+
 def process_logo(data: bytes, filename: str = "", declared: str | None = None) -> tuple[bytes, str]:
     """-> (clean image bytes, mime). PNG, JPEG or WebP only (SVG, PDF and everything else are
     refused), at most about 512 KB, decoded and re-encoded from the pixels (no metadata) and
@@ -244,7 +260,18 @@ def process_logo(data: bytes, filename: str = "", declared: str | None = None) -
         raise ValueError("The file is empty.")
     if len(data) > MAX_LOGO_BYTES:
         raise ValueError("The logo is larger than 512 KB. Please use a smaller picture.")
-    mime, cleaned, _thumb = storage.validate_upload(data, filename or "logo", declared)
+    _check_logo_pixels(data)
+    try:
+        mime, cleaned, _thumb = storage.validate_upload(data, filename or "logo", declared)
+    except ValueError as e:                     # storage's words are about photos and PDFs: say it for a logo
+        msg = str(e)
+        if "too large" in msg:
+            raise ValueError(PIXEL_MSG) from e
+        if "can't be opened" in msg:
+            raise ValueError("This picture can't be opened. Please try another file.") from e
+        if "PDF" in msg or "photo" in msg:
+            raise ValueError("The logo must be a PNG, JPEG or WebP picture.") from e
+        raise
     if mime not in LOGO_MIMES:
         raise ValueError("The logo must be a PNG, JPEG or WebP picture.")
     try:

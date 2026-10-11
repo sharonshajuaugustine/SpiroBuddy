@@ -285,6 +285,24 @@ def test_a_big_upload_is_refused(clean):
     assert big  # (a plain large picture compresses well and is scaled down instead)
 
 
+def test_a_picture_with_too_many_pixels_is_refused_before_it_is_decoded(clean):
+    from PIL import Image
+    buf = io.BytesIO()
+    Image.new("L", (4000, 4000), 7).save(buf, "PNG")        # a few KB of file, 16 million pixels
+    assert len(buf.getvalue()) < branding.MAX_LOGO_BYTES
+    r = _upload(clean, buf.getvalue(), "wide.png", "image/png")
+    assert r.status_code == 400 and "too large" in r.text
+
+
+def test_logo_refusals_talk_about_logos_not_photos_or_pdfs(clean):
+    for data, name, mime in ((b"%PDF-1.4\n%%EOF", "a.pdf", "application/pdf"),
+                             (b"plain text", "a.txt", "text/plain"),
+                             (b"\x89PNG\r\n\x1a\n" + b"junk" * 50, "a.png", "image/png")):
+        r = _upload(clean, data, name, mime)
+        assert r.status_code == 400
+        assert "photo" not in r.text.lower() and "pdf" not in r.text.lower(), r.text
+
+
 def test_a_logo_has_no_metadata_after_upload(clean, patient_client):
     from PIL import Image
     img = Image.new("RGB", (64, 64), (30, 30, 30))
