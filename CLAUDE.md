@@ -9,6 +9,14 @@ SpiroBuddy is a hackathon project (Healthcare & Wellbeing track). It's a clip-on
 4. `docs/ARCHITECTURE.md` – structure and the **interface contracts** (don't break them)
 5. `docs/ROLES.md` – how work is split between subagents
 
+## Redesign in progress (SpiroBuddy 2.0) – resume rule
+- If the founder asks to **continue the redesign** (or the rebuild or redesign process, or just says "continue" at the start of a fresh session), resume the 2.0 build:
+  1. Read `docs/rebuild/STATE.md` first.
+  2. Then read the spec `docs/private/ULTRACODE_BUILD_PROMPT.md`: section §R (the resume protocol), then only the sections the next step needs.
+  3. Never restart from Phase 0. Never redo steps marked `done`.
+- The build may move between Claude accounts. Keep all progress in files: after every finished step, commit, then update and commit `docs/rebuild/STATE.md`.
+- If the spec file is missing (fresh clone or another computer), stop and ask the founder to copy it over.
+
 ## Rules
 - **Keep the contracts in `docs/ARCHITECTURE.md`.** If you must change one, update that file in the same step and note it in PROGRESS.md.
 - **Must work with NO hardware.** Every feature has to run in Simulator mode. Real hardware is confirmed only on hackathon day.
