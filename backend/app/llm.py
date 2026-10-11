@@ -1,9 +1,13 @@
 """AI daily summary (3 sentences; English, Hindi, Tamil or Malayalam) with a template fallback.
 
-Claude via the Anthropic Python SDK, model claude-opus-5-5, effort "low", max_tokens 400.
-Falls back to template text when there is no ANTHROPIC_API_KEY, on any error, on a
-non-"end_turn" stop_reason (refusal, max_tokens...), or if the text sounds like a diagnosis.
-The AI never diagnoses: it only coaches and summarises the numbers it is given.
+Provider order: Anthropic -> Gemini -> template (spec §5 "AI").
+  1. Claude via the Anthropic Python SDK, model claude-opus-5-5, effort "low", max_tokens 400
+     (only when ANTHROPIC_API_KEY is set).
+  2. Gemini via ai_gemini.summarize_text (only when GEMINI_API_KEY is set).
+  3. Template text: no key, any error, a stop reason other than a normal finish (refusal,
+     max_tokens, safety block...), an empty answer, or text that sounds like a diagnosis.
+The same checks apply to both providers. The AI never diagnoses: it only coaches and
+summarises the numbers it is given.
 """
 from __future__ import annotations
 
@@ -35,8 +39,23 @@ _DIAGNOSIS_WORDS = re.compile(
     r"tuberculosis|\btb\b|cancer|medicine|medication|dose|disease", re.I)
 
 
-def llm_enabled() -> bool:
+def anthropic_enabled() -> bool:
     return bool(env("ANTHROPIC_API_KEY"))
+
+
+def gemini_enabled() -> bool:
+    return bool(env("GEMINI_API_KEY"))
+
+
+def providers() -> list[str]:
+    """The AI providers that have a key, in the order they are tried."""
+    return [name for name, on in (("anthropic", anthropic_enabled()), ("gemini", gemini_enabled()))
+            if on]
+
+
+def llm_enabled() -> bool:
+    """True when at least one AI provider has a key (otherwise every summary is the template)."""
+    return bool(providers())
 
 
 def add_recent(stats: dict, detail: dict) -> dict:
@@ -175,35 +194,66 @@ def _early_note(stats: dict) -> str:
     return note + "."
 
 
-def summarize(stats: dict, language: str = "en") -> dict:
-    """-> {text, source: "llm"|"template"}"""
+def _anthropic_text(stats: dict, language: str, patient_id=None) -> str:
+    import anthropic
+    client = anthropic.Anthropic(api_key=env("ANTHROPIC_API_KEY"), timeout=30.0,
+                                 max_retries=1)
+    # Server-side refusal fallback (beta) so a safety-classifier refusal is retried on a
+    # substitute model instead of failing; our own template is the final fallback.
+    resp = client.beta.messages.create(
+        model=MODEL,
+        max_tokens=400,
+        output_config={"effort": "low"},
+        system=SYSTEM,
+        messages=[{"role": "user", "content": _prompt(stats, language)}],
+        betas=["server-side-fallback-2026-07-01"],
+        fallbacks="default",
+    )
+    if resp.stop_reason != "end_turn":
+        raise RuntimeError(f"stop_reason={resp.stop_reason}")
+    return " ".join(b.text for b in resp.content if b.type == "text").strip()
+
+
+def _gemini_text(stats: dict, language: str, patient_id=None) -> str:
+    """Same instructions and numbers as the Anthropic call. ai_gemini refuses any finish reason
+    other than a normal stop, applies the daily AI limit and writes the AI register row."""
+    from . import ai_gemini
+    text = ai_gemini.summarize_text(SYSTEM + "\n\n" + _prompt(stats, language), patient_id=patient_id)
+    if text is None:
+        raise RuntimeError("no answer from Gemini")
+    return text.strip()
+
+
+def _ai_consent_blocks(patient_id) -> bool:
+    """True when this patient's consent record says "no AI" (or has no AI consent at all)."""
+    try:
+        from . import ai_gemini
+        return ai_gemini.consent_ai(patient_id) is not True
+    except Exception as e:
+        log.warning("could not read the AI consent, using template: %s", e)
+        return True
+
+
+def summarize(stats: dict, language: str = "en", *, patient_id: int | None = None) -> dict:
+    """-> {text, source: "llm"|"template"}
+
+    Tries each provider that has a key (Anthropic, then Gemini); the first clean answer wins,
+    otherwise the template. Pass patient_id to enforce the patient's AI consent (consent v2):
+    with "no AI" the template is used and no AI call is made."""
     language = language if language in LANG_NAMES else "en"
     fallback_lang = language if language in _T else "en"
-    if not llm_enabled():
-        return {"text": template_summary(stats, fallback_lang), "source": "template"}
-    try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=env("ANTHROPIC_API_KEY"), timeout=30.0,
-                                     max_retries=1)
-        # Server-side refusal fallback (beta) so a safety-classifier refusal is retried on a
-        # substitute model instead of failing; our own template is the final fallback.
-        resp = client.beta.messages.create(
-            model=MODEL,
-            max_tokens=400,
-            output_config={"effort": "low"},
-            system=SYSTEM,
-            messages=[{"role": "user", "content": _prompt(stats, language)}],
-            betas=["server-side-fallback-2026-07-01"],
-            fallbacks="default",
-        )
-        if resp.stop_reason != "end_turn":
-            raise RuntimeError(f"stop_reason={resp.stop_reason}")
-        text = " ".join(b.text for b in resp.content if b.type == "text").strip()
-        if not text:
-            raise RuntimeError("empty response")
-        if _DIAGNOSIS_WORDS.search(text):
-            raise RuntimeError("summary contained medical/diagnostic wording")
-        return {"text": text, "source": "llm"}
-    except Exception as e:
-        log.warning("LLM summary failed, using template: %s", e)
-        return {"text": template_summary(stats, fallback_lang), "source": "template"}
+    names = providers()
+    if names and patient_id is not None and _ai_consent_blocks(patient_id):
+        names = []
+    for name in names:
+        try:
+            call = _anthropic_text if name == "anthropic" else _gemini_text
+            text = call(stats, language, patient_id)
+            if not text:
+                raise RuntimeError("empty response")
+            if _DIAGNOSIS_WORDS.search(text):
+                raise RuntimeError("summary contained medical/diagnostic wording")
+            return {"text": text, "source": "llm"}
+        except Exception as e:
+            log.warning("LLM summary failed (%s), trying the next option: %s", name, e)
+    return {"text": template_summary(stats, fallback_lang), "source": "template"}

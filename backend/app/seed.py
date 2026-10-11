@@ -168,6 +168,12 @@ def seed(st: Store, now: datetime | None = None) -> int:
     patients = []
     from . import seed_auth
     v2 = _v2_ok(st)             # 2.0: every demo patient belongs to hospital 1 and has a doctor
+    # --- 2.0 hook: hospitals, staff logins, nurse keys, the second hospital (seed_auth.py).
+    # --- Before the patients: on Supabase a patient row points at its hospital and doctor.
+    try:
+        seed_auth.ensure(st, reset=True)
+    except Exception as e:
+        log.error("login seed failed: %s", e)
     for pid, p in PROFILES.items():
         patients.append({
             **({"hospital_id": seed_auth.DEMO_HOSPITAL_ID,
@@ -179,11 +185,6 @@ def seed(st: Store, now: datetime | None = None) -> int:
             "family_phone": None, "nurse_phone": None, "personal_best_ml": 0,
             "created_at": iso(now - timedelta(days=p["surgery_days_ago"]))})
     st.insert("patients", patients)
-    # --- 2.0 hook: hospitals, staff logins, nurse keys, the second hospital (seed_auth.py) ---
-    try:
-        seed_auth.ensure(st, reset=True)
-    except Exception as e:
-        log.error("login seed failed: %s", e)
 
     items: list[tuple[dict, list]] = []
     for pid, p in PROFILES.items():
