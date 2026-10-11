@@ -62,8 +62,12 @@ def list_alerts(status: str = "open", patient_id: int | None = None, limit: int 
     return out[:limit]
 
 
-def counts(me: str | None = None) -> dict:
+def counts(me: str | None = None, only: set | None = None) -> dict:
+    """Open / acknowledged / snoozed counts. `only`: the patient ids the viewer may see (None =
+    everyone); alerts outside it, and alerts with no patient, are then left out."""
     rows = st().select("alerts", [("status", "neq", "resolved")])
+    if only is not None:
+        rows = [a for a in rows if a.get("patient_id") in only]
     t = now()
     c = {"open": 0, "red": 0, "amber": 0, "acknowledged": 0, "snoozed": 0, "mine": 0}
     by_patient: dict[int, dict] = {}

@@ -83,9 +83,33 @@ _start_ticker()
 
 def _patient_or_404(pid: int) -> dict:
     p = service.get_patient_row(int(pid))
-    if not p:
+    ids = service.visible_ids()          # 2.0: another hospital's (or out-of-scope) patient = not found
+    if not p or (ids is not None and int(pid) not in ids):
         raise HTTPException(404, f"patient {pid} not found")
     return p
+
+
+def _scope(rows: list[dict]) -> list[dict]:
+    """Only the rows this person may see (hospital isolation). Nobody logged in (ticker, seed):
+    no filter. Rows with no patient (a message from an unknown number) go to staff of the
+    first demo hospital only."""
+    ids = service.visible_ids()
+    if ids is None:
+        return rows
+    from . import authz
+    legacy = getattr(authz.current_actor(), "hospital_id", None) == authz.LEGACY_HOSPITAL_ID
+    return [r for r in rows
+            if (r.get("patient_id") in ids if r.get("patient_id") is not None else legacy)]
+
+
+def _require_on_alert(aid: int, action: str = "alerts.ack") -> None:
+    """Acting on an alert needs the action on that alert's patient (404 if not visible)."""
+    from . import authz
+    a = alerts.get(aid)
+    if a is None or not _scope([a]):
+        raise HTTPException(404, f"alert {aid} not found")
+    if a.get("patient_id") is not None:
+        authz.require(action, a["patient_id"])
 
 
 def _require_demo():
@@ -176,18 +200,19 @@ def manual_tick():
 def get_alerts(status: str = Query("active"), patient_id: int | None = None,
                limit: int = Query(100, ge=1, le=500)):
     _lazy()
-    return alerts.list_alerts(status, patient_id, limit)
+    return _scope(alerts.list_alerts(status, patient_id, limit))
 
 
 @router.get("/alerts/counts")
 def alert_counts(me: str | None = None):
     _lazy()
-    return alerts.counts(me)
+    return alerts.counts(me, only=service.visible_ids())
 
 
 @router.post("/alerts/{aid}/{action}")
 def alert_action(aid: int, action: str, body: dict | None = Body(None)):
     body = body or {}
+    _require_on_alert(aid)
     try:
         a = alerts.act(aid, action, _txt(body.get("by")), body.get("minutes"), _txt(body.get("to")))
     except (ValueError, TypeError) as e:
@@ -203,7 +228,7 @@ def alert_action(aid: int, action: str, body: dict | None = Body(None)):
 def get_escalations(patient_id: int | None = None, active: bool = False,
                     limit: int = Query(20, ge=1, le=200)):
     _lazy()
-    return escalation.list_runs(patient_id, active, limit)
+    return _scope(escalation.list_runs(patient_id, active, limit))
 
 
 @router.post("/escalations/start/{pid}")
@@ -278,7 +303,7 @@ def events(since_id: int = 0, limit: int = Query(50, ge=1, le=300), patient_id: 
         f.append(("patient_id", "eq", patient_id))
     names = {p["id"]: p["name"] for p in st().select("patients", columns="id,name")}
     out = []
-    for e in st().select("escalation_events", f, order="id", desc=True, limit=limit):
+    for e in _scope(st().select("escalation_events", f, order="id", desc=True, limit=limit)):
         pe = public_event(e)
         pe["patient_name"] = names.get(e.get("patient_id"))
         out.append(pe)
@@ -291,7 +316,7 @@ def events(since_id: int = 0, limit: int = Query(50, ge=1, le=300), patient_id: 
 def get_calls(active: bool = False, patient_id: int | None = None,
               limit: int = Query(30, ge=1, le=200)):
     _lazy()
-    return calls.list_calls(active, patient_id, limit)
+    return _scope(calls.list_calls(active, patient_id, limit))
 
 
 @router.get("/calls/{cid}")
@@ -700,6 +725,8 @@ def care(pid: int):
 @router.put("/care/{pid}")
 def put_care(pid: int, body: dict = Body(...)):
     p = _patient_or_404(pid)
+    from . import authz
+    authz.require("careplan.edit", pid)
     try:
         guardians.put_settings(pid, body)
     except (ValueError, TypeError) as e:
@@ -715,6 +742,8 @@ def add_guardian(body: dict = Body(...)):
         raise HTTPException(400, "patient_id is required")
     pid = _int(pid, "patient_id")
     p = _patient_or_404(pid)
+    from . import authz
+    authz.require("careplan.edit", pid)
     try:
         g = guardians.create_guardian(pid, body)
     except ValueError as e:
