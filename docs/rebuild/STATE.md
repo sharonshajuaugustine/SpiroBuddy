@@ -17,16 +17,15 @@
 
 ## Now
 
-- **Next action:** Two workflows are running, started 18:18 IST by session dd50472b (2 builders + 1 writer at a time, because the usage limit was hit at 16:35):
-  1. **Phase 1 resume** `wf_5dc9872f-559`: chain A = auth → isolation; chain B = kit finish → platform → seed v2; then 2 verifiers → fixer. Each agent commits its own files as it goes.
-  2. **Founder docs** `wf_43635652-07b`: scaling and cost (with the AIC server check) → interoperability and Contract L → company structure → skeptic → integrator (also edits shot 14 of the video shot list, the pitch plan, HANDOFF and the Phase 2 briefs).
-
-  **When they finish:** mark the rows below from `git log`, then run Phase 2 two builders at a time in this order: B2a chart + B1a login pages → B3 medicines → B6a patient app → B7 public site (with the new "Scale and cost" and "Works beside your hospital's software" sections) → B8 twin → X3 interoperability (Contract L) → the rest.
-
-  **If this session died:** workflows cannot be resumed from another session. Check `git log --oneline -25` for the commits named auth, isolation, kit, platform, seed2, scaling, interop, company; re-launch only what is missing. The Phase 1 script (all builder prompts) is at `%TEMP%/claude/C--Users-USER-Desktop-SpiroBuddy/dd50472b-3b16-40c6-b840-72fc648916f7/scratchpad/phase1_resume.js`; the docs script is in `~/.claude/projects/C--Users-USER-Desktop-SpiroBuddy/dd50472b-3b16-40c6-b840-72fc648916f7/workflows/scripts/`.
-- **Lock (active session):** Opus 5.5 ultracode session dd50472b (coyotaidev account), re-taken Sun 11 Oct 17:55 IST after the usage limit reset
-- **Last heartbeat:** Sun 11 Oct 18:20 IST. The workflows should run until about 19:45 IST. A new session before 20:15 must ask the founder first.
-- **Schedule risk:** Phase 1 was due 18:30 and will land at about 19:45. With 2 builders at a time, not every P0 screen will be ready by 22:30. The rule stands: ship only finished screens and hide the rest behind Planned cards.
+- **Next action:** Wave 1 workflow running (session 7469796e, started about 23:15 IST): builder **A = public story site** (P2-B7a–d + F-5; landing moves to `/`, the old nurse dashboard moves to `/dashboard.html`) and builder **B = digital prescription** (P2-RX, the founder's 23:00 decision below), each followed by one verify-and-fix agent. When it finishes: apply `docs/rebuild/story_integration.md` and `docs/rebuild/meds_integration.md`, flip the finished features to Live in `features.py`, run the full suite, ask the founder "push now?", push, check the live site, reset the demo. Then, if usage is left: comms isolation (Phase 1 left-over), recording-notes update for `/dashboard.html`, README for judges, DEMO_PATH, VIDEO_PAGE_MAP.
+- **Founder decisions, Sun 11 Oct 22:55–23:05 IST (override the spec where they differ):**
+  1. **Story site first**, then medicines. The account is a small Pro plan: at most about 4–6 agents until 03:30, so 2 builders + 2 verifiers.
+  2. **Landing page at `/`; the nurse dashboard moves to `/dashboard.html`;** update the recording notes in `DEMO_VIDEO_SHOTLIST.md` ("Before you record", tab 5 and shot 9) to the new address and a "log in as Doctor" step.
+  3. **Medicines = the doctor's prescription on the patient's phone, shown at the pharmacy counter, no paper.** It is **not** "AI reads a prescription photo" ("any AI could do that – that's not the app"). The doctor types the prescription in the hospital software → the patient sees every medicine on the phone → a "show at the pharmacy" screen with a QR the chemist can scan to check it. AI photo reading is at most a side helper (left In development); patient photo upload is Planned. Spec §8.7's Gemini pipeline is no longer the headline.
+- **Honesty pass on `features.py` (23:10):** every feature that is not built yet now says In development (31 keys + 7 public pages), and a new test fails if a Live or Simulated badge points at a page that does not exist. Builders flip their own keys back only when the feature works. New keys: `rx.patient_phone`, `rx.pharmacy_screen`, `rx.verify_qr`.
+- **Lock (active session):** Opus 5.5 ultracode session 7469796e (Pro plan account), taken Sun 11 Oct 22:40 IST. The previous session dd50472b's workflows ended at about 22:26 on its usage limit; no other session is running (checked).
+- **Last heartbeat:** Sun 11 Oct 23:12 IST.
+- **Schedule risk:** P0 was due 22:30 and Phase 2 is only starting now. Rule: ship only finished screens; everything else keeps its In development badge.
 - **Last good commit before the redesign:** `4c78e46`
 - **Live site** (https://spirobuddy.onrender.com): old version, not redeployed by the redesign yet
 
@@ -55,12 +54,12 @@
 |---|---|---|---|---|---|
 | P1-1.1 | Config + env names (`.env.example`, `render.yaml`, `config.py`), `ALLOW_TRAINING`, `SHOW_API_DOCS` | P0 | done (a02ed99) | a02ed99 | Recovered on resume; tests green |
 | P1-1.2 | `supabase/schema_v2.sql` (additive) + SQLite tables + store additions + "v2 tables missing" fallback | P0 | done (a02ed99) | a02ed99 | Recovered on resume; test_store_v2 + test_supabase_store + test_api = 57 passed |
-| P1-1.3 | `authz.py`, middleware policy, auth endpoints, sessions, CSRF header in `api.js` | P0 | doing (dd50472b, wf_5dc9872f-559, 18:18) |  | auth agent; the api.js CSRF header is in WIP 8ebc65d (the kit agent finishes it) |
-| P1-1.4 | Audit writer, `ai_events`, `features.py` + `GET /api/features` | P0 | doing (dd50472b, wf_5dc9872f-559, 18:18) |  | audit = auth agent; features + ai_events = platform agent |
-| P1-1.5 | Gemini wrapper (limits, fallback, logging) + storage wrapper (Supabase bucket auto-create + local) | P0 | doing (dd50472b, wf_5dc9872f-559, 18:18) |  | platform agent |
-| P1-1.6 | Seed v2 (both demo hospitals, staff, keys, prescriptions, doses, visits, documents, devices) + `tools/demo/make_samples.py` | P0 | doing (dd50472b, wf_5dc9872f-559, 18:18) | f7310d1 (samples) | Sample files done (f7310d1); seed v2 = seed2 agent |
-| P1-1.7 | `conftest.py` under auth; old suite green; new auth, role and isolation tests | P0 | doing (dd50472b, wf_5dc9872f-559, 18:18) |  | auth + isolation agents |
-| P1-1.8 | Phase 1 verify (2 skeptics) + commit | P0 | doing (dd50472b, wf_5dc9872f-559, 18:18) |  | 2 verifiers + fixer; skipped automatically if a builder returns nothing |
+| P1-1.3 | `authz.py`, middleware policy, auth endpoints, sessions, CSRF header in `api.js` | P0 | done (bdcf467) | bdcf467, f1385ce, 1e5f193 | auth agent; the api.js CSRF header is in WIP 8ebc65d (the kit agent finishes it) |
+| P1-1.4 | Audit writer, `ai_events`, `features.py` + `GET /api/features` | P0 | done (4b1c899) | bdcf467, 4b1c899 | audit = auth agent; features + ai_events = platform agent |
+| P1-1.5 | Gemini wrapper (limits, fallback, logging) + storage wrapper (Supabase bucket auto-create + local) | P0 | done (4b1c899) | 4b1c899 | platform agent |
+| P1-1.6 | Seed v2 (both demo hospitals, staff, keys, prescriptions, doses, visits, documents, devices) + `tools/demo/make_samples.py` | P0 | partly done: hospitals, staff, keys (bdcf467); demo prescription seeded by builder B; visits, documents, devices dropped with their features | f7310d1 (samples) | Sample files done (f7310d1); seed v2 = seed2 agent |
+| P1-1.7 | `conftest.py` under auth; old suite green; new auth, role and isolation tests | P0 | partly done (bdcf467): conftest + test_auth; full suite re-run 23:00 | | Isolation of the comms list routes is still open (see auth_integration.md 'For the isolation agent') |
+| P1-1.8 | Phase 1 verify (2 skeptics) + commit | P0 | dropped (usage; replaced by a browser check 22:50: login, dashboard and patient app work under auth) | | |
 
 ### Phase 2 – Features (builders own disjoint files; the lead applies `docs/rebuild/<builder>_integration.md`)
 | ID | Builder / item | Pri | Status | Commit | Notes |
@@ -72,6 +71,7 @@
 | P2-B2a | Triage list + patient chart header + tabs (Overview, Breathing, Medicines, Visits, Papers, Care team & consent, Notes, Timeline, Device) | P0 | todo | | |
 | P2-B2b | Enrol wizard + printable patient handout with QR | P0 | todo | | |
 | P2-B2c | Prescription review screen (photo + lines, unclear in amber, confirm all → approve, warnings) | P0 | todo | | |
+| P2-RX | **Digital prescription (founder, 23:00):** doctor types it → patient phone → pharmacy-counter screen + QR check | P0 | doing (7469796e, wave 1, 23:15) | | Replaces B3's photo pipeline as the headline |
 | P2-B3a | Normaliser (`backend/app/meds/normalise.py`) + full table tests | P0 | todo | | |
 | P2-B3b | Prescription pipeline: typed / doctor upload / patient upload / manual; approve, stop, version | P0 | todo | | No dose events before approval (test) |
 | P2-B3c | Dose events, grace → missed → `missed_dose` alert, family notice with consent | P0 | todo | | |
@@ -82,10 +82,10 @@
 | P2-B6a | Patient app: Now card, Today list, 4 tabs, Help, medicine due card with voice, visit request, papers by camera (en + hi) | P0 | todo | | |
 | P2-B6b | Patient app strings in ta + ml; new voice clips if a Sarvam key exists | P1 | todo | | |
 | P2-B6c | Family page additions (medicine ticks, next visit, shared papers) | P1 | todo | | |
-| P2-B7a | Landing page | P0 | todo |  |  |
-| P2-B7b | Impact page (who, how many, funnel, calculator, live metrics, SDG) + `GET /api/impact` | P0 | todo |  | Numbers copied exactly from PITCH_PLAN · WIP `routes_public.py` (GET /api/impact, not registered) is in 8ebc65d |
-| P2-B7c | Trust (ICMR) page | P0 | todo |  |  |
-| P2-B7d | Vision (startup) page + architecture page + `docs/hackathon/architecture_v2.svg` | P0 | todo |  | Add the sections "Scale and cost" and "Works beside your hospital's software" (founder ask F-5) |
+| P2-B7a | Landing page | P0 | doing (7469796e, wave 1, 23:15) |  |  |
+| P2-B7b | Impact page (who, how many, funnel, calculator, live metrics, SDG) + `GET /api/impact` | P0 | doing (7469796e, wave 1, 23:15) |  | Numbers copied exactly from PITCH_PLAN · WIP `routes_public.py` (GET /api/impact, not registered) is in 8ebc65d |
+| P2-B7c | Trust (ICMR) page | P0 | doing (7469796e, wave 1, 23:15) |  |  |
+| P2-B7d | Vision (startup) page + architecture page + `docs/hackathon/architecture_v2.svg` | P0 | doing (7469796e, wave 1, 23:15) |  | Add the sections "Scale and cost" and "Works beside your hospital's software" (founder ask F-5) |
 | P2-B8a | `twin-model.js` refactor (showcase still works) + public `/twin.html` | P0 | todo |  | WIP `web/js/twin-model.js` (792 lines, not loaded by any page yet) is in 8ebc65d |
 | P2-B8b | Live twin in the hospital (`/api/live`, replay from `session_curves`) | P0 | todo |  | Never "real-time monitoring" |
 | P2-B8c | Fleet twin: server-backed devices page with lifecycle, actions, telemetry | P1 | todo |  |  |
@@ -99,11 +99,11 @@
 ### Founder asks – Sun 11 Oct, 17:50 IST (scaling, cost, AIC servers, migration, company)
 | ID | Step | Pri | Status | Commit | Notes |
 |---|---|---|---|---|---|
-| F-1 | `docs/SCALING_AND_COST.md`: load model, scaling stages, cost per stage and per patient episode, "Are the AIC servers enough?" | P0 | doing (dd50472b, wf_43635652-07b, 18:18) | | The AIC specification is not in the repo: the document answers by use and gives a fill-in table |
-| F-2 | `docs/INTEROPERABILITY.md` + Contract L in ARCHITECTURE.md: SpiroBuddy sits beside the hospital's own software; data in, data out, moving hosts | P0 | doing (dd50472b, wf_43635652-07b, 18:18) | | The code is P2-X3 |
-| F-3 | `docs/COMPANY_STRUCTURE.md`: legal shell, organisation by stage, required roles, routines, hiring order | P0 | doing (dd50472b, wf_43635652-07b, 18:18) | | No invented people or salaries |
-| F-4 | Scaling and cost said in the demo video (shot 14) and in the pitch plan | P0 | doing (dd50472b, wf_43635652-07b, 18:18) | | The founder's ask overrides the spec's "do not edit the shot list". Only shots 14–15 and the totals change; the video stays at or under 5:55 |
-| F-5 | Public Vision page: sections "Scale and cost" and "Works beside your hospital's software" | P0 | todo | | Part of B7d |
+| F-1 | `docs/SCALING_AND_COST.md`: load model, scaling stages, cost per stage and per patient episode, "Are the AIC servers enough?" | P0 | done (c8ccac7) | c8ccac7 | The AIC specification is not in the repo: the document answers by use and gives a fill-in table |
+| F-2 | `docs/INTEROPERABILITY.md` + Contract L in ARCHITECTURE.md: SpiroBuddy sits beside the hospital's own software; data in, data out, moving hosts | P0 | done (2340b3f) | 2340b3f | The code is P2-X3 |
+| F-3 | `docs/COMPANY_STRUCTURE.md`: legal shell, organisation by stage, required roles, routines, hiring order | P0 | done (628cdef) | 628cdef | No invented people or salaries |
+| F-4 | Scaling and cost said in the demo video (shot 14) and in the pitch plan | P0 | todo (the integrator died on the usage limit; the video lines are in SCALING_AND_COST.md §9) | | The founder's ask overrides the spec's "do not edit the shot list". Only shots 14–15 and the totals change; the video stays at or under 5:55 |
+| F-5 | Public Vision page: sections "Scale and cost" and "Works beside your hospital's software" | P0 | doing (7469796e, wave 1, 23:15) | | Part of B7d |
 | F-6 | AIC server facts from the founder | P0 | blocked (waiting on the founder) | | Processor, memory, disk, graphics card, internet line, uptime, who looks after it |
 
 ### Phase 3 – Integration
@@ -129,6 +129,8 @@
 ---
 
 ## Session log (newest first)
+
+- **Sun 11 Oct 2026, 22:35–23:15 IST – Opus 5.5 ultracode session 7469796e (Pro plan):** both 18:18 workflows had ended on the usage limit at about 22:26 (auth, kit, three founder docs committed; platform left uncommitted; isolation, seed v2, verify, skeptic and integrator never ran). Recovered and committed the platform work (4b1c899, 99 tests green). Browser check: staff login, the old dashboard and the patient app work under auth. Founder decisions recorded above (story site first; landing at `/`; medicines = digital prescription, not AI photo reading). Honesty pass on `features.py`. Launched wave 1 (2 builders + 2 verify-and-fix agents).
 
 - **Sun 11 Oct 2026, 17:50–18:20 IST – Opus 5.5 ultracode session dd50472b (coyotaidev), resumed after the usage limit:** the 16:25 Phase 1 workflow and the 16:50 early wave both died at about 16:35 on the account's session limit (1 of 10 agents had finished: samples). Recovered the leftovers (see "Recovered work"): the data step was complete and green, so P1-1.1 and P1-1.2 are done. Took the founder's new asks (scaling and cost in the docs and the video, AIC servers, hospital migration, company structure): rows F-1 to F-6, and P2-X3 raised. Launched two smaller workflows (2 builders + 1 writer at a time). Next: mark rows from git when they finish, then Phase 2, two builders at a time.
 - **Sun 11 Oct 2026, 16:05–16:25 IST – Opus 5.5 ultracode session (coyotaidev):** start-up check done, lock taken, baseline 420 passed / 14 xfailed. Phase 0 done (plan, contracts E–K, model `gemini-3.1-flash-lite` by founder's choice). Launching the Phase 1 workflow. Next: Phase 1 rows.

@@ -56,17 +56,31 @@ def test_feature_registry_has_every_planned_and_built_item_from_the_spec():
     assert not missing, missing
     status = {f["key"]: f["status"] for f in features.FEATURES}
     assert status["coach.breath"] == "simulated"                 # breaths are simulated
-    assert status["twin.live"] == status["twin.public"] == status["twin.fleet"] == "simulated"
+    # The twin's input is always simulated: it may say Simulated (built) or In development, never Live.
+    for k in ("twin.live", "twin.public", "twin.fleet"):
+        assert status[k] in ("simulated", "in_development"), k
     assert status["device.usb"] == "in_development"
     assert status["comms.whatsapp_real_send"] == "in_development"
     assert status["comms.whatsapp"] == status["comms.calls"] == "simulated"
-    assert status["fhir.export"] == "live"
+    assert status["fhir.export"] in ("live", "in_development")    # Live only once the export exists
     for planned in ("device.ble", "doses.web_push", "auth.sso_otp", "db.rls_per_hospital",
                     "appt.teleconsult", "docs.abdm_link", "abha.field", "device.three_ball_reader",
                     "device.speaking_base", "vitals.bluetooth", "rx.interaction_checks",
                     "data_rights.requests", "hospital.self_registration"):
         assert status[planned] == "planned", planned
     assert "clinical decision support" in features.get("rx.interaction_checks")["note"]
+
+
+def test_a_live_or_simulated_feature_with_a_page_address_has_that_page():
+    """Honesty: a badge may say Live or Simulated only when its page really exists."""
+    from pathlib import Path
+    from backend.app import features
+    web = Path(__file__).resolve().parents[1] / "web"
+    for f in features.FEATURES:
+        where = f["where"].split("?")[0]
+        if f["status"] in ("live", "simulated") and where.startswith("/"):
+            page = web / (where.lstrip("/") or "index.html")
+            assert page.is_file(), f"{f['key']} says {f['status']} but {where} does not exist"
 
 
 def test_feature_notes_never_use_a_never_say_phrase():
