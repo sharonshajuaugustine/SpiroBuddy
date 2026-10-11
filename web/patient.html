@@ -156,6 +156,7 @@
         <div class="ph-actions no-print">
           <button class="btn primary" id="ph-call" type="button" title="A nurse calls: your phone rings first, then the patient">${ic('phone')}Call patient</button>
           <button class="btn" id="ph-print" type="button" title="Print an A4 summary">${ic('printer')}Print</button>
+          <a class="btn" href="prescribe.html?id=${esc(id)}" title="Write a prescription and send it to the patient's phone">${ic('pill')}Medicines</a>
         </div></div>`;
       $('#ph-call').addEventListener('click', (e) => {
         if (SB.api.state.mock) { toast('Calls need the live server', 'bad'); return; }
