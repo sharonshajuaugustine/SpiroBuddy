@@ -5,6 +5,7 @@ SpiroBuddy is a hackathon project (Dolphin Tank India Social Impact Hackathon, H
 ## Founder decisions (11–12 Oct 2026) – these override older docs
 - **Medicines = a digital prescription:** the doctor types it in the hospital software → the patient sees every medicine on their phone → shows that screen (with a QR the chemist can check) at the pharmacy counter, no paper. It is **not** "AI reads a prescription photo".
 - **For every hospital and clinic:** each doctor has their own login; each patient's medicines are saved under their hospital registration number (`patients.mrn`); the patient logs in with registration number + PIN (brief: `docs/rebuild/REGNO_PIN_BRIEF.md`). Nothing to do with money or payments, ever.
+- **Per-hospital branding, onboarding, store apps, doctor reminders, patient app tabs:** plan in `docs/plan/12_HOSPITAL_ONBOARDING_AND_BRANDING.md` (home-screen name/icon can't change after login in store apps; in-app branding and per-hospital web-app installs can).
 - `/` is the public landing page; the nurse dashboard is at `/dashboard.html`.
 - **Honesty:** every badge comes from `backend/app/features.py` (Live / Simulated / In development / Planned); flip a key to Live only when it really works. The device is **not built yet**. Never invent usage, pilots or results (e.g. "used during COVID"); never claim "no such software exists" (hospital-chain apps and ABHA apps exist).
 - **Deck:** wait for the founder's Dolphin Tank slide template; don't make slides before it arrives.
