@@ -58,7 +58,7 @@ def test_defaults_when_nothing_is_saved(clean, patient_client):
     got = patient_client(1).get("/api/me/branding")
     assert got.status_code == 200, got.text
     b = got.json()
-    assert b["display_name"].startswith("Demo General Hospital")
+    assert b["display_name"].startswith("Dawnlight General Hospital")
     assert b["accent"] == branding.DEFAULT_ACCENT
     assert b["logo_url"] is None
     assert b["powered_by"] == "with SpiroBuddy"

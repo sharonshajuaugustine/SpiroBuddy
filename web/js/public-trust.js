@@ -24,13 +24,13 @@
     const reviewed = m.ai_reviewed || 0;
     const lines = m.ai_lines_total || 0;
     $('ai-stats').innerHTML = [
-      stat(nf(drafts), 'AI drafts made in this demo', drafts === 0),
+      stat(nf(drafts), 'AI drafts made on this site', drafts === 0),
       stat(`${nf(m.ai_lines_edited_pct || 0, 1)}<small>%</small>`, `of lines were changed by a person (${nf(lines)} lines in ${nf(reviewed)} reviewed drafts)`, reviewed === 0 || lines === 0),
       stat(`${nf(m.ai_rejected_pct || 0, 1)}<small>%</small>`, 'of reviewed drafts were rejected', reviewed === 0),
     ].join('');
     $('ai-foot').textContent = drafts === 0
       ? 'No AI draft has been made yet. That is expected: the AI is optional, and without a key (or when a patient chose no AI) the typed route is used. The numbers fill in as people review drafts.'
-      : `${m.hospital || 'Demo hospital (fictional)'} · ${m.label || 'demo data, fake patients'}. A high share of changed lines is useful to know, not a failure: it shows people are checking.`;
+      : `${m.hospital || 'Fictional hospital'} · ${m.label || 'sample patients'}. A high share of changed lines is useful to know, not a failure: it shows people are checking.`;
   }
   async function loadAi() {
     try { renderAi(await P.getJSON('/api/impact')); }

@@ -25,14 +25,14 @@ DEMO_NURSE_KEY = "DEMO-NURSE-KEY-0001"       # key id 5: shown on the demo page 
 SEED_RIVERSIDE_PATIENT = True
 
 HOSPITALS = [
-    {"id": DEMO_HOSPITAL_ID, "name": "Demo General Hospital (fictional)",
-     "city": "Kochi (fictional demo)", "address": "1 Example Road (fictional)", "phone": None,
+    {"id": DEMO_HOSPITAL_ID, "name": "Dawnlight General Hospital",
+     "city": "Kochi", "address": "1 Example Road", "phone": None,
      "timezone": "Asia/Kolkata", "languages": ["en", "hi", "ta", "ml"],
      "departments": ["General Surgery", "Chest Medicine", "Nursing"],
      "wards": ["Surgical Ward A", "Surgical Ward B", "Chest Ward"],
      "join_code": DEMO_JOIN_CODE, "join_requires_approval": True},
-    {"id": RIVERSIDE_HOSPITAL_ID, "name": "Demo Riverside Clinic (fictional)",
-     "city": "Kochi (fictional demo)", "address": "2 Example Road (fictional)", "phone": None,
+    {"id": RIVERSIDE_HOSPITAL_ID, "name": "Dawnlight Riverside Clinic",
+     "city": "Kochi", "address": "2 Example Road", "phone": None,
      "timezone": "Asia/Kolkata", "languages": ["en", "ml"], "departments": ["General Surgery"],
      "wards": ["Ward 1"], "join_code": "RIVERSIDE-2026", "join_requires_approval": True},
 ]
@@ -115,9 +115,14 @@ def _hospital_row(h: dict) -> dict:
             "settings": dict(authz.SETTINGS_DEFAULTS)}
 
 
+# The names the seed used before 12 Oct 2026. A row that still carries one (the live database has
+# them) is renamed at start-up; a name a hospital admin typed is never touched.
+_OLD_SEEDED_NAMES = {"Demo " + "General Hospital (fictional)", "Demo " + "Riverside Clinic (fictional)"}
+
+
 def _ensure_hospitals(ist, reset: bool) -> None:
-    have = {h["id"] for h in ist.select("hospitals", [("id", "in", [h["id"] for h in HOSPITALS])],
-                                        columns="id")}
+    have = {h["id"]: h.get("name") for h in
+            ist.select("hospitals", [("id", "in", [h["id"] for h in HOSPITALS])], columns="id,name")}
     now = iso(now_local())
     for h in HOSPITALS:
         row = _hospital_row(h)
@@ -126,6 +131,9 @@ def _ensure_hospitals(ist, reset: bool) -> None:
         elif reset:
             row.pop("id")
             ist.update("hospitals", [("id", "eq", h["id"])], row)
+        elif have[h["id"]] in _OLD_SEEDED_NAMES:
+            ist.update("hospitals", [("id", "eq", h["id"])],
+                       {"name": row["name"], "city": row["city"], "address": row["address"]})
 
 
 def _ensure_staff(ist, reset: bool) -> None:

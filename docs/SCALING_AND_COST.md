@@ -242,7 +242,7 @@ Also watched, with no target set yet: breath uploads a minute, the queue of unse
 
 ## 9. Say this in the video and the pitch
 **Three sentences (45 words):**
-1. "Today one web service and one database run our demo with fictional patients."
+1. "Today one web service and one database run this site, with sample patients."
 2. "Planned growth is staged: one pilot hospital, ten, a hundred, then state programmes."
 3. "Each patient episode should cost five to seven hundred rupees, an estimate; our planned price is about one thousand."
 

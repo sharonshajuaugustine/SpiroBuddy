@@ -34,7 +34,7 @@ STATE = {CURRENT: ("current", "Issued"), STOPPED: ("stopped", "Stopped by the do
          REPLACED: ("replaced", "Replaced by a newer prescription")}
 MAX_LINES = 20
 REPORTED = "reported_taken"                                           # dose_events.status (Contract H)
-DEMO_NOTICE = "Demo - fictional patient. Pharmacy acceptance is not yet tested."
+DEMO_NOTICE = "Sample prescription for a sample patient. Not for dispensing."
 EARLY_MINUTES = 15            # a dose counts as "due" this long before its time
 
 
@@ -613,6 +613,6 @@ def public_check(token) -> dict | None:
                     "sex": patient.get("sex")},
         "lines": [_public_line(ln) for ln in v["lines"]] if current else [],
         "demo": demo_mode(),
-        "notice": "Compare with the patient's screen. Demo data only." if demo_mode()
+        "notice": "Compare with the patient's screen. Sample patient." if demo_mode()
         else "Compare with the patient's screen.",
         "_rx_id": rx["id"], "_patient_id": rx["patient_id"], "_hospital_id": rx.get("hospital_id")}

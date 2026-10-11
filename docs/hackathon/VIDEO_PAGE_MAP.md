@@ -4,7 +4,7 @@ For each part the organisers asked for (their order), the live page that shows i
 
 | Organisers' part | Page and section | Shot / slide |
 |---|---|---|
-| Theme | `/` hero ("After surgery, the hospital stays connected to the patient at home") | Shot 1 · slide 1 |
+| Theme | `/` hero ("Every breath, coached and counted.") | Shot 1 · slide 1 |
 | Problem | `/` "The problem: nobody sees what happens at home" (four sourced numbers) | Shot 2 · slide 2 |
 | Impact | `/impact.html` (funnel, calculator labelled Estimate, live demo metrics) · the "Sessions today" tile on `/dashboard.html` | Shots 3, 9 · slide 7 |
 | Personas | `/` "Who it helps" (Ravi, Sister Anjali, Amit – illustrative) | Shot 4 · slide 3 |

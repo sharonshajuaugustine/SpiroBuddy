@@ -17,7 +17,7 @@ log = logging.getLogger("spirobuddy.meds.seed")
 
 RAVI = 1
 DOCTOR_ID = 2                        # Dr. Meera Nair (seed_auth.PRIMARY_DOCTOR[1])
-DEMO_REG_NO = "DEMO-REG-0001 (fictional)"
+DEMO_REG_NO = "SAMPLE-REG-0001"
 
 LINES = [
     {"drug_name": "Paracetamol", "form": "tablet", "strength": "500 mg", "dose_qty": 1,
@@ -49,7 +49,7 @@ def seed(st, now=None) -> None:
     doctor = ident.select("staff", [("id", "eq", DOCTOR_ID)], limit=1)
     if not doctor:
         return
-    if not doctor[0].get("reg_no_display"):          # a clearly fictional number, shown on the card
+    if doctor[0].get("reg_no_display") in (None, "", "DEMO-" + "REG-0001 (fictional)"):          # a clearly fictional number, shown on the card
         ident.update("staff", [("id", "eq", DOCTOR_ID)], {"reg_no_display": DEMO_REG_NO})
     now = now or now_local()
     # issued at the start of today, so every dose of today is on the screen (also late in the day)

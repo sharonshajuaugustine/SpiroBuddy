@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SpiroBuddy Dashboard</title>
-  <meta name="description" content="SpiroBuddy nurse and doctor dashboard (demo, fake patients).">
+  <meta name="description" content="SpiroBuddy nurse and doctor dashboard (sample patients).">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b6e8a'/%3E%3Crect x='9' y='13' width='6' height='13' rx='3' fill='%23fff'/%3E%3Cpath d='M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4' stroke='%237fe0c8' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -87,7 +87,7 @@
       <!-- /COMMS -->
     </div>
 
-    <p class="footer-note">Demo data – fake patients only. SpiroBuddy coaches and summarises; it does not diagnose. Status colours come from fixed rules.</p>
+    <p class="footer-note">Sample patients. SpiroBuddy coaches and summarises; it does not diagnose. Status colours come from fixed rules.</p>
   </main>
 
   <script src="js/icons.js"></script>
@@ -190,7 +190,7 @@
       const box = $('#patients');
       box.setAttribute('aria-busy', 'false');
       if (!patients.length) {
-        box.innerHTML = `<tr class="empty-row"><td colspan="7"><div class="empty">${ic('users', { size: 28 })}<b>No patients yet</b>Reset the demo data on the Demo panel to load the fake patients.</div></td></tr>`;
+        box.innerHTML = `<tr class="empty-row"><td colspan="7"><div class="empty">${ic('users', { size: 28 })}<b>No patients yet</b>Open the Demo panel and click Reset demo data to load the sample patients.</div></td></tr>`;
       } else if (!list.length) {
         box.innerHTML = `<tr class="empty-row"><td colspan="7"><div class="empty">${ic('search', { size: 28 })}<b>No patients match</b><button class="btn sm" type="button" id="clear-filters">Clear search and filters</button></div></td></tr>`;
         $('#clear-filters').addEventListener('click', () => { $('#search').value = ''; setFilter('all'); });

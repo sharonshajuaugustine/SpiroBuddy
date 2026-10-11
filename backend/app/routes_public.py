@@ -5,7 +5,7 @@ it returns only hospital-wide counts for the demo hospital, never a name, id or 
 
 Rules for this endpoint:
 - It never errors. A missing table, a missing column or a store outage gives zeros, not a 500.
-- Numbers come only from the store (fake patients). The label says so: "demo data, fake patients".
+- Numbers come only from the store (fake patients). The label says so: "sample patients".
 - Patient taps are counted as "reported", never "taken".
 - A 15-second cache keeps a busy public page from hammering Supabase.
 """
@@ -25,8 +25,8 @@ log = logging.getLogger("spirobuddy.public")
 router = APIRouter()
 
 DEMO_HOSPITAL_ID = 1
-LABEL = "demo data, fake patients"
-HOSPITAL_LABEL = "Demo General Hospital (fictional)"
+LABEL = "sample patients"
+HOSPITAL_LABEL = "Dawnlight General Hospital"
 CACHE_SECONDS = 15.0
 
 _cache: dict = {"at": 0.0, "data": None}

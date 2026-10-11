@@ -83,7 +83,7 @@ def test_login_ok_wrong_and_me(anon):
     assert r.status_code == 200, r.text
     me = r.json()["me"]
     assert me["authenticated"] and me["kind"] == "staff" and me["role"] == "doctor" and me["id"] == 2
-    assert me["hospital"] == {"id": 1, "name": "Demo General Hospital (fictional)"} and me["demo_mode"] is True
+    assert me["hospital"] == {"id": 1, "name": "Dawnlight General Hospital"} and me["demo_mode"] is True
     cookie = r.headers["set-cookie"].lower()
     assert "sb_staff=" in cookie and "httponly" in cookie and "samesite=lax" in cookie and "path=/" in cookie
     assert "secure" not in cookie and "max-age=43200" in cookie                    # plain http in tests; 12 hours

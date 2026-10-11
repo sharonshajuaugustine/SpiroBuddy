@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>SpiroBuddy</title>
-  <meta name="description" content="SpiroBuddy patient app: voice-coached breathing exercise (demo, fake patient). Coaching only, never a diagnosis.">
+  <meta name="description" content="SpiroBuddy patient app: voice-coached breathing exercise (sample patient). Coaching only, never a diagnosis.">
   <meta name="robots" content="noindex">
   <meta name="google" content="notranslate">
   <meta name="theme-color" content="#0b6e8a">
@@ -126,7 +126,7 @@
       <button class="pa-btn primary" id="start" type="button"></button>
     </div>
 
-    <section class="pa-card pa-quick hidden" id="quick" aria-label="Demo: make a breath">
+    <section class="pa-card pa-quick hidden" id="quick" aria-label="Simulator: make a breath">
       <div class="pa-quick-h"><span data-icon="flask"></span><span id="quick-h"></span></div>
       <div class="g">
         <button data-sim="good" type="button">Good breath</button>
@@ -154,9 +154,9 @@
     <button class="pa-btn help" id="help" type="button"></button>
 
     <details class="pa-card pa-demo" id="demo">
-      <summary><span data-icon="flask"></span>Demo controls (no device connected)</summary>
+      <summary><span data-icon="flask"></span>Simulator (no device connected)</summary>
       <div class="g">
-        <button class="wide" id="d-auto" type="button">Play a full demo session (10 breaths)</button>
+        <button class="wide" id="d-auto" type="button">Play a full simulated session (10 breaths)</button>
         <button data-sim="good" type="button">Good breath</button>
         <button data-sim="too_fast" type="button">Too fast</button>
         <button data-sim="too_shallow" type="button">Too shallow</button>
@@ -191,19 +191,19 @@
     const T = {
       en: { meds: 'My medicines', hello: 'Hello, {n}', start: 'Start my exercise', stop: 'Finish now', again: 'Do another session', goal: 'Goal {t} mL', count: 'Breath {n} of {m}', ready: 'Press start, then breathe in slowly.',
             today: 'Today', done: 'sessions done', of: 'of', best: 'best breath today', saved: 'Session saved', savedSub: '{g} of {n} good breaths · best {b} mL', notSaved: 'Could not save. It will show after the next session.',
-            help: 'I do not feel well', nurse: 'Your nurse has been told.', call: 'Call 112', cheer: 'A message from {w}', foot: 'SpiroBuddy coaches your breathing exercise. It does not diagnose. Demo with a fake patient.',
+            help: 'I do not feel well', nurse: 'Your nurse has been told.', call: 'Call 112', cheer: 'A message from {w}', foot: 'SpiroBuddy coaches your breathing exercise. It does not diagnose. Sample patient.',
             l_done: 'Done', l_missed: 'Missed', l_now: 'Due now', l_later: 'Later', score: 'Score {s} out of 10' },
       hi: { meds: 'मेरी दवाइयाँ', hello: 'नमस्ते, {n} जी', start: 'व्यायाम शुरू करें', stop: 'अभी समाप्त करें', again: 'एक और सत्र करें', goal: 'लक्ष्य {t} mL', count: 'साँस {n} / {m}', ready: 'शुरू दबाइए, फिर धीरे-धीरे साँस अंदर लीजिए।',
             today: 'आज', done: 'सत्र पूरे', of: 'में से', best: 'आज की सबसे अच्छी साँस', saved: 'सत्र सहेज लिया गया', savedSub: '{n} में से {g} अच्छी साँसें · सबसे अच्छी {b} mL', notSaved: 'सहेज नहीं पाए। अगले सत्र के बाद दिखेगा।',
-            help: 'मेरी तबीयत ठीक नहीं है', nurse: 'आपकी नर्स को बता दिया गया है।', call: '112 पर कॉल करें', cheer: '{w} का संदेश', foot: 'SpiroBuddy साँस के व्यायाम में मदद करता है। यह कोई निदान नहीं करता। नकली मरीज़ के साथ डेमो।',
+            help: 'मेरी तबीयत ठीक नहीं है', nurse: 'आपकी नर्स को बता दिया गया है।', call: '112 पर कॉल करें', cheer: '{w} का संदेश', foot: 'SpiroBuddy साँस के व्यायाम में मदद करता है। यह कोई निदान नहीं करता। नमूना मरीज़।',
             l_done: 'हो गया', l_missed: 'छूट गया', l_now: 'अभी', l_later: 'बाद में', score: '10 में से {s} अंक' },
       ta: { meds: 'என் மருந்துகள்', hello: 'வணக்கம், {n}', start: 'பயிற்சியைத் தொடங்கு', stop: 'இப்போது முடி', again: 'இன்னொரு முறை செய்', goal: 'இலக்கு {t} mL', count: 'மூச்சு {n} / {m}', ready: 'தொடங்கு அழுத்தி, மெதுவாக மூச்சை உள்ளிழுங்கள்.',
             today: 'இன்று', done: 'முறைகள் முடிந்தன', of: 'இல்', best: 'இன்றைய சிறந்த மூச்சு', saved: 'பயிற்சி சேமிக்கப்பட்டது', savedSub: '{n} இல் {g} நல்ல மூச்சுகள் · சிறந்தது {b} mL', notSaved: 'சேமிக்க முடியவில்லை. அடுத்த முறைக்குப் பின் தெரியும்.',
-            help: 'எனக்கு உடல்நிலை சரியில்லை', nurse: 'உங்கள் செவிலியருக்குத் தெரிவிக்கப்பட்டது.', call: '112 ஐ அழை', cheer: '{w} அனுப்பிய செய்தி', foot: 'SpiroBuddy மூச்சுப் பயிற்சிக்கு உதவுகிறது. இது நோயறிதல் செய்யாது. போலி நோயாளியுடன் டெமோ.',
+            help: 'எனக்கு உடல்நிலை சரியில்லை', nurse: 'உங்கள் செவிலியருக்குத் தெரிவிக்கப்பட்டது.', call: '112 ஐ அழை', cheer: '{w} அனுப்பிய செய்தி', foot: 'SpiroBuddy மூச்சுப் பயிற்சிக்கு உதவுகிறது. இது நோயறிதல் செய்யாது. மாதிரி நோயாளி.',
             l_done: 'முடிந்தது', l_missed: 'தவறியது', l_now: 'இப்போது', l_later: 'பின்னர்', score: '10 இல் {s} மதிப்பெண்' },
       ml: { meds: 'എന്റെ മരുന്നുകൾ', hello: 'നമസ്കാരം, {n}', start: 'വ്യായാമം തുടങ്ങുക', stop: 'ഇപ്പോൾ നിർത്തുക', again: 'ഒന്നുകൂടി ചെയ്യുക', goal: 'ലക്ഷ്യം {t} mL', count: 'ശ്വാസം {n} / {m}', ready: 'തുടങ്ങുക അമർത്തി, പതുക്കെ ശ്വാസം ഉള്ളിലേക്ക് എടുക്കുക.',
             today: 'ഇന്ന്', done: 'സെഷനുകൾ കഴിഞ്ഞു', of: 'ൽ', best: 'ഇന്നത്തെ മികച്ച ശ്വാസം', saved: 'സെഷൻ സേവ് ചെയ്തു', savedSub: '{n} ൽ {g} നല്ല ശ്വാസങ്ങൾ · മികച്ചത് {b} mL', notSaved: 'സേവ് ചെയ്യാനായില്ല. അടുത്ത സെഷനു ശേഷം കാണാം.',
-            help: 'എനിക്ക് സുഖമില്ല', nurse: 'നിങ്ങളുടെ നഴ്സിനെ അറിയിച്ചിട്ടുണ്ട്.', call: '112 വിളിക്കുക', cheer: '{w} അയച്ച സന്ദേശം', foot: 'SpiroBuddy ശ്വസന വ്യായാമത്തിന് സഹായിക്കുന്നു. ഇത് രോഗനിർണയം നടത്തുന്നില്ല. വ്യാജ രോഗിയുമായുള്ള ഡെമോ.',
+            help: 'എനിക്ക് സുഖമില്ല', nurse: 'നിങ്ങളുടെ നഴ്സിനെ അറിയിച്ചിട്ടുണ്ട്.', call: '112 വിളിക്കുക', cheer: '{w} അയച്ച സന്ദേശം', foot: 'SpiroBuddy ശ്വസന വ്യായാമത്തിന് സഹായിക്കുന്നു. ഇത് രോഗനിർണയം നടത്തുന്നില്ല. സാമ്പിൾ രോഗി.',
             l_done: 'കഴിഞ്ഞു', l_missed: 'വിട്ടുപോയി', l_now: 'ഇപ്പോൾ', l_later: 'പിന്നീട്', score: '10 ൽ {s} മാർക്ക്' },
     };
     const SHOW = ['hi', 'en', 'ta', 'ml'];
@@ -242,7 +242,7 @@
       $('#legend').innerHTML = [['check', 'l_done'], ['x', 'l_missed'], ['clock', 'l_now'], ['circle', 'l_later']].map(([i, k]) => `<span>${ic(i, { size: 16 })}${esc(tr(k))}</span>`).join('');
       $('#foot').textContent = tr('foot');
       $('#quick').classList.toggle('hidden', !(running && source && source.kind === 'simulator'));
-      $('#quick-h').textContent = 'No device connected: tap to make a demo breath';
+      $('#quick-h').textContent = 'No device connected: tap to make a simulated breath';
       $('#target-line').style.bottom = Math.min(96, (target / maxMl()) * 100) + '%';
       setCoach(coachCue); paintCount(); paintToday();
       $('#meds-link').innerHTML = ic('pill', { size: 24 }) + esc(tr('meds'));

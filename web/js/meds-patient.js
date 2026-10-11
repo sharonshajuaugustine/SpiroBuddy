@@ -212,7 +212,7 @@
       <ol class="rxc-meds" style="list-style:none">${meds}</ol>
       <div class="rxc-qr"><div class="rxc-qr-box" id="rxc-qr-box"></div>
         <p>Pharmacist: scan this code to check the prescription at the hospital.<small>${esc(url)}</small></p></div>
-      <p class="rxc-demo">${esc(c.notice || 'Demo - fictional patient. Pharmacy acceptance is not yet tested.')}</p>${pager}</div>`;
+      <p class="rxc-demo">${esc(c.notice || 'Sample prescription for a sample patient. Not for dispensing.')}</p>${pager}</div>`;
     drawQR($('#rxc-qr-box', ov), url);
   }
 

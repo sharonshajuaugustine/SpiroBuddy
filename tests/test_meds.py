@@ -403,9 +403,9 @@ def test_rx_check_is_public_minimal_and_strict(doctor, patient_client, anon, rxd
     card = patient_client(PID).get("/api/me/prescription-card").json()["card"]
     token = card["token"]
     assert card["verify_path"] == f"/rx.html?t={token}"
-    assert card["hospital"]["name"].startswith("Demo General Hospital")
+    assert card["hospital"]["name"].startswith("Dawnlight General Hospital")
     assert card["patient"]["name"] == "Priya Sharma" and card["patient"]["age"] == 44
-    assert card["doctor"]["name"] == "Dr. Meera Nair" and card["notice"].startswith("Demo - fictional patient.")
+    assert card["doctor"]["name"] == "Dr. Meera Nair" and card["notice"].startswith("Sample prescription for a sample patient.")
     assert card["lines"][0]["summary"] == "1 tablet · morning and night · after food · 5 days"
     assert card["lines"][1]["summary"].startswith("1 tablet · only when needed")
     r = anon.get(f"/api/rx-check/{token}")                       # no login at all
@@ -414,13 +414,13 @@ def test_rx_check_is_public_minimal_and_strict(doctor, patient_client, anon, rxd
     assert r.headers["cache-control"] == "no-store"
     assert j["current"] is True and j["state"] == "current"
     assert j["patient"] == {"name": "Priya S.", "age": 44, "sex": "F"}
-    assert j["hospital"]["name"].startswith("Demo General Hospital")
+    assert j["hospital"]["name"].startswith("Dawnlight General Hospital")
     assert [ln["drug_name"] for ln in j["lines"]] == ["Paracetamol", "Ondansetron"]
     text = r.text.lower()
     for word in ("phone", "address", "email", "family", "app_token", "patient_id", '"id"', "token"):
         assert word not in text, word
     assert "priya sharma" not in text                            # first name and initial only
-    assert j["notice"] == "Compare with the patient's screen. Demo data only."
+    assert j["notice"] == "Compare with the patient's screen. Sample patient."
     # bad tokens
     for bad in ("nonsense", "1.", "0.deadbeef", f"{token}0", token[:-1] + ("0" if token[-1] != "0" else "1"),
                 "99999." + token.split(".")[1], "1." + "0" * 32):
@@ -507,7 +507,7 @@ def test_the_demo_prescription_for_ravi(patient_client, anon, rxdb):
     assert by["Ondansetron"]["as_needed"] and by["Ondansetron"]["times"] == []
     assert len(m["today"]) == 3                                    # 2 paracetamol + 1 pantoprazole, all of today
     card = c.get("/api/me/prescription-card").json()["card"]
-    assert card["doctor"]["name"] == "Dr. Meera Nair" and "fictional" in card["doctor"]["reg_no_display"]
+    assert card["doctor"]["name"] == "Dr. Meera Nair" and "SAMPLE" in card["doctor"]["reg_no_display"]
     assert anon.get(card["verify_path"].replace("/rx.html?t=", "/api/rx-check/")).json()["current"] is True
 
 

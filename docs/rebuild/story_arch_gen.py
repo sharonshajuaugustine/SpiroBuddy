@@ -36,7 +36,7 @@ col(290, 220, YS, [
     (["Comms simulators"], "comms.whatsapp", "WhatsApp and phone-call previews, and the escalation ladder."),
 ])
 col(575, 210, YS, [
-    (["Database"], "tenancy.hospitals", "Supabase (Postgres), or a local SQLite file for the demo. Every row carries its hospital."),
+    (["Database"], "tenancy.hospitals", "Supabase (Postgres), or a local SQLite file on a laptop. Every row carries its hospital."),
     (["File storage"], "docs.vault", "Papers and prescription files, checked and cleaned, kept under random names."),
     (["Audit log"], "audit.log", "Who looked at or changed what, and when."),
     (["AI register"], "ai.register", "Every AI call as a reference with no content, plus the reviewer's decision."),
@@ -53,7 +53,7 @@ col(830, 150, YS, [
 for y, it in zip([446, 498, 550], [
     (["Clip-on unit over USB"], "device.usb", "The unit on the spirometer, wired to the phone."),
     (["Bluetooth link"], "device.ble", "Wireless pairing of the unit."),
-    (["Breath simulator"], "coach.breath", "What the demo uses in place of the unit."),
+    (["Breath simulator"], "coach.breath", "Stands in for the unit today."),
 ]):
     BOXES.append((20, y, 320, 40, *it))
 # bottom-right: prescription path
@@ -61,7 +61,7 @@ for x, it in zip([392, 546, 700, 854], [
     (["Doctor types it", "in the hospital app"], "rx.manual", "No AI involved. This route always works."),
     (["Shows on the", "patient's phone"], "rx.patient_phone", "The doctor writes it; the patient sees every medicine at once."),
     (["Shown at the", "pharmacy counter"], "rx.pharmacy_screen", "A clear screen for the chemist instead of paper. Not yet tested with a real pharmacy."),
-    (["Chemist scans", "a QR to check"], "rx.verify_qr", "Opens the hospital's copy to compare. No login; fake patients only."),
+    (["Chemist scans", "a QR to check"], "rx.verify_qr", "Opens the hospital's copy to compare. No login; sample patients only."),
 ]):
     BOXES.append((x, 478, 130, 64, *it))
 

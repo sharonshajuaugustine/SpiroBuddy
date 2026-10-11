@@ -7,7 +7,7 @@ RIVERSIDE_ADMIN = "admin@demo-riverside.example"
 
 
 def _demo_city_alert(client) -> dict:
-    """A red-flag alert for patient 1 (Demo City Hospital)."""
+    """A red-flag alert for patient 1 (Dawnlight General Hospital)."""
     r = client.post(f"{C}/demo/red-flag/1", json={})
     assert r.status_code == 200, r.text
     rows = client.get(f"{C}/alerts?status=active&patient_id=1").json()

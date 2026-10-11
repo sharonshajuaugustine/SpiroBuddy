@@ -63,7 +63,7 @@ PATIENT_COLUMNS = ("hospital_id primary_doctor_id ward bed mrn phone city emerge
 
 # The least each table needs for an insert (NOT NULL columns without a default).
 MINIMAL = {
-    "hospitals": {"name": "Demo General Hospital (fictional)"},
+    "hospitals": {"name": "Dawnlight General Hospital"},
     "staff": {"role": "doctor", "name": "Dr. Test", "email": "test.doctor@demo-general.example"},
     "auth_sessions": {"token_hash": "h1", "expires_at": "2026-10-12T10:00:00+05:30"},
     "access_keys": {"key_hash": "k1"},

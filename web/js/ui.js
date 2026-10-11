@@ -12,7 +12,7 @@
     <path d="M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4" stroke="#7fe0c8" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>`;
 
   /* Demo site identity shown in the top bar (fake hospital – demo only). */
-  const SITE = { hospital: 'Demo City Hospital', ward: 'Post-op Ward 3B' };
+  const SITE = { hospital: 'Dawnlight General Hospital', ward: 'Post-op Ward 3B' };
 
   const PAGES = [
     { group: 'Ward', href: 'dashboard.html', label: 'Dashboard', key: 'dashboard', icon: 'dashboard' },

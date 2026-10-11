@@ -120,14 +120,14 @@
     const visitsN = (m.follow_ups_attended || 0) + (m.follow_ups_missed || 0);
     $('metrics').innerHTML = [
       tile('Patients coached', m.patients_coached ? nf(m.patients_coached) : null, `of ${nf(m.patients_in_programme || 0)} fake patients in the programme`),
-      tile('Sessions completed', m.sessions_completed ? nf(m.sessions_completed) : null, 'breathing sessions in the demo database'),
+      tile('Sessions completed', m.sessions_completed ? nf(m.sessions_completed) : null, 'breathing sessions on this site'),
       tile('Sessions done of due, today', m.sessions_due_today ? pct(m.sessions_done_of_due_pct) : null, `${nf(m.sessions_done_today || 0)} done of ${nf(m.sessions_due_today || 0)} due so far`),
       tile('Medicine doses reported', dosesN ? pct(m.doses_reported_pct) : null, `${nf(m.doses_reported || 0)} reported, ${nf(m.doses_missed || 0)} missed. Patient taps count as reported.`),
       tile('Follow-up visits kept', visitsN ? pct(m.follow_ups_kept_pct) : null, `${nf(m.follow_ups_attended || 0)} attended, ${nf(m.follow_ups_missed || 0)} did not come`),
       tile('Families informed', m.families_informed ? nf(m.families_informed) : null, 'families who opted in with consent'),
     ].join('');
     const t = m.as_of ? new Date(m.as_of).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : '';
-    $('metrics-foot').textContent = `${m.hospital || 'Demo hospital (fictional)'} · ${m.label || 'demo data, fake patients'}${t ? ' · as of ' + t + ' IST' : ''}`;
+    $('metrics-foot').textContent = `${m.hospital || 'Fictional hospital'} · ${m.label || 'sample patients'}${t ? ' · as of ' + t + ' IST' : ''}`;
     P.hydrate();
   }
   async function loadMetrics() {

@@ -68,7 +68,7 @@ def test_data_files_are_valid_json():
 
 def test_landing_leads_with_the_hospital_to_patient_link_and_the_two_pillars():
     html = _text(WEB / "index.html")
-    assert "stays connected to the patient at home" in html
+    assert "stays connected to the patient at home" in html and "Every breath, coached and counted." in html
     for key in ("rx.patient_phone", "rx.pharmacy_screen", "rx.verify_qr", "coach.breath", "device.usb"):
         assert f'data-feature="{key}"' in html, key
     assert "no paper is needed" in html.lower()
@@ -82,19 +82,19 @@ def test_landing_links_and_hero_follow_the_founder_overrides():
     html = _text(WEB / "index.html")
     assert 'href="/login.html?next=/dashboard.html"' in html
     assert 'href="/app.html?id=1"' in html
-    assert "Open the patient app (demo)" in html and "Hospital login (demo credentials shown)" in html
+    assert "Open the patient app</a>" in html and "Hospital login (sample logins shown)" in html
     assert "/showcase/videos/hero.mp4" in html and "Open the 3D showroom" in html and 'href="/showcase/"' in html
     assert "<iframe" not in html and "twin.html" not in html          # no twin page tonight
     assert "muted" in html and "playsinline" in html and "loop" in html
     assert "autoplay" not in html.lower()                              # script starts it, unless reduced motion
     assert "prefers-reduced-motion" in _text(WEB / "js" / "public-home.js")
-    assert "Illustrative – not real people" in html
+    assert "Illustrative personas" in html
 
 
 def test_footer_and_header_text():
     js = _text(WEB / "js" / "public-shell.js")
-    assert "Fake patients only · not a medical device · not for clinical use" in js
-    for label in ("Home", "Impact", "Trust", "Vision", "Architecture", "3D showroom", "Hospital login", "Patient app (demo)"):
+    assert "Sample patients · not a medical device · not for clinical use" in js
+    for label in ("Home", "Impact", "Trust", "Vision", "Architecture", "3D showroom", "Hospital login", "Patient app</a>"):
         assert label in js, label
     assert "/twin.html" not in js
 
@@ -109,7 +109,7 @@ def test_vision_has_the_required_sections():
     assert "Drug-interaction checks – deliberately not built (would be clinical decision support)" in html
     assert 'data-feature="rx.interaction_checks"' in html
     for text in ("Stage 0", "Stage 1", "Stage 2", "Stage 3", "Stage 4", "Level 0", "Level 1", "Level 2", "Level 3",
-                 "Today one web service and one database run our demo with fictional patients.",
+                 "Today one web service and one database run this site, with sample patients.",
                  "Planned growth is staged: one pilot hospital, ten, a hundred, then state programmes.",
                  "Each patient episode should cost five to seven hundred rupees, an estimate; our planned price is about one thousand.",
                  "0-3 months", "3-12 months", "12-24 months", "B1-13"):
@@ -131,7 +131,7 @@ def test_trust_has_the_verbatim_texts_and_the_demo_note():
     assert DISCLAIMER in html
     assert ("In the demo only sample prescriptions are sent to Google's Gemini API. Real-patient use needs ethics "
             "approval, a paid or enterprise data agreement and a data-residency review (Planned).") in html
-    assert "Demo hospital example – none of these are done for a real pilot" in html
+    assert "None of these steps has been done: a real pilot is Planned." in html
     data = json.loads(_text(WEB / "data" / "trust.json"))
     assert len(data["safe_rules"]) == 10 and len(data["checklist"]) == 14
     names = " ".join(g["name"] for g in data["rule_groups"])
@@ -295,13 +295,13 @@ def test_impact_is_public_numeric_and_labelled(anon):
     r = anon.get("/api/impact")
     assert r.status_code == 200, r.text
     body = r.json()
-    assert body["label"] == "demo data, fake patients"
+    assert body["label"] == "sample patients"
     for k in NUMERIC:
         assert isinstance(body[k], (int, float)) and not isinstance(body[k], bool), k
         assert body[k] >= 0
     for k in ("doses_reported_pct", "follow_ups_kept_pct", "ai_lines_edited_pct", "ai_rejected_pct"):
         assert 0 <= body[k] <= 100
-    assert "Demo General Hospital (fictional)" in body["hospital"]
+    assert "Dawnlight General Hospital" in body["hospital"]
     assert "T" in body["as_of"] and ("+05:30" in body["as_of"])
     # nothing that identifies a person
     flat = json.dumps(body)
@@ -338,7 +338,7 @@ def test_impact_never_errors_when_the_store_is_missing(anon, monkeypatch):
     r = anon.get("/api/impact")
     assert r.status_code == 200
     body = r.json()
-    assert body["label"] == "demo data, fake patients"
+    assert body["label"] == "sample patients"
     for k in NUMERIC:
         assert body[k] == 0, k
     routes_public.clear_cache()

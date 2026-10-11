@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hospital login – SpiroBuddy</title>
-  <meta name="description" content="SpiroBuddy hospital login for doctors, nurses and the hospital admin (demo, fake patients only).">
+  <meta name="description" content="SpiroBuddy hospital login for doctors, nurses and the hospital admin (sample patients only).">
   <meta name="robots" content="noindex">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b6e8a'/%3E%3Crect x='9' y='13' width='6' height='13' rx='3' fill='%23fff'/%3E%3Cpath d='M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4' stroke='%237fe0c8' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/css/styles.css">
@@ -42,20 +42,16 @@
         <button class="btn primary lg block" id="login-btn" type="submit">Log in</button>
       </form>
 
-      <nav class="auth-links" aria-label="Other ways in">
-        <a href="/signup.html" data-icon="user-check">Doctor? Sign up with your hospital's join code</a>
-        <a href="/redeem.html" data-icon="key">Nurse? Use an access key</a>
-        <a href="/patient-login.html" data-icon="user">Patient? Log in with your hospital number</a>
-      </nav>
+      <!-- Doctor sign-up, nurse access keys and the patient login are In development; their links return when those pages are ready. -->
     </section>
 
     <!-- Shown only when /api/health says demo_mode. Fictional people and passwords (docs/REBUILD_PLAN.md §2). -->
     <section class="demo-accounts" id="demo-box" aria-labelledby="demo-h" hidden>
-      <h2 id="demo-h"><span data-icon="flask"></span>Demo accounts – fake data – reset nightly</h2>
+      <h2 id="demo-h"><span data-icon="flask"></span>Sample logins</h2>
       <p>Fictional people at a fictional hospital. One click logs you in.</p>
       <ul class="da-list">
         <li class="da-row">
-          <div class="da-who"><b>Admin</b><span class="muted">Demo General Hospital (fictional)</span>
+          <div class="da-who"><b>Admin</b><span class="muted">Dawnlight General Hospital</span>
             <span class="da-cred">admin@demo-general.example</span><span class="da-cred">Password: demo-admin-2026</span></div>
           <button class="btn" type="button" data-demo="admin">Try as Admin</button>
         </li>

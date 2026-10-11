@@ -32,12 +32,12 @@
         <a class="logo" href="/" aria-label="SpiroBuddy home page">${ui.LOGO}<span class="logo-name">SpiroBuddy</span></a>
         <nav class="pub-nav" id="pub-nav" aria-label="Main">
           <ul>${links}
-            <li class="nav-cta"><a class="btn" href="${LOGIN}">Hospital login</a><a class="btn primary" href="${APP}">Patient app (demo)</a></li>
+            <li class="nav-cta"><a class="btn" href="${LOGIN}">Hospital login</a><a class="btn primary" href="${APP}">Patient app</a></li>
           </ul>
         </nav>
         <div class="pub-actions">
           <a class="btn sm" href="${LOGIN}">Hospital login</a>
-          <a class="btn sm primary" href="${APP}">Patient app (demo)</a>
+          <a class="btn sm primary" href="${APP}">Patient app</a>
           <button class="icon-btn" id="pub-theme" type="button" aria-label="Switch light or dark theme" title="Light / dark theme"></button>
           <button class="icon-btn pub-menu-btn" id="pub-menu" type="button" aria-expanded="false" aria-controls="pub-nav" aria-label="Open the menu">
             <svg class="i" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
@@ -49,12 +49,12 @@
   function footerHTML() {
     return `
       <div class="pub-wrap">
-        <p class="foot-notice">Fake patients only · not a medical device · not for clinical use</p>
-        <p class="small">The hospital in this demo is fictional (Demo General Hospital). No real hospital, doctor or patient appears on this site.</p>
+        <p class="foot-notice">Sample patients · not a medical device · not for clinical use</p>
+        <p class="small">The hospital on this site is fictional (Dawnlight General Hospital). No real hospital, doctor or patient appears here.</p>
         <ul>
           <li><a href="/">Home</a></li><li><a href="/impact.html">Impact</a></li><li><a href="/trust.html">Trust</a></li>
           <li><a href="/vision.html">Vision</a></li><li><a href="/architecture.html">Architecture</a></li>
-          <li><a href="/showcase/">3D showroom</a></li><li><a href="${LOGIN}">Hospital login</a></li><li><a href="${APP}">Patient app (demo)</a></li>
+          <li><a href="/showcase/">3D showroom</a></li><li><a href="${LOGIN}">Hospital login</a></li><li><a href="${APP}">Patient app</a></li>
         </ul>
       </div>`;
   }
@@ -97,7 +97,7 @@
 
   /* Status legend: the four words and one line each, drawn from the shared kit (SB.ui.FSTATUS). */
   const LEGEND_TEXT = {
-    live: 'Works on this site today, with fake patients.',
+    live: 'Works on this site today, with sample patients.',
     simulated: 'Works from start to finish, but its input or its sending is a built-in simulator.',
     in_development: 'Partly built. Not switched on, or not working from start to finish yet.',
     planned: 'Not built. Shown only so you can see where we are heading.',
@@ -111,7 +111,7 @@
   }
 
   /* Tiny render helpers shared by the page scripts. */
-  const LBL = { estimate: 'Estimate', assumption: 'Assumption', target: 'Target', counted: 'Counted', demo: 'Demo data' };
+  const LBL = { estimate: 'Estimate', assumption: 'Assumption', target: 'Target', counted: 'Counted', demo: 'Sample data' };
   const lbl = (kind) => `<span class="lbl ${esc(kind)}">${esc(LBL[kind] || kind)}</span>`;
   const src = (text) => `<span class="src">${esc(text)}</span>`;
   const badge = (key) => `<span data-feature="${esc(key)}"></span>`;

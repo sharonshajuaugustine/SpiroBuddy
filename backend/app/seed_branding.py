@@ -16,7 +16,7 @@ from . import authz, branding
 log = logging.getLogger("spirobuddy.seed_branding")
 
 DEMO = {
-    1: {"display_name": "Demo General Care", "short_name": "Demo General",
+    1: {"display_name": "Dawnlight Care", "short_name": "Dawnlight",
         "accent": "#1b5e9e", "initials": "DG"},
     2: {"display_name": "Riverside Care", "short_name": "Riverside",
         "accent": "#8e3b5f", "initials": "RS"},

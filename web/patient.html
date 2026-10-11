@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SpiroBuddy Patient</title>
-  <meta name="description" content="SpiroBuddy patient detail (demo, fake patient).">
+  <meta name="description" content="SpiroBuddy patient detail (sample patient).">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b6e8a'/%3E%3Crect x='9' y='13' width='6' height='13' rx='3' fill='%23fff'/%3E%3Cpath d='M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4' stroke='%237fe0c8' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <header id="app-header"></header>
   <main id="main">
-    <div class="print-only print-head" style="display:none"><div><div class="t">SpiroBuddy – patient summary</div><div>Demo City Hospital · Post-op Ward 3B</div></div><div id="print-when"></div></div>
+    <div class="print-only print-head" style="display:none"><div><div class="t">SpiroBuddy – patient summary</div><div>Dawnlight General Hospital · Post-op Ward 3B</div></div><div id="print-when"></div></div>
 
     <nav class="crumbs" aria-label="Breadcrumb"><a href="dashboard.html" id="back"><span data-icon="chevron-left" data-size="16"></span>Patients</a><span aria-hidden="true">/</span><span id="crumb-name" aria-current="page">Patient</span></nav>
 
@@ -101,8 +101,8 @@
         </section>
       </aside>
     </div>
-    <p class="footer-note">Demo data – fake patient. SpiroBuddy coaches and summarises; it does not diagnose. For breathing trouble, chest pain or fever, the patient is told to contact their nurse or call 112.</p>
-    <p class="print-only print-foot" style="display:none">Demo data – fake patient. SpiroBuddy coaches and summarises; it does not diagnose. Status colours come from fixed rules. For breathing trouble, chest pain or fever: contact the nurse or call 112.</p>
+    <p class="footer-note">Sample patient. SpiroBuddy coaches and summarises; it does not diagnose. For breathing trouble, chest pain or fever, the patient is told to contact their nurse or call 112.</p>
+    <p class="print-only print-foot" style="display:none">Sample patient. SpiroBuddy coaches and summarises; it does not diagnose. Status colours come from fixed rules. For breathing trouble, chest pain or fever: contact the nurse or call 112.</p>
   </main>
 
   <script src="js/icons.js"></script>
@@ -151,7 +151,7 @@
             <div><dt>Age</dt><dd>${esc(p.age)} y${p.sex ? ' · ' + esc(p.sex) : ''}</dd></div>
             <div><dt>Operation</dt><dd>${esc(p.surgery || '—')}</dd></div>
             <div><dt>Post-op</dt><dd>${pod != null ? 'Day ' + pod : '—'}</dd></div>
-            <div><dt>Ward / bed</dt><dd${p.ward ? '' : ' title="Demo value"'}>${esc(ward)} · ${esc(bed)}</dd></div>
+            <div><dt>Ward / bed</dt><dd${p.ward ? '' : ' title="Sample value"'}>${esc(ward)} · ${esc(bed)}</dd></div>
             <div><dt>Language</dt><dd>${esc(LANG[p.language] || p.language || '—')}</dd></div>
             <div><dt>Family</dt><dd id="ph-family">${esc(familyText())}</dd></div>
           </dl>

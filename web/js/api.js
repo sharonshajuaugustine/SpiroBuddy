@@ -419,7 +419,7 @@
 
   /* Mock logins: the fictional demo accounts (docs/REBUILD_PLAN.md §2). Never real people. */
   const ME_KEY = 'sb_mock_me';
-  const HOSP = { id: 1, name: 'Demo General Hospital' };
+  const HOSP = { id: 1, name: 'Dawnlight General Hospital' };
   const ALL_PERMS = ['view', 'update_care_plan', 'confirm_prescriptions', 'manage_appointments', 'upload_documents', 'acknowledge_alerts'];
   const ACCOUNTS = [
     { id: 1, email: 'admin@demo-general.example', password: 'demo-admin-2026', name: 'Admin desk', role: 'admin', department: 'Administration', perms: ALL_PERMS },

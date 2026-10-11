@@ -185,7 +185,7 @@ def _fake(monkeypatch, *answers):
 
 
 RX_ANSWER = {
-    "doctor_name": "Dr. Meera Nair", "hospital_name": "Demo General Hospital (fictional)",
+    "doctor_name": "Dr. Meera Nair", "hospital_name": "Dawnlight General Hospital",
     "date": "08/10/2026", "patient_name_on_paper": "Ravi K", "handwritten": False, "legibility": "good",
     "advice": "Patient should also take vitamin D",                      # not asked for -> dropped
     "lines": [
