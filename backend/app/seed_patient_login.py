@@ -2,7 +2,7 @@
 DEMO_MODE) the fixed demo PIN for Ravi (patient 1), so the demo box on /patient-login.html works.
 
 Called from seed.py after the demo patients are inserted, so a demo reset makes them again.
-Safe on a Supabase project that still lacks the PIN columns: the numbers are saved (mrn is an
+Works on a Supabase project that still lacks the PIN columns: the numbers are saved (mrn is an
 older column) and the PIN is skipped with a log line.
 """
 from __future__ import annotations

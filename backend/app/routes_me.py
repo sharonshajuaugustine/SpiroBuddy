@@ -72,7 +72,7 @@ def patient_login(request: Request, response: Response, body: dict = Body(...)):
         raise HTTPException(503, pl.MSG_NOT_SET_UP)
     rows = [r for r in rows if (r.get("programme_status") or "active") != "deceased"]
     if not rows:
-        pl.pin_matches(None, pin)                       # same time taken as for a real number
+        pl.pin_matches(None, pin)                       # same time spent as for a real number
         _fail(request, 401, pl.MSG_WRONG, "unknown number")
     live = [r for r in rows if not pl.is_locked(r)]
     if not live:

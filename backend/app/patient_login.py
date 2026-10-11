@@ -181,7 +181,7 @@ def hash_pin(pin: str) -> str:
 
 def pin_matches(stored: str | None, pin: str) -> bool:
     """Checks the PIN. With nothing stored it still does the slow check on a dummy, so the time
-    taken does not tell whether the number exists."""
+    time spent does not tell whether the number exists."""
     from .routes_auth import _verify
     return _verify(stored, pin)
 

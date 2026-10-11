@@ -23,7 +23,7 @@ Builder P, Mon 12 Oct 2026. Brief: `docs/rebuild/REGNO_PIN_BRIEF.md`. Built and 
    from . import patient_login
    patient_login.ensure_regno(service.store(), new_row)   # new_row has id and hospital_id; returns e.g. DGH-000008
    ```
-6. **Old databases (optional)** – patients that already exist on the live Supabase have no number until the demo is reset. `GET /api/me/login-demo` (DEMO_MODE) makes Ravi's number and PIN on first call, and any staff "Make a new PIN" makes a number for that patient. To number everyone at start-up, add to the `lifespan` in `main.py`, next to the other seed hooks: `from . import seed_patient_login; seed_patient_login.ensure(st)` inside try/except.
+6. **Old databases (optional)** – patients that already exist on the live Supabase have no number until the demo is reset. `GET /api/me/login-demo` (DEMO_MODE) makes Ravi's number and PIN the moment it is called, and any staff "Make a new PIN" makes a number for that patient. To number everyone at start-up, add to the `lifespan` in `main.py`, next to the other seed hooks: `from . import seed_patient_login; seed_patient_login.ensure(st)` inside try/except.
 
 ## Feature keys to flip
 - `auth.patient_regno` → `live` after the live check (see 1).
@@ -38,4 +38,4 @@ Builder P, Mon 12 Oct 2026. Brief: `docs/rebuild/REGNO_PIN_BRIEF.md`. Built and 
 - The number match ignores case and spaces; `dgh000001` finds `DGH-000001`.
 - Audit rows: `auth.patient_login` (success and failure, no PIN), `patient.pin_create`, `patient.regno_set`. The PIN is never in the audit detail, the logs or the database (argon2 hash only), and the staff answer for the card (`GET .../login`) never contains it.
 - Until the PIN columns exist on Supabase every route answers `503` "This login is not set up yet - please ask the hospital." and the seed saves numbers but skips the PIN; nothing else changes.
-- The slip (print) shows hospital, patient, number, PIN and a QR to `/patient-login.html` (no number or PIN in the address). The wording says what the PIN does; it does not call anything secure or safe.
+- The slip (print) shows hospital, patient, number, PIN and a QR to `/patient-login.html` (no number or PIN in the address). The wording only says what the PIN does.

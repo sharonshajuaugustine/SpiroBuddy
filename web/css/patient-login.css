@@ -25,6 +25,12 @@
 .pl-show { flex: none; min-width: 96px; min-height: 72px; padding: 0 var(--sp-3); border-radius: 16px; border: 2px solid var(--border-strong); background: var(--surface);
   color: var(--text); font: inherit; font-size: 1.2rem; font-weight: 800; cursor: pointer; }
 
+@media (max-width: 520px) {      /* a long word on the Show button must never squeeze the 6 digits */
+  .pl-pinrow { flex-direction: column; }
+  .pl-show { width: 100%; min-height: 64px; }
+  #pl-pin { letter-spacing: .2em; }
+}
+
 .pl-btn { display: flex; width: 100%; min-height: 72px; align-items: center; justify-content: center; gap: var(--sp-3); padding: var(--sp-2) var(--sp-4);
   border-radius: 18px; border: 2px solid var(--brand); background: var(--brand); color: var(--brand-ink); font: inherit; font-size: 1.5rem; font-weight: 800; cursor: pointer; }
 .pl-btn:active { transform: translateY(1px); }

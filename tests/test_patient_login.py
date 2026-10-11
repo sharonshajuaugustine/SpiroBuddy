@@ -240,7 +240,7 @@ def test_staff_can_type_the_hospitals_own_number(client, anon):
     assert client.put("/api/patients/3/regno", json={"registration_no": "a;b<c>"}).status_code == 400
 
 
-def test_a_patient_without_a_number_gets_one_with_the_first_pin(client):
+def test_a_patient_without_a_number_gets_one_with_the_new_pin(client):
     from backend.app import service
     service.store().update("patients", [("id", "eq", 7)], {"mrn": None})
     assert client.get("/api/patients/7/login").json()["registration_no"] is None
