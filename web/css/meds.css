@@ -1,0 +1,162 @@
+/* SpiroBuddy - digital prescription pages: meds.html (patient), prescribe.html (doctor), rx.html (pharmacist).
+ * Uses only the tokens of styles.css, so light and dark follow the phone. The full-screen pharmacy card
+ * is the one exception: it is always black on white, like paper, so a chemist can read it in any light. */
+
+/* ------------------------------------------------------------------ patient: meds.html */
+.m-body { font-size: 1.25rem; line-height: 1.45; }
+.m-wrap { max-width: 600px; margin: 0 auto; padding: 0 var(--sp-4) var(--sp-12); }
+.m-wrap .g-lang { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--sp-2); }
+.m-wrap .g-lang button { min-width: 0; font-size: 1.2rem; padding: 0 var(--sp-1); }
+@media (max-width: 520px) { .m-wrap .g-lang { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.m-hello { font-size: 2rem; margin: var(--sp-2) 0 var(--sp-1); letter-spacing: -.01em; }
+.m-sub { color: var(--text-2); margin: 0 0 var(--sp-5); font-size: 1.25rem; }
+.m-sec-h { display: flex; align-items: center; gap: var(--sp-2); font-size: 1.6rem; margin: var(--sp-6) 0 var(--sp-3); }
+.m-sec-h svg { color: var(--brand); flex: none; }
+.m-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: var(--sp-5); margin-bottom: var(--sp-4); box-shadow: var(--elev-1); }
+.m-empty { text-align: center; padding: var(--sp-8) var(--sp-5); }
+.m-empty svg { color: var(--text-3); margin-bottom: var(--sp-3); }
+.m-empty p { margin: 0 0 var(--sp-4); font-size: 1.35rem; }
+
+/* one time of day */
+.m-dose { border-left: 8px solid var(--brand); }
+.m-dose.done { border-left-color: var(--green-dot); background: var(--green-soft); }
+.m-dose-head { display: flex; align-items: center; gap: var(--sp-4); margin-bottom: var(--sp-3); }
+.m-dose-ic { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--brand-soft); color: var(--brand); }
+.m-dose.done .m-dose-ic { background: var(--surface); color: var(--green); }
+.m-dose-time { font-size: 2.1rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.m-dose-slot { color: var(--text-2); font-size: 1.25rem; font-weight: 600; }
+.m-dose-meds { list-style: none; margin: 0 0 var(--sp-4); padding: 0; display: grid; gap: var(--sp-3); }
+.m-dose-meds li { display: flex; gap: var(--sp-3); align-items: flex-start; }
+.m-dose-meds svg { flex: none; margin-top: 4px; color: var(--text-3); }
+.m-dose-name { font-size: 1.5rem; font-weight: 800; line-height: 1.2; }
+.m-dose-name .m-med-str { font-weight: 600; color: var(--text-2); font-size: 1.25rem; white-space: nowrap; }
+.m-dose-how { color: var(--text-2); font-size: 1.25rem; }
+
+/* the big buttons: 72 px high, icon on the left, words next to it */
+.m-btn { display: flex; width: 100%; min-height: 72px; align-items: center; justify-content: center; gap: var(--sp-3); padding: var(--sp-2) var(--sp-4);
+  border-radius: 18px; border: 2px solid var(--brand); background: var(--brand); color: var(--brand-ink); font: inherit; font-size: 1.4rem; font-weight: 800;
+  cursor: pointer; text-decoration: none; text-align: center; margin: 0 0 var(--sp-3); }
+.m-btn:active { transform: translateY(1px); }
+.m-btn.outline { background: var(--surface); color: var(--brand); }
+.m-btn.plain { background: var(--surface); color: var(--text); border-color: var(--border-strong); }
+.m-btn.done { background: var(--surface); color: var(--green); border-color: var(--green-dot); cursor: default; }
+.m-btn.small { min-height: 64px; font-size: 1.2rem; }
+.m-btn:disabled { opacity: .7; cursor: default; }
+
+/* one medicine (all-my-medicines list, doctor's preview) */
+.m-med { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: var(--sp-5); margin-bottom: var(--sp-4); }
+.m-med.as-needed { border-style: dashed; border-color: var(--border-strong); }
+.m-med-name { display: flex; align-items: flex-start; gap: var(--sp-3); font-size: 1.6rem; line-height: 1.2; margin: 0 0 var(--sp-2); }
+.m-med-name svg { flex: none; color: var(--brand); margin-top: 3px; }
+.m-med-str { font-weight: 600; color: var(--text-2); font-size: 1.3rem; white-space: nowrap; }
+.m-med-dose { font-size: 1.5rem; font-weight: 700; margin: 0 0 var(--sp-2); }
+.m-med-when { list-style: none; margin: 0 0 var(--sp-2); padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.m-med-when li { display: inline-flex; align-items: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); border-radius: 999px; background: var(--brand-soft); color: var(--text); font-weight: 700; font-size: 1.25rem; }
+.m-med-when svg { color: var(--brand); }
+.m-med-line { margin: 0 0 var(--sp-1); color: var(--text); font-size: 1.25rem; }
+.m-med-note { margin: var(--sp-2) 0 0; padding: var(--sp-3); background: var(--surface-2); border-radius: 12px; font-size: 1.2rem; }
+.m-med-ask { display: flex; gap: var(--sp-2); align-items: flex-start; margin: var(--sp-3) 0 0; color: var(--text-2); font-size: 1.2rem; font-weight: 600; }
+.m-med-ask svg { flex: none; margin-top: 3px; }
+
+.m-msg { display: flex; gap: var(--sp-3); align-items: flex-start; padding: var(--sp-4); border-radius: 16px; margin-bottom: var(--sp-4); font-size: 1.25rem; font-weight: 600; }
+.m-msg.bad { background: var(--red-soft); border: 1px solid var(--red-line); color: var(--red); }
+.m-msg svg { flex: none; margin-top: 3px; }
+.m-foot { text-align: center; color: var(--text-2); font-size: 1.125rem; margin: var(--sp-6) 0 var(--sp-3); }
+.m-status { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-3); justify-content: center; align-items: center; color: var(--text-2); font-size: 1.125rem; }
+.m-status .fbadge { font-size: 1rem; padding: 4px 10px; }
+.m-ribbon .ribbon-fake { margin-bottom: var(--sp-3); }
+
+/* ------------------------------------------------------------------ the pharmacy screen (always white, like paper) */
+.rxc-overlay { position: fixed; inset: 0; z-index: 90; background: #fff; color: #000; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.rxc-bar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #fff; border-bottom: 2px solid #000; }
+.rxc-bar p { flex: 1; margin: 0; font-size: 1.25rem; font-weight: 800; line-height: 1.2; }
+.rxc-close { min-height: 64px; min-width: 64px; padding: 0 18px; border-radius: 14px; border: 3px solid #000; background: #fff; color: #000; font: inherit; font-size: 1.25rem; font-weight: 800; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.rxc-paper { max-width: 760px; margin: 0 auto; padding: 20px 20px 40px; font-family: "Segoe UI", system-ui, Arial, "Nirmala UI", "Noto Sans", sans-serif; color: #000; }
+.rxc-hosp { font-size: 1.6rem; font-weight: 800; line-height: 1.2; margin: 0; }
+.rxc-hosp small { display: block; font-size: 1.05rem; font-weight: 600; color: #222; }
+.rxc-title { font-size: 2.1rem; font-weight: 900; letter-spacing: .02em; text-transform: uppercase; margin: 16px 0 10px; padding-bottom: 8px; border-bottom: 4px solid #000; }
+.rxc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; margin: 0 0 16px; }
+.rxc-grid dt { font-size: .95rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #222; margin: 0; }
+.rxc-grid dd { font-size: 1.3rem; font-weight: 700; margin: 0; overflow-wrap: anywhere; }
+.rxc-grid dd small { font-weight: 600; color: #222; font-size: .95rem; }
+.rxc-meds { list-style: none; margin: 0 0 20px; padding: 0; border-top: 2px solid #000; }
+.rxc-meds li { padding: 14px 0; border-bottom: 2px solid #000; }
+.rxc-n { font-size: 1.7rem; font-weight: 900; line-height: 1.15; }
+.rxc-n small { font-size: 1.2rem; font-weight: 700; }
+.rxc-how { font-size: 1.3rem; font-weight: 600; margin-top: 4px; }
+.rxc-note { font-size: 1.1rem; margin-top: 4px; color: #111; }
+.rxc-tag { display: inline-block; border: 2px solid #000; border-radius: 6px; padding: 0 8px; font-size: .95rem; font-weight: 800; margin-left: 8px; vertical-align: middle; }
+.rxc-qr { display: flex; gap: 16px; align-items: center; margin: 12px 0 16px; padding: 14px; border: 3px solid #000; border-radius: 12px; }
+.rxc-qr-box { flex: none; width: 168px; height: 168px; background: #fff; display: grid; place-items: center; }
+.rxc-qr-box canvas, .rxc-qr-box img { width: 168px !important; height: 168px !important; }
+.rxc-qr p { margin: 0; font-size: 1.15rem; font-weight: 700; }
+.rxc-qr p small { display: block; font-weight: 500; font-size: .95rem; margin-top: 6px; overflow-wrap: anywhere; }
+.rxc-demo { margin: 0; padding: 10px 12px; border: 2px dashed #000; border-radius: 8px; font-size: 1.05rem; font-weight: 700; }
+.rxc-pager { display: flex; gap: 12px; margin-top: 16px; }
+.rxc-pager button { flex: 1; min-height: 64px; border: 3px solid #000; border-radius: 14px; background: #fff; color: #000; font: inherit; font-size: 1.15rem; font-weight: 800; cursor: pointer; }
+@media (max-width: 480px) {
+  .rxc-grid { grid-template-columns: 1fr; }
+  .rxc-qr { flex-direction: column; align-items: flex-start; }
+}
+@media print {
+  .m-wrap > :not(#m-pharmacy) { display: none !important; }
+  .rxc-overlay { position: static; overflow: visible; }
+  .rxc-bar, .rxc-pager { display: none !important; }
+}
+
+/* ------------------------------------------------------------------ doctor: prescribe.html */
+.rx-top { display: grid; gap: var(--sp-4); grid-template-columns: minmax(0, 1fr); }
+.rx-who { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: center; }
+.rx-who b { font-size: var(--fs-lg); }
+.rx-card-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-3); margin-bottom: var(--sp-3); }
+.rx-card-head h2 { margin: 0; }
+.rx-card-head .spacer { flex: 1; }
+.rx-cur { border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--sp-3) var(--sp-4); margin-bottom: var(--sp-3); background: var(--surface-2); }
+.rx-cur-head { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-3); align-items: center; margin-bottom: var(--sp-2); }
+.rx-cur-head .spacer { flex: 1; }
+.rx-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-2); }
+.rx-lines li { display: flex; gap: var(--sp-2); align-items: flex-start; }
+.rx-lines svg { flex: none; margin-top: 3px; color: var(--text-3); }
+.rx-lines .rx-sum { color: var(--text-2); }
+.rx-lines .rx-unclear { color: var(--yellow); font-weight: 600; }
+.rx-row { border: 1px solid var(--border-strong); border-radius: var(--r-lg); padding: var(--sp-4); margin: 0 0 var(--sp-4); background: var(--surface); min-width: 0; }
+.rx-row legend { font-weight: 700; padding: 0 var(--sp-2); }
+.rx-row-head { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-3); }
+.rx-row-head b { flex: 1; }
+.rx-row .field > .lbl { font-size: var(--fs-md); font-weight: 600; }
+.rx-row .field input, .rx-row .field select { width: 100%; }
+.rx-dose { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: var(--sp-2); }
+.rx-chips { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.rx-chip { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--target); padding: 0 var(--sp-4); border-radius: 999px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); font: inherit; font-weight: 600; cursor: pointer; }
+.rx-chip[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+.rx-chip:disabled { opacity: .5; cursor: not-allowed; }
+.rx-when { display: grid; gap: var(--sp-2); }
+.rx-hint { margin: 0; font-size: var(--fs-sm); color: var(--text-2); display: flex; gap: var(--sp-1); align-items: flex-start; min-height: 20px; }
+.rx-hint.warn { color: var(--yellow); font-weight: 600; }
+.rx-checks { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-5); margin-top: var(--sp-3); }
+.rx-checks label { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--target); font-weight: 600; }
+.rx-send { display: grid; gap: var(--sp-3); margin-top: var(--sp-4); }
+.rx-send .btn.lg { min-height: 56px; font-size: var(--fs-lg); }
+.rx-banner { margin-bottom: var(--sp-4); }
+.rx-pre-lang { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: 0 0 var(--sp-3); }
+.rx-preview { background: var(--surface-2); border: 1px dashed var(--border-strong); border-radius: var(--r-lg); padding: var(--sp-4); max-width: 620px; }
+.rx-preview .m-med { margin-bottom: var(--sp-3); }
+.rx-preview .m-body { font-size: 1.1rem; }
+.rx-hist summary { cursor: pointer; font-weight: 600; min-height: var(--target); display: flex; align-items: center; }
+@media (min-width: 1100px) { .rx-top { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: start; } }
+
+/* ------------------------------------------------------------------ pharmacist: rx.html */
+.rxp-wrap { max-width: 760px; margin: 0 auto; padding: var(--sp-4) var(--sp-4) var(--sp-12); }
+.rxp-wrap h1 { font-size: 1.9rem; margin: var(--sp-2) 0 var(--sp-3); }
+.rxp-state { display: flex; gap: var(--sp-3); align-items: center; padding: var(--sp-4); border-radius: var(--r-lg); border: 2px solid; margin-bottom: var(--sp-4); font-size: 1.25rem; font-weight: 700; }
+.rxp-state svg { flex: none; }
+.rxp-state.good { background: var(--green-soft); border-color: var(--green-dot); color: var(--green); }
+.rxp-state.bad { background: var(--red-soft); border-color: var(--red); color: var(--red); }
+.rxp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--sp-3) var(--sp-5); margin: 0 0 var(--sp-4); }
+.rxp-grid dt { font-size: var(--fs-sm); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-2); margin: 0; }
+.rxp-grid dd { margin: 0; font-size: 1.25rem; font-weight: 700; overflow-wrap: anywhere; }
+.rxp-meds { list-style: none; margin: 0 0 var(--sp-4); padding: 0; }
+.rxp-meds li { padding: var(--sp-3) 0; border-bottom: 1px solid var(--border-strong); }
+.rxp-n { font-size: 1.3rem; font-weight: 800; }
+.rxp-how { color: var(--text-2); font-size: 1.1rem; }
+.rxp-note { background: var(--brand-soft); border: 1px solid var(--brand-line); border-radius: var(--r-lg); padding: var(--sp-3) var(--sp-4); font-weight: 600; margin-top: var(--sp-4); }
