@@ -8,8 +8,8 @@ Written Sun 11 Oct 2026, 16:30 IST, by the lead session. The spec is `docs/priva
 
 | Topic | Decision |
 |---|---|
-| Gemini model | `gemini-3.8-flash` (Google's models page, checked 11 Oct 2026: the newest **stable** Flash; it takes image and PDF input and supports structured output). Env var `GEMINI_MODEL`, default `gemini-3.8-flash`. |
-| Gemini SDK | `google-genai==2.29.0` (`from google import genai`). Call `client.models.generate_content(model=…, contents=[types.Part.from_bytes(data=…, mime_type=…), PROMPT], config=types.GenerateContentConfig(response_mime_type="application/json", response_schema=<Pydantic model>, thinking_config=types.ThinkingConfig(thinking_level="low"), http_options=types.HttpOptions(timeout=GEMINI_TIMEOUT_S*1000)))`. Check the exact names against the installed SDK by introspection; never call the network in tests. |
+| Gemini model | **`gemini-3.1-flash-lite`** – the founder asked for "Gemini 3.1 Flash for now" (11 Oct, 16:20 IST). Google lists no plain `gemini-3.1-flash`; the stable model in that family is `gemini-3.1-flash-lite` (image + PDF input, structured output). Env var `GEMINI_MODEL`, default `gemini-3.1-flash-lite`. The newest stable Flash (`gemini-3.8-flash`) is a one-line switch later. |
+| Gemini SDK | `google-genai==2.29.0` (`from google import genai`). Call `client.models.generate_content(model=…, contents=[types.Part.from_bytes(data=…, mime_type=…), PROMPT], config=types.GenerateContentConfig(response_mime_type="application/json", response_schema=<Pydantic model>, http_options=types.HttpOptions(timeout=GEMINI_TIMEOUT_S*1000)))`. Don't set a thinking config (use the model default; an optional `GEMINI_THINKING` env var may set `thinking_level`). Check the exact names against the installed SDK by introspection; never call the network in tests. |
 | Temperature | The spec says 0. Google's Gemini 3 guide **strongly recommends keeping the default 1.0** (lower values may loop or degrade). We **leave temperature unset** (the default). Safety does not depend on it: code normalises and a human approves every line. Logged in PROGRESS. |
 | Password hashing | `argon2-cffi==25.1.0`, `argon2.PasswordHasher()` with its defaults. |
 | Token hashing | Session tokens, patient app tokens, nurse keys and join codes: `secrets.token_urlsafe(…)`; the database stores `sha256(token).hexdigest()` only. Nurse keys: `token_urlsafe(18)`. Session and patient tokens: `token_urlsafe(32)` (≥ 128 bits). The join code is 8 characters from `ABCDEFGHJKMNPQRSTUVWXYZ23456789`, e.g. `DGH-7K3Q-M9PX` style shown as `XXXX-XXXX`. |
@@ -39,7 +39,7 @@ Written Sun 11 Oct 2026, 16:30 IST, by the lead session. The spec is `docs/priva
 ## 3. Internal contracts (Phase 1 provides these; Phase 2 builds on them)
 
 ### 3.1 `backend/app/config.py` (new names)
-`ALLOW_TRAINING` (0), `SHOW_API_DOCS` (0), `GEMINI_API_KEY`, `GEMINI_MODEL` (`gemini-3.8-flash`), `GEMINI_TIMEOUT_S` (30), `AI_DAILY_LIMIT` (300), `AI_PER_IP_HOUR` (20), `UPLOAD_PER_IP_HOUR` (30), `SUPABASE_BUCKET` (`documents`), `UPLOAD_DIR` = `DATA_DIR / "uploads"`. Read them with the existing `env()` and `env_flag()`.
+`ALLOW_TRAINING` (0), `SHOW_API_DOCS` (0), `GEMINI_API_KEY`, `GEMINI_MODEL` (`gemini-3.1-flash-lite`), `GEMINI_TIMEOUT_S` (30), `AI_DAILY_LIMIT` (300), `AI_PER_IP_HOUR` (20), `UPLOAD_PER_IP_HOUR` (30), `SUPABASE_BUCKET` (`documents`), `UPLOAD_DIR` = `DATA_DIR / "uploads"`. Read them with the existing `env()` and `env_flag()`.
 
 ### 3.2 `backend/app/store.py`
 - `TABLES_V2` = every table in spec §9 plus `app_settings`. `TABLES` stays the v1 list.
@@ -90,6 +90,27 @@ def hospital_settings(hospital_id) -> dict       # merged with defaults (spec §
 8. **Lists are filtered** to `visible_patient_ids`: `GET /api/patients`, `/api/messages`, `/api/comms/alerts`, `/alerts/counts`, `/escalations`, `/events`, `/calls`.
 9. New routers (Phase 2) always call `authz.require(action, pid)` in each handler. The middleware only guarantees "a staff session or an allowed patient" for them.
 10. Security headers on every response: `X-Content-Type-Options: nosniff`, `Referrer-Policy: same-origin`, `X-Frame-Options: DENY`. The API docs are hidden unless `SHOW_API_DOCS=1`.
+11. **Generic resource check (works for every router, old and new).** The middleware matches the request against `app.routes` to get the path parameters. For each parameter in `authz.RESOURCE_PARAMS` it looks up the owner and answers **404** if the actor can't see it, **before** body validation runs. So every route, including Phase 2 ones, **must name its path parameters from this list:**
+
+    | Param | Resource | Owner lookup |
+    |---|---|---|
+    | `pid` | patient | `patients.id` (hospital via `patients.hospital_id`) |
+    | `rx` | prescription | `prescriptions.patient_id` |
+    | `item` | prescription line | `prescription_items.prescription_id` → `prescriptions.patient_id` |
+    | `dose` | dose event | `dose_events.patient_id` |
+    | `appt` | appointment | `appointments.patient_id` |
+    | `doc` | document | `documents.patient_id` |
+    | `note_id` | note | `notes.patient_id` |
+    | `aid` | alert (`/api/comms/alerts/…`) | `alerts.patient_id` |
+    | `rid` | escalation | `escalations.patient_id` |
+    | `cid` | call (`/api/comms/calls/…`) or cheer (`/api/comms/cheers/…`) | `calls.patient_id` / `cheers.patient_id` |
+    | `gid` | guardian | `guardians.patient_id` |
+    | `staff_id`, `doctor_id` | staff member | `staff.hospital_id` must equal the actor's hospital |
+    | `key_id` | access key | `access_keys.hospital_id` |
+    | `device_id` | device | `devices.hospital_id` |
+
+    Contract tables write `{id}` for readability. In code, use the names above (for example `/api/prescriptions/{rx}/items/{item}`, `/api/admin/staff/{staff_id}/{action}`). Token parameters (`token`) are never resolved this way. `tests/test_isolation.py` walks **every** route in `app.routes` as the Riverside admin with Demo General ids and expects 404.
+12. **Demo reset** (`POST /api/demo/reset`, `prepare-recording`) is only for admin or doctor of **hospital 1** (the demo hospital) in DEMO_MODE, so another hospital can't wipe it.
 
 ### 3.5 `backend/app/audit.py`
 ```python
@@ -131,6 +152,7 @@ def validate_upload(data: bytes, filename: str, declared_mime: str | None) -> tu
     # jpg/png/webp/pdf only, max 10 MB, magic bytes checked, images re-encoded (strips EXIF), SVG/HTML refused even if renamed.
 def ensure_bucket() -> None   # called at start-up; never raises
 ```
+Storage keys look like `docs/<yyyymm>/<32 hex>.<ext>` (thumbnails `thumbs/<same>.png`). The local backend writes `UPLOAD_DIR/<key>`. The Supabase backend writes the same key in the private bucket `documents`. Supabase is used only when the active store is `supabase`; otherwise local. Seeded sample documents use `storage.save` like any upload.
 
 ### 3.9 `backend/app/ratelimit.py`
 `allow(bucket: str, key: str, limit: int, per_seconds: int) -> bool`, in memory. Buckets: `login` (10 per 15 min per IP+email, then a 15-minute lockout via `staff.locked_until`), `ai`, `upload` (30/h/IP), `live` (frames).

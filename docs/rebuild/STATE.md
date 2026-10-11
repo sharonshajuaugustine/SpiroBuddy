@@ -17,9 +17,9 @@
 
 ## Now
 
-- **Next action:** P0-0.1 – run the §R2 start-up check, take the lock, start the baseline test run (nobody has started the build yet)
-- **Lock (active session):** none
-- **Last heartbeat:** –
+- **Next action:** Phase 1 workflow running (16:25 IST start): stage A = data, samples, kit; then auth → isolation and platform → seed2; then 2 verifiers + a fixer. If this session died: check `git log` for the Phase 1 commits (each agent commits its own files), mark those rows done, and re-launch only the unfinished agents with the split in `docs/REBUILD_PLAN.md` §4
+- **Lock (active session):** Opus 5.5 ultracode session (coyotaidev account), taken Sun 11 Oct 16:08 IST
+- **Last heartbeat:** Sun 11 Oct 16:25 IST – a long Phase 1 workflow is running until about 19:00 IST. A new session before 19:30 must ask the founder first.
 - **Last good commit before the redesign:** `4c78e46`
 - **Live site** (https://spirobuddy.onrender.com): old version, not redeployed by the redesign yet
 
@@ -37,10 +37,10 @@
 ### Phase 0 – Map
 | ID | Step | Pri | Status | Commit | Notes |
 |---|---|---|---|---|---|
-| P0-0.1 | Start-up check, lock, baseline full test suite (background) | P0 | todo | | Baseline was 420 pass / 14 expected failures (verdict, 11 Oct) |
-| P0-0.2 | `docs/REBUILD_PLAN.md`: file ownership, risks, P0/P1/P2 list | P0 | todo | | |
-| P0-0.3 | Contracts E–K written into `docs/ARCHITECTURE.md` + PROGRESS note | P0 | todo | | Must be done before Phase 2 |
-| P0-0.4 | Gemini model + SDK version chosen from Google's docs, recorded in PROGRESS | P0 | todo | | Stable Flash only, no preview |
+| P0-0.1 | Start-up check, lock, baseline full test suite (background) | P0 | done (e56411e) | e56411e | Baseline re-run 11 Oct 16:15 IST: 420 passed, 14 xfailed (9 min) |
+| P0-0.2 | `docs/REBUILD_PLAN.md`: file ownership, risks, P0/P1/P2 list | P0 | done | e56411e+ | |
+| P0-0.3 | Contracts E–K written into `docs/ARCHITECTURE.md` + PROGRESS note | P0 | done | e56411e | Must be done before Phase 2 |
+| P0-0.4 | Gemini model + SDK version chosen from Google's docs, recorded in PROGRESS | P0 | done | e56411e+ | `gemini-3.1-flash-lite` (founder's choice), google-genai 2.29.0 |
 
 ### Phase 1 – Foundations (one builder, sequential)
 | ID | Step | Pri | Status | Commit | Notes |
@@ -112,6 +112,7 @@
 
 ## Session log (newest first)
 
+- **Sun 11 Oct 2026, 16:05–16:25 IST – Opus 5.5 ultracode session (coyotaidev):** start-up check done, lock taken, baseline 420 passed / 14 xfailed. Phase 0 done (plan, contracts E–K, model `gemini-3.1-flash-lite` by founder's choice). Launching the Phase 1 workflow. Next: Phase 1 rows.
 - **Sun 11 Oct 2026, ~4:30 pm IST – planning session:** wrote the spec and seeded this file. No build work yet. Next: P0-0.1.
 
 ## Recovered work
