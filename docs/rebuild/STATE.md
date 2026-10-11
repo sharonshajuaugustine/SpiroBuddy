@@ -17,7 +17,7 @@
 
 ## Now
 
-- **Next action:** Wave 1 is built, integrated and committed (see the rows). Full suite running (started 23:33 IST). When green: ask the founder "push now?", push `master` to `main`, wait for Render, check `/api/health`, `/`, `/dashboard.html`, `/app.html?id=1` → My medicines → pharmacy card → QR, then the founder restarts Render and resets the demo (SETUP_STEPS §2 steps 6–7). Then, if usage is left: README for judges, DEMO_PATH, VIDEO_PAGE_MAP, F-4 (shot 14 lines).
+- **Next action:** P0 is LIVE (pushed 557857d at 23:40 IST; Render deployed in 3 min; every page 200; health says supabase, v2_missing false). Waiting on the founder: log in as Doctor on the live site → `/demo.html` → Reset demo data (the lead may not type passwords on the live site). Then the lead checks `/app.html?id=1` → My medicines → QR on the live site. Then, with the usage left: `README.md` for judges (P4-4.2, with the founder's disclosure placeholder), `docs/hackathon/DEMO_PATH.md`, `docs/hackathon/VIDEO_PAGE_MAP.md`; push them with the founder's OK before 03:00.
 - **Usage (Pro plan, 5-hour window resets 03:30 IST):** 75% used at 23:31 IST. The two verify agents were stopped at 23:32 to keep enough for the push; the lead checked the prescription path in the browser instead (patient app → My medicines in Hindi → pharmacy card → QR → public check says "Current"). A local DB made before the seed hook shows no medicines until **Reset demo data**.
 - **Time note:** earlier entries in this session said 23:12 and 23:45; the real IST times were about 22:45 and 23:00 (the shell clock was read as UTC).
 - **Founder decisions, Sun 11 Oct 22:55–23:05 IST (override the spec where they differ):**
@@ -111,7 +111,7 @@
 ### Phase 3 – Integration
 | ID | Step | Pri | Status | Commit | Notes |
 |---|---|---|---|---|---|
-| P3-3.1 | Full test suite green (background, once) | P0 | todo | | |
+| P3-3.1 | Full test suite green (background, once) | P0 | done (745 passed, 14 xfailed, 23:44 IST) | | |
 | P3-3.2 | Demo path click-through at 375 px and 1440 px, light and dark, hi + en, with and without a Gemini key | P0 | todo | | |
 | P3-3.3 | Copy pass (never-say lists), label pass (registry), language pass | P0 | todo | | |
 | P3-3.4 | Performance after a cold start; three.js only on twin pages | P1 | todo | | |
@@ -124,7 +124,7 @@
 | P4-4.3 | `docs/SETUP_STEPS.md` (Gemini key, Supabase paste, Render) | P0 | done (draft; re-check in Phase 4) | d0879ba | |
 | P4-4.4 | `docs/hackathon/DEMO_PATH.md` (about 2:30, timed) + `docs/hackathon/VIDEO_PAGE_MAP.md` | P0 | todo | | |
 | P4-4.5 | Founder config done (see the checkboxes above) | P0 | todo | | |
-| P4-4.6 | Push P0 (founder OK) → live check → demo reset | P0 | todo | | |
+| P4-4.6 | Push P0 (founder OK) → live check → demo reset | P0 | done except the demo reset (557857d, 23:40 IST) | | |
 | P4-4.7 | P1 work, verified and pushed (founder OK) | P1 | todo | | |
 | P4-4.8 | FREEZE at 03:00 IST: lock none, final session log | P0 | todo | | |
 
