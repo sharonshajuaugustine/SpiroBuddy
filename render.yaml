@@ -2,6 +2,7 @@
 # One Python web service: FastAPI API + the nurse & doctor website (web/) + 3D showroom.
 # Render asks for every "sync: false" value ONCE, when the Blueprint is first created.
 # Only SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY matter; leave all the others blank.
+# (2.0: GEMINI_API_KEY switches on AI reading of prescriptions; without it staff type the lines.)
 # (Values added later: Dashboard -> spirobuddy -> Environment.)
 services:
   - type: web
@@ -35,7 +36,22 @@ services:
         value: auto
       - key: QUIET_HOURS
         value: "21:00-07:00"
+      # ---- 2.0 fixed settings (see .env.example)
+      - key: GEMINI_MODEL                # Gemini 3.1 Flash family
+        value: gemini-3.1-flash-lite
+      - key: AI_DAILY_LIMIT              # AI calls a day for the whole site
+        value: "300"
+      - key: AI_PER_IP_HOUR              # AI calls an hour per visitor
+        value: "20"
+      - key: UPLOAD_PER_IP_HOUR          # uploads an hour per visitor
+        value: "30"
+      - key: ALLOW_TRAINING              # breath-label collection and training stay off
+        value: "0"
+      - key: SHOW_API_DOCS               # API docs hidden on the public site
+        value: "0"
       # ---- optional: leave blank; every feature has an offline fallback
+      - key: GEMINI_API_KEY              # AI reads prescriptions and documents (else staff type them)
+        sync: false
       - key: ANTHROPIC_API_KEY           # AI summaries (else template text)
         sync: false
       - key: SARVAM_API_KEY              # Indian-language voice (else recorded clips / browser voice)

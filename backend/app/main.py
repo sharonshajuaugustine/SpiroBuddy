@@ -122,8 +122,8 @@ def health():
     return {"ok": True, "model_loaded": models_ml.model_loaded(),
             "llm_enabled": llm.llm_enabled(), "whatsapp_enabled": whatsapp.whatsapp_enabled(),
             "data_backend": service.store().name, "demo_mode": demo_mode(),
-            "data_note": service.store_note(), "tz": env("TZ_NAME", "Asia/Kolkata"),
-            "now": iso(now_local())}
+            "data_note": service.store_note(), "v2_missing": service.v2_missing(),
+            "tz": env("TZ_NAME", "Asia/Kolkata"), "now": iso(now_local())}
 
 
 @app.get("/api/patients")

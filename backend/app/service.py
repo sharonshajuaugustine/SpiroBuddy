@@ -32,6 +32,12 @@ def store_note() -> str:
     return _store_note
 
 
+def v2_missing() -> bool:
+    """True when Supabase lacks the 2.0 tables (schema_v2.sql not run) and we use demo SQLite."""
+    from . import store as store_module
+    return store_module.v2_missing()
+
+
 # ----------------------------------------------------------------------------- helpers
 
 def _num(v, default=0.0) -> float:

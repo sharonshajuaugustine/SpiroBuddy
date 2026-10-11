@@ -44,6 +44,68 @@ def demo_mode() -> bool:
     return env_flag("DEMO_MODE", "1")
 
 
+def env_int(name: str, default: int) -> int:
+    """A whole number from the environment; a blank or bad value falls back to the default."""
+    try:
+        return int(env(name, str(default)))
+    except ValueError:
+        return default
+
+
+# ---- SpiroBuddy 2.0 settings (docs/REBUILD_PLAN.md §3.1). The helpers read the environment
+# ---- at call time, so tests can monkeypatch them; the UPPER-CASE names are start-up copies.
+GEMINI_MODEL_DEFAULT = "gemini-3.1-flash-lite"   # founder: "Gemini 3.1 Flash for now"; Google has no plain gemini-3.1-flash id
+UPLOAD_DIR = DATA_DIR / "uploads"                # local document store when Supabase Storage isn't used
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def allow_training() -> bool:          # /api/collect and /api/train also need an admin
+    return env_flag("ALLOW_TRAINING", "0")
+
+
+def show_api_docs() -> bool:           # /docs, /redoc and /openapi.json stay hidden unless 1
+    return env_flag("SHOW_API_DOCS", "0")
+
+
+def gemini_api_key() -> str:
+    return env("GEMINI_API_KEY")
+
+
+def gemini_model() -> str:
+    return env("GEMINI_MODEL", GEMINI_MODEL_DEFAULT)
+
+
+def gemini_timeout_s() -> int:
+    return env_int("GEMINI_TIMEOUT_S", 30)
+
+
+def ai_daily_limit() -> int:           # AI calls a day across the whole site
+    return env_int("AI_DAILY_LIMIT", 300)
+
+
+def ai_per_ip_hour() -> int:
+    return env_int("AI_PER_IP_HOUR", 20)
+
+
+def upload_per_ip_hour() -> int:
+    return env_int("UPLOAD_PER_IP_HOUR", 30)
+
+
+def supabase_bucket() -> str:          # private Supabase Storage bucket for documents
+    return env("SUPABASE_BUCKET", "documents")
+
+
+ALLOW_TRAINING = allow_training()
+SHOW_API_DOCS = show_api_docs()
+GEMINI_API_KEY = gemini_api_key()
+GEMINI_MODEL = gemini_model()
+GEMINI_TIMEOUT_S = gemini_timeout_s()
+AI_DAILY_LIMIT = ai_daily_limit()
+AI_PER_IP_HOUR = ai_per_ip_hour()
+UPLOAD_PER_IP_HOUR = upload_per_ip_hour()
+SUPABASE_BUCKET = supabase_bucket()
+
+
 def _tz():
     name = env("TZ_NAME", "Asia/Kolkata")
     try:
