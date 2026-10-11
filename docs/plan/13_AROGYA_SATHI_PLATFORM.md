@@ -46,7 +46,7 @@ Accounts hang from the hospital: Hospital → Departments → Doctors and Nurses
 
 ## 5. Open questions for the founder
 1. **Names:** is "Arogya Sathi" the product and "SpiroBuddy" its breathing module, or the company? The hackathon entry and live site are named SpiroBuddy – renaming everything before the video is risky; suggested for tonight: "Arogya Sathi, with the SpiroBuddy breathing coach" in the deck, site unchanged.
-2. **Check the name before using it publicly:** search the Play Store, App Store and the trademark registry for "Arogya Sathi" / "Aarogya Saathi" (similar names may exist, and it is close to the government's "Aarogya Setu").
+2. **Check the name before using it publicly:** search the Play Store, App Store and the trademark registry for "Arogya Sathi" / "Aarogya Saathi" (similar names may exist, and it is close to the government's "Aarogya Setu"). **Checked Mon 12 Oct 01:20 IST (web search snippets only, ledger rows 383-386):** the name is already in use by the government. **"TB Aarogya Sathi"** is the Ministry of Health's own app for TB patients (Central TB Division, on the Play Store: TB information, treatment adherence, patient login). A second "Arogya Sathi" hospital-and-clinic app idea also appears online as a project proposal. No trademark registry search has been done yet (ipindia.gov.in, the founder or a lawyer must do it). So: treat "Arogya Sathi" as a **working name** until the founder decides; a judge who knows the TB app may ask about it, and our own roadmap includes TB survivors, which makes a mix-up more likely.
 3. Which departments first (e.g. surgery, cardiology)? What fields does a bed board need in your hospitals? (needs research with a real nurse)
 
 ## 6. What to do tonight vs after the hackathon
