@@ -19,7 +19,7 @@
 
 - **Next action:** Two workflows running – Phase 1 (wf_bf62c8ba-ebb, 16:27) and Phase 2 early wave B7 public site + B8 twin (wf_a4ab5aea-9b7, 16:50; briefs in docs/rebuild/PHASE2_BRIEFS.md). Then the main Phase 2 wave (B1–B6, X1). Phase 1 detail: workflow running (16:25 IST start): stage A = data, samples, kit; then auth → isolation and platform → seed2; then 2 verifiers + a fixer. If this session died: check `git log` for the Phase 1 commits (each agent commits its own files), mark those rows done, and re-launch only the unfinished agents with the split in `docs/REBUILD_PLAN.md` §4
 - **Lock (active session):** Opus 5.5 ultracode session (coyotaidev account), taken Sun 11 Oct 16:08 IST
-- **Last heartbeat:** Sun 11 Oct 17:00 IST (QA tool tools/qa/browser_check.py added; Phase 2 briefs committed; SETUP_STEPS drafted) – a long Phase 1 workflow is running until about 19:00 IST. A new session before 19:30 must ask the founder first.
+- **Last heartbeat:** Sun 11 Oct 16:32 IST (QA tool tools/qa/browser_check.py added; Phase 2 briefs committed; SETUP_STEPS drafted) – a long Phase 1 workflow is running until about 19:00 IST. A new session before 19:30 must ask the founder first.
 - **Last good commit before the redesign:** `4c78e46`
 - **Live site** (https://spirobuddy.onrender.com): old version, not redeployed by the redesign yet
 
@@ -101,7 +101,7 @@
 |---|---|---|---|---|---|
 | P4-4.1 | Update REQUIREMENTS, ARCHITECTURE, FEATURE_STATUS (generated), PROGRESS, HANDOFF (merge) | P0 | todo | | |
 | P4-4.2 | `README.md` for judges, with the founder's disclosure placeholder (verdict A1) | P0 | todo | | Do not write the disclosure yourself |
-| P4-4.3 | `docs/SETUP_STEPS.md` (Gemini key, Supabase paste, Render) | P0 | todo | | |
+| P4-4.3 | `docs/SETUP_STEPS.md` (Gemini key, Supabase paste, Render) | P0 | done (draft; re-check in Phase 4) | d0879ba | |
 | P4-4.4 | `docs/hackathon/DEMO_PATH.md` (about 2:30, timed) + `docs/hackathon/VIDEO_PAGE_MAP.md` | P0 | todo | | |
 | P4-4.5 | Founder config done (see the checkboxes above) | P0 | todo | | |
 | P4-4.6 | Push P0 (founder OK) → live check → demo reset | P0 | todo | | |
