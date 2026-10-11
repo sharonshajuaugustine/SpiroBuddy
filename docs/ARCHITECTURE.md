@@ -202,6 +202,118 @@ If `DATA_BACKEND=supabase` but the keys are missing or Supabase is unreachable a
 ## 12. 3D showroom
 `web/showcase/index.html` is a standalone Three.js page (from jsdelivr, exact version). It is a separate page and doesn't call `/api`. Every real-world dimension in the model must come from a cited source listed in `docs/3D_SOURCES.md`. Anything not published is flagged there as "not published – measure with caliper" and kept in one config object. Videos are rendered frame by frame with headless Chrome + ffmpeg (`tools/render/`) into `web/showcase/videos/`.
 
-## 13. CONTRACT E – Voice & language (/api/voice, Sarvam AI)
+## 13. CONTRACT D3 – Voice & language (/api/voice, Sarvam AI) – called "Contract E" before 2.0
 Full table and Python/JS interfaces: `docs/VOICE.md` §3–§4. Files: `backend/app/voice.py` (Sarvam client + fallbacks, red-flag words), `backend/app/voice_cues.py` (all spoken text, 31 cues × 11 languages), `backend/app/routes_voice.py` (router, auto-included by main.py), `web/js/voice.js` (`window.Voice` player), `web/js/voice-ui.js` (widgets), `tools/voice/make_clips.py` → `web/audio/<lang>/<cue>.mp3` + `web/audio/cues.json`.
 Languages use short codes `en hi bn ta te kn ml mr gu pa or` (Odia = `od-IN` at Sarvam). Voice language per patient lives in `backend/data/voice_prefs.json` (the `patients.language` column stays en/hi/ta). With no `SARVAM_API_KEY` every endpoint answers with `fallback:"browser"` and the browser speaks. New env vars: `SARVAM_TTS_MODEL`, `SARVAM_TTS_SPEAKER`, `VOICE_GENDER`, `SARVAM_TTS_PACE`, `SARVAM_TTS_CODEC`, `SARVAM_STT_MODEL`, `SARVAM_TRANSLATE_MODEL`, `SARVAM_TIMEOUT_S`, `PUBLIC_BASE_URL`. New dependency: `python-multipart` (audio uploads).
+
+---
+
+# SpiroBuddy 2.0 contracts (E–K)
+
+Added 11 Oct 2026 (Phase 0 of the 2.0 rebuild). Internal Python/JS interfaces that go with these are in `docs/REBUILD_PLAN.md` §3. **Rules for all of E–K:**
+- All JSON. Errors look like `{"error": "...", "status": n}` (the existing handlers).
+- Every non-GET request under `/api/` needs the header `X-SB: 1` (CSRF rule). Webhooks are exempt.
+- Cookies: `sb_staff` (staff, 12 h), `sb_patient` (patient app, 30 days). HttpOnly, `SameSite=Lax`, `Secure` over https.
+- Staff routes are scoped by `hospital_id` and the permission matrix (`backend/app/authz.py`). A patient id you can't see answers **404** (never 403), so nobody learns that it exists. Visible but not allowed → 403. Not logged in → 401.
+- Times are ISO 8601 with the IST offset. Dates are `YYYY-MM-DD`. The UI shows DD/MM/YYYY and 12-hour time.
+- Contract D's routes and fields keep working, behind the staff session (public exceptions in REBUILD_PLAN §3.4). D2 (comms) is unchanged apart from the new kinds `missed_dose` (alert) and `medicine_reminder`, `visit_reminder`, `family_missed_dose` (messages).
+
+## 14. CONTRACT E – Auth (`backend/app/routes_auth.py`)
+| Method & path | Body / query | Returns / does |
+|---|---|---|
+| POST /api/auth/login | `{email, password}` | `{ok, me}` + sets `sb_staff`. 401 `{"error":"wrong email or password"}`. 429 after 10 tries in 15 min per IP + email, then a 15-minute lockout. Pending or disabled staff → 403 with a plain reason. Audited (`auth.login`, `auth.login_failed`). |
+| POST /api/auth/logout | – | `{ok}`, revokes the session, clears both cookies. |
+| GET /api/auth/me | – | `{authenticated:false}` or `{authenticated:true, kind:"staff", id, name, email, role, hospital:{id,name}, department, permissions_summary, demo_mode}` or `{authenticated:true, kind:"patient", patient_id, name, language}` |
+| POST /api/auth/signup | `{join_code, name, email, password, department?, specialty?, reg_no_display?}` | `{ok, status:"pending"\|"active"}`. Doctor role only. Pending when the hospital requires approval (auto-approve in DEMO_MODE). Passwords need at least 10 characters. |
+| POST /api/auth/redeem | `{key, name?, email?, password?}` | Creates a nurse account (or adds the grant to the logged-in nurse) → `{ok, me}` + session. Expired, revoked or used-up key → 400 with a plain reason. |
+| POST /api/auth/password | `{old_password, new_password}` | `{ok}`; needs the old password. |
+| POST /api/me/session | `{token}` or, in DEMO_MODE only, `{patient_id}` | `{ok, patient_id, name, language}` + sets `sb_patient`. The page then removes `t=` from the address bar. |
+| GET /api/keys | – | doctor: own keys; admin: every key in the hospital → `[{id, label, doctor:{id,name}, scope, patient_ids, permissions, expires_at, max_uses, uses, revoked_at, status:"active"\|"revoked"\|"expired"\|"used_up", key_hint, grants:[{staff_id,name}]}]` |
+| POST /api/keys | `{label, scope:"all"\|"patients", patient_ids?, permissions:[…], expires_days?:30, max_uses?:1}` | doctor only → the key object + `key` (plain text, **shown once**). |
+| POST /api/keys/{id}/revoke | – | doctor (own) or admin → key object. Access ends at the nurse's next request. |
+
+## 15. CONTRACT F – Admin and staff (`backend/app/routes_admin.py`)
+| Method & path | Body / query | Returns / does |
+|---|---|---|
+| GET/PUT /api/admin/hospital | `{name, city, address, phone, timezone, languages:[], departments:[], wards:[]}` | hospital profile (admin) |
+| GET /api/admin/staff | `?role&status` | `[{id, name, email, role, department, specialty, status, last_login_at}]` |
+| POST /api/admin/staff/{id}/{action} | action = `approve` \| `disable` \| `enable` \| `reset-password` \| `department` (`{department}`) | staff row; `reset-password` also returns `temp_password` (shown once) |
+| GET /api/admin/join-code | – | `{code_hint, requires_approval, code?}` (`code` only in DEMO_MODE or right after regenerate) |
+| POST /api/admin/join-code | `{regenerate?:true, requires_approval?:bool}` | `{code (once), requires_approval}` |
+| GET/PUT /api/admin/settings | spec §8.3 settings object: `{grace_minutes:60, alert_thresholds:{…}, quiet_hours:"21:00-07:00", routine:{wake,breakfast,lunch,dinner,bed}, rx_confirm_by:"doctor_or_permitted_nurse", ai_enabled:true, ai_handwriting:false, reminder_channels:[…]}` | settings (admin) |
+| GET /api/admin/audit | `?patient_id&actor_id&action&from&to&limit&format=csv` | audit rows (admin; doctors and nurses get their own scope) |
+| GET/PUT /api/admin/pilot-checklist[/{step}] | `{status, owner, due, evidence_url, note}` | 14 steps (P1) |
+| GET /api/admin/consents | – | consents overview: one row per patient with the item ticks and dates |
+
+## 16. CONTRACT G – Patients (`backend/app/routes_patients.py`)
+| Method & path | Body / query | Returns / does |
+|---|---|---|
+| GET /api/patients | `?doctor&ward&status&programme&q` | scoped list. Every Contract D field, plus `mrn, ward, primary_doctor:{id,name}, programme_status, days_since_discharge, meds_today:{reported,due,missed}, next_visit, open_alerts, device:{serial,state}\|null, consent_chips:[…]` |
+| POST /api/patients | `{name, age, sex, surgery, discharge_date, language, ward?, bed?, phone?, city?, primary_doctor_id?, care_plan:{target_ml, hold_target_s, session_hours, breaths_per_session}, routine?}` | enrol → patient + `app_link` (shown once). Consent is posted separately (Contract K). |
+| GET /api/patients/{id} | – | Contract D detail + every new column + `care_team`, `consent`, `programme_status`. Audited as `patient.view`. |
+| PUT /api/patients/{id} | any editable field | field-level permission checks (care plan needs `careplan.edit`); each save audited; returns the detail |
+| GET /api/patients/{id}/timeline | `?kinds=` | merged events from every module, newest first: `[{at, kind, title, detail, actor}]` |
+| GET/POST /api/patients/{id}/notes | `{kind:"note"\|"call"\|"handover", text}` | human-written notes |
+| GET/POST/DELETE /api/patients/{id}/care-team | `{staff_id, role}` | care team |
+| POST /api/patients/{id}/link | – | regenerates the app token → `{app_link, qr_text}` (the old link stops working) |
+| POST /api/patients/{id}/programme | `{status:"active"\|"paused"\|"completed"\|"stopped"\|"deceased", confirm?:true, reason?}` | deceased needs `confirm:true`. Paused and deceased stop reminders and alerts at once. Audited. |
+
+## 17. CONTRACT H – Prescriptions and doses (`backend/app/routes_meds.py`, logic in `backend/app/meds/`)
+| Method & path | Body / query | Returns / does |
+|---|---|---|
+| POST /api/patients/{id}/prescriptions | `{prescribed_on?, prescriber_on_paper?, lines:[{drug_name, form?, strength?, dose_qty, dose_unit?, frequency_raw\|frequency_code, times?, food_timing?, duration_days?\|end_date?\|until_stopped?, as_needed?, instructions_raw?}]}` | doctor-typed → **approved** at once (saving = approval) → prescription |
+| POST /api/patients/{id}/prescriptions/upload | multipart `file`, `source:"doctor"\|"patient"` | a draft from Gemini (or an empty draft for manual typing) → `{prescription, ai:{ok, reason}}`, status `draft` (staff) or `needs_review` (patient) |
+| GET /api/prescriptions/{rx} | – | `{prescription, items:[…with confidence, unclear_fields, status], warnings:[{code, text}], document:{id, file_url}}` |
+| PUT /api/prescriptions/{rx}/items/{item} | item fields + `action:"confirm"\|"edit"\|"remove"` | item; a field that is still unclear can't be confirmed |
+| POST /api/prescriptions/{rx}/items | a new line | item (manual typing next to the photo) |
+| POST /api/prescriptions/{rx}/approve | – | needs every line confirmed or removed → builds the schedule and dose events; records the approver |
+| POST /api/prescriptions/{rx}/reject | `{reason}` | rejected |
+| POST /api/prescriptions/{rx}/stop | `{reason?}` or `{modify:true}` | stop, or a new draft version that supersedes it (history kept) |
+| GET /api/review-queue | – | prescriptions in `draft`/`needs_review` that this actor may approve |
+| GET /api/patients/{id}/medicines | – | `{active:[…], as_needed:[…], history:[…versions]}` |
+| GET /api/patients/{id}/doses | `?from&to` | `[{id, item_id, drug_name, due_at, status:"upcoming"\|"due"\|"reported_taken"\|"missed"\|"paused"\|"cancelled", reported_at, reported_by_role}]` |
+| POST /api/patients/{id}/doses/{dose}/report | – | staff reports on the patient's behalf (logged) |
+| POST /api/me/doses/{id}/taken | – | patient → `reported_taken` |
+| POST /api/me/doses/{id}/snooze | `{minutes?:10}` | patient snooze |
+| POST /api/me/prescriptions | multipart `file` | patient upload → `needs_review` |
+
+**Rules in code:** no dose event exists before approval; SOS/PRN lines are never scheduled; STAT is flagged; times come from the patient's routine and the normaliser, never from AI text; a missed dose (after `grace_minutes`) raises an amber `missed_dose` alert and, only with family consent, a family notice.
+
+## 18. CONTRACT I – Appointments (`backend/app/routes_appointments.py`)
+| Method & path | Body / query | Returns / does |
+|---|---|---|
+| GET/PUT /api/doctors/{id}/availability | `{weekly:[{weekday 0-6, start_time, end_time, slot_minutes, location}], exceptions:[{date, kind:"leave"\|"extra", start_time?, end_time?}]}` | availability |
+| GET /api/slots | `?doctor&date` | `[{start_at, end_at, location}]` free slots only |
+| GET /api/appointments | `?doctor&patient&from&to&status` | scoped list |
+| POST /api/appointments | `{patient_id, doctor_id, start_at, kind:"follow_up"\|"review"\|"other", reason_text?}` | staff books (confirmed). Double booking → 409. |
+| POST /api/appointments/{id}/{action} | action = `confirm` \| `propose` (`{start_at}`) \| `decline` (`{reason}`) \| `cancel` \| `attended` \| `no-show` | appointment |
+| GET /api/me/appointments | – | the patient's visits, with `when_words` ("Thursday, 15 October, 10:30 AM") |
+| POST /api/me/appointments | `{start_at}` (doctor = the patient's primary doctor) | status `requested` |
+
+## 19. CONTRACT J – Documents (`backend/app/routes_documents.py`)
+| Method & path | Body / query | Returns / does |
+|---|---|---|
+| POST /api/patients/{id}/documents | multipart `file`, `kind?`, `title?`, `doc_date?`, `visible_to_patient?`, `visible_to_family?` | validated + stored → document (+ `ai_suggested` {kind,title,doc_date} when AI is allowed) |
+| GET /api/patients/{id}/documents | – | list (no deleted) |
+| GET /api/documents/{id}/file | `?thumb=1` | the bytes, after a permission check (staff scope, own patient + visible_to_patient, or a guardian token + visible_to_family). Audited `doc.view`. |
+| PUT /api/documents/{id} | `{kind, title, doc_date, visible_to_patient, visible_to_family}` | document |
+| DELETE /api/documents/{id} | – | soft delete, audited |
+| GET/POST /api/me/documents | multipart for POST | the patient's own visible documents / an upload by camera |
+
+## 20. CONTRACT K – Patient app, twin, devices, trust, impact
+| Method & path | Body / query | Returns / does |
+|---|---|---|
+| GET /api/me | – | `{patient_id, name, first_name, language, hospital:{name, nurse_phone}, doctor:{name}, programme_status, care_plan, consent}` |
+| GET /api/me/today | – | `{now_card:{kind:"medicine"\|"breathing"\|"visit"\|"done", …}, today:[{kind, title, time, status, icon}], medicines:{…}, next_visit, offline_ok:true}` |
+| POST /api/live/{pid} | `{frames:[{t, ml, state, label?, score?}], session_id?}` (batched every 300–500 ms) | `{ok}`; 60 s in-memory ring buffer |
+| GET /api/live/{pid} | `?after=<ms>` | `{live:bool, frames:[…], target_ml, state, last_breath, battery_pct, connection}`; with no live session → `{live:false, replay:{samples}}` from `session_curves` |
+| GET /api/twin/sim | `?mode=good\|too_fast\|too_shallow\|no_hold` | public simulated curve for `/twin.html` (no patient data) |
+| GET/POST/PUT /api/devices | device fields | fleet list / add / edit (P1) |
+| POST /api/devices/{id}/{action} | `assign` (`{patient_id}`) \| `return` \| `clean` \| `ready` \| `calibration-check` \| `lost` \| `faulty` \| `retire` | device + a `device_events` row (audited) |
+| GET /api/ai-events | `?purpose&limit` | AI register rows (no content, only references) |
+| GET /api/ai-events/stats | – | `{drafts, reviewed, lines_total, lines_edited_pct, rejected_pct}` (also shown on `/trust.html`) |
+| GET /api/features | – | the status registry `[{key, name, status, where, note}]` (public) |
+| GET /api/impact | – | live demo metrics `{patients_coached, sessions_completed, doses_reported_pct, follow_ups_kept_pct, families_informed, ai_lines_edited_pct, label:"demo data, fake patients"}` (public) |
+| GET/POST /api/patients/{id}/consent | consent v2 `{items:{care_reminders, family_sharing, records_storage, ai_use, research_use, ai_training:false}, method:"self"\|"witness_thumbprint"\|"guardian", read_aloud, teach_back_ok?, language}` | the current consent; POST adds a new version (old ones kept), `withdraw:true` withdraws. Family sharing and AI use are enforced in code. |
+| GET /api/patients/{id}/export.fhir.json | – | FHIR R4 Bundle (P1) |
+| /api/demo/* (new) | `med-due/{pid}`, `dose-missed/{pid}`, `patient-upload/{pid}`, `visit-request/{pid}`, `prepare-recording` | DEMO_MODE + admin/doctor |
