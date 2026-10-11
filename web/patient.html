@@ -13,7 +13,7 @@
   <main id="main">
     <div class="print-only print-head" style="display:none"><div><div class="t">SpiroBuddy – patient summary</div><div>Demo City Hospital · Post-op Ward 3B</div></div><div id="print-when"></div></div>
 
-    <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html" id="back"><span data-icon="chevron-left" data-size="16"></span>Patients</a><span aria-hidden="true">/</span><span id="crumb-name" aria-current="page">Patient</span></nav>
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="dashboard.html" id="back"><span data-icon="chevron-left" data-size="16"></span>Patients</a><span aria-hidden="true">/</span><span id="crumb-name" aria-current="page">Patient</span></nav>
 
     <section class="card patient-head" id="profile-card" aria-label="Patient overview">
       <div id="profile"><div class="ph-top"><span class="skeleton" style="width:56px;height:56px;border-radius:50%"></span><div class="ph-id"><span class="skeleton" style="width:240px;height:26px"></span><span class="skeleton" style="width:70%;height:14px;margin-top:12px"></span></div></div></div>
@@ -114,7 +114,7 @@
   (function () {
     const { esc, $, ic, link, hourLabel, statusPill, redFlagPill, trendHTML, dateTimeLabel, initials, labelChips, fmtMl, meter, LANG, toast, busy, poll, istClock, istDate } = SB.ui;
     const id = new URLSearchParams(location.search).get('id') || '1';
-    $('#back').href = link('index.html') + '#patients-card';
+    $('#back').href = link('dashboard.html') + '#patients-card';
     SB.ui.hydrateIcons(document);
     let patient = null, prevSlots = null, formFilled = false, lastMsgIds = null, family = null;
     const sigs = {};
@@ -296,7 +296,7 @@
         try { await refresh(); }
         catch (e) {
           liveLabel(false);
-          if (e.status === 404) { $('#profile').innerHTML = `<div class="empty">${ic('user', { size: 28 })}<b>Patient not found</b>There is no patient with id ${esc(id)}. <a href="${link('index.html')}">Back to all patients</a></div>`; $('#kpis').innerHTML = ''; }
+          if (e.status === 404) { $('#profile').innerHTML = `<div class="empty">${ic('user', { size: 28 })}<b>Patient not found</b>There is no patient with id ${esc(id)}. <a href="${link('dashboard.html')}">Back to all patients</a></div>`; $('#kpis').innerHTML = ''; }
           throw e;
         }
       }, 2000);

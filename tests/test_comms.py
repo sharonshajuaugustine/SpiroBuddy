@@ -109,8 +109,14 @@ def test_ivr_press(fresh, digit, expect):
         assert any(a["kind"] == "callback" for a in alerts)
 
 
-def test_press_rejects_bad_digit(client):
-    assert client.post(f"{C}/calls/1/press", json={"digit": "9"}).status_code == 400
+def test_press_rejects_bad_digit(fresh):
+    # A call that exists (since 2.0 an unknown call id is a 404 before the digit is checked).
+    run = _start_fast(fresh)
+    _advance(fresh, run["id"])
+    _advance(fresh, run["id"])
+    call = _ringing_call(fresh)
+    assert fresh.post(f"{C}/calls/{call['id']}/press", json={"digit": "9"}).status_code == 400
+    assert fresh.post(f"{C}/calls/999999/press", json={"digit": "9"}).status_code == 404
 
 
 # ----------------------------------------------------------------------------- quiet hours

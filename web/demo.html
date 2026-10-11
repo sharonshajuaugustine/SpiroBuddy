@@ -14,7 +14,7 @@
     <div class="page-head">
       <div>
         <h1>Demo control panel</h1>
-        <p class="page-sub">For the presenter. Open the <a href="index.html" id="dash-link" target="_blank" rel="noopener">dashboard in a second tab<span data-icon="external" data-size="14"></span></a> – it updates within 2 seconds.</p>
+        <p class="page-sub">For the presenter. Open the <a href="dashboard.html" id="dash-link" target="_blank" rel="noopener">dashboard in a second tab<span data-icon="external" data-size="14"></span></a> – it updates within 2 seconds.</p>
       </div>
       <div class="page-actions">
         <button class="btn danger" id="btn-reset" type="button"><span data-icon="refresh"></span>Reset demo data</button>
@@ -71,7 +71,7 @@
   (function () {
     const { esc, $, $$, link, ic, statusPill, fmtMl, labelChips, dateTimeLabel, toast, busy, poll, hourLabel } = SB.ui;
     SB.ui.hydrateIcons(document);
-    $('#dash-link').href = link('index.html');
+    $('#dash-link').href = link('dashboard.html');
     const results = {};
     let patients = [], lastMsgIds = null;
 

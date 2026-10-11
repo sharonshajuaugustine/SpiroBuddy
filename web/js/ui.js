@@ -15,9 +15,9 @@
   const SITE = { hospital: 'Demo City Hospital', ward: 'Post-op Ward 3B' };
 
   const PAGES = [
-    { group: 'Ward', href: 'index.html', label: 'Dashboard', key: 'dashboard', icon: 'dashboard' },
-    { group: 'Ward', href: 'index.html#alerts', label: 'Alerts', key: 'alerts', icon: 'bell', count: true },
-    { group: 'Ward', href: 'index.html#patients-card', label: 'Patients', key: 'patient', icon: 'users' },
+    { group: 'Ward', href: 'dashboard.html', label: 'Dashboard', key: 'dashboard', icon: 'dashboard' },
+    { group: 'Ward', href: 'dashboard.html#alerts', label: 'Alerts', key: 'alerts', icon: 'bell', count: true },
+    { group: 'Ward', href: 'dashboard.html#patients-card', label: 'Patients', key: 'patient', icon: 'users' },
     { group: 'Ward', href: 'units.html', label: 'Units', key: 'units', icon: 'database' },
     { group: 'Tools', href: 'demo.html', label: 'Demo panel', key: 'demo', icon: 'sliders' },
     { group: 'Tools', href: 'collect.html', label: 'Record breaths', key: 'collect', icon: 'activity' },
@@ -376,7 +376,7 @@
       <span class="chip chip-demo" title="Demo mode – fake patients only, no real health data">${ic('flask', { size: 14 })}Demo mode</span>`;
     host.innerHTML = `<div class="bar">
       <a class="skip-link" href="#main">Skip to content</a>
-      <a class="logo" href="${link(hosp ? '/hospital/index.html' : 'index.html')}" aria-label="SpiroBuddy – ${hosp ? 'hospital home' : 'dashboard'}">${LOGO}<span class="logo-name">SpiroBuddy</span></a>
+      <a class="logo" href="${link(hosp ? '/hospital/index.html' : 'dashboard.html')}" aria-label="SpiroBuddy – ${hosp ? 'hospital home' : 'dashboard'}">${LOGO}<span class="logo-name">SpiroBuddy</span></a>
       ${site}
       <div class="header-right">
         <details class="sys" id="sys">

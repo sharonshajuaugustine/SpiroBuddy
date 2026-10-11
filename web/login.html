@@ -93,7 +93,7 @@
     /* After login go back to ?next – same-site paths only ("/x", never "//x" or "/\x"), so no open redirect. */
     function nextPath() {
       const n = q.get('next') || '';
-      return /^\/(?![\/\\])\S*$/.test(n) && !/^\/login\.html/.test(n) ? n : '/hospital/';
+      return /^\/(?![\/\\])\S*$/.test(n) && !/^\/login\.html/.test(n) ? n : '/dashboard.html';
     }
     const go = () => location.assign(SB.ui.link(nextPath()));
 

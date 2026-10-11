@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpiroBuddy Dashboard</title>
+  <meta name="description" content="SpiroBuddy nurse and doctor dashboard (demo, fake patients).">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b6e8a'/%3E%3Crect x='9' y='13' width='6' height='13' rx='3' fill='%23fff'/%3E%3Cpath d='M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4' stroke='%237fe0c8' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header id="app-header"></header>
+  <main id="main">
+    <div class="page-head">
+      <div>
+        <h1>Patients today</h1>
+        <p class="page-sub" id="today-label">&nbsp;</p>
+      </div>
+      <div class="page-actions">
+        <span class="live" id="live-state"><span class="live-dot" aria-hidden="true"></span><span id="updated">Loading…</span></span>
+        <a class="btn" href="demo.html" id="demo-link"><span data-icon="sliders"></span>Demo panel</a>
+      </div>
+    </div>
+
+    <section class="tiles" aria-label="Ward summary">
+      <button class="tile" data-filter="all" type="button" aria-pressed="false" title="Show all patients">
+        <span class="tile-label"><span data-icon="users"></span>Patients</span>
+        <span class="tile-num" id="t-patients">–</span>
+        <span class="tile-sub" id="t-patients-sub">&nbsp;</span>
+      </button>
+      <button class="tile tile-red" data-filter="red" type="button" aria-pressed="false" title="Show only patients who need a call">
+        <span class="tile-label"><span data-icon="phone"></span>Needs a call</span>
+        <span class="tile-num" id="t-red">–</span>
+        <span class="tile-sub" id="t-red-sub">&nbsp;</span>
+      </button>
+      <a class="tile tile-amber" href="#alerts" id="t-alerts-tile" title="Go to the alerts inbox">
+        <span class="tile-label"><span data-icon="bell"></span>Open alerts</span>
+        <span class="tile-num" id="t-alerts">–</span>
+        <span class="tile-sub" id="t-alerts-sub">&nbsp;</span>
+      </a>
+      <div class="tile" title="Sessions done so far today, out of the sessions due so far">
+        <span class="tile-label"><span data-icon="activity"></span>Sessions today</span>
+        <span class="tile-num" id="t-sessions">–</span>
+        <span id="t-sessions-meter"></span>
+        <span class="tile-sub" id="t-sessions-sub">&nbsp;</span>
+      </div>
+    </section>
+
+    <div class="dash-grid">
+      <section class="card card-flush" id="patients-card" aria-labelledby="pl-title" tabindex="-1">
+        <div class="card-head">
+          <h2 id="pl-title">Triage list</h2>
+          <span class="card-sub" id="pl-sub">Most urgent first: red flag → needs a call → watch → on track</span>
+        </div>
+        <div class="toolbar">
+          <label class="sr-only" for="search">Search patients</label>
+          <div class="input-icon"><span data-icon="search" data-size="16"></span><input type="search" id="search" placeholder="Search name or operation" autocomplete="off"></div>
+          <div class="seg" role="group" aria-label="Filter by status" id="filter">
+            <button type="button" data-filter="all" aria-pressed="true">All <span class="count" id="c-all">–</span></button>
+            <button type="button" data-filter="red" aria-pressed="false">Needs a call <span class="count" id="c-red">–</span></button>
+            <button type="button" data-filter="yellow" aria-pressed="false">Watch <span class="count" id="c-yellow">–</span></button>
+            <button type="button" data-filter="green" aria-pressed="false">On track <span class="count" id="c-green">–</span></button>
+          </div>
+          <label class="sr-only" for="sort">Sort</label>
+          <select id="sort">
+            <option value="status">Sort: most urgent</option>
+            <option value="name">Sort: name</option>
+            <option value="last">Sort: last session</option>
+            <option value="adherence">Sort: fewest done</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="triage">
+            <caption class="sr-only">Patients, most urgent first. Press a patient's name to open their page.</caption>
+            <thead><tr>
+              <th scope="col">Status</th><th scope="col">Patient</th><th scope="col">Today</th><th scope="col">Best vs goal</th>
+              <th scope="col">Volume (3 days)</th><th scope="col">Last session</th><th scope="col"><span class="sr-only">Actions</span></th>
+            </tr></thead>
+            <tbody id="patients" aria-busy="true"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- COMMS (comms agent): alerts inbox, filled by js/comms-dashboard.js -->
+      <section class="card alerts-card" id="alerts" aria-label="Alerts inbox" tabindex="-1"><span class="skeleton" style="height:20px;width:40%"></span><span class="skeleton" style="height:64px;margin-top:12px"></span></section>
+      <!-- /COMMS -->
+    </div>
+
+    <p class="footer-note">Demo data – fake patients only. SpiroBuddy coaches and summarises; it does not diagnose. Status colours come from fixed rules.</p>
+  </main>
+
+  <script src="js/icons.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/comms.js"></script><!-- COMMS -->
+  <script src="js/comms-dashboard.js"></script><!-- COMMS -->
+  <script>
+  (function () {
+    const { esc, $, $$, ic, link, statusPill, redFlagPill, trendHTML, hourRange, STATUS_RANK, STATUS_TEXT, ago, timeLabel, fmtMl, meter, toast, busy, poll, istDate } = SB.ui;
+    let redFlags = new Set();   // patient ids with an open red-flag alert
+    let patients = [];
+    let prev = new Map();
+    let filter = 'all';
+    let first = true;
+    let lastOk = null;
+
+    $('#demo-link').href = link('demo.html');
+    SB.ui.hydrateIcons(document);
+    // skeleton rows while the first load runs
+    $('#patients').innerHTML = Array.from({ length: 5 }, (_, i) => `<tr class="skel-row"><td colspan="7"><span class="skeleton" style="width:${60 + (i % 3) * 12}%"></span></td></tr>`).join('');
+
+    function todayLabel(basis) {
+      $('#today-label').textContent = istDate() + ' · sessions ' + hourRange(8, 21) + (basis ? ' · before 8 am the colours show yesterday' : '');
+    }
+    todayLabel(false);
+
+    function setFilter(f) {
+      filter = f;
+      $$('#filter button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === f)));
+      $$('.tile[data-filter]').forEach((b) => b.setAttribute('aria-pressed', String(f !== 'all' && b.dataset.filter === f)));
+      render();
+    }
+    $$('#filter button').forEach((b) => b.addEventListener('click', () => setFilter(b.dataset.filter)));
+    $$('.tile[data-filter]').forEach((b) => b.addEventListener('click', () => {
+      setFilter(b.dataset.filter === filter ? 'all' : b.dataset.filter);
+      $('#patients-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }));
+    $('#search').addEventListener('input', render);
+    $('#sort').addEventListener('change', render);
+
+    // Red flag = the API field (unresolved red-flag alert) or an open red-flag alert in the inbox.
+    const isRF = (p) => !!p.red_flag_open || redFlags.has(String(p.id));
+    // A red flag is never "On track": it always shows as red.
+    const stOf = (p) => (isRF(p) ? 'red' : ['red', 'yellow', 'green'].includes(p.status) ? p.status : 'green');
+    function podOf(p) {
+      if (!p.surgery_date) return null;
+      const sd = new Date(p.surgery_date + (String(p.surgery_date).length <= 10 ? 'T00:00:00' : ''));
+      return isNaN(sd) ? null : Math.max(0, Math.round((Date.now() - sd.getTime()) / 86400000));
+    }
+
+    function row(p) {
+      const rf = isRF(p);
+      const st = stOf(p);
+      const due = p.due_today || 0, done = p.done_today || 0;
+      const best = p.best_today ? Number(p.best_today) : null;
+      const pct = best != null && p.target_ml ? best / p.target_ml : null;
+      const pod = podOf(p);
+      const reasons = Array.isArray(p.status_reasons) && p.status_reasons.length && st !== 'green' ? p.status_reasons.join(' · ') : '';
+      const reasonTxt = rf ? (/red.flag/i.test(reasons) ? reasons + ' – call now' : 'Open red-flag alert – call now' + (reasons ? ' · ' + reasons : ''))
+        : reasons || (st === 'red' ? (due && done / due < 0.4 ? 'Few sessions done today' : 'Missed sessions in a row') : '');
+      const doneFrac = due ? done / due : (done ? 1 : 0);
+      const doneTone = !due ? 'brand' : doneFrac >= 0.7 ? 'good' : doneFrac >= 0.4 ? 'warn' : 'bad';
+      const bestTone = pct == null ? 'brand' : pct >= 0.8 ? 'good' : 'warn';
+      const href = link('patient.html?id=' + encodeURIComponent(p.id));
+      return `<tr class="trow st-${st}" data-id="${esc(p.id)}" data-href="${esc(href)}">
+        <td class="c-status" data-label="Status"><div class="stack">${rf ? redFlagPill() : ''}${statusPill(st)}</div></td>
+        <td class="c-patient" data-label="Patient">
+          <a class="row-link" href="${esc(href)}">${esc(p.name)}</a><span class="alert-slot"></span>
+          <div class="sub">${esc(p.age)}${p.sex ? ' ' + esc(p.sex) : ''} · ${esc(p.surgery || '')}${pod != null ? ' · day ' + pod + ' after surgery' : ''}</div>
+          ${reasonTxt ? `<div class="reason">${ic(rf ? 'flag' : st === 'red' ? 'alert-octagon' : 'alert-triangle', { size: 14 })}<span>${esc(reasonTxt)}</span></div>` : ''}
+        </td>
+        <td class="c-today" data-label="Today">
+          <div class="fig"><b>${done}</b> <span class="of">of ${due} due</span></div>
+          ${meter(due ? doneFrac : 0, doneTone, `${done} of ${due} sessions done`)}
+        </td>
+        <td class="c-best" data-label="Best vs goal">
+          <div class="fig">${best != null ? `<b>${Math.round(best).toLocaleString('en-IN')}</b> <span class="of">/ ${Number(p.target_ml).toLocaleString('en-IN')} mL</span>` : `<b class="subtle" title="No breath recorded today">—</b> <span class="of">/ ${Number(p.target_ml || 0).toLocaleString('en-IN')} mL</span>`}</div>
+          ${meter(pct || 0, bestTone, pct != null ? Math.round(pct * 100) + '% of goal' : 'no breath yet')}
+        </td>
+        <td class="c-trend" data-label="Volume (3 days)">${trendHTML(p.trend, p)}</td>
+        <td class="c-last" data-label="Last session">${p.last_session_at ? `<div>${esc(timeLabel(p.last_session_at))}</div><div class="sub">${esc(ago(p.last_session_at))}</div>` : '<span class="subtle">None yet</span>'}</td>
+        <td class="c-actions"><button class="btn sm" data-act="call" type="button" title="Your phone rings first, then the patient">${ic('phone', { size: 15 })}Call</button><a class="btn sm ghost view-btn" href="${esc(href)}" tabindex="-1" aria-hidden="true" title="Open patient">${ic('eye', { size: 15 })}<span class="view-txt">View</span></a></td>
+      </tr>`;
+    }
+
+    let pendingChanges = new Map();
+    function render() {
+      const q = $('#search').value.trim().toLowerCase();
+      const sort = $('#sort').value;
+      let list = patients.filter((p) => (filter === 'all' || stOf(p) === filter) && (!q || [p.name, p.surgery, p.id].join(' ').toLowerCase().includes(q)));
+      const ratio = (p) => (p.due_today ? p.done_today / p.due_today : 1);
+      list.sort((a, b) => {
+        if (sort === 'name') return String(a.name).localeCompare(b.name);
+        if (sort === 'last') return String(b.last_session_at || '').localeCompare(String(a.last_session_at || ''));
+        if (sort === 'adherence') return ratio(a) - ratio(b);
+        const rfRank = (p) => (isRF(p) ? 0 : 1);   // open red flag first
+        return rfRank(a) - rfRank(b) || (STATUS_RANK[stOf(a)] ?? 3) - (STATUS_RANK[stOf(b)] ?? 3) || ratio(a) - ratio(b) || String(a.name).localeCompare(b.name);
+      });
+      const box = $('#patients');
+      box.setAttribute('aria-busy', 'false');
+      if (!patients.length) {
+        box.innerHTML = `<tr class="empty-row"><td colspan="7"><div class="empty">${ic('users', { size: 28 })}<b>No patients yet</b>Reset the demo data on the Demo panel to load the fake patients.</div></td></tr>`;
+      } else if (!list.length) {
+        box.innerHTML = `<tr class="empty-row"><td colspan="7"><div class="empty">${ic('search', { size: 28 })}<b>No patients match</b><button class="btn sm" type="button" id="clear-filters">Clear search and filters</button></div></td></tr>`;
+        $('#clear-filters').addEventListener('click', () => { $('#search').value = ''; setFilter('all'); });
+      } else {
+        box.innerHTML = list.map(row).join('');
+      }
+      pendingChanges.forEach((c, id) => {
+        const el = box.querySelector(`tr[data-id="${CSS.escape(id)}"]`);
+        if (el) el.classList.add(c.doneUp ? 'flash-green' : 'flash-change');
+      });
+      pendingChanges = new Map();
+      $('#pl-sub').textContent = sort === 'status' ? 'Most urgent first: red flag → needs a call → watch → on track' : `Showing ${list.length} of ${patients.length}`;
+    }
+
+    // whole row opens the patient (except buttons and links inside it)
+    $('#patients').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-act="call"]');
+      const tr = e.target.closest('tr[data-href]');
+      if (btn && tr) {
+        const p = patients.find((x) => String(x.id) === tr.dataset.id);
+        if (SB.api.state.mock || !SB.comms) { toast('Calls need the live server', 'bad'); return; }
+        busy(btn, async () => {
+          const r = await SB.comms.api.callPatient(p.id, SB.comms.me());
+          toast(r.dry_run ? `Dry run – would ring ${SB.comms.me()}'s phone, then connect ${p.name}` : 'Calling – your phone rings first', r.dry_run ? '' : 'good', 6000);
+        }).catch(() => {});
+        return;
+      }
+      if (!tr || e.target.closest('a, button, input, select, summary')) return;
+      location.href = tr.dataset.href;
+    });
+
+    function counts() {
+      const n = { red: 0, yellow: 0, green: 0 };
+      let sessions = 0, due = 0, flags = 0;
+      patients.forEach((p) => { n[stOf(p)]++; if (isRF(p)) flags++; sessions += p.done_today || 0; due += p.due_today || 0; });
+      $('#t-patients').textContent = patients.length;
+      $('#t-patients-sub').textContent = `${n.green} on track · ${n.yellow} to watch`;
+      $('#t-red').textContent = n.red;
+      $('#t-red-sub').textContent = flags ? `${flags} with a red flag` : n.red ? 'missed or few sessions' : 'nobody right now';
+      $('#t-red').closest('.tile').classList.toggle('has', n.red > 0);
+      $('#t-sessions').innerHTML = `${sessions}<small> / ${due}</small>`;
+      $('#t-sessions-meter').innerHTML = meter(due ? sessions / due : 0, due && sessions / due < 0.7 ? 'warn' : 'good', `${sessions} of ${due} sessions done`);
+      $('#t-sessions-sub').textContent = due ? `${Math.round((sessions / due) * 100)}% of sessions due so far` : 'none due yet';
+      $('#c-all').textContent = patients.length; $('#c-red').textContent = n.red; $('#c-yellow').textContent = n.yellow; $('#c-green').textContent = n.green;
+      todayLabel(patients.some((p) => p.status_basis === 'yesterday'));
+      document.title = (n.red ? `(${n.red}) ` : '') + 'SpiroBuddy Dashboard';
+    }
+
+    // alert counts come from comms.js (bell poll)
+    document.addEventListener('sb:alert-counts', (e) => {
+      const c = e.detail || {};
+      $('#t-alerts').textContent = c.open ?? 0;
+      $('#t-alerts-sub').textContent = `${c.red || 0} red · ${c.amber || 0} amber · ${c.mine || 0} mine`;
+      $('#t-alerts-tile').classList.toggle('has', (c.open || 0) > 0);
+    });
+
+    // Open red-flag alerts → a badge on the row (checked every ~6 s; the inbox has the details).
+    async function refreshRedFlags() {
+      if (!SB.comms || !SB.comms.api || SB.api.state.mock) return false;
+      if (Date.now() - (refreshRedFlags.at || 0) < 6000) return false;
+      refreshRedFlags.at = Date.now();
+      try {
+        const res = await SB.comms.api.alerts('open');
+        const rows = Array.isArray(res) ? res : (res && res.alerts) || [];
+        const next = new Set(rows.filter((a) => a.kind === 'red_flag').map((a) => String(a.patient_id)));
+        const changed = next.size !== redFlags.size || [...next].some((id) => !redFlags.has(id));
+        redFlags = next;
+        return changed;
+      } catch (e) { return false; }
+    }
+
+    function liveLabel() {
+      const el = $('#live-state');
+      const off = SB.api.state.online === false && !SB.api.state.mock;
+      el.classList.toggle('stale', off);
+      const t = lastOk ? lastOk.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true }) : '';
+      $('#updated').textContent = off ? (t ? `Offline · last data ${t}` : 'Offline') : SB.api.state.mock ? `Built-in demo data · ${t}` : `Live · updated ${t}`;
+    }
+    SB.api.onChange(liveLabel);
+
+    async function refresh() {
+      const flagsChanged = await refreshRedFlags();
+      let list;
+      try { list = await SB.api.patients(); }
+      catch (e) {
+        liveLabel();
+        if (first) $('#patients').innerHTML = `<tr class="empty-row"><td colspan="7"><div class="empty">${ic('wifi-off', { size: 28 })}<b>Server offline</b>Could not load patients. Retrying every 2 seconds…</div></td></tr>`;
+        throw e;
+      }
+      const next = new Map(list.map((p) => [String(p.id), p]));
+      if (!first) {
+        next.forEach((p, id) => {
+          const o = prev.get(id);
+          if (!o) return;
+          const c = {};
+          if ((p.done_today || 0) > (o.done_today || 0)) { c.doneUp = true; toast(`${p.name} completed a session${p.best_today ? ' – best ' + fmtMl(p.best_today) : ''}`, 'good'); }
+          if (p.status !== o.status) { c.status = true; if (p.status === 'red') toast(`${p.name} now needs a call`, 'bad', 6000); else toast(`${p.name}: ${STATUS_TEXT[o.status] || o.status} → ${STATUS_TEXT[p.status] || p.status}`); }
+          if (p.last_session_at !== o.last_session_at && !c.doneUp) c.status = true;
+          if (c.doneUp || c.status) pendingChanges.set(id, c);
+        });
+      }
+      first = false;
+      prev = next;
+      patients = list;
+      lastOk = new Date();
+      counts();
+      // avoid re-rendering (and losing focus) when nothing changed, except the "ago" labels every ~30 s
+      const sig = JSON.stringify(list);
+      const now = Date.now();
+      const focusInList = $('#patients').contains(document.activeElement);
+      if (flagsChanged || sig !== refresh.sig || pendingChanges.size || (!focusInList && now - (refresh.at || 0) > 30000)) { refresh.sig = sig; refresh.at = now; render(); }
+      liveLabel();
+    }
+
+    SB.ui.boot('dashboard').then(() => {
+      poll(refresh, 2000);
+      SB.comms.mountBell(); SB.commsDashboard.mountInbox(document.getElementById('alerts')); // COMMS
+      const jump = () => {
+        const id = location.hash === '#alerts' ? 'alerts' : location.hash === '#patients-card' ? 'patients-card' : null;
+        if (id) setTimeout(() => { const el = document.getElementById(id); el.scrollIntoView(); el.focus({ preventScroll: true }); }, 300);
+      };
+      jump();
+      window.addEventListener('hashchange', jump);
+    });
+  })();
+  </script>
+</body>
+</html>

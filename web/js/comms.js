@@ -158,7 +158,7 @@
     const right = document.querySelector('.header-right');
     if (!right || document.getElementById('alert-bell')) return;
     const a = document.createElement('a');
-    a.id = 'alert-bell'; a.className = 'bell'; a.href = SB.ui.link('index.html') + '#alerts';
+    a.id = 'alert-bell'; a.className = 'bell'; a.href = SB.ui.link('dashboard.html') + '#alerts';
     a.setAttribute('aria-label', 'Alerts'); a.title = 'Alerts inbox';
     a.innerHTML = '<span aria-hidden="true">🔔</span><span class="bell-n" id="bell-n">–</span>';
     right.insertBefore(a, right.firstChild);
