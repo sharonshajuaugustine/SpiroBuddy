@@ -43,7 +43,7 @@ Replaces the 2:30–3:00 version. Every change asked for in `PITCH_PLAN.md` §5 
 ## Before you record
 
 1. **Wake the site.** Open `https://spirobuddy.onrender.com/api/health`. It should show `"ok":true` within a few seconds (up to a minute if the free server was asleep).
-2. **Reset the demo.** Open `https://spirobuddy.onrender.com/demo.html` → click **Reset demo data** (red button, top right) → click **OK** → wait for "Demo data reset". Ravi's card must say **On track** (green). If it shows a red flag, click **Reset demo data** again. Do this before **every** take of shots 7–12.
+2. **Log in, then reset the demo.** Since 2.0 the hospital pages need a login: open `https://spirobuddy.onrender.com/login.html` and click **Try as Doctor** (one click, demo account). Then open `https://spirobuddy.onrender.com/demo.html` → click **Reset demo data** (red button, top right) → click **OK** → wait for "Demo data reset". Ravi's card must say **On track** (green). If it shows a red flag, click **Reset demo data** again. Do this before **every** take of shots 7–12.
 3. **Reset the units.** Open `https://spirobuddy.onrender.com/units.html` → click **Reset mock units**.
 4. **Clean screen.** Use a Chrome window with no personal profile showing (click your profile picture, top right → **Guest**). Hide bookmarks (**Ctrl + Shift + B**). Turn on Do Not Disturb (**Win + N** → **Do not disturb**). Close WhatsApp, email and chat apps. No real names, phone numbers or emails may appear anywhere.
 5. **Open these tabs in this order**, so you only press **Ctrl + Tab** while recording:
@@ -51,7 +51,7 @@ Replaces the 2:30–3:00 version. Every change asked for in `PITCH_PLAN.md` §5 
    2. `docs\hackathon\architecture.png` (drag the file from File Explorer into a Chrome tab)
    3. `https://spirobuddy.onrender.com/showcase/videos.html` (tour video) and `https://spirobuddy.onrender.com/showcase/` (3D showroom)
    4. `https://spirobuddy.onrender.com/app.html?id=1` in a phone-sized view: press **F12**, click the phone-and-tablet icon at the top left of the panel, pick a phone (for example "Pixel 7"). Or simply make the window narrow.
-   5. `https://spirobuddy.onrender.com/` (nurse dashboard)
+   5. `https://spirobuddy.onrender.com/dashboard.html` (nurse dashboard; since 2.0 the main address `/` is the public landing page)
    6. `https://spirobuddy.onrender.com/patient.html?id=1` (Ravi's page)
    7. `https://spirobuddy.onrender.com/demo.html` (demo controls)
    8. `https://spirobuddy.onrender.com/guardian.html?t=ravi-amit-demo` (Amit's family page)
@@ -135,7 +135,7 @@ Sources: `docs/research/PITCH_FACTS.md` #5, #6, #9, #10, #12, #13, #15 (`KNOWLED
 
 ### Shot 9 · 3:03–3:23 · Demo, part 4: Sister Anjali's dashboard (Live)
 - **Covers:** detailed demo; persona Sister Anjali; the impact metric live in the product.
-- **On screen:** **Ctrl + Tab** to the dashboard (`/`). It refreshes every 2 seconds. Point with the mouse at: Ravi at the top of the list with **Red flag** and **Needs a call**; then the **Sessions today** tile ("x / y" and "z% of sessions due so far"); then Ravi's "x of y due" bar.
+- **On screen:** **Ctrl + Tab** to the dashboard (`/dashboard.html`). It refreshes every 2 seconds. Point with the mouse at: Ravi at the top of the list with **Red flag** and **Needs a call**; then the **Sessions today** tile ("x / y" and "z% of sessions due so far"); then Ravi's "x of y due" bar.
 - **Voice-over (42 words, 8 optional):**
 > Now Sister Anjali's screen, live. Every patient, most urgent first. Ravi is at the top with his red flag. This tile is our impact metric: sessions done out of sessions due so far today. ((Every row shows the same for one patient.))
 
