@@ -8,7 +8,7 @@
   const main = document.getElementById('rxp-main');
   const token = new URLSearchParams(location.search).get('t') || '';
   const SEX = { M: 'Male', F: 'Female', O: 'Other' };
-  const dmy = (v) => (v && SB.ui.dmy ? SB.ui.dmy(v) : '-');
+  const dmy = (v) => (v ? SB.meds.dateText(v, 'en') : '-');   // 12 October 2026, not 12/10/2026 (day/month is ambiguous)
 
   function show(d) {
     const good = d.current;

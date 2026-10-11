@@ -179,7 +179,7 @@
 
   /* ---------------------------------------------------------------- the pharmacy screen */
   const SEX = { M: 'Male', F: 'Female', O: 'Other' };
-  const dmy = (iso) => (SB.ui && SB.ui.dmy ? SB.ui.dmy(iso) : String(iso || '').slice(0, 10));
+  const dmy = (iso) => (iso ? M.dateText(iso, 'en') : '');   // 12 October 2026, not 12/10/2026 (day/month is ambiguous)
 
   function drawQR(box, url) {
     box.innerHTML = '';

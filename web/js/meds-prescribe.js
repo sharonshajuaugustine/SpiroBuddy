@@ -122,7 +122,7 @@
     const flag = (l.unclear_fields || []).length ? `<div class="rx-unclear">${ic('alert-triangle', { size: 14 })} Check: ${esc((l.unclear_fields || []).join(', ').replace('food_timing', 'food instruction'))} - no reminder where this is unclear</div>` : '';
     return `<li>${ic('pill', { size: 18 })}<div><b>${esc(l.drug_name)}</b>${l.strength ? ' ' + esc(l.strength) : ''}<div class="rx-sum">${esc(M.summary(l))}</div>${l.instructions ? `<div class="rx-sum">Note: ${esc(l.instructions)}</div>` : ''}${flag}</div></li>`;
   }
-  const dmy = (v) => (v ? SB.ui.dmy(v) : '-');
+  const dmy = (v) => (v ? M.dateText(v, 'en') : '-');
 
   function paintPatient() {
     const p = patient;
