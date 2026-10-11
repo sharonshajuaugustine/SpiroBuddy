@@ -35,7 +35,7 @@
 - [ ] Gemini API key added to `.env` (local)
 - [ ] Gemini API key added on Render → Environment
 - [x] `supabase/schema_v2.sql` pasted into the Supabase SQL Editor and run (founder, Sun 11 Oct about 23:15 IST: result "setval 1000", no error)
-- [ ] Push approved for P0
+- [x] Push approved for P0 (founder, Sun 11 Oct about 23:35 IST: "yes, push when tests pass")
 - [ ] Push approved for P1
 - [ ] AIC server facts given (the fill-in table in `docs/SCALING_AND_COST.md` section 7d) – asked 11 Oct 18:20
 
