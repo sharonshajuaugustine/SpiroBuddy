@@ -228,7 +228,7 @@ def _write(hospital_id, change: dict) -> None:
 
 
 def save(hospital_id, values: dict) -> dict:
-    """Validate and store the editable fields. Returns the validated values that were saved."""
+    """Validate and store the editable fields. Returns the checked values that were saved."""
     clean = validate({k: v for k, v in values.items() if k in EDITABLE})
     if not clean:
         raise ValueError("Nothing to save.")

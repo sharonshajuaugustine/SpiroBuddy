@@ -145,6 +145,17 @@ def test_a_patient_cannot_save(clean, patient_client):
     assert p.delete(WRITE + "/logo").status_code in (401, 403)
 
 
+def test_staff_read_the_staff_path_and_patients_the_me_path(clean, login_as, patient_client):
+    """The middleware gives /api/me/* to patient sessions only, so staff have their own read path."""
+    staff = login_as(NURSE)
+    assert staff.get("/api/me/branding").status_code == 401
+    assert staff.get("/api/branding/mine").status_code == 200
+    assert staff.get("/api/branding/mine").json()["powered_by"] == "with SpiroBuddy"
+    patient = patient_client(1)
+    assert patient.get("/api/me/branding").status_code == 200
+    assert patient.get("/api/branding/mine").status_code == 401
+
+
 def test_nobody_logged_in_cannot_read_or_save(anon):
     assert anon.put(WRITE, json=GOOD).status_code == 401
     assert anon.get(WRITE).status_code == 401
