@@ -81,6 +81,9 @@
         <section class="card" id="comms-ladder"><span class="skeleton" style="height:120px"></span></section>
         <!-- /COMMS -->
 
+        <!-- PATIENT LOGIN: filled by js/patient-login-card.js (registration number, new PIN, slip) -->
+        <section class="card" id="patient-login-card" aria-labelledby="plc-h"></section>
+
         <section class="card" id="msgs-card" aria-labelledby="h-msgs">
           <div class="card-head"><h2 id="h-msgs">Messages</h2><span class="card-sub">sent for this patient</span></div>
           <div class="msgs" id="msgs"><div class="muted">No messages yet.</div></div>
@@ -110,6 +113,7 @@
   <script src="js/voice-ui.js"></script><!-- VOICE -->
   <script src="js/comms.js"></script><!-- COMMS -->
   <script src="js/comms-patient.js"></script><!-- COMMS -->
+  <script src="js/patient-login-card.js"></script><!-- PATIENT LOGIN -->
   <script>
   (function () {
     const { esc, $, ic, link, hourLabel, statusPill, redFlagPill, trendHTML, dateTimeLabel, initials, labelChips, fmtMl, meter, LANG, toast, busy, poll, istClock, istDate } = SB.ui;

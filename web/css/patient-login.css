@@ -66,7 +66,8 @@
 .pl-slip { background: #fff; color: #000; border: 2px solid #000; border-radius: 8px; padding: 16px; margin: var(--sp-3) 0 0; font-family: "Segoe UI", system-ui, Arial, "Nirmala UI", "Noto Sans", sans-serif; }
 .pl-slip h3 { margin: 0; font-size: 1.15rem; line-height: 1.25; }
 .pl-slip .s-sub { margin: 2px 0 10px; font-size: .9rem; color: #222; }
-.pl-slip dl { margin: 0 0 10px; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: baseline; }
+.pl-slip dl { margin: 0 0 10px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
+.pl-slip dd { margin-bottom: 8px; }
 .pl-slip dt { font-size: .85rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: #222; }
 .pl-slip dd { margin: 0; font-size: 1.25rem; font-weight: 800; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .pl-slip dd.pin { font-size: 1.8rem; letter-spacing: .25em; }

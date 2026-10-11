@@ -154,6 +154,7 @@
     const box = $('#pl-error');
     box.innerHTML = ic('alert-octagon', { size: 22 }) + '<span>' + esc(tr(key)) + '</span>';
     box.hidden = false;
+    try { box.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (_) { /* old browser */ }
   }
   function clearError() {
     lastError = null;
@@ -203,7 +204,10 @@
         return;
       }
       if (data && data.language && T[data.language]) { try { localStorage.setItem(LS, data.language); } catch (_) { /* private mode */ } }
-      location.assign('/app.html');                  // keep the button busy while the next page loads
+      // app.html picks its patient from ?id= (it does not read the session by itself yet), so hand the id over.
+      // The login itself is the cookie the server just set; the id in the address opens nothing on its own.
+      const next = data && Number(data.patient_id) ? '/app.html?id=' + encodeURIComponent(Number(data.patient_id)) : '/app.html';
+      location.assign(next);                         // keep the button busy while the next page loads
     } catch (_) {
       setBusy(false);
       showError('offline');
@@ -227,6 +231,7 @@
       $('#pl-show').textContent = pinShown ? tr('hide') : tr('show');
     });
     $('#pl-form').addEventListener('submit', submit);
+    if (window.SB && SB.ui && SB.ui.loadFeatures) SB.ui.loadFeatures();      // fills the status badge (names come from /api/features)
     $('#pl-no').addEventListener('input', clearError);
     $('#pl-pin').addEventListener('input', clearError);
     loadDemo();
