@@ -317,3 +317,53 @@ Added 11 Oct 2026 (Phase 0 of the 2.0 rebuild). Internal Python/JS interfaces th
 | GET/POST /api/patients/{id}/consent | consent v2 `{items:{care_reminders, family_sharing, records_storage, ai_use, research_use, ai_training:false}, method:"self"\|"witness_thumbprint"\|"guardian", read_aloud, teach_back_ok?, language}` | the current consent; POST adds a new version (old ones kept), `withdraw:true` withdraws. Family sharing and AI use are enforced in code. |
 | GET /api/patients/{id}/export.fhir.json | – | FHIR R4 Bundle (P1) |
 | /api/demo/* (new) | `med-due/{pid}`, `dose-missed/{pid}`, `patient-upload/{pid}`, `visit-request/{pid}`, `prepare-recording` | DEMO_MODE + admin/doctor |
+
+## 21. CONTRACT L – Interoperability (import and export) (`backend/app/routes_interop.py`, logic in `backend/app/interop/`)
+**STATUS: specified 11 Oct 2026, not built yet (builder X3).** Plain-English guide, the four connection levels and the full field map: `docs/INTEROPERABILITY.md`. SpiroBuddy sits beside the hospital's own patient-record system; these routes move data in and out as files. The rules for E–K above all apply (JSON errors, `X-SB: 1` on every non-GET, hospital scoping, 404 for a patient the caller can't see). Everything must work in DEMO_MODE with the fictional hospital and no hardware.
+
+| Method & path | Body / query | Returns / does |
+|---|---|---|
+| GET /api/patients/{pid}/fhir | – | FHIR R4 `Bundle` with `type:"collection"` for one patient, as `application/fhir+json`. Staff only; needs `patient.view` on `pid` (not visible → 404). Holds `Patient`, `Organization`, `Practitioner` (primary doctor), `Procedure`, `Encounter`, `CarePlan`, `Device` (if one is assigned), `Observation` (one per breathing session, never per breath), `MedicationRequest` (approved prescriptions only; lines `confirmed` or `edited`), `MedicationStatement` (doses with status `reported_taken` only), `Appointment`, `DocumentReference` (details only, no file bytes), `Consent`. Audited `interop.patient_export`. `GET /api/patients/{id}/export.fhir.json` (Contract K) answers with the same Bundle, so Contract K is unchanged. |
+| GET /api/interop/template.csv | – | `text/csv`: the header row below plus one made-up example row. Hospital admin (`admin.manage`). |
+| POST /api/interop/import/patients | multipart `file` (CSV, UTF-8, at most 1 MB and 1,000 rows) **or** a JSON body that is a FHIR `Bundle` of `Patient` resources; query `dry_run` (default `1`) | `dry_run=1` → `{dry_run:true, rows, would_create, would_update, unchanged, errors:[{row, field, problem}], warnings:[{row, field, problem}]}` and saves nothing. `dry_run=0` → `{dry_run:false, rows, created, updated, unchanged, errors:[…], warnings:[…]}`; a row with an error is skipped, the other rows are saved. Hospital admin only (`admin.manage`). Audited `interop.import_dry_run` or `interop.import` (counts only, never the file). |
+| GET /api/interop/export | `?format=fhir\|csv` (required), `include_files=0\|1` (default 0) | `application/zip` of the caller's whole hospital. Hospital admin only (`admin.manage`). Audited `interop.hospital_export`. |
+
+**CSV columns (exactly these ten, in this order; the first row is the header):**
+
+| Column | Needed? | Rule | Saved to |
+|---|---|---|---|
+| `mrn` | yes | the hospital's record number; trimmed; the match key | `patients.mrn` |
+| `name` | yes | as written | `patients.name` |
+| `age` | yes | whole number, 0–120 | `patients.age` |
+| `sex` | yes | `M`, `F` or `O` (also male / female / other, any case) | `patients.sex` |
+| `phone` | no | 10 digits, or `+` and a country code; a bad value is a warning and the phone is left empty | `patients.phone` |
+| `language` | no | a short code from Contract D3 (`en hi bn ta te kn ml mr gu pa or`); empty or unknown → the hospital's first language, else `en`, with a warning | saved the way `POST /api/patients` saves `language` |
+| `surgery_type` | yes | free text | `patients.surgery` |
+| `surgery_date` | no | `YYYY-MM-DD` or `DD/MM/YYYY` | `patients.surgery_date` |
+| `discharge_date` | yes | `YYYY-MM-DD` or `DD/MM/YYYY`; not before `surgery_date` | `patients.discharge_date` |
+| `primary_doctor_email` | no | must match an `active` staff row with role `doctor` in this hospital (lower case); no match → error; empty → warning | `patients.primary_doctor_id` |
+
+**Rules in code:**
+- **Scope:** always the caller's `hospital_id`. An admin can never import into, or export, another hospital.
+- **Match:** `hospital_id` + `mrn` (case-insensitive). Found → update; not found → create. The same `mrn` twice in one file → error on the second row. Never match on name. X3 adds a unique index on `patients(hospital_id, lower(mrn))` where `mrn` is not null (additive).
+- **Update** changes only the ten imported fields, and only where the file's value is not empty. It never touches the care plan, consent, programme status, app link or device. Uploading the same file twice gives `unchanged` for every row.
+- **Import creates nothing else:** no prescription, dose event, appointment, consent, app link or message. It **never writes a prescription with status `approved`**. A `MedicationRequest` or any other non-`Patient` resource in a Bundle is ignored with a warning (planned: it lands as `draft` in the review queue of Contract H, where a named human must approve it).
+- **No consent, no messages:** an imported patient has no consent record, so nothing is sent until consent is recorded (Contract K). App links are made one at a time with `POST /api/patients/{id}/link` (Contract G).
+- **FHIR `Patient` in:** `identifier[0].value` → `mrn`, `name` → `name`, `gender` → `sex`, `birthDate` → `age` (whole years on the import date), phone `telecom` → `phone`, `communication.language` → `language`. The operation, the dates and the doctor are not in a `Patient` resource: staff add them with `PUT /api/patients/{id}`, and each such row carries a warning.
+- **FHIR out:** field by field as in `docs/INTEROPERABILITY.md` §5. No invented standard codes: where no agreed code exists, send text plus a local code (open question, listed there). A dose with no report is never sent as "not taken".
+- **Export ZIP:** always a `README.txt` (hospital name, time made, row count per file; "demo data, fake patients" in DEMO_MODE). `format=csv`: one file per hospital-scoped table, columns named as in the database – `hospital.csv`, `staff.csv`, `patients.csv`, `care_team.csv`, `notes.csv`, `sessions.csv`, `breaths.csv`, `prescriptions.csv`, `prescription_items.csv`, `dose_events.csv`, `appointments.csv`, `documents.csv`, `consents.csv`, `alerts.csv`, `messages.csv`, `audit_events.csv`, `devices.csv`, `device_events.csv`. `format=fhir`: `patients/<patient id>.fhir.json` (the same Bundle as the per-patient route), `hospital.fhir.json` (`Organization`, `Practitioner`, `Device`) and `audit.fhir.json` (`AuditEvent`). `include_files=1` adds `documents/<patient id>/<document id>.<ext>` for every document that is not deleted.
+- **Never exported:** password hashes, session, key, join-code and app-token hashes or hints, and AI prompt or reply text.
+- **Audit `detail`:** `{format, rows, created, updated, errors}` as it applies; never a file, a name or a phone number.
+- The printable discharge plan (also X3) is a page built on Contracts G, H and I; it adds no route here.
+
+**Feature registry keys** (`backend/app/features.py`; statuses as of 11 Oct 2026, to be moved to `live` only when built and tested):
+
+| Key | Status | Where |
+|---|---|---|
+| `interop.csv_import` | `in_development` | admin page: template, dry run, confirm |
+| `interop.fhir_import` | `in_development` | the same route, FHIR `Patient` Bundle |
+| `fhir.export` | `in_development` | per-patient and whole-hospital export. The key is already in the registry: reuse it, and show it as `live` only once the route is built and tested |
+| `interop.hl7_adt` | `planned` | discharge message from the hospital system |
+| `interop.smart_launch` | `planned` | opening the SpiroBuddy chart from inside the hospital system |
+
+Related keys already in the registry: `discharge.print` (printable discharge plan) and `docs.abdm_link` (ABDM link, `planned`).
