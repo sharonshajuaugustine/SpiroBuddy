@@ -18,9 +18,17 @@ RIVERSIDE_ADMIN = "admin@demo-riverside.example"
 @pytest.fixture(autouse=True)
 def _clean(client):
     """A clean demo (Ravi has his number + demo PIN) and no leftover rate-limit counters."""
-    from backend.app import ratelimit
-    ratelimit.reset()
-    assert client.post("/api/demo/reset").status_code == 200
+    from backend.app import patient_login as pl, ratelimit, service
+    st = service.store()
+    if not getattr(_clean, "seeded", False):         # one full demo reset for the whole file
+        assert client.post("/api/demo/reset").status_code == 200
+        _clean.seeded = True
+    # cheap restore before each test: numbers, Ravi's demo PIN, no locks, no leftovers
+    for pid in range(1, 8):
+        st.update("patients", [("id", "eq", pid)], {"mrn": f"DGH-{pid:06d}"})
+    pl.set_pin(st, 1, pl.DEMO_PIN)
+    st.update("patients", [("id", "gt", 1), ("id", "lt", 8)],
+              {"pin_hash": None, "pin_failed": 0, "pin_locked_until": None})
     ratelimit.reset()
     yield
     ratelimit.reset()
