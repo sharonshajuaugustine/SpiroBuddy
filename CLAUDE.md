@@ -8,7 +8,7 @@ SpiroBuddy is a hackathon project (Dolphin Tank India Social Impact Hackathon, H
 - **Per-hospital branding, onboarding, store apps, doctor reminders, patient app tabs:** plan in `docs/plan/12_HOSPITAL_ONBOARDING_AND_BRANDING.md` (home-screen name/icon can't change after login in store apps; in-app branding and per-hospital web-app installs can).
 - `/` is the public landing page; the nurse dashboard is at `/dashboard.html`.
 - **Honesty:** every badge comes from `backend/app/features.py` (Live / Simulated / In development / Planned); flip a key to Live only when it really works. The device is **not built yet**. Never invent usage, pilots or results (e.g. "used during COVID"); never claim "no such software exists" (hospital-chain apps and ABHA apps exist).
-- **Deck:** wait for the founder's Dolphin Tank slide template; don't make slides before it arrives.
+- **Deck:** the organisers' template is now in the repo folder: `DTI_SIH_Pitch Deck_Template.pptx` (founder, 00:45 IST; not committed). Build the deck from it (pptx skill): keep their logo, the footer "DOLPHIN TANK INDIA • SOCIAL IMPACT HACKATHON", their slide order and read their slide comments; content from `docs/hackathon/PITCH_PLAN.md` (incl. slide 4b and the criteria map) and plan 12. Save as a new file; never overwrite the template.
 
 ## Product plan at a glance (for teammates; details in `docs/plan/12_HOSPITAL_ONBOARDING_AND_BRANDING.md`)
 **Live today (spirobuddy.onrender.com, fake patients):** public story site (`/`), staff logins with hospitals kept apart, nurse dashboard, the patient app with the breathing coach (breaths Simulated), the doctor's prescription on the patient's phone with a pharmacy screen and a QR check, family page, WhatsApp/call simulators.
