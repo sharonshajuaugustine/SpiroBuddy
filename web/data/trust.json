@@ -1,0 +1,172 @@
+{
+  "rule_groups": [
+    {
+      "name": "ICMR National Ethical Guidelines 2017",
+      "source": "05_icmr_ethics_abdm_evidence B5-3 to B5-8 · plan 11 H-1",
+      "rows": [
+        {
+          "rule": "Consent",
+          "does": "Separate ticks for care reminders, family sharing, records storage, AI use and research use. AI training stays off and locked. The consent record also notes whether it was read aloud and who took it. There is a witness and thumb-print route for people who cannot read.",
+          "keys": [
+            "consent.itemised"
+          ]
+        },
+        {
+          "rule": "Vulnerable participants",
+          "does": "The people we serve are older, unwell and often cannot read English. So the patient screens speak, take no typing, and offer a \"no AI\" choice with the same care. Children are left out of any pilot.",
+          "keys": [
+            "consent.ai_optout",
+            "app.patient"
+          ]
+        },
+        {
+          "rule": "Privacy",
+          "does": "Staff see only their own hospital's patients, and nurses only the patients they have been given. Every chart view and change goes into an audit log. Uploaded files are checked and cleaned.",
+          "keys": [
+            "nurse.scope",
+            "audit.log",
+            "security.limits"
+          ]
+        },
+        {
+          "rule": "Ethics committee review",
+          "does": "Not done. Any study with real patients needs a registered ethics committee beforehand. This demo has no real patients and does not claim a review.",
+          "keys": [
+            "pilot.checklist"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ICMR Guidelines on AI in health 2023",
+      "source": "plan 11 H-1 rows 1, 2, 4, 7 · ICMR AI 2023 §1.1, §1.5, §4.2",
+      "rows": [
+        {
+          "rule": "Human oversight",
+          "does": "A named person confirms every prescription line before any reminder exists. An AI draft, when one is used, only copies what a doctor wrote and never changes a drug, a dose, a time or a length of treatment.",
+          "keys": [
+            "rx.review"
+          ]
+        },
+        {
+          "rule": "Accountability",
+          "does": "Each AI draft records who reviewed it and what they decided. Responsibility is written down before any real use.",
+          "keys": [
+            "ai.register"
+          ]
+        },
+        {
+          "rule": "Transparency",
+          "does": "People are told when AI is used and can choose no AI. The \"no AI\" choice sends the prescription down the typed route.",
+          "keys": [
+            "consent.ai_optout"
+          ]
+        },
+        {
+          "rule": "Audit",
+          "does": "Every AI call is logged as a reference with no content. The totals are in section 3 of this page, computed live.",
+          "keys": [
+            "ai.register"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Digital Personal Data Protection Act 2023",
+      "source": "06_LEGAL_DEEP_DIVE L-7 (secondary sources; the main duties start 13 May 2027)",
+      "rows": [
+        {
+          "rule": "Itemised consent",
+          "does": "One tick per purpose, each in plain words, each withdrawable at any time. Old versions are kept.",
+          "keys": [
+            "consent.itemised"
+          ]
+        },
+        {
+          "rule": "Purpose limitation",
+          "does": "Care data is used for care. It is not reused to train AI: that tick is locked off in the demo and needs ethics clearance.",
+          "keys": [
+            "consent.ai_training"
+          ]
+        },
+        {
+          "rule": "Rights to access, correction and erasure",
+          "does": "Export and deletion requests are a plan. Today an admin handles such a request by hand.",
+          "keys": [
+            "data_rights.requests"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Telemedicine Practice Guidelines 2020",
+      "source": "06_LEGAL_DEEP_DIVE L-8 (two independent summaries; primary text not read)",
+      "rows": [
+        {
+          "rule": "No AI medicine advice",
+          "does": "The AI never advises on a medicine. A question about a medicine gets \"Please ask your doctor or nurse\" and a call-back button. Danger words get one fixed message and no AI text.",
+          "keys": [
+            "safety.red_flags"
+          ]
+        }
+      ]
+    }
+  ],
+  "safe_rules": [
+    "The AI never diagnoses, never advises and never changes a dose, a drug, a time or a duration. It only drafts what the doctor wrote.",
+    "A person confirms every prescription line before any reminder is sent: a named doctor, or a nurse the hospital has allowed. If an AI drafted the lines, each one is checked against the original. Handwriting is typed by a person, not read by the AI.",
+    "Anything uncertain is left blank, not guessed. \"If needed\" medicines (SOS) are never scheduled as reminders.",
+    "Reminders repeat the doctor's words and say who confirmed them. No \"you may skip\" and no \"take two now\".",
+    "A missed dose goes to the nurse, and to the family when the patient has agreed. The patient is never told to double up.",
+    "Danger words (chest pain, breathless, bleeding, fainting, rash, \"took too many\" and the same in each language) get the fixed message: \"Please contact your nurse now. In an emergency call 112.\" No AI text.",
+    "Questions about medicines (\"can I stop this?\") get \"Please ask your doctor or nurse\" plus a call-back button. No AI answer.",
+    "Adherence is shown as \"reported\" unless a sensor measured it.",
+    "Every AI step is logged. The nurse can see and undo it. Errors are counted and published yearly.",
+    "No real prescriptions are used to train or test the AI without ethics clearance."
+  ],
+  "safe_source": "plan 11 §4 (rules 2 and 5 reworded for the doctor-writes-it path)",
+  "checklist": [
+    "Decide what is care and what is research. Routine reminders in a service are care. Measuring whether they work, publishing, or training AI on the data is research and needs an ethics committee (EC).",
+    "Find a faculty principal investigator at the hospital and check that its EC is registered with the Department of Health Research.",
+    "Ask CDSCO through MedTech Mitra, in writing: the class of the base unit, whether the pilot needs permission MD-22, and whether the medicine module counts as medical-device software.",
+    "Write the answers to the 17-item ICMR AI checklist, plus the protocol, the information sheet and the consent form in each language.",
+    "Take consent with separate ticks: care, family sharing, records storage, AI use (with a \"no AI\" choice), research use of data and AI training. Offer a witness and thumb-print route for people who cannot read.",
+    "End the consent with teach-back: \"tell me in your words what the app does and what the nurse does\".",
+    "Write the human-in-the-loop rule into the protocol: a named nurse or pharmacist confirms every prescription line, and who is accountable for what is written down.",
+    "Make no dose or drug changes in the study, ever.",
+    "Agree a data plan: storage in India, role-based access, encryption, deletion of photos after confirmation, and a breach plan.",
+    "Arrange compensation for research injury through the host institution.",
+    "Get ethics committee clearance, then register the study with CTRI (free), before any patient is enrolled.",
+    "Report serious adverse events to the EC within 24 hours, and keep an incident log for every missed or wrong reminder.",
+    "Publish a short yearly audit of AI performance and errors.",
+    "Say only what is true about reviews: never claim a review, clearance or result that has not happened."
+  ],
+  "checklist_source": "plan 11 H-2 (14 steps; wording shortened)",
+  "gemini_points": [
+    {
+      "text": "AI is a helper here, not the point. The doctor's own digital prescription needs no AI and goes straight to the patient's phone."
+    },
+    {
+      "text": "Where Gemini is used, it is optional: drafting typed prescription lines from a sample document, and suggesting the type, title and date of an uploaded paper.",
+      "keys": [
+        "rx.ai_read",
+        "docs.ai_suggest"
+      ]
+    },
+    {
+      "text": "A person reviews every draft. Nothing reaches a patient, and no reminder exists, before a named person confirms the lines."
+    },
+    {
+      "text": "The instruction sent with the file carries no patient data. A patient who chose no AI, a hospital that switched AI off, a missing key or a daily limit all lead to the typed route.",
+      "keys": [
+        "consent.ai_optout"
+      ]
+    },
+    {
+      "text": "Daily summaries use a fixed template, or an Anthropic model when a key is set. They never diagnose.",
+      "keys": [
+        "ai.summary"
+      ]
+    }
+  ]
+}

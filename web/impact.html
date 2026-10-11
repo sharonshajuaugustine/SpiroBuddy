@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Impact – SpiroBuddy</title>
+  <meta name="description" content="Who SpiroBuddy can help, how many people that is, an adoption and retention funnel and a simple calculator. Every number is counted with its source, or labelled estimate, assumption or target.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b6e8a'/%3E%3Crect x='9' y='13' width='6' height='13' rx='3' fill='%23fff'/%3E%3Cpath d='M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4' stroke='%237fe0c8' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/public.css">
+</head>
+<body>
+  <header id="pub-header"></header>
+
+  <main id="main" class="pub-main" tabindex="-1">
+    <div class="pub-wrap">
+      <div class="pub-head">
+        <h1>Impact: who it helps, and how sure we are</h1>
+        <p class="lead">Every number on this page is either counted, with its source, or labelled <span class="lbl estimate">Estimate</span>, <span class="lbl assumption">Assumption</span> or <span class="lbl target">Target</span>. We make no claim about fewer complications, because no study of ours has measured that.</p>
+        <span data-feature="public.impact"></span>
+        <ul class="toc">
+          <li><a href="#who">Who can use it</a></li><li><a href="#many">How many people</a></li><li><a href="#funnel">Adoption and retention</a></li>
+          <li><a href="#calc">Calculator</a></li><li><a href="#live">Live demo numbers</a></li><li><a href="#sdg">SDG 3</a></li>
+        </ul>
+      </div>
+
+      <noscript><div class="callout warn"><p>This page draws its tables from small data files with JavaScript. Please turn JavaScript on.</p></div></noscript>
+
+      <section class="pub-section" id="who" aria-labelledby="who-h">
+        <h2 id="who-h">1. Who can use it</h2>
+        <p class="sec-lead">Heart, chest and upper-abdominal surgery is the current focus. The others are plans, and are marked that way.</p>
+        <div class="grid-2" id="segments"></div>
+        <h3>Which hospitals we would start with</h3>
+        <div class="table-scroll"><table class="pub-table stack-table" id="buyers">
+          <thead><tr><th>Rank</th><th>Who</th><th>Time to a yes</th><th>Source</th></tr></thead><tbody></tbody></table></div>
+      </section>
+
+      <section class="pub-section" id="many" aria-labelledby="many-h">
+        <h2 id="many-h">2. How many people</h2>
+        <p class="sec-lead">Counted inputs come before the steps we assumed. The result is a range, not a forecast.</p>
+        <div class="grid-3" id="counted"></div>
+        <h3>From operations to a market (India, a year)</h3>
+        <div class="table-scroll"><table class="pub-table stack-table" id="market">
+          <thead><tr><th>Step</th><th>Cautious</th><th>Middle</th><th>Optimistic</th><th>Label and source</th></tr></thead><tbody></tbody></table></div>
+        <div class="callout quiet" style="margin-top:var(--sp-4)"><h3>Read this before quoting the range</h3><ul class="pub-list" id="market-honest"></ul></div>
+      </section>
+
+      <section class="pub-section" id="funnel" aria-labelledby="funnel-h">
+        <h2 id="funnel-h">3. Adoption and retention, step by step</h2>
+        <p class="sec-lead" id="funnel-base"></p>
+        <ol class="journey" id="journey"></ol>
+        <p class="small muted" id="funnel-foot" style="margin-top:var(--sp-3)"></p>
+      </section>
+
+      <section class="pub-section" id="calc" aria-labelledby="calc-h">
+        <h2 id="calc-h">4. Impact calculator <span data-feature="impact.calculator"></span></h2>
+        <p class="sec-lead">Move the sliders. The answers are rough <span class="lbl estimate">Estimate</span> figures per month. They count people and sessions, not health outcomes.</p>
+        <div class="calc">
+          <div class="pub-card" id="sliders"></div>
+          <div>
+            <div class="outputs" id="outputs" aria-live="polite"></div>
+            <details class="formula" style="margin-top:var(--sp-3)">
+              <summary>How these are worked out</summary>
+              <ul class="pub-list" id="formula"></ul>
+              <p class="small">Fixed assumptions used:</p>
+              <ul class="pub-list" id="fixed"></ul>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section class="pub-section" id="live" aria-labelledby="live-h">
+        <h2 id="live-h">5. Live demo numbers <span data-feature="impact.metrics"></span></h2>
+        <p class="sec-lead"><span class="lbl demo">Demo data, fake patients</span> Counted now from the demo hospital's database. They show the system working, not how patients do in real life.</p>
+        <div class="metric-grid" id="metrics" aria-live="polite"><div class="stat no-data"><span class="big">Loading…</span></div></div>
+        <p class="small muted" id="metrics-foot" style="margin-top:var(--sp-3)"></p>
+      </section>
+
+      <section class="pub-section" id="sdg" aria-labelledby="sdg-h">
+        <h2 id="sdg-h">6. UN Sustainable Development Goal 3</h2>
+        <p class="sec-lead">Health and well-being. Target 3.8 is the main link. <span class="src" id="sdg-src"></span></p>
+        <div class="table-scroll"><table class="pub-table stack-table" id="sdg-table">
+          <thead><tr><th>Target</th><th>The UN wording, short</th><th>Our honest link</th></tr></thead><tbody></tbody></table></div>
+      </section>
+    </div>
+  </main>
+
+  <footer id="pub-footer"></footer>
+
+  <script src="/js/icons.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/public-shell.js"></script>
+  <script src="/js/public-impact.js"></script>
+</body>
+</html>

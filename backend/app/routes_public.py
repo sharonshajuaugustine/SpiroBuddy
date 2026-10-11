@@ -89,11 +89,18 @@ def _ai_stats() -> dict:
 def _sessions_today(pids: set[int]) -> tuple[int, int]:
     """(done, due so far) today across the demo hospital – the pitch's one impact metric."""
     try:
+        # service.list_patients() is filtered by who is logged in (authz). The public numbers must
+        # be the same for every visitor, so read the store directly and compute each patient here.
+        now = now_local()
+        sessions, slots = service.load_window(now)
+        flags = service.red_flag_patient_ids()
         done = due = 0
-        for p in service.list_patients():
-            if int(p.get("id") or 0) in pids:
-                done += _int(p.get("done_today"))
-                due += _int(p.get("due_today"))
+        for p in _rows("patients"):
+            if _int(p.get("id")) not in pids or not _in_demo_hospital(p):
+                continue
+            full = service.compute_patient(p, sessions, slots, now, flags)
+            done += _int(full.get("done_today"))
+            due += _int(full.get("due_today"))
         return done, due
     except Exception as e:
         log.debug("impact: today's sessions unavailable (%s)", e)

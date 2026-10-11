@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vision and roadmap – SpiroBuddy</title>
+  <meta name="description" content="SpiroBuddy's startup scope: three tiers, the business model in words with labelled estimates, where we would start, the roadmap, scale and cost, how it works beside a hospital's own software, and what we are asking mentors for.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b6e8a'/%3E%3Crect x='9' y='13' width='6' height='13' rx='3' fill='%23fff'/%3E%3Cpath d='M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4' stroke='%237fe0c8' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/public.css">
+</head>
+<body>
+  <header id="pub-header"></header>
+
+  <main id="main" class="pub-main" tabindex="-1">
+    <div class="pub-wrap">
+      <div class="pub-head">
+        <h1>Vision: from a breathing exerciser to a recovery link between hospital and home</h1>
+        <p class="lead">What we are building, how it could pay for itself, where we would start, and what is still unproven. Every rupee figure is a labelled estimate or assumption, and nothing here is a price you will see inside the product.</p>
+        <span data-feature="public.vision"></span>
+        <ul class="toc">
+          <li><a href="#tiers">Problem and tiers</a></li><li><a href="#model">Business model</a></li><li><a href="#start">Where we start</a></li>
+          <li><a href="#roadmap">Roadmap</a></li><li><a href="#risks">Hard to copy, and risks</a></li><li><a href="#ask">What we ask mentors</a></li>
+          <li><a href="#scale">Scale and cost</a></li><li><a href="#beside">Beside your hospital's software</a></li><li><a href="#ddi">Not built, on purpose</a></li>
+        </ul>
+      </div>
+
+      <!-- 1 -->
+      <section class="pub-section" id="tiers" aria-labelledby="tiers-h">
+        <h2 id="tiers-h">1. Problem, solution and three tiers</h2>
+        <div class="grid-2">
+          <div class="pub-card"><h3>The problem</h3><p>After big surgery the patient goes home. Nobody can see whether the breathing exercise is done, and the medicines are on a paper that is easy to lose or misread.</p></div>
+          <div class="pub-card accent"><h3>The solution</h3><p>Connect the hospital to the patient's phone. Show that the exercise was done. Put the doctor's prescription on the patient's own screen, to show at the pharmacy counter, with no paper.</p></div>
+        </div>
+        <h3>Three tiers <span class="src">plan 11 §3.1</span></h3>
+        <div class="grid-3">
+          <article class="pub-card">
+            <h3>Tier 1 · Hospital spirometer</h3>
+            <p>The clip-on unit, the voice coach, the nurse list and the family update. The hospital pays, about ₹1,000 per patient episode <span class="lbl estimate">Estimate</span>.</p>
+            <div class="tags"><span data-feature="coach.breath"></span><span data-feature="device.usb"></span><span data-feature="nurse.triage"></span></div>
+          </article>
+          <article class="pub-card">
+            <h3>Tier 2 · Recovery software</h3>
+            <p>The doctor's prescription on the phone, medicine reminders, visits and papers. Hospital or family pays monthly; not priced yet.</p>
+            <div class="tags"><span data-feature="rx.patient_phone"></span><span data-feature="doses.reminders"></span><span data-feature="appt.booking"></span><span data-feature="docs.vault"></span></div>
+          </article>
+          <article class="pub-card">
+            <h3>Tier 3 · Premium home kit</h3>
+            <p>Tiers 1 and 2, plus a lent hub phone, optional lent Bluetooth devices (pulse oximeter, BP cuff) and planned nurse check-in calls. Families already pay ₹1,000-3,500 a day for a home nurse; we are testing whether about ₹2,000 for a 30-day kit is a price they accept <span class="lbl estimate">Estimate</span> <span class="src">plan 11 · line 1 · R2</span>.</p>
+            <div class="tags"><span data-feature="vitals.bluetooth"></span><span data-feature="comms.ivr_reminders"></span></div>
+          </article>
+        </div>
+      </section>
+
+      <!-- 2 -->
+      <section class="pub-section" id="model" aria-labelledby="model-h">
+        <h2 id="model-h">2. Business model, in words</h2>
+        <p class="sec-lead">The hospital would pay per patient episode, with the unit lent and reused. Nothing is charged inside the patient app or the hospital software.</p>
+        <div class="pub-card">
+          <dl class="def-grid">
+            <dt>Who pays</dt><dd>The hospital, per patient episode. A family top-up for the premium kit is being tested, not assumed.</dd>
+            <dt>Planned price</dt><dd>About ₹1,000 per 14-day episode, less than half an average ward bed-day (₹2,307). <span class="lbl estimate">Estimate</span> <span class="src">PITCH_FACTS #27, #31</span></dd>
+            <dt>Our cost</dt><dd>About ₹670 per episode in a pilot, about ₹470 at scale, with the unit lent. <span class="lbl estimate">Estimate</span> <span class="src">SCALING_AND_COST §4</span></dd>
+            <dt>The unit</dt><dd>About ₹2,500 of parts, lent to about 10 patients in turn. Wear and loss is about ₹375 of each lent episode. <span class="lbl estimate">Estimate</span> <span class="lbl assumption">Assumption</span> <span class="src">PITCH_FACTS #31 · SCALING_AND_COST</span></dd>
+            <dt>Later, at scale</dt><dd>About ₹200 per patient as a software fee once hospitals own the units. <span class="lbl estimate">Estimate</span> <span class="src">PITCH_FACTS #31</span></dd>
+            <dt>Messages</dt><dd>A WhatsApp update costs about ₹0.12; a 2-minute AI phone call about ₹8, roughly 70 times more. So WhatsApp is the default and calls are for escalation. <span class="lbl estimate">Estimate</span> <span class="src">PITCH_FACTS #29</span></dd>
+            <dt>Size of the market</dt><dd>About ₹25-147 crore a year in India on surgery alone. <span class="lbl estimate">Estimate</span> <span class="src">B1-10</span> <a href="/impact.html#many">How it is worked out</a></dd>
+            <dt>Honest warning</dt><dd>Hospitals adopt slowly and pay little: one well-known Indian patient-monitoring company raised about US$20 million yet earned ₹5.2 crore from operations in 2023-24, with a ₹68 crore loss. <span class="src">B1 summary line 9 · S9</span></dd>
+          </dl>
+        </div>
+      </section>
+
+      <!-- 3 -->
+      <section class="pub-section" id="start" aria-labelledby="start-h">
+        <h2 id="start-h">3. Where we would start</h2>
+        <div class="pub-card">
+          <p><b>Kerala, heart-surgery units, with one teaching hospital and one mission or private hospital.</b> <span class="src">B1-13</span></p>
+          <ul class="pub-list">
+            <li><b>Why Kerala:</b> a rule that lets registered startups sell to government without a tender, up to ₹50 lakh; strong nurse numbers, so someone can hand out the unit; many mid-size private and mission hospitals; and a busy public heart unit to pilot in (Kottayam: 1,033-1,364 open-heart operations a year). <span class="src">B1-13 · S19, S12</span></li>
+            <li><b>Why heart surgery:</b> the stay is long (10 days built into the government scheme's package), the exercise is routine, and the reminder trial that anchors our evidence was in bypass patients.</li>
+          </ul>
+          <p class="small muted">The no-tender rule rests on one source and we could not confirm it is unchanged in October 2026. Confirm with Kerala Startup Mission before relying on it. If the team is based in Karnataka or Tamil Nadu, start at home instead.</p>
+        </div>
+      </section>
+
+      <!-- 4 -->
+      <section class="pub-section" id="roadmap" aria-labelledby="road-h">
+        <h2 id="road-h">4. Roadmap</h2>
+        <p class="sec-lead">All of this is a plan. <span class="src">plan 11 §3.3 · E-20</span></p>
+        <article class="stage">
+          <header><h3>0-3 months</h3><span class="lbl target">Plan</span></header>
+          <ul class="pub-list">
+            <li>Bench-test one unit against the spirometer's printed marks.</li>
+            <li>Hold 5-10 interviews, including "who confirms prescriptions on your ward?" and a priced-kit question.</li>
+            <li>Ask CDSCO in writing, through MedTech Mitra, about the unit's class and the medicine module.</li>
+            <li>Build and test the doctor-writes-it prescription flow on synthetic prescriptions only.</li>
+          </ul>
+          <p class="small muted"><b>To move on:</b> the bench test passes; at least 3 of 10 families or nurses say yes to a priced kit; a written CDSCO answer is requested.</p>
+        </article>
+        <article class="stage">
+          <header><h3>3-12 months</h3><span class="lbl target">Plan</span></header>
+          <ul class="pub-list">
+            <li>Run the spirometer pilot (about 50 patients, one hospital, a second ward later).</li>
+            <li>Add medicine reminders for pilot patients from doctor-confirmed schedules. No AI reading until an ethics committee allows it.</li>
+            <li>Prototype a bracket for the three-ball spirometer. Send the episode summary into the hospital's own system.</li>
+          </ul>
+          <div class="tags"><span data-feature="device.three_ball_reader"></span><span data-feature="device.ble"></span></div>
+          <p class="small muted"><b>To move on:</b> the share of due sessions done is measured; zero unconfirmed schedules were sent; nurse time per patient is measured.</p>
+        </article>
+        <article class="stage">
+          <header><h3>12-24 months</h3><span class="lbl target">Plan</span></header>
+          <ul class="pub-list">
+            <li>The premium home kit with lent hub phones and Bluetooth devices.</li>
+            <li>A link to India's national health-records network, and paid hospital or family pilots in the ₹2,000 band <span class="lbl estimate">Estimate</span> <span class="src">plan 11 §3.3</span>.</li>
+            <li>Decide on a base unit with its own SIM for homes without a smartphone.</li>
+          </ul>
+          <div class="tags"><span data-feature="docs.abdm_link"></span><span data-feature="device.speaking_base"></span><span data-feature="vitals.bluetooth"></span></div>
+          <p class="small muted"><b>To move on:</b> paying customers renew; the error rate is measured; the licence path is clear. After that (18-36 months): licence granted, 5-10 paying sites, a controlled study, a post-TB pilot with a basic-phone mode.</p>
+        </article>
+      </section>
+
+      <!-- 5 -->
+      <section class="pub-section" id="risks" aria-labelledby="risks-h">
+        <h2 id="risks-h">5. What stays hard to copy, and the honest risks</h2>
+        <div class="grid-2">
+          <div class="pub-card">
+            <h3>Harder to copy</h3>
+            <ul class="pub-list">
+              <li>A sensor reading is a measurement; a patient's tap is only a report. We keep the two apart.</li>
+              <li>The whole loop for India: home use, Indian languages, the doctor's prescription on the phone, a nurse list and consented family updates in one place.</li>
+              <li>Safety rules that are code and tests, not promises.</li>
+            </ul>
+            <p class="small muted">The idea of tracking a spirometer is proven in US hospitals (a clip-on tracker was cleared by the US FDA in August 2025). We add what India needs. <span class="src">PITCH_FACTS #21, #23</span></p>
+          </div>
+          <div class="pub-card">
+            <h3>Not hard to copy, so we do not compete on it</h3>
+            <ul class="pub-list">
+              <li>Records, booking and reminders: the government now gives these away free (Aarogya Setu 2.0, launched 29 June 2026). <span class="src">plan 11 · line 3 · R6</span></li>
+              <li>A paid home-recovery package: a large hospital group already sells one. <span class="src">plan 11 · line 2 · R15</span></li>
+            </ul>
+            <p class="small muted">So we plan to link to national records, not build another records app.</p>
+          </div>
+        </div>
+        <h3>Risks we name ourselves</h3>
+        <ul class="pub-list">
+          <li><b>The three-ball spirometer.</b> Our sensor reads the piston type only, and many Indian wards seem to use the three-ball type. So we would supply the right spirometer with the unit. <span class="src">E-12 · not confirmed</span> <span data-feature="device.three_ball_reader"></span></li>
+          <li><b>The device is not built.</b> The software is at readiness level 4 and the device at 3. Breaths in the demo are simulated. <span class="src">PITCH_PLAN · TRL</span></li>
+          <li><b>Regulation.</b> We expect the clip-on unit to be Class B and will confirm with CDSCO before any patient. <span class="src">PITCH_FACTS #35</span></li>
+          <li><b>Evidence.</b> The exerciser on its own has weak evidence for cutting lung complications. We measure whether it is done; we claim no outcome. <span class="src">PITCH_FACTS #33</span></li>
+          <li><b>The paperless pharmacy.</b> No chemist has been asked to accept a phone screen, and the check-by-QR is still in development. <span data-feature="rx.pharmacy_screen"></span> <span data-feature="rx.verify_qr"></span></li>
+          <li><b>Paths we would drop</b> if the evidence does not appear: insurers, direct sale to families, sickle cell, and post-COVID rehab. <span class="src">E-20</span></li>
+        </ul>
+      </section>
+
+      <!-- 6 -->
+      <section class="pub-section" id="ask" aria-labelledby="ask-h">
+        <h2 id="ask-h">6. What we are asking mentors for</h2>
+        <div class="grid-3">
+          <div class="pub-card"><h3>A pilot site</h3><p>An introduction to one heart-surgery or physiotherapy team willing to run a 30-50 patient pilot.</p></div>
+          <div class="pub-card"><h3>A clinical adviser</h3><p>A surgeon, nurse or physiotherapist to check the care plan, the wording and the safety rules.</p></div>
+          <div class="pub-card"><h3>Regulatory guidance</h3><p>Help with the CDSCO steps, the ethics committee route, and a startup grant application.</p></div>
+        </div>
+      </section>
+
+      <!-- 7 -->
+      <section class="pub-section" id="scale" aria-labelledby="scale-h">
+        <h2 id="scale-h">7. Scale and cost</h2>
+        <p class="sec-lead">The shape stays the same: one web service and one database. Parts are added only when a named trigger happens. Money in rupees; ₹96 = US$1; no salaries counted. <span class="src">SCALING_AND_COST §1, §4</span></p>
+
+        <article class="stage today">
+          <header><h3>Stage 0 · Demo (today)</h3><span class="status-text">Running today, with fictional patients. The only stage that exists.</span></header>
+          <dl class="def-grid">
+            <dt>Patients at once</dt><dd>7 fictional patients</dd>
+            <dt>Runs on</dt><dd>One free web service (Singapore), one free database, and a job that keeps it awake</dd>
+            <dt>Cost</dt><dd>₹0 a month for hosting. Right for a demo only. <span class="src">SCALING_AND_COST §2</span></dd>
+          </dl>
+        </article>
+        <article class="stage">
+          <header><h3>Stage 1 · Pilot, 1 hospital</h3><span class="status-text">Planned</span></header>
+          <dl class="def-grid">
+            <dt>Patients at once</dt><dd>25-50 <span class="lbl estimate">Estimate</span></dd>
+            <dt>Runs on</dt><dd>A web service and a background worker in Mumbai, with a Mumbai database and rewind backups</dd>
+            <dt>Must change before this stage</dt><dd>India hosting, staff logins and roles, a record of who looked at what, consent records, backups, a hospital tag on every row, an outside security test. <b>Trigger:</b> a signed pilot agreement.</dd>
+            <dt>Monthly running cost</dt><dd>₹32,000-59,000 with units lent; ₹12,000-40,000 if the hospital owns the units <span class="lbl estimate">Estimate</span></dd>
+            <dt>Cost per 14-day episode</dt><dd>About ₹670, unit lent <span class="lbl estimate">Estimate</span></dd>
+          </dl>
+        </article>
+        <article class="stage">
+          <header><h3>Stage 2 · 10 hospitals</h3><span class="status-text">Planned</span></header>
+          <dl class="def-grid">
+            <dt>Patients at once</dt><dd>About 250 <span class="lbl estimate">Estimate</span></dd>
+            <dt>Runs on</dt><dd>The same shape, plus a rehearsal copy</dd>
+            <dt>Must change before this stage</dt><dd>The database itself blocks one hospital from another's rows, and an automated check proves it. An on-call person. <b>Trigger:</b> the second hospital signs.</dd>
+            <dt>Monthly running cost</dt><dd>₹2.8-3.8 lakh with units lent; ₹0.8-1.8 lakh if hospitals own them <span class="lbl estimate">Estimate</span></dd>
+            <dt>Cost per 14-day episode</dt><dd>About ₹500-540 <span class="lbl estimate">Estimate</span></dd>
+          </dl>
+        </article>
+        <article class="stage">
+          <header><h3>Stage 3 · About 100 hospitals</h3><span class="status-text">Planned</span></header>
+          <dl class="def-grid">
+            <dt>Patients at once</dt><dd>2,500 to 5,000 <span class="lbl estimate">Estimate</span></dd>
+            <dt>Runs on</dt><dd>Several copies of the web service, queue workers, and a larger database with a read-only copy</dd>
+            <dt>Must change before this stage</dt><dd>Hospital single sign-on, WhatsApp bought direct from Meta, the breath table split by month, the reminder timer moved to queue workers. <b>Trigger:</b> the third hospital.</dd>
+            <dt>Monthly running cost</dt><dd>₹25.8-30.2 lakh at 2,500 active with units lent; ₹6.0-10.5 lakh if hospitals own them <span class="lbl estimate">Estimate</span></dd>
+            <dt>Cost per 14-day episode</dt><dd>About ₹470-490 <span class="lbl estimate">Estimate</span></dd>
+          </dl>
+        </article>
+        <article class="stage">
+          <header><h3>Stage 4 · State or national programme</h3><span class="status-text">Planned</span></header>
+          <dl class="def-grid">
+            <dt>Patients at once</dt><dd>100,000 and more <span class="lbl estimate">Estimate</span></dd>
+            <dt>Runs on</dt><dd>Many web servers, a main database with a copy, and a standby in a second Indian region</dd>
+            <dt>Trigger</dt><dd>About 20,000 active patients, or a government contract</dd>
+            <dt>Monthly running cost</dt><dd>Technology only: about ₹50-60 lakh <span class="lbl estimate">Estimate</span>. Units, people and travel are not costed yet.</dd>
+            <dt>Cost per 14-day episode</dt><dd>About ₹450 <span class="lbl estimate">Estimate</span></dd>
+          </dl>
+        </article>
+        <p class="small muted"><span class="src">SCALING_AND_COST §4 · plan 03 §2.2, §3 · FA §1.1, §11</span> No figure here is measured.</p>
+
+        <div class="callout" style="margin-top:var(--sp-4)">
+          <h3>Say it in three lines</h3>
+          <ol class="pub-list">
+            <li>Today one web service and one database run our demo with fictional patients.</li>
+            <li>Planned growth is staged: one pilot hospital, ten, a hundred, then state programmes.</li>
+            <li>Each patient episode should cost five to seven hundred rupees, an estimate; our planned price is about one thousand.</li>
+          </ol>
+          <p class="small">The four figures on screen: ₹2,500 parts per unit <span class="lbl estimate">Estimate</span> · about 10 loans per unit <span class="lbl assumption">Assumption</span> · about ₹1,000 per patient episode <span class="lbl estimate">Estimate</span> (planned price) · ₹0.12 per WhatsApp update <span class="lbl estimate">Estimate</span>. <span class="src">SCALING_AND_COST §9</span></p>
+        </div>
+      </section>
+
+      <!-- 8 -->
+      <section class="pub-section" id="beside" aria-labelledby="beside-h">
+        <h2 id="beside-h">8. Works beside your hospital's software</h2>
+        <div class="callout">
+          <h3>The short answer</h3>
+          <ul class="pub-list">
+            <li><b>SpiroBuddy sits beside the hospital's existing software. It does not replace it.</b> The hospital keeps its own system; we add the part the patient uses at home.</li>
+            <li><b>In from the hospital:</b> who the patient is, the operation, the discharge date and the doctor in charge. Later, prescriptions and visits.</li>
+            <li><b>Out to the hospital:</b> the breathing summary, medicine doses as <i>reported</i> by the patient, alerts and what was done about them, visit outcomes, documents, the consent record and the audit trail.</li>
+            <li><b>One safety rule never bends:</b> an imported prescription is only a draft. No reminder exists until a named doctor, or a nurse the hospital has allowed, confirms it.</li>
+            <li><b>No lock-in:</b> a full export on request. Moving a hospital in is meant to take one day <span class="lbl target">Target</span>, not yet tried with any hospital.</li>
+          </ul>
+          <p class="small"><span class="src">INTEROPERABILITY §1</span> Nothing in this section is Live. No real hospital system has been connected.</p>
+        </div>
+        <h3>Four levels of connection</h3>
+        <div class="grid-2">
+          <article class="pub-card">
+            <div class="card-top"><h3>Level 0 · No IT work</h3><span class="status-text">In development · specified, not built</span></div>
+            <p>A spreadsheet (CSV) of the discharge list goes in, after a dry run that saves nothing. A printable discharge plan and CSV files come out. The hospital's IT team does nothing.</p>
+            <div class="tags"><span class="lbl estimate">Estimate</span><span class="src">about 4 developer-days · INTEROPERABILITY §4</span></div>
+          </article>
+          <article class="pub-card">
+            <div class="card-top"><h3>Level 1 · Standard files</h3><span data-feature="fhir.export"></span></div>
+            <p>FHIR R4 files (the international standard format for health records) go out per patient and per hospital, and FHIR patient records come in.</p>
+            <div class="tags"><span class="lbl estimate">Estimate</span><span class="src">about 5-10 developer-days · INTEROPERABILITY §4</span></div>
+          </article>
+          <article class="pub-card">
+            <div class="card-top"><h3>Level 2 · Live feed</h3><span class="status-text">Planned</span></div>
+            <p>The hospital system tells SpiroBuddy when a patient is discharged, and a doctor can open the SpiroBuddy chart from inside it. Their software vendor is usually needed.</p>
+            <div class="tags"><span class="lbl estimate">Estimate</span><span class="src">about 10-20 developer-days for the initial system · INTEROPERABILITY §4</span></div>
+          </article>
+          <article class="pub-card">
+            <div class="card-top"><h3>Level 3 · National rails</h3><span data-feature="docs.abdm_link"></span></div>
+            <p>India's national health-records network (ABDM), through the patient's health ID and a consent manager. We would send our episode summary into records that are already there, not build a records app.</p>
+            <div class="tags"><span class="lbl estimate">Estimate</span><span class="src">1-3 months including the national network's testing steps; vendors report 4-9 months (not confirmed) · INTEROPERABILITY §4</span></div>
+          </article>
+        </div>
+      </section>
+
+      <!-- 9 -->
+      <section class="pub-section" id="ddi" aria-labelledby="ddi-h">
+        <h2 id="ddi-h">9. Drug-interaction checks – deliberately not built (would be clinical decision support)</h2>
+        <div class="pub-card">
+          <div class="tags" style="margin:0 0 var(--sp-2)"><span data-feature="rx.interaction_checks"></span></div>
+          <p>Checking one medicine against another, or a dose against a safe range, is clinical decision support. A wrong answer could hurt a patient, and software that interprets or recommends is treated as a medical device. So SpiroBuddy does not do it.</p>
+          <p>It shows what the doctor wrote, word for word. It never changes a drug, a dose, a time or a length of treatment, and the AI never advises. <span class="src">plan 11 · line 7 · B4-1</span></p>
+          <p class="small muted">If we ever build it, it needs a clinical adviser, the regulator's written view and a drug database kept by pharmacists.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer id="pub-footer"></footer>
+
+  <script src="/js/icons.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/public-shell.js"></script>
+</body>
+</html>

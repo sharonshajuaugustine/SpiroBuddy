@@ -3,16 +3,176 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SpiroBuddy</title>
-  <!-- Placeholder: the public landing page (builder B7) replaces this file. -->
-  <link rel="stylesheet" href="css/styles.css">
+  <title>SpiroBuddy – the hospital, connected to the patient at home</title>
+  <meta name="description" content="SpiroBuddy connects the doctor and nurse to the patient at home after big surgery: proof the breathing exercise was done, and the doctor's prescription on the patient's own phone. Fake patients only.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b6e8a'/%3E%3Crect x='9' y='13' width='6' height='13' rx='3' fill='%23fff'/%3E%3Cpath d='M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4' stroke='%237fe0c8' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/public.css">
 </head>
 <body>
-  <main style="max-width:40rem;margin:3rem auto;padding:0 16px">
-    <h1>SpiroBuddy</h1>
-    <p>Home recovery after big surgery, built around the incentive spirometer. Fake patients only.</p>
-    <p><a class="btn" href="/app.html?id=1">Open the patient app (demo)</a></p>
-    <p><a class="btn" href="/login.html?next=/dashboard.html">Hospital login</a></p>
+  <header id="pub-header"></header>
+
+  <main id="main" class="pub-main" tabindex="-1">
+    <div class="pub-wrap">
+
+      <!-- 1. Hero -->
+      <section class="hero" aria-labelledby="hero-h">
+        <div>
+          <h1 id="hero-h">After surgery, the hospital stays connected to the patient at home.</h1>
+          <p class="lead">SpiroBuddy links the doctor and nurse to the patient's phone. It shows that the breathing exercise was really done, and it puts the doctor's prescription on the patient's own screen, so no paper is needed.</p>
+          <div class="cta-row">
+            <a class="btn primary lg" href="/app.html?id=1">Open the patient app (demo)</a>
+            <a class="btn lg" href="/login.html?next=/dashboard.html">Hospital login (demo credentials shown)</a>
+          </div>
+          <p class="note-line"><span data-icon="info" data-size="18"></span><span>Demo with fake patients, at Demo General Hospital (fictional). Not a medical device.</span></p>
+        </div>
+        <div>
+          <div class="hero-media">
+            <video id="hero-video" muted loop playsinline preload="metadata" aria-label="Animation of the SpiroBuddy clip-on unit on a breathing exerciser (3D model)">
+              <source src="/showcase/videos/hero.mp4#t=0.5" type="video/mp4">
+            </video>
+          </div>
+          <p class="hero-caption">
+            <span>3D model of the clip-on unit on a standard breathing exerciser.</span>
+            <a href="/showcase/">Open the 3D showroom</a>
+            <button class="btn sm" id="hero-toggle" type="button" hidden>Play the animation</button>
+          </p>
+        </div>
+      </section>
+
+      <!-- 2. The two things that go home with the patient -->
+      <section class="pub-section" aria-labelledby="pillars-h">
+        <h2 id="pillars-h">Two things go home with the patient</h2>
+        <p class="sec-lead">Both end at the same place: the hospital can see, and the patient can show, what was really done.</p>
+        <div class="grid-2">
+          <article class="pub-card accent">
+            <div class="card-top"><span class="card-ico" data-icon="wind" data-size="22"></span><h3>1. Proof the breathing exercise was done</h3></div>
+            <p>After big surgery, patients go home with a plastic breathing exerciser (an incentive spirometer) and are told to use it every hour. At home, nobody can see if they do. A clip-on unit reads each breath, a voice coach guides it, and the nurse's list shows who needs a call.</p>
+            <p class="muted">The spirometer stays the hero: it is the part that proves the exercise.</p>
+            <div class="tags">
+              <span data-feature="coach.breath"></span><span data-feature="coach.voice"></span>
+              <span data-feature="nurse.triage"></span><span data-feature="device.usb"></span>
+            </div>
+          </article>
+          <article class="pub-card accent">
+            <div class="card-top"><span class="card-ico" data-icon="file" data-size="22"></span><h3>2. The doctor's prescription, on the patient's phone</h3></div>
+            <p>The doctor writes the prescription in the hospital software. The patient sees every medicine on their own phone, in plain words and in their language. At the pharmacy counter they show that screen. No paper is needed.</p>
+            <p class="muted">The prescription starts as digital data, so nothing has to be decoded from a photo. Demo data only; we have not tested it with a real pharmacy.</p>
+            <div class="tags">
+              <span data-feature="rx.manual"></span><span data-feature="rx.patient_phone"></span>
+              <span data-feature="rx.pharmacy_screen"></span><span data-feature="rx.verify_qr"></span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- 3. The problem -->
+      <section class="pub-section" aria-labelledby="problem-h">
+        <h2 id="problem-h">The problem: nobody sees what happens at home</h2>
+        <div class="grid-4">
+          <div class="stat"><span class="big">1 in 10</span><span class="what">adults having surgery gets a lung complication (10.4% of 9,864 patients, 146 hospitals, 29 countries).</span><div class="tags"><span class="lbl counted">Counted</span><span class="src">PITCH_FACTS #1 · F-CLIN-1</span></div></div>
+          <div class="stat"><span class="big">86%</span><span class="what">of US nurses and therapists say patients do not use the exerciser properly. The top reason is forgetting (83.5%).</span><div class="tags"><span class="lbl counted">Counted</span><span class="src">PITCH_FACTS #5 · F-ADH-2</span></div></div>
+          <div class="stat"><span class="big">6%</span><span class="what">of 60 patients in a Chennai hospital did the exercise properly on day 1 after surgery (small study).</span><div class="tags"><span class="lbl counted">Counted</span><span class="src">PITCH_FACTS #6 · F-ADH-6</span></div></div>
+          <div class="stat"><span class="big">About half</span><span class="what">of older Indians take 5 or more medicines, so a paper list is easy to lose or misread.</span><div class="tags"><span class="lbl counted">Counted</span><span class="src">plan 11 · answer line 1 · R19</span></div></div>
+        </div>
+        <p class="muted" style="margin-top:var(--sp-3)">Reviews say the exerciser on its own makes little difference. But those trials rarely recorded whether patients actually did the exercise. SpiroBuddy makes that visible. <span class="src">PITCH_FACTS #33 · F-CLIN-3, F-CLIN-7</span></p>
+      </section>
+
+      <!-- 4. Personas -->
+      <section class="pub-section" aria-labelledby="who-h">
+        <h2 id="who-h">Who it helps</h2>
+        <p class="sec-lead"><span class="lbl demo">Illustrative – not real people</span> Three people, based on our research. The same names appear in the demo.</p>
+        <div class="grid-3">
+          <article class="pub-card">
+            <div class="card-top"><span class="card-ico" data-icon="user" data-size="22"></span><h3>Ravi, 58 · the patient</h3></div>
+            <p>Going home to Lucknow after abdominal surgery. Speaks Hindi and uses the family phone. He forgets the breathing exercise, or breathes too fast, and nobody sees.</p>
+            <p><b>With SpiroBuddy:</b> a Hindi voice coach, one big Start button, and his medicines on his own phone. At the pharmacy he shows the screen. No paper to lose.</p>
+            <p class="small muted">Only 41% of older Indians own a smartphone, so the family's phone matters. <span class="src">PITCH_FACTS #13 · F-INDIA-5</span></p>
+          </article>
+          <article class="pub-card">
+            <div class="card-top"><span class="card-ico" data-icon="user-check" data-size="22"></span><h3>Sister Anjali · the ward nurse</h3></div>
+            <p>Teaches the exercise once, at discharge. She cannot check every patient every hour. India has 2.6 nurses per 1,000 people, below the WHO benchmark of 3.</p>
+            <p><b>With SpiroBuddy:</b> one list with the most urgent patient at the top. An alert only when someone needs a call. Fixed safety rules, not AI.</p>
+            <p class="small muted"><span class="src">PITCH_FACTS #15 · F-INDIA-7</span></p>
+          </article>
+          <article class="pub-card">
+            <div class="card-top"><span class="card-ico" data-icon="users" data-size="22"></span><h3>Amit · the son, far away</h3></div>
+            <p>Works in Bengaluru and worries, but can only ask on the phone. Two in three older Indians live with their children, so the family's phone is the channel.</p>
+            <p><b>With SpiroBuddy:</b> if Ravi agrees, Amit opts in and sees today's ticks on a private family page.</p>
+            <p class="small muted"><span class="src">PITCH_FACTS #9 · F-INDLOC-3</span></p>
+          </article>
+        </div>
+      </section>
+
+      <!-- 5. How it works -->
+      <section class="pub-section" aria-labelledby="how-h">
+        <h2 id="how-h">How it works in 3 steps</h2>
+        <ol class="steps cols-3">
+          <li><h3>The doctor sets the plan</h3><p>In the hospital software the doctor writes the breathing plan and the prescription. The nurse sees the patient on her list.</p></li>
+          <li><h3>The patient has it all on their phone</h3><p>A breathing coach in their language, every medicine in plain words, the next visit. At the pharmacy counter they show the prescription screen.</p></li>
+          <li><h3>The hospital sees what happened</h3><p>The nurse sees who is on track and who needs a call. A patient's tap is shown as "reported"; only a sensor reading counts as "measured".</p></li>
+        </ol>
+      </section>
+
+      <!-- 6. What is inside -->
+      <section class="pub-section" aria-labelledby="inside-h">
+        <h2 id="inside-h">What is inside</h2>
+        <div class="grid-3">
+          <article class="pub-card plain"><div class="card-top"><span class="card-ico" data-icon="wind" data-size="22"></span><h3>Breathing coach</h3></div><p>Voice coaching for each breath, with a score.</p><div class="tags"><span data-feature="coach.breath"></span></div></article>
+          <article class="pub-card plain"><div class="card-top"><span class="card-ico" data-icon="file" data-size="22"></span><h3>Medicines</h3></div><p>The doctor's prescription on the patient's phone, with reminders.</p><div class="tags"><span data-feature="rx.patient_phone"></span><span data-feature="doses.reminders"></span></div></article>
+          <article class="pub-card plain"><div class="card-top"><span class="card-ico" data-icon="calendar" data-size="22"></span><h3>Visits</h3></div><p>Ask for a visit in three taps; the hospital confirms.</p><div class="tags"><span data-feature="appt.booking"></span></div></article>
+          <article class="pub-card plain"><div class="card-top"><span class="card-ico" data-icon="book" data-size="22"></span><h3>Papers</h3></div><p>Discharge summary and reports in one place.</p><div class="tags"><span data-feature="docs.vault"></span></div></article>
+          <article class="pub-card plain"><div class="card-top"><span class="card-ico" data-icon="bell" data-size="22"></span><h3>Nurse list</h3></div><p>Who is on track, who to watch, who needs a call.</p><div class="tags"><span data-feature="nurse.triage"></span></div></article>
+          <article class="pub-card plain"><div class="card-top"><span class="card-ico" data-icon="users" data-size="22"></span><h3>Family page</h3></div><p>With consent, today's ticks for a worried relative.</p><div class="tags"><span data-feature="family.page"></span></div></article>
+        </div>
+      </section>
+
+      <!-- 7. Trust strip -->
+      <section class="pub-section" aria-labelledby="trust-h">
+        <h2 id="trust-h">Safety is in the code, not left to the AI</h2>
+        <div class="callout">
+          <ul class="pub-list">
+            <li>The AI never diagnoses and never advises on a medicine, a dose or a time.</li>
+            <li>Danger words (for example chest pain) get one fixed message: "Please contact your nurse now. In an emergency call 112."</li>
+            <li>A named person confirms every prescription line before any reminder exists.</li>
+            <li>The family sees anything only with the patient's separate consent.</li>
+          </ul>
+          <p>Designed to follow ICMR, DPDP and telemedicine principles. No outside body has reviewed it yet. <a href="/trust.html">Read the trust page</a></p>
+        </div>
+      </section>
+
+      <!-- 8. Status legend -->
+      <section class="pub-section" aria-labelledby="legend-h">
+        <h2 id="legend-h">How we label what is real</h2>
+        <p class="sec-lead">Every feature carries one of four labels. Nothing marked Planned is shown as working.</p>
+        <div class="pub-card" data-legend></div>
+      </section>
+
+      <!-- 9. Two big buttons -->
+      <section class="pub-section" aria-labelledby="try-h">
+        <h2 id="try-h">Try the demo</h2>
+        <div class="grid-2">
+          <div class="pub-card">
+            <h3>The patient's side</h3>
+            <p>Big buttons, voice in Hindi and other languages, nothing to type.</p>
+            <a class="btn primary lg" href="/app.html?id=1">Open the patient app (demo)</a>
+          </div>
+          <div class="pub-card">
+            <h3>The hospital's side</h3>
+            <p>Doctor, nurse and admin views. The login page shows the demo credentials.</p>
+            <a class="btn lg" href="/login.html?next=/dashboard.html">Hospital login (demo credentials shown)</a>
+          </div>
+        </div>
+      </section>
+    </div>
   </main>
+
+  <footer id="pub-footer"></footer>
+
+  <script src="/js/icons.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/public-shell.js"></script>
+  <script src="/js/public-home.js"></script>
 </body>
 </html>

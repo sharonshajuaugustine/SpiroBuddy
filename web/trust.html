@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trust and safety – SpiroBuddy</title>
+  <meta name="description" content="The rules SpiroBuddy is designed around (ICMR, DPDP, telemedicine), what it does about each, the ten safe-medication rules, live AI audit numbers and what must happen before a real pilot.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b6e8a'/%3E%3Crect x='9' y='13' width='6' height='13' rx='3' fill='%23fff'/%3E%3Cpath d='M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4' stroke='%237fe0c8' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/public.css">
+</head>
+<body>
+  <header id="pub-header"></header>
+
+  <main id="main" class="pub-main" tabindex="-1">
+    <div class="pub-wrap">
+      <div class="pub-head">
+        <h1>Trust and safety</h1>
+        <p class="lead">What we designed around, what the product does about it, and what is still missing. No outside body has reviewed SpiroBuddy, and this page does not say otherwise.</p>
+        <span data-feature="public.trust"></span>
+        <ul class="toc">
+          <li><a href="#rules">Rules and what we do</a></li><li><a href="#medicines">Ten medicine rules</a></li><li><a href="#audit">Live AI audit</a></li>
+          <li><a href="#claims">What we do not claim</a></li><li><a href="#pilot">Before a real pilot</a></li><li><a href="#gemini">How Gemini is used</a></li>
+        </ul>
+      </div>
+
+      <noscript><div class="callout warn"><p>This page draws its tables from small data files with JavaScript. Please turn JavaScript on.</p></div></noscript>
+
+      <section class="pub-section" id="rules" aria-labelledby="rules-h">
+        <h2 id="rules-h">1. The rules, and what SpiroBuddy does</h2>
+        <p class="sec-lead">Each row names a rule, says what the product does, and shows its status. A row that says Planned is not built.</p>
+        <div id="rule-groups"></div>
+      </section>
+
+      <section class="pub-section" id="medicines" aria-labelledby="med-h">
+        <h2 id="med-h">2. The ten safe-medication rules</h2>
+        <p class="sec-lead">These live in code. They do not depend on what an AI model decides to say. <span class="src" id="safe-src"></span></p>
+        <ol class="pub-list pub-card" id="safe-rules" style="padding-left:calc(var(--sp-5) + 1.2em)"></ol>
+      </section>
+
+      <section class="pub-section" id="audit" aria-labelledby="audit-h">
+        <h2 id="audit-h">3. Live AI audit <span data-feature="ai.register"></span></h2>
+        <p class="sec-lead"><span class="lbl demo">Demo data, fake patients</span> Every AI draft is logged, and a person then confirms, edits or rejects it. These totals are computed live from that log.</p>
+        <div class="grid-3" id="ai-stats" aria-live="polite"><div class="stat no-data"><span class="big">Loading…</span></div></div>
+        <p class="small muted" id="ai-foot" style="margin-top:var(--sp-3)"></p>
+      </section>
+
+      <section class="pub-section" id="claims" aria-labelledby="claims-h">
+        <h2 id="claims-h">4. What we do not claim</h2>
+        <p class="verbatim">Designed to follow these guidelines. Not reviewed or approved by ICMR, an ethics committee or CDSCO.</p>
+        <ul class="pub-list">
+          <li>SpiroBuddy has not been tested on real patients, and no hospital has used it.</li>
+          <li>It is a demo. It is not a medical device and it is not for clinical use.</li>
+          <li>We make no claim that it prevents complications or changes how many patients return to hospital. A proper study would have to show that.</li>
+        </ul>
+      </section>
+
+      <section class="pub-section" id="pilot" aria-labelledby="pilot-h">
+        <h2 id="pilot-h">5. What happens before a real pilot <span data-feature="pilot.checklist"></span></h2>
+        <div class="callout warn" style="margin-bottom:var(--sp-4)"><p><b>Demo hospital example – none of these are done for a real pilot.</b> The demo has fake patients, so none of the steps apply to it today. <span class="src" id="check-src"></span></p></div>
+        <ol class="pub-list pub-card" id="checklist" style="padding-left:calc(var(--sp-5) + 1.2em)"></ol>
+      </section>
+
+      <section class="pub-section" id="gemini" aria-labelledby="gemini-h">
+        <h2 id="gemini-h">6. How Gemini is used</h2>
+        <p class="verbatim">In the demo only sample prescriptions are sent to Google's Gemini API. Real-patient use needs ethics approval, a paid or enterprise data agreement and a data-residency review (Planned).</p>
+        <ul class="pub-list" id="gemini-points"></ul>
+        <p class="small muted">Every upload screen in the product says: "Demo: please use the sample prescriptions. Do not upload a real prescription."</p>
+      </section>
+    </div>
+  </main>
+
+  <footer id="pub-footer"></footer>
+
+  <script src="/js/icons.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/public-shell.js"></script>
+  <script src="/js/public-trust.js"></script>
+</body>
+</html>

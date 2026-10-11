@@ -1,0 +1,92 @@
+{
+  "segments": [
+    {
+      "key": "segment.post_surgery",
+      "name": "After heart, chest and upper-abdominal surgery",
+      "text": "The current focus. The same breathing exercise is taught after chest, upper-abdominal, cancer and weight-loss operations, so one hospital can add more surgery types without new hardware.",
+      "caution": "Evidence is best for lung-cancer surgery as part of a bundle; it is weak for upper-abdominal surgery alone.",
+      "source": "E-7 · B1-5 ranks 1-2"
+    },
+    {
+      "key": "segment.prehab",
+      "name": "Before surgery (prehabilitation)",
+      "text": "Enrol the patient at booking instead of discharge. The strong pre-surgery evidence is for a different device, a breathing-muscle trainer, so we do not borrow its numbers.",
+      "caution": "Needs its own care plan and a clinical adviser.",
+      "source": "E-8"
+    },
+    {
+      "key": "segment.post_tb",
+      "name": "After TB treatment",
+      "text": "About 26 lakh TB patients were notified in 2024, about 18.5 lakh of them with lung TB. This needs a basic-phone mode and a programme partner, and the buyer is a state programme, not a hospital.",
+      "caution": "No trial of the spirometer alone; the programme's draft rehab guidance lists it among breathing exercises.",
+      "source": "E-9 · B1-8 (l) · PITCH_FACTS #32"
+    },
+    {
+      "key": "segment.copd",
+      "name": "Long-term lung disease (COPD)",
+      "text": "5.53 crore people had COPD in 2016 (4.2% of the population). Rehab is not routinely available, but the spirometer is only a small part of rehab.",
+      "caution": "Evidence for the device is thin; long-term engagement is a different product problem.",
+      "source": "E-9"
+    }
+  ],
+  "buyers": [
+    {"rank": 1, "who": "Mid-size private and trust or mission hospitals with a heart or major-surgery unit", "time": "1-3 months", "source": "B1-5 · team estimate"},
+    {"rank": 2, "who": "Cardiac and thoracic surgery centres, including teaching-hospital units", "time": "Pilot 2-4 months including ethics review; purchase later", "source": "B1-5 · team estimate"},
+    {"rank": 3, "who": "Corporate hospital chains", "time": "6-12 months or more", "source": "B1-5 · team estimate"}
+  ],
+  "market": {
+    "counted": [
+      {"text": "Major operations a year in India's public records (an undercount)", "value": "about 49 lakh", "label": "counted", "source": "B1-8 (a) · ledger #63 · grade A"},
+      {"text": "Hospitals in India", "value": "69,265", "label": "counted", "source": "B1-8 (b) · S1 · grade B (private share estimated)"},
+      {"text": "TB patients notified a year (lung TB share about 18.5 lakh)", "value": "about 26 lakh", "label": "counted", "source": "B1-8 (l) · ledger #161, #187"}
+    ],
+    "steps": [
+      {"step": "Share of operations where an incentive spirometer is given", "low": "10%", "mid": "20%", "high": "30%", "label": "assumption", "source": "B1-10 · team assumption, no Indian figure"},
+      {"step": "Patients a year (India)", "low": "4.9 lakh", "mid": "9.8 lakh", "high": "14.7 lakh", "label": "estimate", "source": "B1-10 · arithmetic"},
+      {"step": "Price per patient episode", "low": "₹500", "mid": "₹750", "high": "₹1,000", "label": "assumption", "source": "B1-10 · team assumption, never tested with a hospital"},
+      {"step": "India market for post-surgery coaching, a year", "low": "₹24.5 crore", "mid": "₹73.5 crore", "high": "₹147 crore", "label": "estimate", "source": "B1-10 · arithmetic"}
+    ],
+    "honest": [
+      "This is a tens-of-crores market, not a thousands-of-crores one (B1-10). That is a real but small market on post-surgery alone.",
+      "No Indian count exists for thoracic, weight-loss or upper-abdominal operations, so we start from all major operations and an assumed share (B1-9).",
+      "Many Indian wards seem to use the three-ball spirometer, which our sensor cannot read. Unless we supply the spirometer, the 10-30% share may be too high (E-12, not confirmed)."
+    ]
+  },
+  "funnel": {
+    "base": "Per hospital department, per month",
+    "tag": "Shot list · shot 13 · assumptions",
+    "steps": [
+      {"n": 1, "name": "Reach", "who": "the hospital", "number": "about 50 eligible patients", "label": "estimate", "bar": 100},
+      {"n": 2, "name": "Join", "who": "Ravi consents · Amit opts in", "number": "40 join (8 in 10) · 24 families opt in (6 in 10 of those who join)", "label": "assumption", "bar": 80},
+      {"n": 3, "name": "Start", "who": "Ravi", "number": "36 do a home session on day 1 (9 in 10)", "label": "assumption", "bar": 72},
+      {"n": 4, "name": "Stay", "who": "Ravi", "number": "still going: 34 on day 3 · 30 on day 7 · 26 on day 14 (85% · 75% · 65%)", "label": "assumption", "bar": 52},
+      {"n": 5, "name": "Do", "who": "Ravi · Sister Anjali", "number": "about 58% of due sessions done · the nurse opens the list on 9 days in 10", "label": "target", "label2": "assumption"},
+      {"n": 6, "name": "Continue", "who": "the hospital", "number": "1 pilot hospital in 3 goes on to pay", "label": "target"}
+    ],
+    "footnote": "Estimates, not results. Basis: plan 03 §3 and plan 05 (volumes); Lung India 2025 and Indian J Med Res 2025 (home rehab); Respira Health (self-reported); LASI; Eltorai, JAMA Surg 2019; our arithmetic. A pilot of 30-50 patients measures every step."
+  },
+  "calculator": {
+    "sliders": [
+      {"id": "hospitals", "label": "Hospitals", "min": 1, "max": 50, "step": 1, "value": 1, "unit": "", "hint": "1 = a single pilot hospital. Ten hospitals is the next planned stage.", "source": "SCALING_AND_COST §4"},
+      {"id": "eligible", "label": "Eligible patients per hospital per month", "min": 10, "max": 300, "step": 5, "value": 50, "unit": "", "hint": "About 50 per department per month.", "source": "shot 13 · estimate"},
+      {"id": "join", "label": "Share who join", "min": 20, "max": 100, "step": 5, "value": 80, "unit": "%", "hint": "8 in 10 join.", "source": "shot 13 · assumption"},
+      {"id": "d7", "label": "Still going on day 7", "min": 30, "max": 100, "step": 5, "value": 75, "unit": "%", "hint": "Share of those who joined.", "source": "shot 13 · assumption"},
+      {"id": "d14", "label": "Still going on day 14", "min": 20, "max": 100, "step": 5, "value": 65, "unit": "%", "hint": "Share of those who joined. Never higher than day 7.", "source": "shot 13 · assumption"},
+      {"id": "family", "label": "Families who opt in", "min": 0, "max": 100, "step": 5, "value": 60, "unit": "%", "hint": "Share of those who joined. 6 in 10.", "source": "shot 13 · assumption"}
+    ],
+    "fixed": [
+      {"text": "Patients who do a session on day 1", "value": "90% of those who joined", "label": "assumption", "source": "shot 13"},
+      {"text": "Still going on day 3", "value": "85% of those who joined", "label": "assumption", "source": "shot 13"},
+      {"text": "Sessions due each day", "value": "14 (hourly, 8 am to 9 pm)", "label": "assumption", "source": "backend/app/config.py FIRST_SLOT, LAST_SLOT"},
+      {"text": "Share of due sessions done", "value": "58%", "label": "target", "source": "shot 3 · Eltorai, JAMA Surg 2019 (US trial with hourly reminders)"},
+      {"text": "Length of one recovery episode", "value": "14 days", "label": "assumption", "source": "SCALING_AND_COST §4"}
+    ]
+  },
+  "sdg": [
+    {"target": "3.8", "main": true, "wording": "Universal health coverage, including access to quality essential health-care services", "link": "Brings follow-up of a standard post-surgery exercise, and the prescription, into the home in the patient's language."},
+    {"target": "3.4", "main": false, "wording": "Reduce premature deaths from non-communicable diseases through prevention and treatment; promote well-being", "link": "Supports recovery after heart and cancer surgery and, later, lung-disease rehab. We support it; we do not claim to move the death rate."},
+    {"target": "3.c", "main": false, "wording": "Recruit, develop, train and retain the health workforce", "link": "Lets one nurse see which of many patients needs a call, instead of checking everyone."},
+    {"target": "3.3", "main": false, "wording": "End TB and other epidemics", "link": "Later, only through the TB-survivor rehab roadmap (Planned). Not a current impact.", "later": true}
+  ],
+  "sdg_source": "PITCH_PLAN · SDG mapping"
+}
