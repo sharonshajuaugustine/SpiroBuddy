@@ -974,6 +974,12 @@ canvas.live { width: 100%; height: 260px; display: block; background: var(--surf
 }
 .ribbon-fake > svg { flex: none; color: var(--text-3); }
 .ribbon-fake.lg { font-size: 1.125rem; padding: var(--sp-2) var(--sp-4); }    /* patient app and family page */
+/* in the hospital shell the ribbon sits inside the sticky top bar, so the sticky nav starts below it
+   (ui.js sets body.has-ribbon; without this the nav strip slides under the ribbon on a phone) */
+body.has-ribbon { --ribbon-h: 28px; }
+.app-header .ribbon-fake { height: var(--ribbon-h, 28px); min-height: 0; padding-block: 0; white-space: nowrap; overflow: hidden; }
+body.has-ribbon > .side-nav { top: calc(var(--top-h) + var(--ribbon-h)); }
+@media (min-width: 1024px) { body.has-ribbon > .side-nav { height: calc(100vh - var(--top-h) - var(--ribbon-h)); } }
 
 /* ---------- banners: database update needed (red), please log in (info) ---------- */
 .banner.db { background: var(--red-soft); border: 1px solid var(--red-line); color: var(--red); }

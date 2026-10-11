@@ -185,7 +185,9 @@
    * SB.ui.badge(key) -> '<span class="fbadge live">✓ Live</span>' (icon + word, never colour alone).
    * SB.ui.plannedCard(key) -> a disabled card (not clickable) with the badge, the feature name and its note.
    * Called before the list arrives, both return a placeholder that fills itself in. In HTML you can also write
-   * <span data-feature="KEY"></span> (or <div data-feature="KEY" data-fkind="card"></div>); boot() fills them. */
+   * a span with the attribute data-feature (value = the feature key), or a div with data-feature plus
+   * data-fkind="card" for a Planned card; boot() fills them. (No literal example here on purpose: the feature
+   * test greps web/ for that attribute and checks every key against the registry – see DESIGN_SYSTEM.md §10.) */
   const FSTATUS = {
     live: { word: 'Live', icon: 'check-circle' },
     simulated: { word: 'Simulated', icon: 'flask' },
@@ -242,7 +244,7 @@
     loadFeatures();
     return `<div class="planned-card pending" ${FKEY}="${esc(key)}" data-fkind="card" aria-busy="true"><span class="skeleton" style="width:60%"></span><span class="skeleton" style="width:90%"></span></div>`;
   }
-  /* fill placeholders and <… data-feature="KEY"> elements (call again after you render new HTML) */
+  /* fill placeholders and elements that carry data-feature (call again after you render new HTML) */
   function hydrateBadges(root) {
     const els = $$('[' + FKEY + '], [data-feature]', root);
     if (!els.length) return;
@@ -446,6 +448,7 @@
     }
     const rib = $('#ribbon-slot');
     if (rib) rib.innerHTML = demo ? fakeRibbonHTML() : '';
+    document.body.classList.toggle('has-ribbon', !!(rib && demo));   // styles.css: the sticky nav starts below the ribbon
     if (loginError) toast('Could not check your login: ' + loginError, 'bad', 6000);
     hydrateIcons(document);
   }

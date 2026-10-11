@@ -4,7 +4,7 @@ Every SpiroBuddy surface uses this: the nurse/doctor website, the demo panel, th
 
 **Feel:** clinical and calm. Neutral backgrounds, one brand teal, status colours used sparingly and always with an icon and a word. Crisp type hierarchy, 4/8 spacing, thin borders instead of heavy shadows, tabular numbers.
 
-`web/css/styles.css` is organised in this order: **1 tokens** (light + dark) → **2 base** → **3 layout & app shell** → **4 components** → **5 pages** → **6 print** → **7 UI 2 additions** (guardian page v2, demo-panel tidy – later rules that refine the `.g-*` and `.dcard` pieces; add new work below it).
+`web/css/styles.css` is organised in this order: **1 tokens** (light + dark) → **2 base** → **3 layout & app shell** → **4 components** → **5 pages** → **6 print** → **7 UI 2 additions** (guardian page v2, demo-panel tidy – later rules that refine the `.g-*` and `.dcard` pieces) → **8 2.0 additions** (hospital shell, status badges, Planned cards, unclear fields, inline edit, shown-once secrets, login page – see §10 below). After Phase 1 of the 2.0 rebuild only the lead edits `styles.css`; page-only styles go in `web/css/<area>.css` with the same tokens.
 
 ---
 
@@ -126,3 +126,46 @@ They import the **same** `web/css/styles.css` and the same tokens – same colou
 ## 9. Icons and illustration
 - Line icons with 2 px strokes, rounded ends, in the current text or brand colour (`web/js/icons.js`).
 - The 3D model and videos use brand teal for the SpiroBuddy unit's accent and the same status colours for the LED and phone screens.
+
+---
+
+## 10. SpiroBuddy 2.0 additions (`styles.css` section 8, `ui.js`, `api.js`)
+
+Everything here uses the tokens from §1 only, so light and dark work by themselves. All of it holds at 375 px, keeps the 3 px focus ring and stops moving under reduced motion.
+
+### Hospital shell (every page under `/hospital/`)
+A hospital page needs only `<header id="app-header"></header><main>…</main>`, the three scripts (`/js/icons.js`, `/js/api.js`, `/js/ui.js`) and `await SB.ui.boot(pageKey)`. `boot` waits for `/api/auth/me`. Not logged in → it sends the browser to `/login.html?next=…` and never resolves, so the page fires no calls while it leaves. After `boot`, `SB.ui.me` is the logged-in user.
+- **Page keys and nav** (`SB.ui.HOSP_NAV`): `home` (`/hospital/index.html`), `patients`, `review`, `appointments`, `availability`, `keys`, `staff` (admin), `devices`, `settings` (admin), `governance`, `demo` (admin or doctor, DEMO_MODE only). Nurses see Home, Patients, Devices, plus Prescription review with the `confirm_prescriptions` permission and Appointments with `manage_appointments`. The nav only hides links. The server (`authz.py`) is the real check.
+- **Top bar:** hospital name, system status, IST clock, theme button, then the **user menu** `.user-menu` (avatar + name + role; the pop-over adds hospital, department, email and **Log out**). Under 760 px only the avatar shows.
+- **Ribbon** `.ribbon-fake`: dashed "Fake patients only · demo" strip under the top bar whenever `/api/health` says `demo_mode`. Icon + words, stays on printouts. Other pages call `SB.ui.fakeRibbon({into, text, large})` (`large: true` = patient size, `.ribbon-fake.lg`). `body.has-ribbon` makes the sticky nav start below it.
+- **Banners:** `.banner.db` (red) "Database update needed – see SETUP_STEPS.md" when `/api/health.v2_missing` is true. `.banner.info` "Hospital login needed" + Log in button when an old page (not on the redirect list) gets a 401.
+- The old pages (`index`, `patient`, `demo`, `units`, `collect`) keep the old shell from §2.
+
+### Components
+| Component | Classes / helper | Usage note |
+|---|---|---|
+| Feature status badge | `SB.ui.badge(key)` → `.fbadge.live` / `.simulated` / `.in_development` / `.planned` (`.pending` while loading) | Words are fixed: **Live, Simulated, In development, Planned** – always icon + word. The status comes from `GET /api/features` (one fetch per page, `SB.ui.loadFeatures()`). An unknown key shows "Planned" and warns in the console. In HTML write `<span data-feature="KEY"></span>`; `boot` fills it. After rendering new HTML call `SB.ui.hydrateBadges(root)`. `.fbadge-legend` lays out a row of them. |
+| Planned card | `SB.ui.plannedCard(key)` → `.planned-card` (`.pc-head`, `.pc-name`, `.pc-note`); grid `.planned-grid` | A feature shown in context but not built: dashed, `aria-disabled="true"`, never a link or button. Shows the badge, the feature name and its one-line note. HTML form: `<div data-feature="KEY" data-fkind="card"></div>`. |
+| Unclear field | `.amber-field` around a field, with `.amber-hint` (icon + "Unclear – check the original") | For a value the AI was not sure about. Pale amber background, amber line on the left, amber input border. If no `.amber-hint` is written, the words still appear. Never amber alone. |
+| Inline edit | `.inline-edit` > `.ie-row` (`.ie-label`, `.ie-view`, `button.ie-edit`, `form.ie-form` with `.ie-actions` Save / Cancel) + `SB.ui.editedMeta(by, at)` → `.ie-meta` | View → Edit → Save or Cancel in place. Add `.is-editing` to the wrapper to swap the view for the form. `.ie-view.empty-val` for "not set". The meta line reads "Edited by … at DD/MM/YYYY, h:mm am". |
+| Shown-once secret | `SB.ui.keyReveal(secret, {label, note})` → `.key-reveal` (`.kr-label`, `.kr-code`, `.kr-copy`, `.kr-note`) | Nurse key, join code, temporary password. Teal box, mono text, a **Copy** button that works by itself, and the warning "Shown only once". |
+| Form pieces | `.form-stack`, `.field .hint`, `.form-msg.bad` / `.good` / `.info`, `.btn.block`, `.pw-wrap` + `.pw-toggle` | Stacked forms with 44 px inputs. Messages start with an icon. `role="alert"` on error boxes. |
+| Login pages | `body.auth-body` > `.auth-top`, `main.auth-main` (`.single` = one centred column), `.login-card`, `.auth-links`, `.demo-accounts` (`.da-list`, `.da-row`, `.da-who`, `.da-cred`), `.auth-foot` | `login.html`; reuse for `signup.html` and `redeem.html`. No app shell. Footer: "Fake patients only · not a medical device · not for clinical use". The demo-accounts box is dashed and shows only in DEMO_MODE. |
+
+Markup for an inline edit:
+```html
+<div class="inline-edit">
+  <div class="ie-row">
+    <span class="ie-label">Goal volume</span>
+    <span class="ie-view">2,000 mL</span>
+    <button class="btn sm ie-edit" type="button">Edit</button>
+    <form class="ie-form"><input …><div class="ie-actions"><button class="btn sm primary">Save</button><button class="btn sm" type="button">Cancel</button></div></form>
+  </div>
+  <!-- SB.ui.editedMeta('Dr. Meera Nair', iso) goes here -->
+</div>
+```
+
+### Script helpers (2.0)
+- `web/js/api.js`: every non-GET call carries **`X-SB: 1`** (also raw `fetch()` calls to `/api/` from other scripts). `SB.api.upload(path, formData, opts)` sends multipart (the browser sets the boundary). `SB.auth.me()` (one call per page, `{refresh: true}` asks again), `SB.auth.login(email, password)`, `SB.auth.logout()`. A **401** redirects once to `/login.html?next=…` only on staff pages: anything under `/hospital/`, plus `patient.html`, `demo.html`, `units.html`, `collect.html` (`SB.api.needsLogin(path)` is the one list). `/`, `index.html`, `app.html`, `guardian.html`, login/signup/redeem and the public pages never redirect; they get a `sb:unauthorized` event. Mock mode (`?mock=1`) answers `/api/auth/*`, `/api/me/session` and `/api/features` with the fictional demo accounts.
+- `web/js/ui.js`: `SB.ui.esc(s)` for **every** user string put into HTML · `SB.ui.hasPerm(me, perm)` and `SB.ui.navAllowed(item, me, demo)` (display only) · `SB.ui.dmy(date)` → DD/MM/YYYY in India time · `SB.ui.ROLE_TEXT`.
+- **Extra icons** (added by `ui.js` to the set in §3): key, lock, log-out, log-in, copy, settings, shield, edit, file, pill, upload, cpu, mail, eye-off.
