@@ -28,6 +28,13 @@ Accounts hang from the hospital: Hospital → Departments → Doctors and Nurses
 5. **Nurse app (phone):** duty roster, assigned rooms, tasks, meetings (department makes the roster).
 6. **Store apps "Arogya Sathi":** one app per store wrapping the web app (Android Trusted Web Activity; iOS Capacitor with real native parts – notifications), rebranded inside after login (plan 12).
 
+## 3b. Connected devices (founder, ~01:10 IST)
+- **Device modules:** the SpiroBuddy spirometer clip-on is **device module v1**. Later modules connect the same way over **Bluetooth**: e.g. pulse oximeter, blood-pressure cuff, peak-flow meter, other breathing or exercise devices the hospital lends out (each one Planned until built).
+- **Pairing from either phone:** the patient's phone (main path) or the nurse's phone (set-up and checks on the ward).
+- **Placement:** **patient app** – a big, always-visible card on the home screen ("My device: Spirometer – Start") and the **Breathing** tab, only when the hospital assigned that patient a device. **Nurse app** – tucked under **More → Devices** (pair, check battery, hand over / take back), out of the way of daily work.
+- **Technical fact:** Bluetooth from a web page works in Chrome on Android, not in Safari on iPhone → iPhones need the store app (Capacitor Bluetooth plugin). Each device type gets one small "driver" that turns its readings into the same format, so new devices plug into the same screens.
+- **Regulation:** a device that measures a patient may fall under India's Medical Devices Rules 2017 (CDSCO); claim only "practice and recording" until we have the regulator's written view (already on the roadmap).
+
 ## 4. Safety and honesty rules for the new parts
 - **Patients never switch medicines off by themselves.** "Choose which medicines to continue" becomes: the patient can tell the doctor "I stopped this / I have side effects" (sent to the doctor as a report); the schedule changes only when the doctor changes it. Reminder **times** can be shifted by the patient within the doctor's plan.
 - Patient condition is written by staff in plain words; the app never diagnoses or suggests a dose.

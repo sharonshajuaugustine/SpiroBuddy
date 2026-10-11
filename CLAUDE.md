@@ -14,6 +14,7 @@ SpiroBuddy is a hackathon project (Dolphin Tank India Social Impact Hackathon, H
 ## The big picture: Arogya Sathi (founder, Mon 12 Oct ~01:00 IST) – plan in `docs/plan/13_AROGYA_SATHI_PLATFORM.md`
 - **The app's name is Arogya Sathi** ("health companion"), in the Play Store and App Store. SpiroBuddy's breathing coach and device become one part of it. Until the founder decides otherwise, keep the site and the hackathon entry named SpiroBuddy and say "Arogya Sathi, with the SpiroBuddy breathing coach" in the deck.
 - **Five kinds of account, all under the hospital:** Hospital (set up by us, with its own name and theme; whole-hospital view: check-ins, check-outs, beds) · Department (registers patients, bed board, appointments, nurse duty roster) · Doctor (today's patients, records, prescriptions; saving updates department and hospital views) · Nurse (phone: duty, rooms, tasks) · Patient (phone: prescriptions, printable PDF, medicine times, spoken missed-dose reminder, pharmacy screen).
+- **Connected devices:** the spirometer is device module v1; more Bluetooth devices later. Patient app: big home-screen card + Breathing tab (only if assigned). Nurse app: under More → Devices. iPhones need the store app for Bluetooth.
 - Patients never switch a medicine off themselves; they report it to the doctor, and only the doctor changes the plan.
 
 ## Product plan at a glance (for teammates; details in `docs/plan/12_HOSPITAL_ONBOARDING_AND_BRANDING.md`)
