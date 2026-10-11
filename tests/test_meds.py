@@ -306,7 +306,7 @@ def test_dose_statuses_follow_the_clock(patient_client, rxdb):
     ids = {}
     for name, delta in (("upcoming", 120), ("due", 5), ("late", -30), ("missed", -300)):
         ids[name] = rxdb.insert("dose_events", [{**base, "due_at": iso(now + timedelta(minutes=delta))}])[0]["id"]
-    got = {d["id"]: d["status"] for d in meds.doses_for(PID, now.date().isoformat(),
+    got = {d["id"]: d["status"] for d in meds.doses_for(PID, (now - timedelta(days=1)).date().isoformat(),
                                                          (now + timedelta(days=1)).date().isoformat())}
     assert got[ids["upcoming"]] == "upcoming" and got[ids["due"]] == "due"
     assert got[ids["late"]] == "due" and got[ids["missed"]] == "missed"
