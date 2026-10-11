@@ -35,6 +35,9 @@ Accounts hang from the hospital: Hospital → Departments → Doctors and Nurses
 - **Technical fact:** Bluetooth from a web page works in Chrome on Android, not in Safari on iPhone → iPhones need the store app (Capacitor Bluetooth plugin). Each device type gets one small "driver" that turns its readings into the same format, so new devices plug into the same screens.
 - **Regulation:** a device that measures a patient may fall under India's Medical Devices Rules 2017 (CDSCO); claim only "practice and recording" until we have the regulator's written view (already on the roadmap).
 
+## 3c. Business architecture (founder, ~01:15 IST)
+**Multi-tenant B2B SaaS with modular add-ons** ("land and expand"): one shared platform, each hospital a separate tenant (its data kept apart); a **core** (hospital, department, doctor, nurse, patient accounts + prescriptions) and **add-on modules** switched on per hospital (spirometer v1, later other devices). **Our own console** (super-admin, staff of the company only): list of hospitals, set-up and branding, which modules each hospital has (feature flags / entitlements), usage, and the hospital's subscription invoices – paid by the hospital offline or online. Money appears **only** in this company console, never in the hospital, nurse or patient apps.
+
 ## 4. Safety and honesty rules for the new parts
 - **Patients never switch medicines off by themselves.** "Choose which medicines to continue" becomes: the patient can tell the doctor "I stopped this / I have side effects" (sent to the doctor as a report); the schedule changes only when the doctor changes it. Reminder **times** can be shifted by the patient within the doctor's plan.
 - Patient condition is written by staff in plain words; the app never diagnoses or suggests a dose.
