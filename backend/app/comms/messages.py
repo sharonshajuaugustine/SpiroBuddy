@@ -246,7 +246,37 @@ RED_FLAG_RE = re.compile(
     r"सीने में दर्द|छाती में दर्द|साँस नहीं|सांस नहीं|साँस फूल|सांस फूल|बुखार|खून|चक्कर|बेहोश|मदद|बचाओ|"
     r"\bmadad\b|bachao|saans\s*nahi|seene\s*mein\s*dard|bukhar|"
     r"நெஞ்சு வலி|மூச்சு திணறல்|காய்ச்சல்|ரத்தம்|மயக்கம்|உதவி|"
-    r"സഹായ|രക്ഷിക്ക", re.I)       # Malayalam "help" / "save me" (needs a native-speaker check, Q-28)
+    r"സഹായ|രക്ഷിക്ക|"             # Malayalam "help" / "save me" (needs a native-speaker check, Q-28)
+    # ---- 2.0 (spec §2): phrasings the review found missing. Seven meanings – can't breathe,
+    # difficulty breathing, chest hurts, took too many, rash, bleeding, fainted – in English,
+    # Hindi (Devanagari + Roman letters), Tamil and Malayalam. ta/ml were written without a
+    # native speaker: NEEDS A NATIVE-SPEAKER CHECK. Keep in step with voice.RED_FLAG_WORDS.
+    r"can(?:['’]?t|\s*not)\s*breath|unable\s*to\s*breath|difficult(?:y)?\s*(?:in\s*|to\s*|with\s*)?breath|"
+    r"breathing\s*(?:difficult|problem|trouble)|(?:problem|trouble)\s*breathing|hard\s*to\s*breath|"
+    r"chest\s*(?:is\s*|really\s*|still\s*)?(?:hurt|ache|aching)|hurts?\s*in\s*my\s*chest|"
+    r"(?:took|taken|take)\s*too\s*many|too\s*many\s*(?:tablets?|pills?|medicines?|doses?)|overdose|"
+    r"\brash(?:es)?\b|passed\s*out|"
+    r"सा[ँं]स\s*नही|सा[ँं]स\s*लेने\s*मे|सा[ँं]स\s*में\s*(?:तकलीफ|दिक्कत)|(?:सीना|छाती)\s*दुख|"
+    r"(?:सीने|छाती)\s*में\s*(?:दुख|तकलीफ)|(?:ज|ज़)़?्यादा\s*(?:गोल|दवा)|"
+    r"बहुत\s*(?:सारी\s*|ज्यादा\s*)?गोल|ओवरडोज|चकत्त|लाल\s*दाने|दाने\s*निकल|शरीर\s*पर\s*दाने|रैश|"
+    r"(?:ख|ख़)़?ून|रक्तस्राव|ब्लीडिंग|होश\s*खो|गश\s*खा|मूर्छित|"
+    r"sa+ns\s*(?:nahin|nhi)|saans\s*ruk|sa+ns\s*lene\s*(?:mein|me|mai)\b|sans\s*nahi|"
+    r"sa+ns\s*(?:mein|me)\s*(?:takleef|taklif|dikkat)|(?:seena|sina|chh?ati)\s*dukh|"
+    r"seene\s*(?:mein|me)\s*(?:dukh|dard)|chh?ati\s*(?:mein|me)\s*dard|chest\s*(?:mein|me)\s*dard|"
+    r"(?:zyada|jyada)\s*(?:goli|tablet|dawa)|bahut\s*saa?ri\s*goli|chakatte|\bchakte\b|"
+    r"la+l\s*da+ne|da+ne\s*nikal|sharir\s*par\s*da+ne|kh(?:oo|u)n\s*(?:beh|nikal|aa\s*raha)|khoon|"
+    r"behosh|behos\s*ho|hosh\s*kho|"
+    r"மூச்சு\s*விட\s*முடிய|மூச்சு\s*வர(?:வில்லை|ல)|மூச்சு\s*அடைக்கு|சுவாசிக்க\s*முடிய|"
+    r"மூச்சு\s*விடுவதில்\s*சிரம|மூச்சு\s*விட\s*(?:சிரம|கஷ்ட)|சுவாசிப்பதில்\s*சிரம|"
+    r"மூச்சு(?:த்)?\s*திணற|மூச்சு\s*வாங்கு|(?:நெஞ்சு|மார்பு)\s*வலி|(?:நெஞ்சில்|நெஞ்சுல|மார்பில்)\s*வலி|"
+    r"(?:அதிக|அதிகமாக|நிறைய)\s*(?:மாத்திரை|மருந்து)|(?:மாத்திரை|மருந்து)\s*அதிகமா|"
+    r"தடிப்பு|சொறி|ரத்த(?:ப்போக்கு|க்கசிவு)|மயங்கி|மயக்கமா|நினைவிழ|"
+    r"ശ്വാസം\s*കിട്ട(?:ുന്നില്ല|ണില്ല)|ശ്വാസ(?:ം\s*എ|മെ)ടുക്കാൻ\s*(?:പറ്റുന്നില്ല|കഴിയുന്നില്ല|ബുദ്ധിമുട്ട)|"
+    r"ശ്വസിക്കാൻ\s*(?:പറ്റുന്നില്ല|കഴിയുന്നില്ല|ബുദ്ധിമുട്ട)|ശ്വാസ\s*തടസ്സം|ശ്വാസം\s*മുട്ട|"
+    r"നെഞ്ച(?:ുവേദന|്\s*വേദന|ു\s*വേദന|ിൽ\s*വേദന|ിന്\s*വേദന)|"
+    r"(?:കൂടുതൽ|അധികം|ഒരുപാട്)\s*ഗുളിക|ഗുളിക\s*(?:കൂടുതൽ|അധികം)|കൂടുതൽ\s*മരുന്ന|മരുന്ന്\s*കൂടുതൽ|"
+    r"അമിതമായി\s*മരുന്ന|തിണർപ്പ|തടിപ്പ|ചുവന്ന\s*പാട|രക്തം|രക്തസ്രാവം|ചോര|ബ്ലീഡിംഗ്|"
+    r"ബോധം|ബോധക്ഷയ|ബോധരഹിത|ബോധമില്ല|തലകറങ്ങി|തലകറക്ക|കുഴഞ്ഞു\s*വീണ", re.I)
 
 _PATIENT_WORDS = {
     "done": r"^(1|✅.*|done|did it|ho gaya|ho gya|haan|ha|yes|हो गया|हाँ|हां|कर लिया|முடிந்தது|ஆம்|ചെയ്തു|അതെ)$",
