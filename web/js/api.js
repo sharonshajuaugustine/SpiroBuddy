@@ -1,11 +1,15 @@
-/* SpiroBuddy – API client (CONTRACT D) with a built-in MOCK mode.
+/* SpiroBuddy – API client (CONTRACT D, plus Contract E auth for 2.0) with a built-in MOCK mode.
  * Usage: await SB.api.init(); const list = await SB.api.get('/api/patients');
  * Mock mode turns on with ?mock=1, or automatically when /api/health fails at start-up.
+ * 2.0: every non-GET call carries the CSRF header X-SB: 1 (raw fetch() calls in other files too),
+ * SB.api.upload() sends multipart forms, SB.auth.* wraps login/logout/me, and a 401 on a staff page
+ * sends the user to /login.html once.
  */
 (function () {
   const SB = (window.SB = window.SB || {});
   const params = new URLSearchParams(location.search);
   const listeners = new Set();
+  const SAFE_METHOD = /^(GET|HEAD|OPTIONS)$/i;
 
   const state = {
     mock: params.get('mock') === '1',
@@ -21,18 +25,68 @@
     constructor(status, message, detail) { super(message); this.status = status; this.detail = detail; }
   }
 
+  /* CSRF rule (Contract E): every non-GET request under /api/ needs X-SB: 1. rawFetch adds it; this
+   * small wrapper adds it to raw fetch() calls in other scripts (voice.js, comms.js, app.html …) so
+   * nobody has to remember. Same-origin /api/ only; a header that is already there is left alone. */
+  if (window.fetch && !window.fetch.__sbCsrf) {
+    const nativeFetch = window.fetch.bind(window);
+    const csrfFetch = function (input, init) {
+      try {
+        const isReq = typeof Request !== 'undefined' && input instanceof Request;
+        const method = String((init && init.method) || (isReq ? input.method : 'GET'));
+        if (!SAFE_METHOD.test(method)) {
+          const url = new URL(isReq ? input.url : String(input), location.href);
+          if (url.origin === location.origin && url.pathname.indexOf('/api/') === 0) {
+            const h = new Headers((init && init.headers) || (isReq ? input.headers : undefined));
+            if (!h.has('X-SB')) { h.set('X-SB', '1'); init = Object.assign({}, init, { headers: h }); }
+          }
+        }
+      } catch (_) { /* never block a request because of the helper */ }
+      return nativeFetch(input, init);
+    };
+    csrfFetch.__sbCsrf = true;
+    window.fetch = csrfFetch;
+  }
+
+  /* ---------- login redirect: ONE allow-list ----------
+   * Staff-only pages: anything under /hospital/, plus the old staff pages that still exist.
+   * Everything else never redirects: / and /index.html (the public landing page from B7 on),
+   * app.html, guardian.html, login/signup/redeem, impact/trust/vision/architecture/twin, /showcase/. */
+  const STAFF_PAGES = ['/patient.html', '/demo.html', '/units.html', '/collect.html'];
+  function needsLogin(pathname) {
+    const p = pathname == null ? location.pathname : String(pathname);
+    return p === '/hospital' || p.indexOf('/hospital/') === 0 || STAFF_PAGES.indexOf(p) >= 0;
+  }
+  const NO_REDIRECT_API = /^\/api\/auth\/(login|signup|redeem|password)\b/;   // a 401 here is a form error, not "logged out"
+  let redirecting = false;
+  function loginRedirect(apiPath) {
+    if (redirecting || state.mock || !needsLogin()) return false;
+    if (apiPath && NO_REDIRECT_API.test(String(apiPath).split('?')[0])) return false;
+    redirecting = true;
+    location.assign('/login.html?next=' + encodeURIComponent(location.pathname + location.search + location.hash));
+    return true;
+  }
+  function onUnauthorized(apiPath) {
+    if (loginRedirect(apiPath)) return;
+    // pages that don't redirect (e.g. the old dashboard at /) can show a "please log in" banner
+    try { document.dispatchEvent(new CustomEvent('sb:unauthorized', { detail: { path: apiPath } })); } catch (_) { /* old browser */ }
+  }
+
   async function rawFetch(method, path, body, timeoutMs) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), timeoutMs || 10000);
     try {
-      const opts = { method, signal: ctrl.signal, headers: { Accept: 'application/json' }, cache: 'no-store' };
-      if (body !== undefined) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+      const opts = { method, signal: ctrl.signal, headers: { Accept: 'application/json' }, cache: 'no-store', credentials: 'same-origin' };
+      if (!SAFE_METHOD.test(method)) opts.headers['X-SB'] = '1';
+      if (typeof FormData !== 'undefined' && body instanceof FormData) opts.body = body;   // the browser sets the multipart boundary
+      else if (body !== undefined) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
       const res = await fetch(path, opts);
       const text = await res.text();
       let data = null;
       try { data = text ? JSON.parse(text) : null; } catch (_) { data = text; }
       if (!res.ok) {
         const msg = (data && (data.detail || data.error || data.message)) || `HTTP ${res.status}`;
+        if (res.status === 401) onUnauthorized(path);
         throw new ApiError(res.status, typeof msg === 'string' ? msg : JSON.stringify(msg), data);
       }
       return data;
@@ -102,6 +156,10 @@
     get: (p, o) => request('GET', p, undefined, o),
     post: (p, b, o) => request('POST', p, b === undefined ? {} : b, o),
     put: (p, b, o) => request('PUT', p, b, o),
+    del: (p, o) => request('DELETE', p, undefined, o),
+    // multipart upload (photos, PDFs): pass a FormData; no Content-Type here, the browser sets the boundary.
+    upload: (p, formData, o) => request((o && o.method) || 'POST', p, formData, Object.assign({ timeout: 60000 }, o)),
+    needsLogin, loginRedirect,
     // convenience wrappers for CONTRACT D
     health: () => request('GET', '/api/health'),
     patients: () => request('GET', '/api/patients'),
@@ -118,6 +176,41 @@
     simulate: (id, quality, breaths = 10) => request('POST', `/api/demo/simulate/${id}`, { quality, breaths }, { timeout: 30000 }),
     miss: (id) => request('POST', `/api/demo/miss/${id}`, {}, { timeout: 30000 }),
     reset: () => request('POST', '/api/demo/reset', {}, { timeout: 30000 }),
+  };
+
+  /* ---------- SB.auth – Contract E (staff login) ----------
+   * me()            -> {authenticated:false} or {authenticated:true, kind, name, role, hospital, …}; one call per
+   *                    page (cached promise), me({refresh:true}) asks again. Never throws: a failed call returns
+   *                    {authenticated:false, error, status} and is not cached.
+   * login(e, p)     -> {ok, me}; throws ApiError (401 wrong password, 403 pending/disabled, 429 locked out).
+   * logout()        -> ends the session, then goes to /login.html. */
+  let meP = null;
+  function setMe(me) {
+    const m = me && typeof me === 'object' ? Object.assign({ authenticated: true }, me) : { authenticated: false };
+    meP = Promise.resolve(m);
+    return m;
+  }
+  SB.auth = {
+    me(opts) {
+      if (!meP || (opts && opts.refresh)) {
+        const p = request('GET', '/api/auth/me').then(
+          (m) => (m && typeof m === 'object' ? m : { authenticated: false }),
+          (e) => { if (meP === p) meP = null; return { authenticated: false, error: (e && e.message) || 'error', status: e && e.status }; });
+        meP = p;
+      }
+      return meP;
+    },
+    async login(email, password) {
+      const res = await request('POST', '/api/auth/login', { email: String(email || '').trim(), password: String(password || '') });
+      setMe(res && res.me);
+      return res;
+    },
+    async logout() {
+      try { await request('POST', '/api/auth/logout', {}); } catch (_) { /* go to the login page anyway */ }
+      meP = null;
+      location.assign('/login.html' + (state.forcedMock ? '?mock=1' : ''));
+    },
+    setMe, needsLogin, loginRedirect,
   };
 })();
 
@@ -324,6 +417,26 @@
     return `${p.name} completed ${s.done_today} of ${s.due_today} breathing sessions so far today. Best breath today: ${best} (target ${p.target_ml} mL). Keep breathing slowly and deeply, and hold for 3 seconds – steady progress!`;
   }
 
+  /* Mock logins: the fictional demo accounts (docs/REBUILD_PLAN.md §2). Never real people. */
+  const ME_KEY = 'sb_mock_me';
+  const HOSP = { id: 1, name: 'Demo General Hospital' };
+  const ALL_PERMS = ['view', 'update_care_plan', 'confirm_prescriptions', 'manage_appointments', 'upload_documents', 'acknowledge_alerts'];
+  const ACCOUNTS = [
+    { id: 1, email: 'admin@demo-general.example', password: 'demo-admin-2026', name: 'Admin desk', role: 'admin', department: 'Administration', perms: ALL_PERMS },
+    { id: 2, email: 'meera.nair@demo-general.example', password: 'demo-doctor-2026', name: 'Dr. Meera Nair', role: 'doctor', department: 'Surgery', perms: ALL_PERMS },
+    { id: 3, email: 'kabir.rao@demo-general.example', password: 'demo-doctor-2026', name: 'Dr. Kabir Rao', role: 'doctor', department: 'Chest medicine', perms: ALL_PERMS },
+    { id: 4, email: 'anjali@demo-general.example', password: 'demo-nurse-2026', name: 'Sister Anjali', role: 'nurse', department: 'Post-op ward', perms: ALL_PERMS },
+    { id: 5, email: 'thomas@demo-general.example', password: 'demo-nurse-2026', name: 'Nurse Thomas Mathew', role: 'nurse', department: 'Chest ward', perms: ['view', 'acknowledge_alerts'] },
+  ];
+  function mockMe() {
+    let email = null;
+    try { email = localStorage.getItem(ME_KEY); } catch (_) { /* private mode */ }
+    const a = ACCOUNTS.find((x) => x.email === email) || ACCOUNTS[0];
+    return { authenticated: true, kind: 'staff', id: a.id, name: a.name, email: a.email, role: a.role, hospital: HOSP, department: a.department, permissions_summary: a.perms.slice(), demo_mode: true, mock: true };
+  }
+  // /api/features in mock mode: the last list this browser got from the real server (saved by SB.ui.loadFeatures).
+  function featureCache() { try { return JSON.parse(localStorage.getItem('sb_features_cache') || 'null'); } catch (_) { return null; } }
+
   async function handle(method, path, body) {
     await new Promise((r) => setTimeout(r, 120)); // feel like a network call
     reloadFromStorage();
@@ -332,7 +445,21 @@
     const q = url.searchParams;
     let m;
     const out = (() => {
-      if (method === 'GET' && p === '/api/health') return { ok: true, model_loaded: true, llm_enabled: false, whatsapp_enabled: false, data_backend: 'demo', demo_mode: true, mock: true };
+      if (method === 'GET' && p === '/api/health') return { ok: true, model_loaded: true, llm_enabled: false, whatsapp_enabled: false, data_backend: 'demo', demo_mode: true, v2_missing: false, mock: true };
+      // Contract E in mock mode: the demo accounts only (fictional, REBUILD_PLAN §2); default = the demo admin.
+      if (method === 'GET' && p === '/api/auth/me') return mockMe();
+      if (method === 'POST' && p === '/api/auth/login') {
+        const a = ACCOUNTS.find((x) => x.email === String((body && body.email) || '').trim().toLowerCase());
+        if (!a || a.password !== (body && body.password)) throw new SB.api.ApiError(401, 'wrong email or password');
+        try { localStorage.setItem(ME_KEY, a.email); } catch (_) { /* private mode */ }
+        return { ok: true, me: mockMe() };
+      }
+      if (method === 'POST' && p === '/api/auth/logout') { try { localStorage.removeItem(ME_KEY); } catch (_) { /* ignore */ } return { ok: true }; }
+      if (method === 'POST' && p === '/api/me/session') {
+        const pt = st.patients.find((x) => x.id === Number(body && body.patient_id)) || st.patients[0];
+        return { ok: true, patient_id: pt.id, name: pt.name, language: pt.language };
+      }
+      if (method === 'GET' && p === '/api/features') return featureCache() || [];
       if (method === 'GET' && p === '/api/patients') return st.patients.map(summaryOf);
       if ((m = p.match(/^\/api\/patients\/(\d+)$/))) {
         const pt = findP(m[1]);

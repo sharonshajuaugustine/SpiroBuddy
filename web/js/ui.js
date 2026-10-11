@@ -1,6 +1,9 @@
 /* SpiroBuddy – shared UI: app shell (top bar, side nav, system status, IST clock), banners, theme, toasts, helpers.
  * Optional: js/icons.js (loaded first) for line icons. If a page doesn't load it, ui.js loads it itself
- * and fills every <span data-icon="…"> when it arrives. */
+ * and fills every <span data-icon="…"> when it arrives.
+ * 2.0: pages under /hospital/ get a role-aware shell (REBUILD_PLAN §3.11): nav by role and permission, the
+ * user's name/role/hospital with Logout, the "Fake patients only" ribbon in DEMO_MODE and the red
+ * "Database update needed" banner. Feature status badges (SB.ui.badge / plannedCard) come from /api/features. */
 (function () {
   const SB = (window.SB = window.SB || {});
 
@@ -20,6 +23,43 @@
     { group: 'Tools', href: 'collect.html', label: 'Record breaths', key: 'collect', icon: 'activity' },
     { group: 'Tools', href: 'showcase/', label: '3D showroom', key: 'showcase', icon: 'cube', ext: true },
   ];
+
+  /* 2.0 hospital nav (REBUILD_PLAN §3.11). roles = who sees it among admin/doctor (none = both).
+   * nurse: true = every nurse, a permission name = only nurses holding it, missing = no nurse. demo = DEMO_MODE only. */
+  const HOSP_NAV = [
+    { group: 'Care', key: 'home', href: '/hospital/index.html', label: 'Home', icon: 'dashboard', nurse: true },
+    { group: 'Care', key: 'patients', href: '/hospital/patients.html', label: 'Patients', icon: 'users', nurse: true },
+    { group: 'Care', key: 'review', href: '/hospital/review.html', label: 'Prescription review', icon: 'pill', nurse: 'confirm_prescriptions' },
+    { group: 'Care', key: 'appointments', href: '/hospital/appointments.html', label: 'Appointments', icon: 'calendar', nurse: 'manage_appointments' },
+    { group: 'Care', key: 'availability', href: '/hospital/availability.html', label: 'Availability', icon: 'clock' },
+    { group: 'Hospital', key: 'keys', href: '/hospital/keys.html', label: 'Nurse keys', icon: 'key' },
+    { group: 'Hospital', key: 'staff', href: '/hospital/staff.html', label: 'Staff', icon: 'user-check', roles: ['admin'] },
+    { group: 'Hospital', key: 'devices', href: '/hospital/devices.html', label: 'Devices', icon: 'cpu', nurse: true },
+    { group: 'Hospital', key: 'settings', href: '/hospital/settings.html', label: 'Settings', icon: 'settings', roles: ['admin'] },
+    { group: 'Hospital', key: 'governance', href: '/hospital/governance.html', label: 'Governance', icon: 'shield' },
+    { group: 'Demo', key: 'demo', href: '/hospital/demo.html', label: 'Demo controls', icon: 'sliders', demo: true },
+  ];
+  const ROLE_TEXT = { admin: 'Admin', doctor: 'Doctor', nurse: 'Nurse' };
+
+  /* Icons the 2.0 screens need that icons.js doesn't have yet (same 24 px grid, 2 px stroke). */
+  const EXTRA_ICONS = {
+    key: '<path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>',
+    lock: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    'log-out': '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
+    'log-in': '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>',
+    copy: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+    settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>',
+    file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+    pill: '<path d="M10.5 20.5l10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7z"/><path d="M8.5 8.5l7 7"/>',
+    upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+    cpu: '<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/>',
+    mail: '<rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22 6 12 13 2 6"/>',
+    'eye-off': '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>',
+  };
+  function addIcons() { if (SB.icons) Object.keys(EXTRA_ICONS).forEach((k) => { if (!SB.icons[k]) SB.icons[k] = EXTRA_ICONS[k]; }); }
+  addIcons();
 
   /* ---------- helpers ---------- */
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -49,7 +89,7 @@
   if (!SB.icon && document.currentScript) {
     const s = document.createElement('script');
     s.src = document.currentScript.src.replace(/ui\.js(\?.*)?$/, 'icons.js');
-    s.onload = () => hydrateIcons(document);
+    s.onload = () => { addIcons(); hydrateIcons(document); };
     document.head.appendChild(s);
   }
 
@@ -111,6 +151,156 @@
     const pct = Math.max(0, Math.min(1, Number(frac) || 0)) * 100;
     return `<span class="meter ${tone || 'brand'}" role="img" aria-label="${esc(label || Math.round(pct) + '%')}"><span style="width:${pct.toFixed(1)}%"></span></span>`;
   }
+  /* DD/MM/YYYY in India time, and the "Edited by … at …" line under an inline edit (.ie-meta). */
+  function dmy(v) { const d = parseDate(v); return d ? d.toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata', day: '2-digit', month: '2-digit', year: 'numeric' }) : '—'; }
+  function editedMeta(by, at) {
+    const d = parseDate(at);
+    const when = d ? dmy(d) + ', ' + d.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit', hour12: true }) : '';
+    return `<p class="ie-meta">${ic('edit', { size: 14 })}<span>Edited${by ? ' by ' + esc(by) : ''}${when ? ' at ' + esc(when) : ''}</span></p>`;
+  }
+
+  /* ---------- roles and permissions (display only – the server decides; authz.py is the real check) ---------- */
+  // me.permissions_summary may be a list of nurse permission names, an object {permissions:[…]} or {perm: true}.
+  function hasPerm(me, perm) {
+    if (!me) return false;
+    if (me.role === 'admin' || me.role === 'doctor') return true;
+    const s = me.permissions_summary, lists = [];
+    if (Array.isArray(s)) lists.push(s);
+    else if (s && typeof s === 'object') {
+      if (Array.isArray(s.permissions)) lists.push(s.permissions);
+      if (s[perm] === true || Number(s[perm]) > 0) return true;
+    }
+    (me.grants || []).forEach((g) => { if (g && Array.isArray(g.permissions)) lists.push(g.permissions); });
+    return lists.some((l) => l.indexOf(perm) >= 0);
+  }
+  function navAllowed(item, me, demo) {
+    if (item.demo && !demo) return false;
+    const role = me && me.role;
+    if (!role) return item.key === 'home' || item.key === 'patients';      // login unknown (server error): the basics only
+    if (role === 'nurse') return item.nurse === true || (typeof item.nurse === 'string' && hasPerm(me, item.nurse));
+    return !item.roles || item.roles.indexOf(role) >= 0;
+  }
+
+  /* ---------- feature status badges (/api/features, fetched once per page) ----------
+   * SB.ui.badge(key) -> '<span class="fbadge live">✓ Live</span>' (icon + word, never colour alone).
+   * SB.ui.plannedCard(key) -> a disabled card (not clickable) with the badge, the feature name and its note.
+   * Called before the list arrives, both return a placeholder that fills itself in. In HTML you can also write
+   * <span data-feature="KEY"></span> (or <div data-feature="KEY" data-fkind="card"></div>); boot() fills them. */
+  const FSTATUS = {
+    live: { word: 'Live', icon: 'check-circle' },
+    simulated: { word: 'Simulated', icon: 'flask' },
+    in_development: { word: 'In development', icon: 'hourglass' },
+    planned: { word: 'Planned', icon: 'calendar' },
+  };
+  const FEAT = {};
+  const FKEY = 'data-fkey';                     // placeholder attribute (pages use data-feature; see above)
+  let featP = null, featReady = false;
+  function featureCache() { try { return JSON.parse(localStorage.getItem('sb_features_cache') || 'null'); } catch (_) { return null; } }
+  function loadFeatures() {
+    if (featP) return featP;
+    featP = SB.api.get('/api/features')
+      .then((r) => {
+        const list = Array.isArray(r) ? r : (r && Array.isArray(r.features) ? r.features : []);
+        if (list.length && !SB.api.state.mock) { try { localStorage.setItem('sb_features_cache', JSON.stringify(list)); } catch (_) { /* private mode */ } }
+        return list.length ? list : (featureCache() || []);
+      })
+      .catch((e) => { console.warn('[SpiroBuddy] /api/features failed – using the last saved list', e && e.message); return featureCache() || []; })
+      .then((list) => {
+        list.forEach((f) => { if (f && f.key) FEAT[f.key] = f; });
+        featReady = true;
+        hydrateBadges(document);
+        return list;
+      });
+    return featP;
+  }
+  function humanize(key) { const s = String(key || '').replace(/[_-]+/g, ' ').trim(); return s ? s[0].toUpperCase() + s.slice(1) : 'Feature'; }
+  function featureOf(key) {
+    const f = FEAT[key];
+    if (!f || !FSTATUS[f.status]) console.warn(`[SpiroBuddy] feature "${key}" is not in /api/features – showing "Planned"`);
+    return f || null;
+  }
+  function badgeHTML(key, f) {
+    const st = f && FSTATUS[f.status] ? f.status : 'planned';
+    const s = FSTATUS[st];
+    const tip = `${(f && f.name) || humanize(key)}: ${s.word}${f && f.note ? ' – ' + f.note : ''}`;
+    return `<span class="fbadge ${st}" title="${esc(tip)}">${ic(s.icon, { size: 14 })}${s.word}</span>`;
+  }
+  function plannedCardHTML(key, f) {
+    const name = (f && f.name) || humanize(key);
+    const st = f && FSTATUS[f.status] ? f.status : 'planned';
+    return `<div class="planned-card" role="group" aria-disabled="true" aria-label="${esc(name)} – ${FSTATUS[st].word}">
+      <div class="pc-head"><span class="pc-name">${esc(name)}</span>${badgeHTML(key, f)}</div>
+      ${f && f.note ? `<p class="pc-note">${esc(f.note)}</p>` : '<p class="pc-note">Not available yet.</p>'}</div>`;
+  }
+  function badge(key) {
+    if (featReady) return badgeHTML(key, featureOf(key));
+    loadFeatures();
+    return `<span class="fbadge pending" ${FKEY}="${esc(key)}" data-fkind="badge"><span class="sr-only">Checking status…</span></span>`;
+  }
+  function plannedCard(key) {
+    if (featReady) return plannedCardHTML(key, featureOf(key));
+    loadFeatures();
+    return `<div class="planned-card pending" ${FKEY}="${esc(key)}" data-fkind="card" aria-busy="true"><span class="skeleton" style="width:60%"></span><span class="skeleton" style="width:90%"></span></div>`;
+  }
+  /* fill placeholders and <… data-feature="KEY"> elements (call again after you render new HTML) */
+  function hydrateBadges(root) {
+    const els = $$('[' + FKEY + '], [data-feature]', root);
+    if (!els.length) return;
+    if (!featReady) { loadFeatures(); return; }
+    els.forEach((el) => {
+      const key = el.getAttribute(FKEY) || el.getAttribute('data-feature');
+      const card = el.getAttribute('data-fkind') === 'card';
+      const f = featureOf(key);
+      try { el.outerHTML = card ? plannedCardHTML(key, f) : badgeHTML(key, f); } catch (_) { /* detached element */ }
+    });
+  }
+
+  /* ---------- "Fake patients only" ribbon ----------
+   * Hospital pages get it from boot(). The patient app and the family page call SB.ui.fakeRibbon() – optional
+   * {text, into, large} (e.g. a Hindi text, a container, large: true for the patient-size ribbon) – which checks
+   * /api/health and only shows it in DEMO_MODE. */
+  function fakeRibbonHTML(text, large) {
+    return `<div class="ribbon-fake${large ? ' lg' : ''}" role="note">${ic('flask', { size: large ? 20 : 14 })}<span>${esc(text || 'Fake patients only · demo')}</span></div>`;
+  }
+  async function fakeRibbon(opts) {
+    opts = opts || {};
+    let h = SB.api && SB.api.state.health;
+    if (!h && SB.api) { try { h = await SB.api.health(); } catch (_) { h = null; } }
+    if (!h || !h.demo_mode) return null;
+    const host = typeof opts.into === 'string' ? $(opts.into) : (opts.into || document.body);
+    if (!host) return null;
+    const old = $('.ribbon-fake', host);
+    if (old) return old;
+    host.insertAdjacentHTML('afterbegin', fakeRibbonHTML(opts.text, opts.large));
+    const el = $('.ribbon-fake', host);
+    hydrateIcons(el);
+    return el;
+  }
+
+  /* ---------- shown-once secret (nurse key, join code, temp password) ----------
+   * SB.ui.keyReveal(secret, {label, note}) -> HTML; the Copy button works by itself (one listener below). */
+  function keyReveal(secret, opts) {
+    opts = opts || {};
+    return `<div class="key-reveal" role="group" aria-label="${esc(opts.label || 'New key')}">
+      <div class="kr-label">${ic('key', { size: 16 })}${esc(opts.label || 'New key')}</div>
+      <div class="kr-row"><code class="kr-code">${esc(secret)}</code>
+        <button class="btn sm kr-copy" type="button">${ic('copy', { size: 16 })}<span>Copy</span></button></div>
+      <p class="kr-note">${ic('alert-triangle', { size: 14 })}<span>${esc(opts.note || 'Shown only once. Copy it now – it cannot be shown again.')}</span></p></div>`;
+  }
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest && e.target.closest('.kr-copy');
+    if (!btn) return;
+    const code = btn.closest('.key-reveal') && btn.closest('.key-reveal').querySelector('.kr-code');
+    if (!code) return;
+    let ok = false;
+    try { await navigator.clipboard.writeText(code.textContent); ok = true; } catch (_) {
+      try { const r = document.createRange(); r.selectNodeContents(code); const s = getSelection(); s.removeAllRanges(); s.addRange(r); ok = document.execCommand('copy'); } catch (__) { ok = false; }
+    }
+    const span = btn.querySelector('span');
+    if (span) span.textContent = ok ? 'Copied' : 'Select and copy';
+    btn.classList.toggle('done', ok);
+    setTimeout(() => { if (span) span.textContent = 'Copy'; btn.classList.remove('done'); }, 2500);
+  });
 
   /* ---------- toasts ---------- */
   function toast(msg, kind, ms) {
@@ -145,6 +335,9 @@
   try { applyTheme(localStorage.getItem('sb_theme')); } catch (_) { /* ignore */ }
 
   /* ---------- app shell: top bar + side nav ---------- */
+  const isHospitalPage = () => location.pathname === '/hospital' || location.pathname.indexOf('/hospital/') === 0;
+  let unauthorized = false;   // a 401 on a page that doesn't redirect (old dashboard at /): show a "Log in" banner
+
   function navHTML(pageKey) {
     let html = '', group = '';
     PAGES.forEach((p) => {
@@ -154,18 +347,35 @@
     });
     return html + '</ul>';
   }
+  function hospNavHTML(pageKey, me, demo) {
+    let html = '', group = '';
+    HOSP_NAV.filter((p) => navAllowed(p, me, demo)).forEach((p) => {
+      if (p.group !== group) { html += `${group ? '</ul>' : ''}<div class="nav-group">${esc(p.group)}</div><ul>`; group = p.group; }
+      html += `<li><a href="${link(p.href)}" ${p.key === pageKey ? 'aria-current="page"' : ''}>${ic(p.icon)}<span>${esc(p.label)}</span></a></li>`;
+    });
+    return html + (group ? '</ul>' : '');
+  }
+  const NAV_FOOT = `<div class="nav-foot">${ic('info', { size: 14 })}<span>Fake patients only. SpiroBuddy coaches and summarises – it never diagnoses.</span></div>`;
   function themeIcon() { return ic(currentTheme() === 'dark' ? 'sun' : 'moon'); }
+  function closeOnOutside(id) {
+    document.addEventListener('click', (e) => { const d = $('#' + id); if (d && d.open && !d.contains(e.target)) d.open = false; });
+    document.addEventListener('keydown', (e) => { const d = $('#' + id); if (e.key === 'Escape' && d && d.open) { d.open = false; d.querySelector('summary').focus(); } });
+  }
 
-  function renderHeader(pageKey) {
+  function renderHeader(pageKey, hosp) {
     const host = $('#app-header');
     if (!host) return;
     document.body.classList.add('shell');
+    if (hosp) document.body.classList.add('hosp');
     host.className = 'app-header';
+    const site = hosp
+      ? `<span class="site" title="Your hospital – fake patients only">${ic('hospital', { size: 16 })}<span class="site-h" id="site-h">…</span></span>`
+      : `<span class="site" title="Demo hospital – fake patients only">${ic('hospital', { size: 16 })}<span class="site-h">${esc(SITE.hospital)}</span><span class="site-w">${esc(SITE.ward)}</span></span>
+      <span class="chip chip-demo" title="Demo mode – fake patients only, no real health data">${ic('flask', { size: 14 })}Demo mode</span>`;
     host.innerHTML = `<div class="bar">
       <a class="skip-link" href="#main">Skip to content</a>
-      <a class="logo" href="${link('index.html')}" aria-label="SpiroBuddy – dashboard">${LOGO}<span class="logo-name">SpiroBuddy</span></a>
-      <span class="site" title="Demo hospital – fake patients only">${ic('hospital', { size: 16 })}<span class="site-h">${esc(SITE.hospital)}</span><span class="site-w">${esc(SITE.ward)}</span></span>
-      <span class="chip chip-demo" title="Demo mode – fake patients only, no real health data">${ic('flask', { size: 14 })}Demo mode</span>
+      <a class="logo" href="${link(hosp ? '/hospital/index.html' : 'index.html')}" aria-label="SpiroBuddy – ${hosp ? 'hospital home' : 'dashboard'}">${LOGO}<span class="logo-name">SpiroBuddy</span></a>
+      ${site}
       <div class="header-right">
         <details class="sys" id="sys">
           <summary title="System status"><span class="sys-dot" id="sys-dot"></span><span class="sys-txt" id="sys-txt">Connecting…</span>${ic('chevron-down', { size: 14 })}</summary>
@@ -174,22 +384,24 @@
         </details>
         <span class="clock" id="ist-clock" title="India Standard Time">${ic('clock', { size: 16 })}<span id="ist-time">${istClock()}</span></span>
         <button class="icon-btn" id="theme-btn" type="button" aria-label="Switch light or dark theme" title="Light / dark theme">${themeIcon()}</button>
-      </div></div>`;
+        ${hosp ? '<div class="user-slot" id="user-slot"><span class="skeleton um-skel"></span></div>' : ''}
+      </div></div>${hosp ? '<div id="ribbon-slot"></div>' : ''}`;
     $('#theme-btn').addEventListener('click', () => {
       const next = currentTheme() === 'dark' ? 'light' : 'dark';
       applyTheme(next);
       try { localStorage.setItem('sb_theme', next); } catch (_) { /* ignore */ }
       $('#theme-btn').innerHTML = themeIcon();
     });
-    document.addEventListener('click', (e) => { const d = $('#sys'); if (d && d.open && !d.contains(e.target)) d.open = false; });
-    document.addEventListener('keydown', (e) => { const d = $('#sys'); if (e.key === 'Escape' && d && d.open) { d.open = false; d.querySelector('summary').focus(); } });
+    closeOnOutside('sys');
+    if (hosp) closeOnOutside('user-menu');
     setInterval(() => { const t = $('#ist-time'); if (t) t.textContent = istClock(); }, 15000);
 
     const nav = document.createElement('nav');
     nav.className = 'side-nav';
     nav.id = 'side-nav';
     nav.setAttribute('aria-label', 'Main');
-    nav.innerHTML = navHTML(pageKey) + `<div class="nav-foot">${ic('info', { size: 14 })}<span>Fake patients only. SpiroBuddy coaches and summarises – it never diagnoses.</span></div>`;
+    // hospital pages: the nav depends on who is logged in, so it fills in after /api/auth/me
+    nav.innerHTML = (hosp ? '<ul class="nav-skel" aria-hidden="true"><li><span class="skeleton"></span></li><li><span class="skeleton"></span></li><li><span class="skeleton"></span></li></ul>' : navHTML(pageKey)) + NAV_FOOT;
     host.after(nav);
     const bw = document.createElement('div');
     bw.className = 'banner-wrap';
@@ -203,6 +415,38 @@
       const n = (e.detail && e.detail.open) || 0;
       $$('[data-nav-count]').forEach((el) => { el.hidden = !n; el.textContent = n; el.classList.toggle('red', ((e.detail && e.detail.red) || 0) > 0); });
     });
+    // api.js fires this on a 401 when the page is not on the login allow-list (e.g. the old dashboard at /)
+    document.addEventListener('sb:unauthorized', () => { if (!unauthorized) { unauthorized = true; renderBanner(SB.api.state); } });
+    hydrateIcons(document);
+  }
+
+  /* hospital pages, after /api/auth/me: nav by role, user menu with Logout, hospital name, ribbon */
+  function renderHospitalShell(pageKey, me, demo, loginError) {
+    const nav = $('#side-nav');
+    if (nav) nav.innerHTML = hospNavHTML(pageKey, me, demo) + NAV_FOOT;
+    const siteH = $('#site-h');
+    if (siteH) siteH.textContent = (me && me.hospital && me.hospital.name) || 'Hospital';
+    const slot = $('#user-slot');
+    if (slot) {
+      if (me) {
+        const role = ROLE_TEXT[me.role] || humanize(me.role);
+        const hospName = (me.hospital && me.hospital.name) || '';
+        slot.innerHTML = `<details class="user-menu" id="user-menu">
+          <summary title="Your account"><span class="um-avatar" aria-hidden="true">${esc(initials(me.name))}</span>
+            <span class="um-text"><span class="um-name">${esc(me.name)}</span><span class="um-role">${esc(role)}</span></span>${ic('chevron-down', { size: 14 })}</summary>
+          <div class="um-pop" role="group" aria-label="Your account">
+            <div class="um-who"><b>${esc(me.name)}</b><span>${esc(role)}${hospName ? ' · ' + esc(hospName) : ''}</span>${me.department ? `<span class="subtle">${esc(me.department)}</span>` : ''}${me.email ? `<span class="subtle">${esc(me.email)}</span>` : ''}</div>
+            <button class="btn sm um-logout" id="logout-btn" type="button">${ic('log-out', { size: 16 })}Log out</button>
+          </div></details>`;
+        $('#logout-btn').addEventListener('click', (e) => busy(e.currentTarget, () => SB.auth.logout()));
+      } else {
+        const next = encodeURIComponent(location.pathname + location.search);
+        slot.innerHTML = `<a class="btn sm" href="/login.html?next=${next}">${ic('log-in', { size: 16 })}Log in</a>`;
+      }
+    }
+    const rib = $('#ribbon-slot');
+    if (rib) rib.innerHTML = demo ? fakeRibbonHTML() : '';
+    if (loginError) toast('Could not check your login: ' + loginError, 'bad', 6000);
     hydrateIcons(document);
   }
 
@@ -214,6 +458,7 @@
     if (state.mock) chips.push(['warn', 'Data: built-in demo', 'Built-in demo data in this browser – the server is not used']);
     else if (state.online === false) chips.push(['bad', 'Server offline', 'Cannot reach the API']);
     else chips.push(['ok', 'Data: ' + (h.data_backend === 'supabase' ? 'Supabase' : 'Demo DB'), h.data_backend === 'supabase' ? 'Postgres on Supabase' : 'Local SQLite demo store']);
+    if (h.v2_missing) chips.push(['warn', 'Database: update needed', 'The 2.0 tables are missing on Supabase – using the demo SQLite store. See SETUP_STEPS.md']);
     chips.push([h.model_loaded ? 'ok' : 'warn', 'ML: ' + (h.model_loaded ? 'trained model' : 'rules'), h.model_loaded ? 'Trained ML model is loaded' : 'No model file – using rule fallback']);
     chips.push([h.llm_enabled ? 'ok' : 'warn', 'AI: ' + (h.llm_enabled ? 'Claude' : 'template'), h.llm_enabled ? 'AI summaries by Claude' : 'No API key – template summaries']);
     chips.push([h.whatsapp_enabled ? 'ok' : 'warn', 'WhatsApp: ' + (h.whatsapp_enabled ? 'live' : 'dry run'), h.whatsapp_enabled ? 'Messages are really sent (Twilio)' : 'Messages are logged as "would send"']);
@@ -237,6 +482,14 @@
     } else if (state.online === false) {
       html = `<div class="banner offline" role="alert">${ic('wifi-off')}<span><b>Server offline</b> – showing last data. Retrying every 2 s…</span></div>`;
     }
+    // 2.0: Supabase is missing the new tables -> the server runs on the demo SQLite store until schema_v2.sql is run
+    if (state.health && state.health.v2_missing && !state.mock) {
+      html += `<div class="banner db" role="alert">${ic('database')}<span><b>Database update needed</b> – see SETUP_STEPS.md. Until then the demo database is used.</span></div>`;
+    }
+    if (unauthorized && !state.mock) {
+      const next = encodeURIComponent(location.pathname + location.search);
+      html += `<div class="banner info" role="status">${ic('lock')}<span><b>Hospital login needed</b> – patient data is shown only to logged-in staff.</span><a class="btn sm primary" href="/login.html?next=${next}">${ic('log-in', { size: 16 })}Log in</a></div>`;
+    }
     if (bw.dataset.html === html) return;
     bw.dataset.html = html;
     bw.innerHTML = html;
@@ -244,10 +497,22 @@
     if (b) b.addEventListener('click', () => location.reload());
   }
 
+  /* boot(pageKey): builds the shell and starts the API. Old pages (index, patient, demo, units, collect) keep
+   * their old shell. Pages under /hospital/ also wait for /api/auth/me: not logged in -> /login.html?next=…
+   * (the promise then never resolves, so the page doesn't fire calls while it leaves). SB.ui.me = the user. */
   async function boot(pageKey) {
-    renderHeader(pageKey);
+    const hosp = isHospitalPage();
+    renderHeader(pageKey, hosp);
     SB.api.onChange((s) => { renderHealth(s); renderBanner(s); });
     await SB.api.init();
+    if (document.querySelector('[data-feature]')) loadFeatures();
+    if (!hosp) return SB.api.state;
+    const me = await SB.auth.me();
+    const staff = !!(me && me.authenticated && me.kind !== 'patient');
+    if (!staff && !me.error && SB.auth.loginRedirect('/api/auth/me')) return new Promise(() => {});
+    SB.ui.me = staff ? me : null;
+    const demo = !!((SB.api.state.health && SB.api.state.health.demo_mode) || (staff && me.demo_mode));
+    renderHospitalShell(pageKey, SB.ui.me, demo, me.error);
     return SB.api.state;
   }
 
@@ -269,5 +534,8 @@
     return () => { stopped = true; clearTimeout(timer); };
   }
 
-  SB.ui = { esc, $, $$, link, ic, hydrateIcons, hourLabel, hourRange, TREND_LABEL, timeLabel, dateTimeLabel, ago, istClock, istDate, initials, statusPill, redFlagPill, STATUS_ICON, trendHTML, normTrend, STATUS_RANK, STATUS_TEXT, LANG, LABEL_TEXT, labelChips, fmtMl, meter, toast, busy, boot, poll, LOGO, SITE };
+  SB.ui = { esc, $, $$, link, ic, hydrateIcons, hourLabel, hourRange, TREND_LABEL, timeLabel, dateTimeLabel, ago, istClock, istDate, initials, statusPill, redFlagPill, STATUS_ICON, trendHTML, normTrend, STATUS_RANK, STATUS_TEXT, LANG, LABEL_TEXT, labelChips, fmtMl, meter, toast, busy, boot, poll, LOGO, SITE,
+    // 2.0 kit
+    me: null, ROLE_TEXT, HOSP_NAV, hasPerm, navAllowed, dmy, editedMeta, loadFeatures, badge, plannedCard, hydrateBadges, FSTATUS,
+    fakeRibbon, fakeRibbonHTML, keyReveal, applyTheme, currentTheme };
 })();

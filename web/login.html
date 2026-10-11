@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hospital login – SpiroBuddy</title>
+  <meta name="description" content="SpiroBuddy hospital login for doctors, nurses and the hospital admin (demo, fake patients only).">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b6e8a'/%3E%3Crect x='9' y='13' width='6' height='13' rx='3' fill='%23fff'/%3E%3Cpath d='M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4' stroke='%237fe0c8' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="auth-body">
+  <div id="ribbon"></div>
+  <header class="auth-top">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="logo" href="/" aria-label="SpiroBuddy – home page"><span id="logo"></span><span class="logo-name">SpiroBuddy</span></a>
+    <span class="spacer"></span>
+    <button class="icon-btn" id="theme-btn" type="button" aria-label="Switch light or dark theme" title="Light / dark theme"></button>
+  </header>
+
+  <main id="main" class="auth-main single" tabindex="-1">
+    <section class="login-card" aria-labelledby="login-h">
+      <h1 id="login-h">Hospital login</h1>
+      <p class="lead" id="login-lead">For doctors, nurses and the hospital admin.</p>
+
+      <div class="form-msg info" id="offline-note" hidden></div>
+      <div class="form-msg info" id="signed-in" hidden></div>
+
+      <form id="login-form" class="form-stack" novalidate>
+        <div class="form-msg bad" id="login-error" role="alert" hidden></div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false" required>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="pw-wrap">
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+            <button class="btn sm ghost pw-toggle" id="pw-toggle" type="button" aria-controls="password" aria-pressed="false">Show</button>
+          </div>
+        </div>
+        <button class="btn primary lg block" id="login-btn" type="submit">Log in</button>
+      </form>
+
+      <nav class="auth-links" aria-label="Other ways in">
+        <a href="/signup.html" data-icon="user-check">Doctor? Sign up with your hospital's join code</a>
+        <a href="/redeem.html" data-icon="key">Nurse? Use an access key</a>
+      </nav>
+    </section>
+
+    <!-- Shown only when /api/health says demo_mode. Fictional people and passwords (docs/REBUILD_PLAN.md §2). -->
+    <section class="demo-accounts" id="demo-box" aria-labelledby="demo-h" hidden>
+      <h2 id="demo-h"><span data-icon="flask"></span>Demo accounts – fake data – reset nightly</h2>
+      <p>Fictional people at a fictional hospital. One click logs you in.</p>
+      <ul class="da-list">
+        <li class="da-row">
+          <div class="da-who"><b>Admin</b><span class="muted">Demo General Hospital (fictional)</span>
+            <span class="da-cred">admin@demo-general.example</span><span class="da-cred">Password: demo-admin-2026</span></div>
+          <button class="btn" type="button" data-demo="admin">Try as Admin</button>
+        </li>
+        <li class="da-row">
+          <div class="da-who"><b>Dr. Meera Nair</b><span class="muted">Surgeon (fictional)</span>
+            <span class="da-cred">meera.nair@demo-general.example</span><span class="da-cred">Password: demo-doctor-2026</span></div>
+          <button class="btn" type="button" data-demo="doctor">Try as Doctor</button>
+        </li>
+        <li class="da-row">
+          <div class="da-who"><b>Sister Anjali</b><span class="muted">Ward nurse (fictional)</span>
+            <span class="da-cred">anjali@demo-general.example</span><span class="da-cred">Password: demo-nurse-2026</span></div>
+          <button class="btn" type="button" data-demo="nurse">Try as Nurse</button>
+        </li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="auth-foot">Fake patients only · not a medical device · not for clinical use</footer>
+  <noscript><p class="auth-foot">This login needs JavaScript. Please turn it on and reload the page.</p></noscript>
+
+  <script src="/js/icons.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+  (function () {
+    'use strict';
+    const { $, $$, esc, ic } = SB.ui;
+    const q = new URLSearchParams(location.search);
+    // The fictional demo logins (docs/REBUILD_PLAN.md §2). The buttons only show in DEMO_MODE.
+    const DEMO = {
+      admin: { email: 'admin@demo-general.example', password: 'demo-admin-2026' },
+      doctor: { email: 'meera.nair@demo-general.example', password: 'demo-doctor-2026' },
+      nurse: { email: 'anjali@demo-general.example', password: 'demo-nurse-2026' },
+    };
+
+    /* After login go back to ?next – same-site paths only ("/x", never "//x" or "/\x"), so no open redirect. */
+    function nextPath() {
+      const n = q.get('next') || '';
+      return /^\/(?![\/\\])\S*$/.test(n) && !/^\/login\.html/.test(n) ? n : '/hospital/';
+    }
+    const go = () => location.assign(SB.ui.link(nextPath()));
+
+    /* ---------- messages ---------- */
+    function errorText(e) {
+      const s = e && e.status, m = String((e && e.message) || '');
+      if (s === 401) return 'Wrong email or password. Please check both and try again.';
+      if (s === 429) return 'Too many tries. For safety, this login is locked for 15 minutes. Please wait and try again.';
+      if (s === 403) {
+        if (/pending|approv/i.test(m)) return 'Your account is waiting for the hospital admin to approve it. Please try again after approval.';
+        if (/disabled|switched off|blocked/i.test(m)) return 'This account is switched off. Please ask your hospital admin.';
+        return 'You can’t log in with this account: ' + m;
+      }
+      if (s === 0) return 'Can’t reach the server. Check your internet connection and try again.';
+      if (s === 400 || s === 422) return m && !/^HTTP/.test(m) ? m : 'Please enter your email and password.';
+      return 'Something went wrong (error ' + (s || '?') + '). Please try again.';
+    }
+    function showError(text, field) {
+      const box = $('#login-error');
+      box.innerHTML = ic('alert-octagon', { size: 18 }) + '<span>' + esc(text) + '</span>';
+      box.hidden = false;
+      $$('#email, #password').forEach((el) => el.removeAttribute('aria-invalid'));
+      if (field) { field.setAttribute('aria-invalid', 'true'); field.focus(); }
+    }
+    function hideError() { $('#login-error').hidden = true; $$('#email, #password').forEach((el) => el.removeAttribute('aria-invalid')); }
+
+    /* ---------- log in ---------- */
+    let busy = false;
+    function setBusy(btn, on) {
+      busy = on;
+      $$('#login-btn, [data-demo]').forEach((b) => { b.disabled = on; });
+      if (btn) { btn.classList.toggle('busy', on); btn.setAttribute('aria-busy', String(on)); if (on) { btn.dataset.label = btn.textContent; btn.textContent = 'Logging in…'; } else if (btn.dataset.label) btn.textContent = btn.dataset.label; }
+    }
+    async function login(email, password, btn) {
+      if (busy) return;
+      hideError();
+      if (!email) return showError('Please enter your email.', $('#email'));
+      if (!password) return showError('Please enter your password.', $('#password'));
+      setBusy(btn, true);
+      try {
+        const res = await SB.auth.login(email, password);
+        if (res && res.ok === false) throw new SB.api.ApiError(401, res.error || 'wrong email or password');
+        go();                                   // keep the button busy while the next page loads
+      } catch (e) {
+        setBusy(btn, false);
+        showError(errorText(e), e && e.status === 401 ? $('#password') : null);
+      }
+    }
+    $('#login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      login($('#email').value.trim(), $('#password').value, $('#login-btn'));
+    });
+    $$('[data-demo]').forEach((b) => b.addEventListener('click', () => {
+      const a = DEMO[b.dataset.demo];
+      $('#email').value = a.email; $('#password').value = a.password;
+      login(a.email, a.password, b);
+    }));
+    $('#pw-toggle').addEventListener('click', (e) => {
+      const pw = $('#password'), show = pw.type === 'password';
+      pw.type = show ? 'text' : 'password';
+      e.currentTarget.textContent = show ? 'Hide' : 'Show';
+      e.currentTarget.setAttribute('aria-pressed', String(show));
+      e.currentTarget.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+    });
+
+    /* ---------- theme + logo ---------- */
+    $('#logo').outerHTML = SB.ui.LOGO;
+    const paintTheme = () => { $('#theme-btn').innerHTML = ic(SB.ui.currentTheme() === 'dark' ? 'sun' : 'moon'); };
+    $('#theme-btn').addEventListener('click', () => {
+      const next = SB.ui.currentTheme() === 'dark' ? 'light' : 'dark';
+      SB.ui.applyTheme(next);
+      try { localStorage.setItem('sb_theme', next); } catch (_) { /* private mode */ }
+      paintTheme();
+    });
+    paintTheme();
+    $$('[data-icon]').forEach((el) => {
+      if (el.tagName === 'A') el.insertAdjacentHTML('afterbegin', ic(el.dataset.icon, { size: 18 }));
+      else el.outerHTML = ic(el.dataset.icon, { size: 20 });
+    });
+    if (q.get('next')) $('#login-lead').textContent = 'Please log in to continue. For doctors, nurses and the hospital admin.';
+    if (!$('#email').value) $('#email').focus();
+
+    /* ---------- start: demo box, offline note, already logged in ---------- */
+    (async function init() {
+      const st = await SB.api.init();
+      const h = st.health || {};
+      if (h.demo_mode) {
+        $('#demo-box').hidden = false;
+        $('#main').classList.remove('single');
+        SB.ui.fakeRibbon({ into: '#ribbon' });
+      }
+      if (st.mock && !st.forcedMock) {
+        $('#offline-note').innerHTML = ic('wifi-off', { size: 18 }) + '<span><b>Server offline.</b> Only the built-in demo logins work right now, with built-in demo data.</span>';
+        $('#offline-note').hidden = false;
+      }
+      if (st.mock) return;
+      const me = await SB.auth.me();
+      if (me.authenticated && me.kind === 'staff') {
+        const box = $('#signed-in');
+        box.innerHTML = ic('user-check', { size: 18 }) + `<span>You’re logged in as <b>${esc(me.name)}</b> (${esc(SB.ui.ROLE_TEXT[me.role] || me.role)}).
+          <a href="${esc(SB.ui.link(nextPath()))}">Continue</a> or <button class="btn sm" id="logout-here" type="button">Log out</button></span>`;
+        box.hidden = false;
+        $('#logout-here').addEventListener('click', () => SB.auth.logout());
+      }
+    })();
+  })();
+  </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 /* SpiroBuddy – one design system for every web surface. Plain CSS, no build step.
- * Order: 1 tokens (light + dark) → 2 base → 3 layout & app shell → 4 components → 5 pages → 6 print.
+ * Order: 1 tokens (light + dark) → 2 base → 3 layout & app shell → 4 components → 5 pages → 6 print
+ * → 7 UI 2 additions → 8 2.0 additions (hospital shell, status badges, planned cards, login).
  * Docs: docs/DESIGN_SYSTEM.md (keep the two in step). */
 
 /* =====================================================================================
@@ -929,3 +930,179 @@ canvas.live { width: 100%; height: 260px; display: block; background: var(--surf
 .dcard .result { line-height: 1.6; }
 .dcard .result > svg.i:first-child { margin-right: 4px; }
 .r-good { color: var(--green); } .r-warn { color: var(--yellow); } .r-bad { color: var(--red); }
+
+/* =====================================================================================
+   8 – 2.0 ADDITIONS – hospital shell (user menu, nav skeleton, ribbon, banners), feature status
+   badges and Planned cards, unclear (amber) fields, inline edit, shown-once secrets, login page.
+   Only existing tokens; light + dark come from section 1. Documented in DESIGN_SYSTEM.md §10.
+   After Phase 1 only the lead edits this file – page-only styles go in web/css/<area>.css.
+   ===================================================================================== */
+/* ---------- hospital shell: user menu (name · role · Logout) ---------- */
+.user-slot { display: flex; align-items: center; }
+.um-skel { width: 120px; height: 32px; border-radius: var(--r-pill); }
+.user-menu { position: relative; }
+.user-menu > summary {
+  list-style: none; display: inline-flex; align-items: center; gap: var(--sp-2); min-height: 40px; padding: 3px var(--sp-2) 3px 3px;
+  border: 1px solid var(--border); border-radius: var(--r-pill); background: var(--surface); color: var(--text); cursor: pointer;
+}
+.user-menu > summary::-webkit-details-marker { display: none; }
+.user-menu > summary:hover { background: var(--surface-3); }
+.user-menu > summary > svg { color: var(--text-3); flex: none; }
+.user-menu[open] > summary > svg { transform: rotate(180deg); }
+.um-avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--brand); color: var(--brand-ink); font-size: var(--fs-xs); font-weight: 800; letter-spacing: .02em; }
+.um-text { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; text-align: left; }
+.um-name { font-size: var(--fs-sm); font-weight: 700; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.um-role { font-size: var(--fs-xs); font-weight: 600; color: var(--text-3); }
+.um-pop {
+  position: absolute; right: 0; top: calc(100% + 6px); width: min(300px, calc(100vw - 24px)); z-index: var(--z-pop);
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--elev-3);
+  padding: var(--sp-3); display: flex; flex-direction: column; gap: var(--sp-3);
+}
+.um-who { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-md); overflow-wrap: anywhere; }
+.um-who b { font-size: var(--fs-base); }
+.um-logout { width: 100%; }
+/* nav placeholder while /api/auth/me answers */
+.nav-skel { list-style: none; margin: 0; padding: var(--sp-2) var(--sp-3); display: flex; flex-direction: column; gap: var(--sp-4); }
+.nav-skel .skeleton { height: 14px; width: 80%; }
+
+/* ---------- "Fake patients only · demo" ribbon (dashed, never colour alone: icon + words) ---------- */
+.ribbon-fake {
+  display: flex; align-items: center; justify-content: center; gap: 6px; padding: 3px var(--sp-4); min-height: 26px;
+  font-size: var(--fs-sm); font-weight: 700; color: var(--text-2); text-align: center; line-height: 1.3;
+  background: repeating-linear-gradient(-45deg, var(--surface-2) 0 10px, var(--surface-3) 10px 20px);
+  border-top: 1px dashed var(--border-strong); border-bottom: 1px dashed var(--border-strong);
+}
+.ribbon-fake > svg { flex: none; color: var(--text-3); }
+.ribbon-fake.lg { font-size: 1.125rem; padding: var(--sp-2) var(--sp-4); }    /* patient app and family page */
+
+/* ---------- banners: database update needed (red), please log in (info) ---------- */
+.banner.db { background: var(--red-soft); border: 1px solid var(--red-line); color: var(--red); }
+.banner.info { background: var(--brand-soft); border: 1px solid var(--brand-line); color: var(--text); }
+.banner.info > svg { color: var(--brand); }
+
+/* ---------- feature status badges: Live · Simulated · In development · Planned (icon + word) ---------- */
+.fbadge {
+  display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; white-space: nowrap; line-height: 1.2;
+  font-size: var(--fs-xs); font-weight: 700; padding: 2px var(--sp-2) 2px 6px; min-height: 22px;
+  border-radius: var(--r-pill); border: 1px solid var(--border); background: var(--grey-soft); color: var(--text-2);
+}
+.fbadge > svg { flex: none; }
+.fbadge.live { background: var(--green-soft); border-color: var(--green-line); color: var(--green); }
+.fbadge.simulated { background: var(--brand-soft); border-color: var(--brand-line); color: var(--brand); }
+.fbadge.in_development { background: var(--surface-3); border-color: var(--border-strong); color: var(--text-2); }
+.fbadge.planned { background: var(--surface); border-style: dashed; border-color: var(--border-strong); color: var(--text-2); }
+.fbadge.pending { min-width: 64px; border-color: transparent; background: linear-gradient(90deg, var(--surface-3) 25%, var(--surface-2) 50%, var(--surface-3) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite linear; }
+.fbadge-legend { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-3); align-items: center; }
+
+/* ---------- Planned card: shown in context, never clickable ---------- */
+.planned-card {
+  display: flex; flex-direction: column; gap: var(--sp-1); min-width: 0; padding: var(--sp-3) var(--sp-4);
+  border: 1px dashed var(--border-strong); border-radius: var(--r-lg); background: var(--surface-2); color: var(--text-2); cursor: not-allowed;
+}
+.planned-card .pc-head { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+.planned-card .pc-name { font-weight: 700; color: var(--text-2); }
+.planned-card .pc-note { margin: 0; font-size: var(--fs-sm); color: var(--text-3); }
+.planned-card.pending { gap: var(--sp-2); }
+.planned-card.pending .skeleton { height: 12px; }
+.planned-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: var(--sp-3); }
+
+/* ---------- unclear field (AI was not sure): amber soft background + amber line + "Unclear" hint ---------- */
+.amber-field { background: var(--yellow-soft); border-radius: var(--r-md); box-shadow: inset 3px 0 0 var(--yellow-dot); padding: var(--sp-2) var(--sp-3) var(--sp-2) var(--sp-4); }
+.amber-field input, .amber-field select, .amber-field textarea { border-color: var(--yellow-dot); background: var(--surface); }
+.amber-hint { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-sm); font-weight: 700; color: var(--yellow); }
+.amber-hint > svg { flex: none; }
+/* no hint element written? the word still shows */
+.amber-field:not(:has(.amber-hint))::after { content: "⚠ Unclear – check the original"; display: block; margin-top: 2px; font-size: var(--fs-sm); font-weight: 700; color: var(--yellow); }
+
+/* ---------- inline edit: view → Edit → Save / Cancel, then "Edited by … at …" ---------- */
+.inline-edit { display: flex; flex-direction: column; gap: 2px; padding: var(--sp-2) 0; border-bottom: 1px solid var(--border); }
+.inline-edit:last-child { border-bottom: 0; }
+.ie-row { display: flex; align-items: center; gap: var(--sp-2) var(--sp-3); flex-wrap: wrap; min-height: var(--target); }
+.ie-label { flex: 0 0 180px; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); }
+.ie-view { flex: 1 1 160px; min-width: 0; font-weight: 600; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.ie-view.empty-val { color: var(--text-3); font-weight: 400; font-style: italic; }
+.ie-form { display: none; flex: 1 1 260px; min-width: 0; gap: var(--sp-2); align-items: center; flex-wrap: wrap; margin: 0; }
+.ie-form input, .ie-form select, .ie-form textarea { flex: 1 1 160px; min-width: 0; }
+.ie-actions { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+.inline-edit.is-editing { box-shadow: inset 3px 0 0 var(--brand); padding-left: var(--sp-3); background: var(--brand-soft); border-radius: var(--r-md); }
+.inline-edit.is-editing .ie-view, .inline-edit.is-editing .ie-edit { display: none; }
+.inline-edit.is-editing .ie-form { display: flex; }
+.ie-meta { margin: 0; display: flex; align-items: center; gap: 6px; font-size: var(--fs-sm); color: var(--text-3); }
+.ie-meta > svg { flex: none; }
+
+/* ---------- shown-once secret (nurse key, join code, temporary password) with Copy ---------- */
+.key-reveal { display: flex; flex-direction: column; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4); border: 2px solid var(--brand); border-radius: var(--r-lg); background: var(--brand-soft); }
+.kr-label { display: flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-sm); font-weight: 700; color: var(--brand); }
+.kr-row { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+.kr-code {
+  flex: 1 1 200px; min-width: 0; padding: var(--sp-2) var(--sp-3); font-family: var(--mono); font-size: var(--fs-lg); font-weight: 700; letter-spacing: .04em;
+  color: var(--text); background: var(--surface); border: 1px solid var(--brand-line); border-radius: var(--r-md); overflow-wrap: anywhere; user-select: all;
+}
+.kr-copy.done { background: var(--green-soft); border-color: var(--green-line); color: var(--green); }
+.kr-note { margin: 0; display: flex; align-items: flex-start; gap: 6px; font-size: var(--fs-sm); font-weight: 600; color: var(--yellow); }
+.kr-note > svg { flex: none; margin-top: 2px; }
+
+/* ---------- forms: hints and messages ---------- */
+.field .hint { font-size: var(--fs-sm); font-weight: 400; color: var(--text-3); }
+.form-stack { display: flex; flex-direction: column; gap: var(--sp-4); }
+.form-stack .field input, .form-stack .field select { width: 100%; min-height: var(--target); }
+.form-msg { display: flex; align-items: flex-start; gap: var(--sp-2); padding: var(--sp-3); border-radius: var(--r-md); font-size: var(--fs-md); font-weight: 600; }
+.form-msg > svg { flex: none; margin-top: 2px; }
+.form-msg.bad { background: var(--red-soft); border: 1px solid var(--red-line); color: var(--red); }
+.form-msg.good { background: var(--green-soft); border: 1px solid var(--green-line); color: var(--green); }
+.form-msg.info { background: var(--brand-soft); border: 1px solid var(--brand-line); color: var(--text); }
+.btn.block { width: 100%; }
+.pw-wrap { position: relative; display: flex; }
+.pw-wrap input { flex: 1; padding-right: 92px; }
+.pw-wrap .pw-toggle { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); }
+
+/* ---------- login / signup / redeem pages (no app shell) ---------- */
+.auth-body { min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+.auth-top { width: 100%; max-width: 1040px; margin: 0 auto; padding: var(--sp-3) var(--sp-4); display: flex; align-items: center; gap: var(--sp-3); }
+.auth-top .spacer { flex: 1; }
+.auth-main {
+  flex: 1; width: 100%; max-width: 1040px; margin: 0 auto; padding: var(--sp-4) var(--sp-4) var(--sp-8);
+  display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 1fr); gap: var(--sp-6); align-items: start;
+}
+.auth-main.single { grid-template-columns: minmax(0, 460px); justify-content: center; }
+.login-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); box-shadow: var(--elev-2); padding: var(--sp-6); min-width: 0; }
+.login-card h1 { margin-bottom: var(--sp-1); }
+.login-card .lead { color: var(--text-2); margin-bottom: var(--sp-5); }
+.auth-links { display: flex; flex-direction: column; gap: var(--sp-1); margin-top: var(--sp-5); padding-top: var(--sp-4); border-top: 1px solid var(--border); font-size: var(--fs-md); }
+.auth-links a { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--target); font-weight: 600; }
+.demo-accounts { min-width: 0; background: var(--surface); border: 2px dashed var(--border-strong); border-radius: var(--r-xl); padding: var(--sp-5); }
+.demo-accounts h2 { display: flex; align-items: center; gap: var(--sp-2); }
+.demo-accounts > p { color: var(--text-2); font-size: var(--fs-md); }
+.da-list { list-style: none; margin: var(--sp-3) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-3); }
+.da-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-2) var(--sp-3); align-items: center; padding: var(--sp-3) var(--sp-4); border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--surface-2); }
+.da-who { min-width: 0; }
+.da-who b { display: block; }
+.da-who .muted { font-size: var(--fs-sm); }
+.da-cred { display: block; margin-top: 2px; font-family: var(--mono); font-size: var(--fs-sm); color: var(--text-2); overflow-wrap: anywhere; }
+.auth-foot { padding: var(--sp-4); border-top: 1px solid var(--border); text-align: center; font-size: var(--fs-sm); color: var(--text-3); }
+@media (max-width: 860px) {
+  .auth-main { grid-template-columns: minmax(0, 1fr); max-width: 520px; }
+}
+
+/* ---------- 2.0 responsive ---------- */
+@media (max-width: 1023px) {
+  .nav-skel { flex-direction: row; padding: var(--sp-3); }
+  .nav-skel .skeleton { width: 72px; }
+}
+@media (max-width: 760px) {
+  .um-text { display: none; }
+  .user-menu > summary { padding: 3px; }
+  .um-pop { position: fixed; left: var(--sp-3); right: var(--sp-3); top: calc(var(--top-h) + 4px); width: auto; }
+  .ie-label { flex-basis: 100%; }
+}
+@media (max-width: 480px) {
+  .login-card { padding: var(--sp-5) var(--sp-4); }
+  .demo-accounts { padding: var(--sp-4); }
+  .da-row { grid-template-columns: minmax(0, 1fr); }
+  .da-row .btn { width: 100%; }
+  .ribbon-fake { font-size: var(--fs-xs); }
+  .ribbon-fake.lg { font-size: 1.125rem; }
+}
+@media print {
+  .user-slot, .banner.db, .banner.info { display: none !important; }   /* the fake-patients ribbon stays on paper */
+}
