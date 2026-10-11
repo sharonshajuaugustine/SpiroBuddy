@@ -14,3 +14,6 @@ backend/data/voice_prefs.json
 
 # Organisers' screenshots with real names – never commit
 infffff/
+
+# Internal reviews (verdicts, candid scoring) - local only, never on the public repo
+docs/private/

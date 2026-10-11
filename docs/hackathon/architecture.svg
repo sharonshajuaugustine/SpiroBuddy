@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" font-family="Segoe UI, Nirmala UI, Noto Sans, Arial, sans-serif" role="img" aria-labelledby="t d">
+<title id="t">How SpiroBuddy works – architecture</title>
+<desc id="d">Laser base (in development) and breath simulator (simulated) feed the patient phone web app (live), which talks to the SpiroBuddy server on Render (live) with a Supabase database in Mumbai. The server holds the breath model, voice coach, daily summaries and fixed safety rules, and feeds the nurse dashboard, the family page and WhatsApp and phone messages (previews today). Planned items are listed at the bottom. Fake patients only.</desc>
+<defs>
+<marker id="ah" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#445263"/></marker>
+<marker id="ah-start" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#445263"/></marker>
+</defs>
+<rect width="1920" height="1080" fill="#f4f6f8"/>
+<g transform="translate(60 40) scale(1.875)"><rect width="32" height="32" rx="8" fill="#0b6e8a"/><rect x="9" y="6" width="6" height="20" rx="3" fill="#fff" opacity=".35"/><rect x="9" y="13" width="6" height="13" rx="3" fill="#fff"/><path d="M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4" stroke="#7fe0c8" stroke-width="2.2" fill="none" stroke-linecap="round"/></g>
+<text x="140" y="86" font-size="50" font-weight="700" fill="#101c27" text-anchor="start">How SpiroBuddy works</text>
+<text x="142" y="128" font-size="24" font-weight="400" fill="#445263" text-anchor="start">Architecture · fake patients only · every AI part has a backup</text>
+<rect x="960" y="28" width="920" height="128" rx="14" fill="#ffffff" stroke="#e0e5ea" stroke-width="1.5"/>
+<rect x="980" y="44" width="96" height="36" rx="18.0" fill="#e8f5ec" stroke="#b6dfc2" stroke-width="1.5"/>
+<path d="M995 62.0 l5 5 l9 -10" stroke="#1b7035" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="1020" y="68.84" font-size="19" font-weight="700" fill="#1b7035" text-anchor="start">Live</text>
+<text x="1196" y="69" font-size="20" font-weight="400" fill="#445263" text-anchor="start">works today on the live site</text>
+<rect x="980" y="100" width="204" height="36" rx="18.0" fill="#fff5e1" stroke="#f0d49a" stroke-width="1.5"/>
+<circle cx="1002" cy="118.0" r="8.5" stroke="#8f5100" stroke-width="2.4" fill="none"/>
+<path d="M1002 109.5 a8.5 8.5 0 0 0 0 17 z" fill="#8f5100"/>
+<text x="1020" y="124.84" font-size="19" font-weight="700" fill="#8f5100" text-anchor="start">In development</text>
+<text x="1196" y="125" font-size="20" font-weight="400" fill="#445263" text-anchor="start">designed, partly built</text>
+<rect x="1490" y="44" width="152" height="36" rx="18.0" fill="#e4f1f5" stroke="#b5d9e4" stroke-width="1.5"/>
+<path d="M1508 53.0 h8 M1509.5 53.0 v6 l-6 10 q-1 2.4 1.6 2.4 h13.8 q2.6 0 1.6 -2.4 l-6 -10 v-6" stroke="#0b6e8a" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="1530" y="68.84" font-size="19" font-weight="700" fill="#0b6e8a" text-anchor="start">Simulated</text>
+<text x="1656" y="69" font-size="20" font-weight="400" fill="#445263" text-anchor="start">works; input simulated</text>
+<rect x="1490" y="100" width="130" height="36" rx="18.0" fill="#eef2f5" stroke="#c3ccd5" stroke-width="1.5" stroke-dasharray="6 4"/>
+<circle cx="1512" cy="118.0" r="8.5" stroke="#445263" stroke-width="2.4" fill="none" stroke-dasharray="3.4 3"/>
+<text x="1530" y="124.84" font-size="19" font-weight="700" fill="#445263" text-anchor="start">Planned</text>
+<text x="1656" y="125" font-size="20" font-weight="400" fill="#445263" text-anchor="start">not started</text>
+<text x="60" y="200" font-size="21" font-weight="700" fill="#5b6878" letter-spacing="2.5">AT HOME</text>
+<text x="570" y="200" font-size="21" font-weight="700" fill="#5b6878" letter-spacing="2.5">OUR SERVER (CLOUD)</text>
+<text x="1450" y="200" font-size="21" font-weight="700" fill="#5b6878" letter-spacing="2.5">CARE TEAM AND FAMILY</text>
+<rect x="60" y="220" width="400" height="170" rx="16" fill="#ffffff" stroke="#f0d49a" stroke-width="2.2"/>
+<rect x="78" y="236" width="204" height="36" rx="18.0" fill="#fff5e1" stroke="#f0d49a" stroke-width="1.5"/>
+<circle cx="100" cy="254.0" r="8.5" stroke="#8f5100" stroke-width="2.4" fill="none"/>
+<path d="M100 245.5 a8.5 8.5 0 0 0 0 17 z" fill="#8f5100"/>
+<text x="118" y="260.84" font-size="19" font-weight="700" fill="#8f5100" text-anchor="start">In development</text>
+<text x="80" y="306" font-size="28" font-weight="650" fill="#101c27" text-anchor="start">Laser base</text>
+<text x="80" y="338" font-size="22" font-weight="400" fill="#445263" text-anchor="start">Reads how high the disc rises</text>
+<text x="80" y="367" font-size="22" font-weight="400" fill="#445263" text-anchor="start">Firmware + 3D design; not built</text>
+<rect x="60" y="440" width="400" height="200" rx="16" fill="#ffffff" stroke="#c3ccd5" stroke-width="2.2"/>
+<rect x="78" y="456" width="96" height="36" rx="18.0" fill="#e8f5ec" stroke="#b6dfc2" stroke-width="1.5"/>
+<path d="M93 474.0 l5 5 l9 -10" stroke="#1b7035" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="118" y="480.84" font-size="19" font-weight="700" fill="#1b7035" text-anchor="start">Live</text>
+<text x="80" y="526" font-size="28" font-weight="650" fill="#101c27" text-anchor="start">Patient’s phone app</text>
+<text x="80" y="558" font-size="22" font-weight="400" fill="#445263" text-anchor="start">Mobile web app · voice coach</text>
+<text x="80" y="587" font-size="22" font-weight="400" fill="#445263" text-anchor="start">Screens in 4 languages</text>
+<text x="80" y="616" font-size="22" font-weight="400" fill="#445263" text-anchor="start">‘I do not feel well’ button</text>
+<rect x="60" y="690" width="400" height="150" rx="16" fill="#ffffff" stroke="#b5d9e4" stroke-width="2.2"/>
+<rect x="78" y="706" width="152" height="36" rx="18.0" fill="#e4f1f5" stroke="#b5d9e4" stroke-width="1.5"/>
+<path d="M96 715.0 h8 M97.5 715.0 v6 l-6 10 q-1 2.4 1.6 2.4 h13.8 q2.6 0 1.6 -2.4 l-6 -10 v-6" stroke="#0b6e8a" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="118" y="730.84" font-size="19" font-weight="700" fill="#0b6e8a" text-anchor="start">Simulated</text>
+<text x="80" y="776" font-size="28" font-weight="650" fill="#101c27" text-anchor="start">Breath simulator</text>
+<text x="80" y="808" font-size="22" font-weight="400" fill="#445263" text-anchor="start">Stands in for the base today</text>
+<line x1="260" y1="392" x2="260" y2="436" stroke="#445263" stroke-width="3.2" marker-end="url(#ah)"/>
+<text x="278" y="421" font-size="19" font-weight="400" fill="#445263" text-anchor="start" font-style="italic">breath readings</text>
+<line x1="260" y1="688" x2="260" y2="644" stroke="#445263" stroke-width="3.2" marker-end="url(#ah)"/>
+<text x="278" y="671" font-size="19" font-weight="400" fill="#445263" text-anchor="start" font-style="italic">simulated breaths</text>
+<rect x="570" y="220" width="780" height="606" rx="18" fill="#e4f1f5" stroke="#b5d9e4" stroke-width="2.2"/>
+<rect x="588" y="236" width="96" height="36" rx="18.0" fill="#e8f5ec" stroke="#b6dfc2" stroke-width="1.5"/>
+<path d="M603 254.0 l5 5 l9 -10" stroke="#1b7035" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="628" y="260.84" font-size="19" font-weight="700" fill="#1b7035" text-anchor="start">Live</text>
+<text x="696" y="262" font-size="28" font-weight="650" fill="#101c27" text-anchor="start">Our server: FastAPI on Render</text>
+<text x="590" y="312" font-size="21" font-weight="400" fill="#445263" text-anchor="start">Cloud (Singapore) · one API for every screen</text>
+<rect x="590" y="334" width="360" height="244" rx="16" fill="#ffffff" stroke="#c3ccd5" stroke-width="2.2"/>
+<rect x="608" y="350" width="96" height="36" rx="18.0" fill="#e8f5ec" stroke="#b6dfc2" stroke-width="1.5"/>
+<path d="M623 368.0 l5 5 l9 -10" stroke="#1b7035" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="648" y="374.84" font-size="19" font-weight="700" fill="#1b7035" text-anchor="start">Live</text>
+<rect x="714" y="353" width="52" height="30" rx="15" fill="#e4f1f5" stroke="#b5d9e4" stroke-width="1.2"/>
+<text x="740.0" y="374" font-size="17" font-weight="700" fill="#0b6e8a" text-anchor="middle">AI</text>
+<text x="610" y="420" font-size="28" font-weight="650" fill="#101c27" text-anchor="start">Breath model</text>
+<text x="610" y="452" font-size="21" font-weight="400" fill="#445263" text-anchor="start">Scores every breath</text>
+<text x="610" y="480" font-size="21" font-weight="400" fill="#445263" text-anchor="start">Trained on simulated breaths</text>
+<text x="610" y="508" font-size="21" font-weight="400" fill="#445263" text-anchor="start">Rules as backup</text>
+<rect x="970" y="334" width="360" height="244" rx="16" fill="#ffffff" stroke="#c3ccd5" stroke-width="2.2"/>
+<rect x="988" y="350" width="96" height="36" rx="18.0" fill="#e8f5ec" stroke="#b6dfc2" stroke-width="1.5"/>
+<path d="M1003 368.0 l5 5 l9 -10" stroke="#1b7035" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="1028" y="374.84" font-size="19" font-weight="700" fill="#1b7035" text-anchor="start">Live</text>
+<rect x="1094" y="353" width="52" height="30" rx="15" fill="#e4f1f5" stroke="#b5d9e4" stroke-width="1.2"/>
+<text x="1120.0" y="374" font-size="17" font-weight="700" fill="#0b6e8a" text-anchor="middle">AI</text>
+<text x="990" y="420" font-size="28" font-weight="650" fill="#101c27" text-anchor="start">Voice coach</text>
+<text x="990" y="452" font-size="21" font-weight="400" fill="#445263" text-anchor="start">Sarvam AI voices recorded in</text>
+<text x="990" y="480" font-size="21" font-weight="400" fill="#445263" text-anchor="start">11 languages · browser backup</text>
+<circle cx="1000" cy="505" r="8.5" stroke="#8f5100" stroke-width="2.4" fill="none"/>
+<path d="M1000 496.5 a8.5 8.5 0 0 0 0 17 z" fill="#8f5100"/>
+<text x="1018" y="512" font-size="20" font-weight="700" fill="#8f5100" text-anchor="start">In development:</text>
+<text x="1018" y="538" font-size="20" font-weight="600" fill="#8f5100" text-anchor="start">live Sarvam voice</text>
+<rect x="590" y="594" width="360" height="216" rx="16" fill="#ffffff" stroke="#f0d49a" stroke-width="2.2"/>
+<rect x="608" y="610" width="204" height="36" rx="18.0" fill="#fff5e1" stroke="#f0d49a" stroke-width="1.5"/>
+<circle cx="630" cy="628.0" r="8.5" stroke="#8f5100" stroke-width="2.4" fill="none"/>
+<path d="M630 619.5 a8.5 8.5 0 0 0 0 17 z" fill="#8f5100"/>
+<text x="648" y="634.84" font-size="19" font-weight="700" fill="#8f5100" text-anchor="start">In development</text>
+<rect x="822" y="613" width="52" height="30" rx="15" fill="#e4f1f5" stroke="#b5d9e4" stroke-width="1.2"/>
+<text x="848.0" y="634" font-size="17" font-weight="700" fill="#0b6e8a" text-anchor="middle">AI</text>
+<text x="610" y="680" font-size="28" font-weight="650" fill="#101c27" text-anchor="start">Daily summaries</text>
+<text x="610" y="712" font-size="21" font-weight="400" fill="#445263" text-anchor="start">Written by Claude</text>
+<text x="610" y="740" font-size="21" font-weight="400" fill="#445263" text-anchor="start">Never diagnoses</text>
+<path d="M613 765 l5 5 l9 -10" stroke="#1b7035" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="638" y="772" font-size="20" font-weight="700" fill="#1b7035" text-anchor="start">Live: fixed-text backup</text>
+<rect x="970" y="594" width="360" height="216" rx="16" fill="#ffffff" stroke="#c3ccd5" stroke-width="2.2"/>
+<rect x="988" y="610" width="96" height="36" rx="18.0" fill="#e8f5ec" stroke="#b6dfc2" stroke-width="1.5"/>
+<path d="M1003 628.0 l5 5 l9 -10" stroke="#1b7035" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="1028" y="634.84" font-size="19" font-weight="700" fill="#1b7035" text-anchor="start">Live</text>
+<rect x="1094" y="613" width="84" height="30" rx="15" fill="#eef2f5" stroke="#c3ccd5" stroke-width="1.2"/>
+<text x="1136.0" y="634" font-size="17" font-weight="700" fill="#445263" text-anchor="middle">Not AI</text>
+<text x="990" y="680" font-size="28" font-weight="650" fill="#101c27" text-anchor="start">Safety rules</text>
+<text x="990" y="712" font-size="21" font-weight="400" fill="#445263" text-anchor="start">Danger words → one fixed</text>
+<text x="990" y="740" font-size="21" font-weight="650" fill="#c62828" text-anchor="start">message: ‘contact your</text>
+<text x="990" y="768" font-size="21" font-weight="650" fill="#c62828" text-anchor="start">nurse or call 112’</text>
+<text x="990" y="796" font-size="21" font-weight="400" fill="#445263" text-anchor="start">Alerts + reminder ladder</text>
+<rect x="570" y="856" width="780" height="80" rx="16" fill="#ffffff" stroke="#c3ccd5" stroke-width="2.2"/>
+<rect x="588" y="872" width="96" height="36" rx="18.0" fill="#e8f5ec" stroke="#b6dfc2" stroke-width="1.5"/>
+<path d="M603 890.0 l5 5 l9 -10" stroke="#1b7035" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="628" y="896.84" font-size="19" font-weight="700" fill="#1b7035" text-anchor="start">Live</text>
+<text x="590" y="942" font-size="28" font-weight="650" fill="#101c27" text-anchor="start"></text>
+<text x="696" y="884" font-size="24" font-weight="650" fill="#101c27" text-anchor="start">Database: Supabase Postgres, Mumbai</text>
+<text x="696" y="914" font-size="20" font-weight="400" fill="#445263" text-anchor="start">fake patients only</text>
+<line x1="960" y1="828" x2="960" y2="852" stroke="#445263" stroke-width="3.2" marker-start="url(#ah-start)" marker-end="url(#ah)"/>
+<text x="980" y="846" font-size="19" font-weight="400" fill="#445263" text-anchor="start" font-style="italic">stores</text>
+<line x1="462" y1="540" x2="566" y2="540" stroke="#445263" stroke-width="3.2" marker-start="url(#ah-start)" marker-end="url(#ah)"/>
+<text x="514" y="506" font-size="18" font-weight="400" fill="#445263" text-anchor="middle" font-style="italic">each breath,</text>
+<text x="514" y="528" font-size="18" font-weight="400" fill="#445263" text-anchor="middle" font-style="italic">each session</text>
+<rect x="1450" y="220" width="410" height="156" rx="16" fill="#ffffff" stroke="#c3ccd5" stroke-width="2.2"/>
+<rect x="1468" y="236" width="96" height="36" rx="18.0" fill="#e8f5ec" stroke="#b6dfc2" stroke-width="1.5"/>
+<path d="M1483 254.0 l5 5 l9 -10" stroke="#1b7035" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="1508" y="260.84" font-size="19" font-weight="700" fill="#1b7035" text-anchor="start">Live</text>
+<text x="1470" y="306" font-size="28" font-weight="650" fill="#101c27" text-anchor="start">Nurse &amp; doctor dashboard</text>
+<text x="1470" y="338" font-size="22" font-weight="400" fill="#445263" text-anchor="start">Most urgent first</text>
+<text x="1470" y="367" font-size="22" font-weight="400" fill="#445263" text-anchor="start">Sessions done ÷ due · alerts</text>
+<rect x="1450" y="390" width="410" height="156" rx="16" fill="#ffffff" stroke="#c3ccd5" stroke-width="2.2"/>
+<rect x="1468" y="406" width="96" height="36" rx="18.0" fill="#e8f5ec" stroke="#b6dfc2" stroke-width="1.5"/>
+<path d="M1483 424.0 l5 5 l9 -10" stroke="#1b7035" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="1508" y="430.84" font-size="19" font-weight="700" fill="#1b7035" text-anchor="start">Live</text>
+<text x="1470" y="476" font-size="28" font-weight="650" fill="#101c27" text-anchor="start">Family page</text>
+<text x="1470" y="508" font-size="22" font-weight="400" fill="#445263" text-anchor="start">Family who opted in, with the</text>
+<text x="1470" y="537" font-size="22" font-weight="400" fill="#445263" text-anchor="start">patient’s consent · no login</text>
+<rect x="1450" y="560" width="410" height="156" rx="16" fill="#ffffff" stroke="#f0d49a" stroke-width="2.2"/>
+<rect x="1468" y="576" width="204" height="36" rx="18.0" fill="#fff5e1" stroke="#f0d49a" stroke-width="1.5"/>
+<circle cx="1490" cy="594.0" r="8.5" stroke="#8f5100" stroke-width="2.4" fill="none"/>
+<path d="M1490 585.5 a8.5 8.5 0 0 0 0 17 z" fill="#8f5100"/>
+<text x="1508" y="600.84" font-size="19" font-weight="700" fill="#8f5100" text-anchor="start">In development</text>
+<text x="1470" y="646" font-size="28" font-weight="650" fill="#101c27" text-anchor="start">WhatsApp &amp; phone calls</text>
+<text x="1470" y="678" font-size="22" font-weight="400" fill="#445263" text-anchor="start">Reminders, family updates,</text>
+<text x="1470" y="707" font-size="22" font-weight="400" fill="#445263" text-anchor="start">nurse alerts · previews today</text>
+<rect x="1450" y="730" width="410" height="156" rx="16" fill="#ffffff" stroke="#f0d49a" stroke-width="2.2"/>
+<rect x="1468" y="746" width="204" height="36" rx="18.0" fill="#fff5e1" stroke="#f0d49a" stroke-width="1.5"/>
+<circle cx="1490" cy="764.0" r="8.5" stroke="#8f5100" stroke-width="2.4" fill="none"/>
+<path d="M1490 755.5 a8.5 8.5 0 0 0 0 17 z" fill="#8f5100"/>
+<text x="1508" y="770.84" font-size="19" font-weight="700" fill="#8f5100" text-anchor="start">In development</text>
+<text x="1470" y="816" font-size="28" font-weight="650" fill="#101c27" text-anchor="start">Units screen</text>
+<text x="1470" y="848" font-size="22" font-weight="400" fill="#445263" text-anchor="start">Lend, clean and re-issue units</text>
+<text x="1470" y="877" font-size="22" font-weight="400" fill="#445263" text-anchor="start">Mock-up in this browser</text>
+<line x1="1352" y1="298" x2="1446" y2="298" stroke="#445263" stroke-width="3.2" marker-end="url(#ah)"/>
+<text x="1399" y="286" font-size="18" font-weight="400" fill="#445263" text-anchor="middle" font-style="italic">live list</text>
+<line x1="1352" y1="468" x2="1446" y2="468" stroke="#445263" stroke-width="3.2" marker-end="url(#ah)"/>
+<text x="1399" y="456" font-size="18" font-weight="400" fill="#445263" text-anchor="middle" font-style="italic">progress</text>
+<line x1="1352" y1="638" x2="1446" y2="638" stroke="#445263" stroke-width="3.2" marker-end="url(#ah)"/>
+<text x="1399" y="626" font-size="18" font-weight="400" fill="#445263" text-anchor="middle" font-style="italic">messages</text>
+<rect x="60" y="958" width="1800" height="100" rx="16" fill="#f8fafb" stroke="#c3ccd5" stroke-width="2.2" stroke-dasharray="8 6"/>
+<rect x="80" y="990" width="130" height="36" rx="18.0" fill="#eef2f5" stroke="#c3ccd5" stroke-width="1.5" stroke-dasharray="6 4"/>
+<circle cx="102" cy="1008.0" r="8.5" stroke="#445263" stroke-width="2.4" fill="none" stroke-dasharray="3.4 3"/>
+<text x="120" y="1014.84" font-size="19" font-weight="700" fill="#445263" text-anchor="start">Planned</text>
+<text x="236" y="998" font-size="22" font-weight="400" fill="#101c27" text-anchor="start">Bluetooth link and Android app  ·  nurse login and roles  ·  three-ball reader (phone camera)</text>
+<text x="236" y="1034" font-size="22" font-weight="400" fill="#101c27" text-anchor="start">A speaking base with a SIM, for patients without a smartphone  ·  TB lung rehab</text>
+</svg>
