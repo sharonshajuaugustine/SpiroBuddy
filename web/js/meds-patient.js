@@ -15,6 +15,7 @@
   let lang = pickLang(), langChosen = !!(q.get('lang') && M.T[q.get('lang')]) || !!stored();
   let data = null, failed = null, view = location.hash === '#all' ? 'all' : 'home';
   let cards = null, cardIdx = 0, reading = false, busy = false;
+  let sessionTried = false;
 
   function stored() { try { const v = localStorage.getItem(LS); return M.T[v] ? v : null; } catch (_) { return null; } }
   function pickLang() { const l = q.get('lang'); return (M.T[l] && l) || stored() || 'hi'; }
@@ -33,9 +34,12 @@
   async function load() {
     failed = null;
     try {
+      /* a link with ?id= or ?t= opens its own session first, so a fresh visitor does not trigger a 401 in the console */
+      let opened = false;
+      if (!sessionTried && (q.get('t') || Number(q.get('id')))) { sessionTried = true; opened = await openSession(); }
       try { data = await SB.api.get('/api/me/medicines'); }
       catch (e) {
-        if (e && e.status === 401 && await openSession()) data = await SB.api.get('/api/me/medicines');
+        if (e && e.status === 401 && !opened && await openSession()) data = await SB.api.get('/api/me/medicines');
         else throw e;
       }
       if (!langChosen && data.patient && M.T[data.patient.language]) lang = data.patient.language;
