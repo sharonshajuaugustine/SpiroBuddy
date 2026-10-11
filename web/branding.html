@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>App branding · SpiroBuddy</title>
+  <meta name="description" content="Set your hospital's own name and logo inside the patient app (demo, fictional hospital).">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b6e8a'/%3E%3Crect x='9' y='13' width='6' height='13' rx='3' fill='%23fff'/%3E%3Cpath d='M19 12c3 0 3 4 6 4M19 18c3 0 3 4 6 4' stroke='%237fe0c8' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/branding.css">
+  <style>
+    .bd-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-4); align-items: start; }
+    @media (min-width: 900px) { .bd-grid { grid-template-columns: minmax(0, 3fr) minmax(300px, 2fr); } }
+    .bd-form label.field input[type="text"] { width: 100%; min-height: var(--target); }
+    .bd-colour { display: flex; gap: var(--sp-3); align-items: center; flex-wrap: wrap; }
+    .bd-colour input[type="color"] { width: 64px; min-height: var(--target); padding: 2px; cursor: pointer; }
+    .bd-colour input[type="text"] { width: 9.5rem; font-family: var(--mono); }
+    .bd-logo { display: flex; gap: var(--sp-4); align-items: center; flex-wrap: wrap; }
+    .bd-logo-now { width: 72px; height: 72px; flex: none; border-radius: var(--r-lg); border: 1px dashed var(--border-strong); background: var(--surface-2); display: grid; place-items: center; overflow: hidden; color: var(--text-3); font-size: var(--fs-sm); text-align: center; }
+    .bd-logo-now img { width: 100%; height: 100%; object-fit: contain; }
+    .bd-logo-ctl { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; flex: 1 1 240px; }
+    .bd-logo-ctl input[type="file"] { width: 100%; min-height: var(--target); padding: var(--sp-2) var(--sp-3); }
+    .bd-row { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+    .bd-save { display: flex; gap: var(--sp-3); align-items: center; flex-wrap: wrap; }
+    .bd-msg:empty { display: none; }
+    .bd-fixed { margin: 0; padding-left: var(--sp-5); color: var(--text-2); }
+    .bd-fixed li { margin: var(--sp-1) 0; }
+    .bd-phone { max-width: 340px; margin: 0 auto; padding: var(--sp-4) var(--sp-3); border: 2px solid var(--border-strong); border-radius: 32px; background: var(--bg); }
+    .bd-phone .bd-notch { width: 72px; height: 6px; border-radius: 3px; background: var(--border-strong); margin: 0 auto var(--sp-3); }
+    .bd-phone .bd-fake { margin-top: var(--sp-3); padding: var(--sp-4); border-radius: 20px; background: var(--surface); border: 1px solid var(--border); }
+    .bd-phone .bd-fake b { display: block; font-size: 1.25rem; }
+    .bd-phone .bd-fake span { display: block; color: var(--text-2); font-size: 1.25rem; margin-top: var(--sp-1); }
+    .bd-phone .bd-fake i { display: block; height: 14px; border-radius: 7px; background: var(--surface-3); margin-top: var(--sp-3); }
+    .bd-phone .bd-fake i.s { width: 60%; }
+    .bd-phone .bd-big { margin-top: var(--sp-3); min-height: 56px; border-radius: 16px; background: var(--brand); color: var(--brand-ink); display: grid; place-items: center; font-weight: 700; font-size: 1.25rem; }
+    .bd-cap { color: var(--text-2); font-size: var(--fs-md); margin: var(--sp-3) 0 0; text-align: center; }
+    .bd-wide { margin-top: var(--sp-4); }
+  </style>
+</head>
+<body>
+  <header id="app-header"></header>
+  <main id="main">
+    <div class="page-head">
+      <div>
+        <h1>App branding</h1>
+        <p class="page-sub">Your hospital's own name and logo, shown at the top of the patient app after the patient logs in.</p>
+      </div>
+      <div class="page-actions"><span data-feature="hospital.branding"></span></div>
+    </div>
+
+    <div id="bd-note"></div>
+
+    <div class="bd-grid" id="bd-grid">
+      <section class="card bd-form" aria-labelledby="h-brand">
+        <div class="card-head"><h2 id="h-brand"><span data-icon="edit"></span> Name, colour and logo</h2></div>
+        <form class="form-stack" id="bd-form" novalidate>
+          <label class="field"><span class="lbl">App name</span>
+            <input type="text" id="f-name" maxlength="40" autocomplete="off" required aria-describedby="f-name-h">
+            <span class="hint" id="f-name-h">What patients see at the top of the app. 2 to 40 characters.</span></label>
+          <label class="field"><span class="lbl">Short name</span>
+            <input type="text" id="f-short" maxlength="14" autocomplete="off" required aria-describedby="f-short-h">
+            <span class="hint" id="f-short-h">For small places. 2 to 14 characters.</span></label>
+
+          <div class="field" role="group" aria-labelledby="f-col-l">
+            <span class="lbl" id="f-col-l">Accent colour</span>
+            <div class="bd-colour">
+              <input type="color" id="f-colour" value="#0b6e8a" aria-label="Pick the accent colour">
+              <input type="text" id="f-hex" maxlength="7" autocomplete="off" spellcheck="false" aria-label="Accent colour as #rrggbb" aria-describedby="f-col-h">
+              <button class="btn" type="button" id="f-colour-reset">Use the SpiroBuddy colour</button>
+            </div>
+            <span class="hint" id="f-col-h">Used only on the name strip at the top. Buttons, alerts and status colours do not change. The colour must be easy to read in the light and the dark screen.</span>
+            <div class="form-msg bad bd-msg" id="f-col-msg" role="alert"></div>
+          </div>
+
+          <div class="field" role="group" aria-labelledby="f-logo-l">
+            <span class="lbl" id="f-logo-l">Logo</span>
+            <div class="bd-logo">
+              <div class="bd-logo-now" id="logo-now">No logo</div>
+              <div class="bd-logo-ctl">
+                <input type="file" id="f-file" accept="image/png,image/jpeg,image/webp" aria-label="Choose a logo picture" aria-describedby="f-logo-h">
+                <div class="bd-row">
+                  <button class="btn" type="button" id="logo-up"><span data-icon="upload"></span>Upload logo</button>
+                  <button class="btn" type="button" id="logo-rm"><span data-icon="x"></span>Remove logo</button>
+                </div>
+              </div>
+            </div>
+            <span class="hint" id="f-logo-h">PNG, JPEG or WebP, up to 512 KB. It is shrunk to 512 pixels and its hidden picture details are removed. A logo is saved as soon as you upload it.</span>
+            <div class="form-msg bd-msg" id="logo-msg" role="status"></div>
+          </div>
+
+          <div class="bd-save">
+            <button class="btn primary lg" type="submit" id="bd-save"><span data-icon="check"></span>Save</button>
+            <button class="btn" type="button" id="bd-undo">Undo changes</button>
+          </div>
+          <div class="form-msg bd-msg" id="bd-msg" role="status"></div>
+        </form>
+      </section>
+
+      <section class="card" aria-labelledby="h-prev">
+        <div class="card-head"><h2 id="h-prev"><span data-icon="phone"></span> What patients see</h2></div>
+        <div class="bd-phone" aria-hidden="false">
+          <div class="bd-notch" aria-hidden="true"></div>
+          <div id="bd-preview" aria-live="polite"></div>
+          <div class="bd-fake" aria-hidden="true">
+            <b>Today's breathing exercise</b><span>Breathe in slowly</span><i></i><i class="s"></i>
+          </div>
+          <div class="bd-big" aria-hidden="true">Start</div>
+        </div>
+        <p class="bd-cap">This is a preview of the unsaved changes. Use the moon button at the top to see the dark screen.</p>
+      </section>
+    </div>
+
+    <section class="card bd-wide" aria-labelledby="h-fixed">
+      <div class="card-head"><h2 id="h-fixed"><span data-icon="shield"></span> What a hospital can not change</h2></div>
+      <ul class="bd-fixed" id="bd-fixed">
+        <li>The safety messages (for example the red-flag message and "this app does not diagnose").</li>
+        <li>The status labels and their colours.</li>
+        <li>The small line "with SpiroBuddy" under your name.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="js/icons.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/branding.js"></script>
+  <script src="js/branding-admin.js"></script>
+</body>
+</html>

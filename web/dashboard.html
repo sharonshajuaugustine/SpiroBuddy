@@ -19,6 +19,7 @@
       <div class="page-actions">
         <span class="live" id="live-state"><span class="live-dot" aria-hidden="true"></span><span id="updated">Loading…</span></span>
         <a class="btn" href="demo.html" id="demo-link"><span data-icon="sliders"></span>Demo panel</a>
+        <a class="btn hidden" href="branding.html" id="branding-link"><span data-icon="edit"></span>App branding</a><script>fetch('/api/auth/me',{credentials:'same-origin'}).then(function(r){return r.json()}).then(function(m){if(m&&m.role==='admin')document.getElementById('branding-link').classList.remove('hidden')}).catch(function(){})</script>
       </div>
     </div>
 

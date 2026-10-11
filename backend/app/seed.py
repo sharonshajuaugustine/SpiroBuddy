@@ -180,6 +180,11 @@ def seed(st: Store, now: datetime | None = None) -> int:
         seed_auth.ensure(st, reset=True)
     except Exception as e:
         log.error("login seed failed: %s", e)
+    try:                        # per-hospital app name + logo (branding lite, seed_branding.py)
+        from . import seed_branding
+        seed_branding.ensure(st, reset=True)
+    except Exception as e:
+        log.warning("branding seed skipped: %s", e)
     for pid, p in PROFILES.items():
         patients.append({
             **({"hospital_id": seed_auth.DEMO_HOSPITAL_ID,
