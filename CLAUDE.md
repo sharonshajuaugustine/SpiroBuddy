@@ -1,6 +1,13 @@
 # SpiroBuddy – instructions for every Claude session
 
-SpiroBuddy is a hackathon project (Healthcare & Wellbeing track). It's a clip-on smart unit for an ordinary incentive spirometer, plus an AI breathing coach, a patient web app, a nurse dashboard and WhatsApp updates. **The hackathon starts within 24 hours. Speed and a working demo beat completeness.**
+SpiroBuddy is a hackathon project (Dolphin Tank India Social Impact Hackathon, Healthcare & Wellbeing track). It links the hospital to the patient at home: a clip-on smart unit for an ordinary incentive spirometer (proof the breathing exercise was done) plus an AI breathing coach, a patient web app, a nurse dashboard, WhatsApp updates, and the doctor's prescription on the patient's phone. **Submission closes Mon 12 Oct 2026, 11:00 AM IST; build freeze 03:00 IST. Speed and a working demo beat completeness.**
+
+## Founder decisions (11–12 Oct 2026) – these override older docs
+- **Medicines = a digital prescription:** the doctor types it in the hospital software → the patient sees every medicine on their phone → shows that screen (with a QR the chemist can check) at the pharmacy counter, no paper. It is **not** "AI reads a prescription photo".
+- **For every hospital and clinic:** each doctor has their own login; each patient's medicines are saved under their hospital registration number (`patients.mrn`); the patient logs in with registration number + PIN (brief: `docs/rebuild/REGNO_PIN_BRIEF.md`). Nothing to do with money or payments, ever.
+- `/` is the public landing page; the nurse dashboard is at `/dashboard.html`.
+- **Honesty:** every badge comes from `backend/app/features.py` (Live / Simulated / In development / Planned); flip a key to Live only when it really works. The device is **not built yet**. Never invent usage, pilots or results (e.g. "used during COVID"); never claim "no such software exists" (hospital-chain apps and ABHA apps exist).
+- **Deck:** wait for the founder's Dolphin Tank slide template; don't make slides before it arrives.
 
 ## Read these first (in order)
 1. `docs/HANDOFF.md` – where things stand right now and what to do next
@@ -27,7 +34,7 @@ SpiroBuddy is a hackathon project (Healthcare & Wellbeing track). It's a clip-on
 - **The AI never diagnoses.** It coaches and summarises only. Red-flag words → a fixed "contact your nurse / call 112" message.
 - **After each milestone:** update `docs/PROGRESS.md` and `docs/HANDOFF.md`, then `git commit`. The next session may be on a different account with zero memory of this one, so HANDOFF.md must always be enough to continue.
 - Python: use the venv at `.venv` (`.venv\Scripts\python.exe`). Run the server with `scripts\run.ps1`.
-- LLM: Anthropic Python SDK, model `claude-opus-5-5`, effort "low", short outputs, and the template fallback whenever the key is missing or a call fails.
+- LLM: provider order Anthropic (Python SDK, model `claude-opus-5-5`, effort "low", short outputs) → Gemini (`gemini-3.1-flash-lite` via `backend/app/ai_gemini.py`) → template text whenever a key is missing or a call fails.
 
 ## How to talk to the user
 The user is smart but not an engineer. Use plain, short English. Lead with the answer. Say clearly what is **done**, what **failed**, and what is **waiting on them**. When they must act, give numbered click-by-click steps.
