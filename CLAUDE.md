@@ -10,6 +10,22 @@ SpiroBuddy is a hackathon project (Dolphin Tank India Social Impact Hackathon, H
 - **Honesty:** every badge comes from `backend/app/features.py` (Live / Simulated / In development / Planned); flip a key to Live only when it really works. The device is **not built yet**. Never invent usage, pilots or results (e.g. "used during COVID"); never claim "no such software exists" (hospital-chain apps and ABHA apps exist).
 - **Deck:** wait for the founder's Dolphin Tank slide template; don't make slides before it arrives.
 
+## Product plan at a glance (for teammates; details in `docs/plan/12_HOSPITAL_ONBOARDING_AND_BRANDING.md`)
+**Live today (spirobuddy.onrender.com, fake patients):** public story site (`/`), staff logins with hospitals kept apart, nurse dashboard, the patient app with the breathing coach (breaths Simulated), the doctor's prescription on the patient's phone with a pharmacy screen and a QR check, family page, WhatsApp/call simulators.
+
+**Next, in this order:**
+1. **Patient login with hospital registration number + 6-digit PIN** (PIN shown once to staff, stored only scrambled, locked after 5 wrong tries).
+2. **Each hospital's own name, logo and colour inside the app** after the patient logs in ("MIMS Care"), set by the hospital admin on an "App branding" page. Safety messages and status labels stay fixed.
+3. **Per-hospital home-screen install:** each hospital gets its own web address, so "Add to home screen" from the hospital's QR shows the hospital's name and logo.
+4. **Patient app tabs:** Today · Medicines · **Breathing** (shown only if the hospital gave that patient a spirometer) · Help. Simple 2D piston on the phone; the 3D model stays on the hospital and public pages.
+
+**What is possible, and what isn't:**
+- **Moving a hospital in within minutes:** yes for doctors, departments and patients (spreadsheet or FHIR file, a practice run first). Old prescriptions arrive as "to confirm" until a doctor approves them.
+- **Store apps:** one generic SpiroBuddy app on Play Store and App Store that rebrands inside after login. The home-screen name and icon of a store app can't change after install. A hospital can publish its own "MIMS Care" listing only from its own developer account (Apple rule 4.2.6).
+- **OTP by SMS:** later. In India it needs a paid SMS service and TRAI DLT registration. PIN now, OTP shown as Simulated.
+- **Doctor reminders:** a doctor's "My day" page (patients to call, prescriptions ending, visit requests, missed doses) is buildable now. Surgery/OT reminders are Planned: they need the hospital's own theatre schedule.
+- **Never:** payments, diagnosis, or claims we can't back.
+
 ## Read these first (in order)
 1. `docs/HANDOFF.md` – where things stand right now and what to do next
 2. `docs/PROGRESS.md` – log of completed work
