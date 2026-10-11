@@ -2,7 +2,7 @@
  * Optional: js/icons.js (loaded first) for line icons. If a page doesn't load it, ui.js loads it itself
  * and fills every <span data-icon="…"> when it arrives.
  * 2.0: pages under /hospital/ get a role-aware shell (REBUILD_PLAN §3.11): nav by role and permission, the
- * user's name/role/hospital with Logout, the "Fake patients only" ribbon in DEMO_MODE and the red
+ * user's name/role/hospital with Logout, the "Sample patients only" ribbon in DEMO_MODE and the red
  * "Database update needed" banner. Feature status badges (SB.ui.badge / plannedCard) come from /api/features. */
 (function () {
   const SB = (window.SB = window.SB || {});
@@ -257,12 +257,12 @@
     });
   }
 
-  /* ---------- "Fake patients only" ribbon ----------
+  /* ---------- "Sample patients only" ribbon ----------
    * Hospital pages get it from boot(). The patient app and the family page call SB.ui.fakeRibbon() – optional
    * {text, into, large} (e.g. a Hindi text, a container, large: true for the patient-size ribbon) – which checks
    * /api/health and only shows it in DEMO_MODE. */
   function fakeRibbonHTML(text, large) {
-    return `<div class="ribbon-fake${large ? ' lg' : ''}" role="note">${ic('flask', { size: large ? 20 : 14 })}<span>${esc(text || 'Fake patients only · demo')}</span></div>`;
+    return `<div class="ribbon-fake${large ? ' lg' : ''}" role="note">${ic('flask', { size: large ? 20 : 14 })}<span>${esc(text || 'Sample patients')}</span></div>`;
   }
   async function fakeRibbon(opts) {
     opts = opts || {};
@@ -357,7 +357,7 @@
     });
     return html + (group ? '</ul>' : '');
   }
-  const NAV_FOOT = `<div class="nav-foot">${ic('info', { size: 14 })}<span>Fake patients only. SpiroBuddy coaches and summarises – it never diagnoses.</span></div>`;
+  const NAV_FOOT = `<div class="nav-foot">${ic('info', { size: 14 })}<span>Sample patients only. SpiroBuddy coaches and summarises – it never diagnoses.</span></div>`;
   function themeIcon() { return ic(currentTheme() === 'dark' ? 'sun' : 'moon'); }
   function closeOnOutside(id) {
     document.addEventListener('click', (e) => { const d = $('#' + id); if (d && d.open && !d.contains(e.target)) d.open = false; });
@@ -371,9 +371,9 @@
     if (hosp) document.body.classList.add('hosp');
     host.className = 'app-header';
     const site = hosp
-      ? `<span class="site" title="Your hospital – fake patients only">${ic('hospital', { size: 16 })}<span class="site-h" id="site-h">…</span></span>`
-      : `<span class="site" title="Demo hospital – fake patients only">${ic('hospital', { size: 16 })}<span class="site-h">${esc(SITE.hospital)}</span><span class="site-w">${esc(SITE.ward)}</span></span>
-      <span class="chip chip-demo" title="Demo mode – fake patients only, no real health data">${ic('flask', { size: 14 })}Demo mode</span>`;
+      ? `<span class="site" title="Your hospital – sample patients only">${ic('hospital', { size: 16 })}<span class="site-h" id="site-h">…</span></span>`
+      : `<span class="site" title="Sample hospital – sample patients only">${ic('hospital', { size: 16 })}<span class="site-h">${esc(SITE.hospital)}</span><span class="site-w">${esc(SITE.ward)}</span></span>
+      <span class="chip chip-demo" title="Sample data – sample patients only, no real health data">${ic('flask', { size: 14 })}Sample data</span>`;
     host.innerHTML = `<div class="bar">
       <a class="skip-link" href="#main">Skip to content</a>
       <a class="logo" href="${link(hosp ? '/hospital/index.html' : 'dashboard.html')}" aria-label="SpiroBuddy – ${hosp ? 'hospital home' : 'dashboard'}">${LOGO}<span class="logo-name">SpiroBuddy</span></a>

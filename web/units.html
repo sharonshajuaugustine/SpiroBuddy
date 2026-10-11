@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SpiroBuddy Units</title>
-  <meta name="description" content="SpiroBuddy unit hand-over: assign, return, clean, wipe (mock-up for the demo, no real units).">
+  <meta name="description" content="SpiroBuddy unit hand-over: assign, return, clean, wipe (preview, device in development).">
   <meta name="robots" content="noindex">
   <link rel="icon" href="icons/icon-192.png">
   <link rel="stylesheet" href="css/styles.css">
@@ -55,7 +55,7 @@
 
     <div class="mock-banner" role="note">
       <span data-icon="flask"></span>
-      <div><b>Mock-up for the demo.</b> No real units exist yet, so this list lives only in this browser. It shows how a lent unit moves from one patient to the next.
+      <div><b>Preview – device in development.</b> This list lives only in this browser. It shows how a lent unit moves from one patient to the next.
         <b>The unit itself stores nothing about a person:</b> language, breathing goal, schedule and family contacts stay on the patient's record, so handing a unit to a new patient is one scan.
         <ul class="flow" aria-label="Life of a unit"><li>In stock</li><li>Handed over (scan + test breath)</li><li>In use at home</li><li>Returned</li><li>Cleaned and checked</li><li>Wiped</li><li>In stock</li></ul>
       </div>
@@ -78,7 +78,7 @@
       <ul class="log" id="log"></ul>
     </section>
 
-    <p class="footer-note">Demo data – fake patients only. Breaths from a unit that is not on loan are never added to anyone's record.</p>
+    <p class="footer-note">Sample patients. Breaths from a unit that is not on loan are never added to anyone's record.</p>
   </main>
 
   <!-- hand over -->
@@ -88,7 +88,7 @@
       <ol class="steps">
         <li id="st-scan"><b>Scan the code on the unit</b>
           <div class="qr-row"><div class="qr" id="qr" aria-label="QR code of the unit"></div>
-            <div><div class="unit-code" id="da-code"></div><p class="muted small" style="margin:.25rem 0 .5rem">Scanning stops the wrong unit being picked. (No camera in this demo: press the button.)</p>
+            <div><div class="unit-code" id="da-code"></div><p class="muted small" style="margin:.25rem 0 .5rem">Scanning stops the wrong unit being picked. (No camera on this page: press the button.)</p>
               <button class="btn" id="da-scan" type="button"><span data-icon="search"></span>Simulate scan</button></div></div></li>
         <li id="st-patient" class="locked"><b>Pick the patient</b>
           <div style="margin-top:.5rem"><select id="da-patient" disabled style="width:100%"></select></div>
