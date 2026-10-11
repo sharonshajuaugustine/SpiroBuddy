@@ -44,6 +44,14 @@ async def lifespan(app: FastAPI):
             seed_auth.ensure(st)
     except Exception as e:
         log.error("Login seeding failed: %s", e)
+    if demo_mode():
+        try:
+            from . import seed_patient_login
+            from .meds import seed_meds
+            seed_patient_login.ensure(st, reset_pin=False)
+            seed_meds.seed(st)
+        except Exception as e:
+            log.warning("Sample patient setup skipped: %s", e)
     try:        # the private "documents" bucket (backend/app/storage.py, comes with Phase 1)
         from . import storage
         storage.ensure_bucket()
@@ -81,6 +89,7 @@ WEBHOOK_PREFIXES = ("/api/comms/webhooks/", "/api/comms/twilio/", "/api/comms/ex
 PUBLIC_PATHS = {"/api/health", "/api/features", "/api/auth/login", "/api/auth/signup",
                 "/api/auth/redeem", "/api/auth/me", "/api/auth/logout", "/api/me/session",
                 "/api/me/login", "/api/me/login-demo",          # patient login: number + PIN
+                "/api/me/otp/hospitals", "/api/me/otp/request", "/api/me/otp/verify",
                 "/api/voice/status", "/api/voice/cues"}
 PUBLIC_PREFIXES = ("/api/impact", "/api/twin/sim", "/api/voice/clip/", "/api/voice/audio/",
                    "/api/comms/card/", "/api/comms/guardian/",
@@ -394,13 +403,17 @@ def post_session(body: dict = Body(...)):
     pid = _int_or_400(pid, "patient_id")
     authz.require("patient.view", pid)      # a patient posts their own sessions; staff: visible only
     p = _patient_or_404(pid)
+    if not (p.get("routine") or {}).get("breathing_enabled", True):
+        raise HTTPException(403, "Breathing exercise has not been assigned to this patient")
     breaths = body.get("breaths") or []
     if not isinstance(breaths, list) or not all(
             isinstance(b, dict) and isinstance(b.get("features") or {}, dict) for b in breaths):
         raise HTTPException(400, "breaths must be a list of {t, features, label, score} objects")
     try:
+        source = "demo" if body.get("source") == "demo" and demo_mode() else "app"
+        # A browser-supplied 'device' string is not authenticated sensor evidence.
         res = service.record_session(p, body.get("started_at"), breaths,
-                                     source=body.get("source") or "app")
+                                     source=source)
     except (TypeError, ValueError) as e:
         raise HTTPException(400, f"bad session data: {e}")
     res.pop("breaths", None)
@@ -590,7 +603,8 @@ def demo_reset(request: Request):
 SKIPPED_MODULES: dict[str, str] = {}
 for _mod in ("routes_voice", "routes_comms", "routes_auth", "features", "routes_admin",
              "routes_patients", "routes_meds", "routes_appointments", "routes_documents",
-             "routes_me", "routes_public", "routes_twin", "routes_devices", "routes_consent"):
+             "routes_me", "routes_public", "routes_twin", "routes_devices", "routes_consent",
+             "routes_hospital", "routes_doctor"):
     try:
         app.include_router(__import__(f"{__package__}.{_mod}", fromlist=["router"]).router)
     except ModuleNotFoundError as e:
