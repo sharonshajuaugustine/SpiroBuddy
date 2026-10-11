@@ -413,8 +413,29 @@
     $('#mute').addEventListener('click', () => { V.toggleMute(); paintMute(); });
     document.querySelectorAll('[data-icon]').forEach((el) => { el.innerHTML = ic(el.dataset.icon, { size: 18 }); });
 
+    /* 2.0 session shim (Contract E, POST /api/me/session). A patient link carries t=<token>; the demo uses
+     * id=<n>, which the server accepts in DEMO_MODE only. Either one opens the patient session (cookie
+     * sb_patient) before the first patient-data call. The token then leaves the address bar. A failure is
+     * ignored, so mock mode and old links keep working. Runs after the public health check, so an offline
+     * server falls back to mock data without a second wait. */
+    async function openSession() {
+      const t = q.get('t'), id = Number(q.get('id'));
+      if (!t && !id) return;
+      let answered = false;                       // true = the real server said yes or no (not mock, not offline)
+      try {
+        const r = await SB.api.post('/api/me/session', t ? { token: t } : { patient_id: id });
+        answered = !SB.api.state.mock;
+        if (r && Number(r.patient_id)) pid = Number(r.patient_id);
+      } catch (e) { answered = !!(e && e.status); }
+      if (t && answered) {
+        q.delete('t');
+        try { history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash); } catch (_) { /* keep the address */ }
+      }
+    }
+
     (async function boot() {
       try { await SB.api.init(); } catch (_) { /* offline: mock data */ }
+      await openSession();
       try { await V.loadCues(); } catch (_) { /* cue texts come later */ }
       if (unitCode) {
         try { await SB.units.ensure(); } catch (_) { /* no list in this browser */ }
