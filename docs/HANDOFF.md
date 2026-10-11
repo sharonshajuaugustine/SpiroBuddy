@@ -1,8 +1,18 @@
 # Handoff – read this first in every new session
 
-**Last updated:** 10 Oct 2026, late evening – all planning files 01–06 committed
+**Last updated:** 11 Oct 2026, 1 pm IST – files 09 and 08_why_this_wins committed; verdict panel re-running
 
-## Planning pass (10 Oct 2026, evening) – read this first
+## Right now (Sun 11 Oct 2026, 1 pm) – read this first
+- **Pitch time is unconfirmed.** The old slide says final pitches Sun 3:30 pm and Checkpoint 2 (demo review) Sun 1 pm; the organisers' email moved only the submission (Mon 12 Oct, 11:00 AM IST). The founder must confirm with the organisers.
+- **Pitch material:** `docs/hackathon/PITCH_PLAN.md` (hook, 11 slides, word-for-word script, 80-second demo path, 20 judge answers, checklist). The slots from `08_why_this_wins.md` are filled. Still blank: the interview slots (slide 3) and the team slide. **No numeric pilot target exists in the research; do not invent one.**
+- **Final verdict:** the first panel (1 am) died on the account usage limit with no output. It was relaunched at 1 pm in session `859ff0d8` (workflow run `wf_0ffc473b-362`). Result goes to `docs/plan/10_FINAL_VERDICT.md`. If that file does not exist, the panel did not finish: run it again (script is in that session's `workflows/scripts/` folder).
+- **Domain sweep** (`docs/plan/09_DOMAIN_SWEEP.md`): top items before submission are DS-60 (build any code ZIP from git only: the project folder holds `.env`, `infffff/` and `.venv`), DS-62/DS-35 (demo video: no real names or numbers on screen, no unlicensed music, under 100 MB), DS-28/29 (two-step login and spending caps on every account).
+- **Why this wins** (`docs/research/business/08_why_this_wins.md`): 10 sourced points with a stage line each, plus 16 more never-say lines. Its sources W1–W14 are not yet in `SOURCES_LEDGER.md`.
+- **Do not push while a demo may be running:** every push to `main` redeploys the live site. Local `master` is ahead of `origin/main` by the 11 Oct commits.
+- **Standing research agent: not running** (held back on 11 Oct to keep the usage limit for the verdict panel). Relaunch it when the founder says so.
+- **Still waiting on the founder:** confirm pitch time · download the deck template · 3 interviews (`INTERVIEW_GUIDE.md`) · team details · record the demo video · pick a backup person.
+
+## Planning pass (10 Oct 2026, evening)
 - The founder's requests are in `docs/plan/00_FOUNDER_NOTES.md`. Answers, one file per section, in `docs/plan/`:
   01 hardware review · 02 mobile app + Bluetooth · 04 gaps and risks · 05 expansion and customers · 06 legal deep dive – **all written and committed**.
 - **03_COSTS_AND_BUDGET.md done** (redone after the first agent died). Headlines: bench test ₹8,000–13,000; 30-patient 3-month pilot ≈ ₹2.1–12.4 lakh (middle ≈ ₹5.5 lakh); first sale another ₹4–20 lakh; unit ≈ ₹2,500 before GST; "device + software for ₹200" fails except as a software fee on hospital-owned units at scale. About half the figures are estimates pending quotes (list in the file).
