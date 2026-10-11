@@ -1,0 +1,249 @@
+[
+ {
+  "file": "rx_ravi_printed.png",
+  "url": "/samples/rx_ravi_printed.png",
+  "kind": "prescription",
+  "mime": "image/png",
+  "title": "Sample prescription – Ravi Kumar (printed)",
+  "patient_name": "Ravi Kumar",
+  "description": "Clean printed prescription. Same three medicines as Ravi's seeded, approved prescription. dose_qty 1 follows the printed convention: 'Tab.' with a frequency and no number means one tablet each time.",
+  "doctor_name": "Dr. Meera Nair (fictional)",
+  "hospital_name": "Demo General Hospital (fictional)",
+  "date": "09/10/2026",
+  "doc_date": "2026-10-09",
+  "patient_name_on_paper": "Ravi Kumar",
+  "handwritten": false,
+  "legibility": "clear",
+  "expected_lines": [
+   {
+    "line_no": 1,
+    "drug_name": "Pantoprazole",
+    "form": "Tab.",
+    "strength": "40 mg",
+    "dose_qty": 1,
+    "dose_unit": "tablet",
+    "frequency_raw": "1-0-0",
+    "food_timing_raw": "before breakfast",
+    "duration_raw": "x 14 days",
+    "as_needed": false,
+    "instructions_raw": null,
+    "unclear_fields": []
+   },
+   {
+    "line_no": 2,
+    "drug_name": "Paracetamol",
+    "form": "Tab.",
+    "strength": "650 mg",
+    "dose_qty": 1,
+    "dose_unit": "tablet",
+    "frequency_raw": "TDS",
+    "food_timing_raw": "after food",
+    "duration_raw": "x 5 days",
+    "as_needed": false,
+    "instructions_raw": null,
+    "unclear_fields": []
+   },
+   {
+    "line_no": 3,
+    "drug_name": "Ondansetron",
+    "form": "Tab.",
+    "strength": "4 mg",
+    "dose_qty": 1,
+    "dose_unit": "tablet",
+    "frequency_raw": "SOS",
+    "food_timing_raw": null,
+    "duration_raw": null,
+    "as_needed": true,
+    "instructions_raw": "if vomiting",
+    "unclear_fields": []
+   }
+  ],
+  "expected_suggestion": {
+   "kind": "prescription",
+   "title": "Sample prescription – Ravi Kumar (printed)",
+   "doc_date": "2026-10-09"
+  },
+  "watermark": "SAMPLE – FICTIONAL – NOT FOR CLINICAL USE"
+ },
+ {
+  "file": "rx_priya_printed.png",
+  "url": "/samples/rx_priya_printed.png",
+  "kind": "prescription",
+  "mime": "image/png",
+  "title": "Sample prescription – Priya Sharma (printed)",
+  "patient_name": "Priya Sharma",
+  "description": "Clean printed prescription for the second demo patient. dose_qty 1 follows the printed convention: 'Tab.' with a frequency and no number means one tablet each time.",
+  "doctor_name": "Dr. Meera Nair (fictional)",
+  "hospital_name": "Demo General Hospital (fictional)",
+  "date": "08/10/2026",
+  "doc_date": "2026-10-08",
+  "patient_name_on_paper": "Priya Sharma",
+  "handwritten": false,
+  "legibility": "clear",
+  "expected_lines": [
+   {
+    "line_no": 1,
+    "drug_name": "Cefuroxime",
+    "form": "Tab.",
+    "strength": "500 mg",
+    "dose_qty": 1,
+    "dose_unit": "tablet",
+    "frequency_raw": "BD",
+    "food_timing_raw": "after food",
+    "duration_raw": "x 5 days",
+    "as_needed": false,
+    "instructions_raw": null,
+    "unclear_fields": []
+   },
+   {
+    "line_no": 2,
+    "drug_name": "Pantoprazole",
+    "form": "Tab.",
+    "strength": "40 mg",
+    "dose_qty": 1,
+    "dose_unit": "tablet",
+    "frequency_raw": "OD",
+    "food_timing_raw": "before breakfast",
+    "duration_raw": "x 7 days",
+    "as_needed": false,
+    "instructions_raw": null,
+    "unclear_fields": []
+   },
+   {
+    "line_no": 3,
+    "drug_name": "Paracetamol",
+    "form": "Tab.",
+    "strength": "500 mg",
+    "dose_qty": 1,
+    "dose_unit": "tablet",
+    "frequency_raw": "SOS",
+    "food_timing_raw": null,
+    "duration_raw": null,
+    "as_needed": true,
+    "instructions_raw": "if pain",
+    "unclear_fields": []
+   }
+  ],
+  "expected_suggestion": {
+   "kind": "prescription",
+   "title": "Sample prescription – Priya Sharma (printed)",
+   "doc_date": "2026-10-08"
+  },
+  "watermark": "SAMPLE – FICTIONAL – NOT FOR CLINICAL USE"
+ },
+ {
+  "file": "rx_ravi_messy.png",
+  "url": "/samples/rx_ravi_messy.png",
+  "kind": "prescription",
+  "mime": "image/png",
+  "title": "Sample prescription – Ravi Kumar (phone photo, one unclear line)",
+  "patient_name": "Ravi Kumar",
+  "description": "Patient-uploaded phone photo. Line 2's dose and frequency are blurred, so they are left blank (null) and listed in unclear_fields – never guessed. The other lines are clear. dose_qty 1 follows the printed convention: 'Tab.' with a frequency and no number means one tablet each time.",
+  "doctor_name": "Dr. Meera Nair (fictional)",
+  "hospital_name": "Demo General Hospital (fictional)",
+  "date": "10/10/2026",
+  "doc_date": "2026-10-10",
+  "patient_name_on_paper": "Ravi Kumar",
+  "handwritten": false,
+  "legibility": "partly unclear",
+  "expected_lines": [
+   {
+    "line_no": 1,
+    "drug_name": "Cetirizine",
+    "form": "Tab.",
+    "strength": "10 mg",
+    "dose_qty": 1,
+    "dose_unit": "tablet",
+    "frequency_raw": "0-0-1",
+    "food_timing_raw": "at night",
+    "duration_raw": "x 5 days",
+    "as_needed": false,
+    "instructions_raw": null,
+    "unclear_fields": []
+   },
+   {
+    "line_no": 2,
+    "drug_name": "Metoclopramide",
+    "form": "Tab.",
+    "strength": "10 mg",
+    "dose_qty": null,
+    "dose_unit": "tablet",
+    "frequency_raw": null,
+    "food_timing_raw": "before food",
+    "duration_raw": "x 3 days",
+    "as_needed": false,
+    "instructions_raw": null,
+    "unclear_fields": [
+     "dose_qty",
+     "frequency_raw"
+    ]
+   },
+   {
+    "line_no": 3,
+    "drug_name": "Folic acid",
+    "form": "Tab.",
+    "strength": "5 mg",
+    "dose_qty": 1,
+    "dose_unit": "tablet",
+    "frequency_raw": "1-0-0",
+    "food_timing_raw": "after breakfast",
+    "duration_raw": "x 30 days",
+    "as_needed": false,
+    "instructions_raw": null,
+    "unclear_fields": []
+   }
+  ],
+  "expected_suggestion": {
+   "kind": "prescription",
+   "title": "Sample prescription – Ravi Kumar (phone photo, one unclear line)",
+   "doc_date": "2026-10-10"
+  },
+  "watermark": "SAMPLE – FICTIONAL – NOT FOR CLINICAL USE"
+ },
+ {
+  "file": "discharge_summary_ravi.png",
+  "url": "/samples/discharge_summary_ravi.png",
+  "kind": "discharge_summary",
+  "mime": "image/png",
+  "title": "Sample discharge summary – Ravi Kumar",
+  "patient_name": "Ravi Kumar",
+  "description": "One-page fictional discharge summary after an open hernia repair. Advice: incentive spirometer 10 breaths every hour while awake; follow-up in 1 week. No diagnoses beyond the operation name and no lab values.",
+  "doctor_name": "Dr. Meera Nair (fictional)",
+  "hospital_name": "Demo General Hospital (fictional)",
+  "date": "03/10/2026",
+  "doc_date": "2026-10-03",
+  "patient_name_on_paper": "Ravi Kumar",
+  "handwritten": false,
+  "legibility": "clear",
+  "expected_lines": [],
+  "expected_suggestion": {
+   "kind": "discharge_summary",
+   "title": "Sample discharge summary – Ravi Kumar",
+   "doc_date": "2026-10-03"
+  },
+  "watermark": "SAMPLE – FICTIONAL – NOT FOR CLINICAL USE"
+ },
+ {
+  "file": "discharge_summary_ravi.pdf",
+  "url": "/samples/discharge_summary_ravi.pdf",
+  "kind": "discharge_summary",
+  "mime": "application/pdf",
+  "title": "Sample discharge summary – Ravi Kumar",
+  "patient_name": "Ravi Kumar",
+  "description": "One-page fictional discharge summary after an open hernia repair. Advice: incentive spirometer 10 breaths every hour while awake; follow-up in 1 week. No diagnoses beyond the operation name and no lab values.",
+  "doctor_name": "Dr. Meera Nair (fictional)",
+  "hospital_name": "Demo General Hospital (fictional)",
+  "date": "03/10/2026",
+  "doc_date": "2026-10-03",
+  "patient_name_on_paper": "Ravi Kumar",
+  "handwritten": false,
+  "legibility": "clear",
+  "expected_lines": [],
+  "expected_suggestion": {
+   "kind": "discharge_summary",
+   "title": "Sample discharge summary – Ravi Kumar",
+   "doc_date": "2026-10-03"
+  },
+  "watermark": "SAMPLE – FICTIONAL – NOT FOR CLINICAL USE"
+ }
+]
