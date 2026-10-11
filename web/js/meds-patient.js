@@ -34,7 +34,7 @@
   async function load() {
     failed = null;
     try {
-      /* a link with ?id= or ?t= opens its own session first, so a fresh visitor does not trigger a 401 in the console */
+      /* a link with ?id= or ?t= opens its own session before the read, so a new visitor does not trigger a 401 in the console */
       let opened = false;
       if (!sessionTried && (q.get('t') || Number(q.get('id')))) { sessionTried = true; opened = await openSession(); }
       try { data = await SB.api.get('/api/me/medicines'); }
