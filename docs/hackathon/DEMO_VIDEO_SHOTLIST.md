@@ -16,14 +16,14 @@ Replaces the 2:30–3:00 version. Every change asked for in `PITCH_PLAN.md` §5 
 | 1 | The theme selected | 1 | 0:00–0:11 |
 | 2 | The problem statement | 2 | 0:11–0:41 |
 | 3 | The impact you are creating | 3 (and the same number live in the product, shot 9) | 0:41–1:02 |
-| 4 | User personas, brief ("very very important") | 4 (and the demo follows each persona: Ravi 7–8, Sister Anjali 9–10, Amit 12) | 1:02–1:28 |
+| 4 | User personas, brief ("very very important") | 4 (and the demo follows each persona: Ravi 7–8 and 12b, Sister Anjali 9–10, Amit 12) | 1:02–1:28 |
 | 5 | The architecture | 5 | 1:28–1:58 |
-| 6 | A detailed demo of the whole product | 6 (In development: the base unit), 7–12 (the live product) | 1:58–4:08 |
-| + | Estimated adoption and retention, clearly labelled (second answer) | 13 | 4:08–4:39 |
-| 7 | The scalability model | 14 | 4:39–5:08 |
-| 8 | The future roadmap | 15, then 16 (honest status and close) | 5:08–5:34 |
+| 6 | A detailed demo of the whole product | 6 (In development: the base unit), 7–12b (the live product; 12b = the doctor's prescription on Ravi's phone) | 1:58–4:28 |
+| + | Estimated adoption and retention, clearly labelled (second answer) | 13 | 4:28–4:59 |
+| 7 | The scalability model | 14 | 4:59–5:28 |
+| 8 | The future roadmap | 15, then 16 (honest status and close) | 5:28–5:54 |
 | – | Status labels and labelled estimates (organisers allow both if labelled) | 3, 5, 6, 10, 11, 13, 14, 16 and the on-screen labels | – |
-| – | Own words, 5–6 minutes, under 100 MB | whole video; "Getting under 100 MB" below | 5:34 |
+| – | Own words, 5–6 minutes, under 100 MB | whole video; "Getting under 100 MB" below | 5:54 |
 
 ---
 
@@ -160,7 +160,16 @@ Sources: `docs/research/PITCH_FACTS.md` #5, #6, #9, #10, #12, #13, #15 (`KNOWLED
 - **Voice-over (25 words):**
 > And Amit's family page, live: a private link and no login. Today's ticks, a one-tap call, and a cheer Ravi hears after his next session.
 
-### Shot 13 · 4:08–4:39 · Adoption and retention (estimates)
+### Shot 12b · 4:08–4:28 · Demo, part 8: the doctor's prescription on Ravi's phone (Live)
+*Added Sun 11 Oct 2026, 23:59 IST, at the founder's request: the doctor-to-patient prescription is the founder's core idea.*
+- **Covers:** detailed demo; innovation; personas Ravi and Dr. Meera Nair; the hospital connected to the patient at home.
+- **Before this shot:** **Reset demo data** (Before you record, step 2) so Ravi has his demo prescription.
+- **On screen:** on Ravi's page (`patient.html?id=1`) click **Medicines** → the issued prescription (Paracetamol, Pantoprazole, Ondansetron "only when needed"). **Ctrl + Tab** to Ravi's app in the phone view → tap **मेरी दवाइयाँ** (My medicines) → today's medicines in Hindi → tap **दवा की दुकान पर दिखाएँ** (Show at the medicine shop) → the full-screen prescription with its QR. Then open the address printed under the QR in a new tab: **Prescription check · Current – issued by the hospital**.
+- **On-screen label (add in the editor):** *"Live – demo data; not yet tested with a real pharmacy"*.
+- **Voice-over (43 words):**
+> The doctor writes the prescription in the hospital software, and it goes straight to Ravi's phone, in Hindi. At the medicine shop he shows this screen: no paper to lose. The chemist scans the code and sees the hospital's own copy, marked current.
+
+### Shot 13 · 4:28–4:59 · Adoption and retention (estimates)
 - **Covers:** estimated user adoption and retention (organisers' second answer); personas again (each step names who acts).
 - **On screen:** deck slide 7b, a six-step journey with one number per step and the word **estimate**, **assumption** or **target** under each number. Full table with sources and what the pilot measures: `PITCH_PLAN.md`, block "Adoption and retention – our assumptions". The card shows:
 
@@ -177,22 +186,22 @@ Sources: `docs/research/PITCH_FACTS.md` #5, #6, #9, #10, #12, #13, #15 (`KNOWLED
 - **Voice-over (67 words, 5 optional):**
 > Adoption and retention, as estimates, not results. One hospital department: about fifty eligible patients a month. We assume forty join and thirty-six start on day one; three in four are still going at day seven, two in three at day fourteen. Six in ten families opt in ((and nurses check the list daily)). One pilot hospital in three goes on to pay. A pilot of thirty to fifty patients would test every step.
 
-### Shot 14 · 4:39–5:08 · Scalability model
+### Shot 14 · 4:59–5:28 · Scalability model
 - **Covers:** the scalability model.
 - **On screen:** `units.html` (after **Reset mock units**). The page itself says "Mock-up for the demo. No real units exist yet". Point at the list (who has each unit, battery, where it is in its cycle). On **SB-0011** click **Take back** → **Clean and check** (tick the three boxes, **Sign as cleaned**) → **Wipe unit**: it returns to "In stock". Then cut to deck slide 8 for the last 8–10 seconds (₹2,500 parts per unit, estimate · about 10 loans per unit, assumption · about ₹1,000 per patient episode, planned price, estimate · ₹0.12 per WhatsApp update).
 - **On-screen label (add in the editor):** *"In development – mock-up, no real units yet"*.
 - **Voice-over (69 words):**
 > How it scales. Units would be lent and reused, so hospitals would buy no hardware. This screen is a mock-up, in development. By design, a unit stores nothing about a person, so after cleaning it moves to the next patient with one scan. Parts should cost about two thousand five hundred rupees a unit, and we plan to charge about one thousand rupees per patient episode; both are estimates.
 
-### Shot 15 · 5:08–5:25 · Future roadmap
+### Shot 15 · 5:28–5:45 · Future roadmap
 - **Covers:** the future roadmap.
 - **On screen:** deck slide 10: four steps (1 bench-test one unit · 2 record real breaths, retrain · 3 ethics committee and CDSCO's written view · 4 pilot, 30–50 patients, one hospital), then a **Planned** row: speaking base with a SIM · three-ball reader (phone camera) · TB lung rehab.
 - **Voice-over (41 words):**
 > Our roadmap: bench-test one unit, record real breaths and retrain, get ethics approval and the regulator's written view, then the pilot. Planned after that: a speaking base for patients without a smartphone, a reader for three-ball exercisers, and TB lung rehab.
 
-### Shot 16 · 5:25–5:34 · Honest status and close
+### Shot 16 · 5:45–5:54 · Honest status and close
 - **Covers:** readiness (TRL) and the close.
-- **On screen:** 5 seconds of deck slide 9 as a still card: *"Live: the software (TRL 4). Simulated: the breaths. In development: the base unit (TRL 3), Claude summaries, live Sarvam voice, real WhatsApp and calls. Planned: speaking base, three-ball reader, TB rehab."* Then deck slide 1 with the tagline. No music.
+- **On screen:** 5 seconds of deck slide 9 as a still card: *"Live: the software (TRL 4), including the doctor's prescription on the patient's phone. Simulated: the breaths. In development: the base unit (TRL 3), Claude summaries, live Sarvam voice, real WhatsApp and calls. Planned: speaking base, three-ball reader, TB rehab."* Then deck slide 1 with the tagline. No music.
 - **Voice-over (22 words):**
 > Honestly: the software is live, TRL four; the device is in development, TRL three. SpiroBuddy: every breath, coached and counted. Thank you.
 
@@ -212,11 +221,12 @@ Sources: `docs/research/PITCH_FACTS.md` #5, #6, #9, #10, #12, #13, #15 (`KNOWLED
 | 10 | Demo: summary | 3:23–3:36 | 25 |
 | 11 | Demo: reminder ladder | 3:36–3:56 | 40 |
 | 12 | Demo: Amit's family page | 3:56–4:08 | 25 |
-| 13 | Adoption and retention (estimates) | 4:08–4:39 | 67 (5) |
-| 14 | Scalability | 4:39–5:08 | 69 |
-| 15 | Roadmap | 5:08–5:25 | 41 |
-| 16 | Status and close | 5:25–5:34 | 22 |
-| | **Total** | **5:34** | **736 (35 optional)** |
+| 12b | Demo: the doctor's prescription on Ravi's phone | 4:08–4:28 | 43 |
+| 13 | Adoption and retention (estimates) | 4:28–4:59 | 67 (5) |
+| 14 | Scalability | 4:59–5:28 | 69 |
+| 15 | Roadmap | 5:28–5:45 | 41 |
+| 16 | Status and close | 5:45–5:54 | 22 |
+| | **Total** | **5:54** | **779 (35 optional)** |
 
 Times assume about 143 words a minute plus the pauses in shot 7. **Time your first full take:** over 5:50 → drop the ((optional)) words (saves about 15 seconds); under 5:05 → slow down and let the app finish speaking in shot 7.
 
