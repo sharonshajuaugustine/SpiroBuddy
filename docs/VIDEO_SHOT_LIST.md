@@ -50,7 +50,7 @@ Recording in clips lets you do set-up steps between them, off camera. Join the c
 | 3 | 3:20–4:03 | Scenes 4–5 (patient login, visit) | **Prep P1** below |
 | 4 | 4:03–4:33 | Scenes 6–7 (bed, care document) | **Prep P2** below |
 | 5 | 4:33–5:20 | Scenes 8–9 (breathing, Hindi call, nurse) | **Prep P3** below |
-| 6 | 5:20–5:40 | Close on slide 15 | — |
+| 6 | 5:20–5:40 | Close on slide 17 | — |
 
 **Prep P1 (after clip 2), in window A (doctor):**
 1. Note the patient id from the address bar of the prescription page (`prescribe.html?id=` **number**).
@@ -81,7 +81,7 @@ Recording in clips lets you do set-up steps between them, off camera. Join the c
 Hold every success state on screen for about 2 seconds before moving on.
 
 ### Scene 1 · Explain (0:00–2:30) · clip 1
-Slides only, as in the narration file: 1 → 2 → 5 → 4 → 11 → 3 → 10 → 14 → 7, then `<site>/architecture.html`, section **1. The system** (the diagram with Live / Simulated / In development / Planned badges). Do not scroll into the long text sections.
+Slides from `output/Aarogya_Saathi_DTI_With_SpiroBuddy.pptx`, as in the narration file: 1 → 2 → 5 → 4 → 7 → 8 → 13 → 14 → 12 → 16 → 9, then `<site>/architecture.html`, section **1. The system** (the diagram with Live / Simulated / In development / Planned badges). Do not scroll into the long text sections.
 
 ### Scene 2 · Doctor registers a patient (2:30–2:47) · window A
 1. In the left menu, click **Register patient**. Page title: **Register a patient**.
@@ -189,7 +189,7 @@ The other two answer buttons are **"मैं भूल गया था, अभ
 **Speaking Hindi yourself (optional):** the phone simulator also has **🎤 दबाएँ और बोलें** (press and speak), which uses the browser's speech recognition. It may mishear. Tapping the answer buttons is the reliable path, and the on-screen log labels the answer as "tapped answer" either way. If the browser reads the assistant's lines aloud in Hindi, let the first line play, then talk over the rest quietly to stay on time.
 
 ### Scene 10 · Close (5:20–5:40) · clip 6
-Deck slide 15 (**Team Structure**: GuGu GaGa, Sharon Shaju Augustine, Fathima Shifana). Slide 17 shows `spirobuddy.onrender.com` if you prefer to end on the URL.
+Deck slide 17 (**Team Structure**: Sharon Shaju Augustine, Fathima Shifana). Slide 19 shows `spirobuddy.onrender.com` if you prefer to end on the URL.
 
 ---
 

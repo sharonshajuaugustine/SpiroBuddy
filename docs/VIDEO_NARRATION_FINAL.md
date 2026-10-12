@@ -10,46 +10,54 @@ How this script was checked: every click and on-screen message in the demo part 
 
 ---
 
-## Part 1 — Explain (0:00–2:30) · 315 spoken words
+## Part 1 — Explain (0:00–2:30) · 308 spoken words
 
-Word counts treat "2024" as three spoken words ("twenty twenty-four"). Speak slowly. Leave a one-second pause when the slide changes. Slide numbers are from `output/Aarogya_Saathi_DTI_GuGu_GaGa_Readable.pptx`.
+Word counts treat "2024" as three spoken words ("twenty twenty-four"). Speak slowly. Leave a one-second pause when the slide changes. Slide numbers are from the current deck, `output/Aarogya_Saathi_DTI_With_SpiroBuddy.pptx` (19 slides).
 
-### 0:00–0:30 · Theme and problem · 64 words
-**Screen:** slide 1 (cover), then slide 2 (Problem) at "When patients go home".
+### 0:00–0:25 · Theme and problem · 53 words
+**Screen:** slide 1 (cover), then slide 2 (Problem Statement) at "After discharge".
 
-> We are team GuGu GaGa. Our theme is Health and Well-being.
-> When patients go home, their care plan often goes on paper. Medicines, exercises and instructions get lost, and nurses cannot check on everyone.
-> After surgery, patients are asked to do breathing exercises. But in one small 2024 study in Chennai, only six in a hundred did them properly on day one.
+> We are team GuGu GaGa, and our theme is Health and Well-being.
+> After discharge, patients need their medicine times and exercise instructions, and nurses need to see who is missing.
+> In one small 2024 Chennai study, only six in a hundred surgery patients used their breathing exerciser properly on day one.
 
 Source for the last line: *J Pharm Bioallied Sci* 2024, PMID 39346353, 60 general-surgery patients (recorded in `docs/research/KNOWLEDGE_BASE.md`, F-ADH-6). Say "small study". Do not turn it into a national figure.
 
-### 0:30–1:05 · Scope and personas · 73 words
-**Screen:** slide 5 (Solution Overview), then slide 4 (Target Beneficiaries) at "We design first".
+### 0:25–0:55 · Scope and personas · 52 words
+**Screen:** slide 5 (Solution Overview), then slide 4 (Target Beneficiaries) at "We start with".
 
-> Aarogya Saathi connects the hospital to the patient.
-> The doctor registers the patient and publishes the prescription. The patient sees medicines, visits and care instructions on their phone. Nurses get follow-up alerts, and the admin manages beds. SpiroBuddy is its breathing coach.
-> We design first for an older patient going home after surgery, who needs one simple screen in their language, and a ward nurse, who needs to know whom to call first.
+> Aarogya Saathi connects the hospital to the patient's phone.
+> The doctor approves medicines and care instructions. The patient reads the plan in their language and reports doses. The nurse reviews missed reports and callback requests, and the admin manages beds.
+> We start with older patients and ward nurses in one surgical ward.
 
-### 1:05–1:40 · Market fit and two metrics · 74 words
-**Screen:** slide 11 (Business model), then slide 3 (measures) at "A pilot would track".
+### 0:55–1:25 · SpiroBuddy, the breathing module · 64 words
+**Screen:** slide 7 (Inside SpiroBuddy), then slide 8 (How SpiroBuddy works) at "Per-model calibration".
 
-> The buyer is the hospital or clinic; patients never pay. We would start with one surgical department.
-> Our proposal is a fee per patient episode, about one thousand rupees in our planning estimate. ★ We have no paying customers or pilot yet.
-> A pilot would track two numbers. Activation: patients who log in within two days of going home; illustrative target, seventy percent. Retention: patients still using it after thirty days; illustrative target, fifty percent.
+> SpiroBuddy is the optional breathing module, clipped onto an ordinary incentive spirometer.
+> As the patient breathes in, the piston rises. A laser sensor reads its distance, and a small controller sends it over USB. Per-model calibration estimates the volume.
+> It coaches prescribed practice and alerts the nurse; ★ it is not a lung test. ★ The unit is not built yet, so today's breaths are simulated.
 
-★ If you have two spare seconds, add: "These are targets, not results." The two targets are our own illustrative pilot targets. They are not measured, and no source backs them; always say "illustrative target".
+Slide 7 shows "Battery / Bluetooth version: future work". Leave it on screen; no need to say it.
 
-### 1:40–2:10 · Scalability and roadmap · 61 words
-**Screen:** slide 10 (Scalability), then slide 14 (Roadmap) at "Our roadmap".
+### 1:25–1:55 · Market fit and two metrics · 60 words
+**Screen:** slide 13 (Business & Sustainability Model), then slide 14 (Adoption & Retention) at "A pilot in one ward".
 
-> Every record belongs to one hospital, so hospitals stay separate, and modules switch on per hospital.
-> ★ Today the prototype runs on one server. Production needs a shared database with proper transactions, real SMS, privacy and clinical reviews, and a tested device.
-> Our roadmap: bench-test the device in ninety days, a reviewed pilot by six months, and retention results within a year.
+> The buyer is the hospital; patients never pay. Our proposal is a thousand rupees per care follow-up episode. ★ Pricing is unvalidated, and we have no paying customers.
+> A pilot in one ward would track two numbers. Activation: patients who view their plan within forty-eight hours; illustrative target, eighty percent. Day-seven retention: activated patients still using it; illustrative target, sixty percent.
 
-### 2:10–2:30 · Architecture · 43 words (12 s on slide 7, 8 s on the site diagram)
-**Screen:** slide 7 (Technology Architecture). At "AI drafting", switch to `spirobuddy.onrender.com/architecture.html`, section **1. The system**.
+★ The targets and the pilot size (1 ward, 20 patients, 14 days) are the deck's illustrative assumptions, not measured results. Always say "illustrative target".
 
-> The patient's phone and the staff portal talk to one backend, which checks who you are and which hospital you belong to before reading any record.
+### 1:55–2:15 · Scalability and roadmap · 44 words
+**Screen:** slide 12 (Scalability), then slide 16 (Implementation Roadmap) at "Roadmap".
+
+> Records are scoped to each hospital, and modules switch on per hospital, one ward first.
+> ★ Production still needs a shared database, real SMS and reviews.
+> Roadmap: bench tests in ninety days, a reviewed pilot by six months, and an expansion review within a year.
+
+### 2:15–2:30 · Architecture · 35 words
+**Screen:** slide 9 (Technology Architecture). At "AI drafting", switch to `spirobuddy.onrender.com/architecture.html`, section **1. The system**.
+
+> The patient and staff web apps talk to one service, which checks hospital access before reading any record.
 > AI drafting is optional, with consent and a doctor's review. ★ Breathing input and calls are simulated today.
 
 ---
@@ -95,7 +103,7 @@ The call itself is in Hindi on screen (Ravi's language). The English meaning of 
 ---
 
 ## Part 3 — Close (5:20–5:40) · 52 words
-**Screen:** slide 15 (Team Structure). Slide 17 shows the URL; use it instead if you prefer.
+**Screen:** slide 17 (Team Structure). Slide 19 shows the demo URL; use it instead if you prefer.
 
 > Everything you saw works on sample data. ★ Simulated: the SMS code, breathing input and the call; the device is in development.
 > ★ A real Gemini request and a Sarvam console chat were tested separately; phone calls and SMS come next.

@@ -59,7 +59,7 @@ Everything you create on the live site is fictional sample data. Never press **R
 - [ ] Screen resolution 1920 × 1080 if possible; browser zoom 125% on staff pages.
 - [ ] Three windows set up and logged in as in shot list section 0. The login page is **never** on camera.
 - [ ] Notepad line copied to the clipboard.
-- [ ] Deck open in slideshow mode: `output/Aarogya_Saathi_DTI_GuGu_GaGa_Readable.pptx`.
+- [ ] Deck open in slideshow mode: `output/Aarogya_Saathi_DTI_With_SpiroBuddy.pptx` (the current deck).
 - [ ] No terminal, `.env` file, Render dashboard, Sarvam/Google consoles or API keys anywhere on screen.
 
 ## C. Rehearse once with a stopwatch
