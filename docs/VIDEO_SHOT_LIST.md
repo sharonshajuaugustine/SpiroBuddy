@@ -2,7 +2,33 @@
 
 Goes with [VIDEO_NARRATION_FINAL.md](VIDEO_NARRATION_FINAL.md) and [VIDEO_RECORDING_CHECKLIST.md](VIDEO_RECORDING_CHECKLIST.md).
 
-**How this was checked:** every click below was done on 12 Oct 2026, first on an isolated local copy (08:31–08:40 IST), then by an automated browser on the **live site** (09:20–09:25 IST, fictional patient `REC-2026-12`). Both passed. The words in **bold** are copied from the screen. That live run is already recorded as `output/video/Aarogya_Saathi_video_SILENT.mp4`; see the checklist's "Fastest path". Use this shot list only if you want to record the screen yourself, and then use a new number (`REC-2026-13` or higher).
+**How this was checked:** every click below was run on 12 Oct 2026, first on an isolated local copy, then by an automated browser on the **live site** (latest run 14:25–14:30 IST, fictional patient `REC-2026-13`). All 17 shots passed. The words in **bold** are copied from the screen. That live run is already built into `output/video/Aarogya_Saathi_video_SILENT.mp4` (version 3, with motion graphics); see the checklist's "Fastest path". Use sections 0–4 only if you want to record the screen yourself, and then use a new number (`REC-2026-14` or higher).
+
+## What the finished video shows (version 3, 5:44)
+
+Every slide and screen sits inside one frame. Top left: an animated chapter label named after the official marks. Top right in the demo: a journey tracker (**Doctor › Patient › Admin › Nurse**) with the current role lit. Bottom: a short caption, with an amber **SIMULATED** / **DEVICE IN DEVELOPMENT** tag where it applies. Each demo shot ends with a smooth zoom on its success message.
+
+| Time | Chapter label | On screen |
+|---|---|---|
+| 0:00–0:06 | — | Animated title: Aarogya Saathi · "Hospital care on every patient's phone, with the SpiroBuddy breathing coach" · Health & Well-being · SDG 3 · Team GuGu GaGa · both names |
+| 0:06–0:29 | PROBLEM SIGNIFICANCE | "How big is the problem?" — three cards appear as you say them: **49 lakh** major operations a year (Int J Surg 2024) · **1 in 10** surgical patients had a lung complication (Eur J Anaesthesiol 2017) · **6 in 100** did the exercise properly on day one (J Pharm Bioallied Sci 2024) |
+| 0:29–0:53 | UNDERSTANDING OF USERS | Slide 4, then slide 5 |
+| 0:53–1:10 | INNOVATION | Slide 6 |
+| 1:10–1:38 | SOLUTION · THE SPIROBUDDY MODULE | Slide 7 → push-in on the live architecture page's **AT HOME: THE DEVICE LINK** (Clip-on unit over USB · In development; Bluetooth link · Planned; Breath simulator · Simulated) → slide 8 |
+| 1:38–2:01 | SOCIAL IMPACT | Slide 3, then slide 14 |
+| 2:01–2:23 | BUSINESS MODEL · SCALABILITY | Slides 13, 12, 16 |
+| 2:23–2:40 | RESPONSIBLE TECHNOLOGY | Slide 9, then the live architecture diagram |
+| 2:40–2:54 | LIVE DEMO · Doctor registers a patient | Registration → **"Sample Recording Patient registered"** (zoom) |
+| 2:54–3:16 | LIVE DEMO · Reviewed prescription | Notepad → draft → **After food** chosen → **Send now** → **Issued** (zoom) |
+| 3:16–3:40 | LIVE DEMO · Patient: medicines and pharmacy screen | Phone: login with on-screen **Simulated** code → medicines → **Reported at …** (zoom) → **Show this screen to the pharmacist** card with QR (zoom) |
+| 3:40–3:58 | LIVE DEMO · Visit request and confirmation | Phone: **Your request was sent** → doctor **My day** → **Confirm** → **Visit confirmed.** (zoom) → phone **Confirmed** (zoom) |
+| 3:58–4:18 | LIVE DEMO · Beds and hospital branding | Admin: bed **occupied** (zoom) → **Hospital overview** counts (zoom) → **App branding** preview (zoom) |
+| 4:18–4:31 | LIVE DEMO · Care document | Doctor: **Published version 1** (zoom) → phone: **Read acknowledgement saved** (zoom) |
+| 4:31–4:51 | LIVE DEMO · SpiroBuddy session | Phone: **Simulator (no device connected)** panel with **Connect device (USB)** → session: **Great breath / too fast** → **Session saved · Partial exercise saved** (zoom) |
+| 4:51–5:25 | LIVE DEMO · Simulated call and nurse alert | Demo panel: Hindi call to Ravi with English subtitles → **Nurse review requested** (zoom) → Sister Anjali's inbox, details with his own words → **Acknowledge** |
+| 5:25–5:44 | — | Outro: **spirobuddy.onrender.com**, the four status labels, Team GuGu GaGa and both names |
+
+The demo patient **REC-2026-13** and the extra fictional records from the test runs (`REC-2026-10/11/12`, beds `REC-11A` to `REC-13B`) stay on the live site as sample data.
 
 `<site>` below means `https://spirobuddy.onrender.com` (or `http://127.0.0.1:8021` if you fall back to the local copy).
 
@@ -80,10 +106,10 @@ Recording in clips lets you do set-up steps between them, off camera. Join the c
 
 Hold every success state on screen for about 2 seconds before moving on.
 
-### Scene 1 · Explain (0:00–2:30) · clip 1
-Slides from `output/Aarogya_Saathi_DTI_With_SpiroBuddy.pptx`, as in the narration file: 1 → 2 → 5 → 4 → 7 → 8 → 13 → 14 → 12 → 16 → 9, then `<site>/architecture.html`, section **1. The system** (the diagram with Live / Simulated / In development / Planned badges). Do not scroll into the long text sections.
+### Scene 1 · Explain (0:00–2:40) · clip 1
+Slides from `output/Aarogya_Saathi_DTI_With_SpiroBuddy.pptx`, as in the narration file: 1 → (problem facts) → 4 → 5 → 6 → 7 → 8 → 3 → 14 → 13 → 12 → 16 → 9, then `<site>/architecture.html`, section **1. The system** (the diagram with Live / Simulated / In development / Planned badges). Do not scroll into the long text sections.
 
-### Scene 2 · Doctor registers a patient (2:30–2:47) · window A
+### Scene 2 · Doctor registers a patient (2:40–2:54) · window A
 1. In the left menu, click **Register patient**. Page title: **Register a patient**.
 2. Type **Hospital registration number**, **Full name**, **Age**, **Registered phone number** from the values table.
 3. Leave **Responsible doctor** as **Dr. Meera Nair**. Skip Ward and Bed.
@@ -94,7 +120,7 @@ Slides from `output/Aarogya_Saathi_DTI_With_SpiroBuddy.pptx`, as in the narratio
 
 Do not hover over the **Open patient app** link (its address contains a personal login token). Do not read out the hint "Bed occupancy management is planned" on this form; the bed module is shown later.
 
-### Scene 3 · Reviewed prescription (2:47–3:13) · window A
+### Scene 3 · Reviewed prescription (2:54–3:16) · window A
 1. Click **Write prescription**. Page: **Medicines for Sample Recording Patient**, with **No current prescription**.
 2. Click inside the **Prescription notepad** box and paste the notepad line (Ctrl+V).
 3. Click **Prepare draft for review**.
@@ -107,7 +133,7 @@ Do not hover over the **Open patient app** link (its address contains a personal
 
 On the live site the "Manual-format draft." line may give a different reason (for example, no AI consent recorded for this patient). Either way, call it a draft and do not say AI wrote it.
 
-### Scene 4 · Patient login and medicines (3:13–3:36) · window B
+### Scene 4 · Patient login, medicines and pharmacy screen (3:16–3:40) · window B
 1. **Hospital**: leave **Dawnlight General Hospital**. **Hospital registration number**: type `REC-2026-11`. Click **Send my code**.
 2. **Success state:** a dashed box **"Sample phone Simulated"** with a 6-digit code and **"This code appears here instead of an SMS."**
 3. Type that code into **6-digit code** → click **Open my medicines**.
@@ -116,10 +142,11 @@ On the live site the "Manual-format draft." line may give a different reason (fo
 6. Tap **I took it**.
 
 **Success state:** the card turns green, **"Reported at <time>"** and **"Everything for today is reported."**
+7. Tap **Show at the pharmacy**. **Success state:** a full-screen card **"Show this screen to the pharmacist"** with the hospital, **PRESCRIPTION**, the doctor, the medicine and a QR code, ending **"Sample prescription for a sample patient. Not for dispensing."** It takes about a second to fill in. Scroll to show the QR, then tap **Close**.
 
 Do not resend the code: a second code is blocked for about a minute (**"Another code available in 59s"**).
 
-### Scene 5 · Visit request and confirmation (3:36–3:58) · windows B and A
+### Scene 5 · Visit request and confirmation (3:40–3:58) · windows B and A
 1. Window B: scroll to **My visits** and tap it. Tap **Ask for a visit**.
 2. Under **Choose a day**, tap **Tue 13 · Tomorrow**. Under **Choose a time**, tap **10:00 AM**. Under **What is it about?**, tap **Check-up**. Tap **Send request**.
    **Success state:** **"Your request was sent. The hospital will answer here."** and a card **Requested · Tuesday, 13 October 2026, 10:00 AM · Dr. Meera Nair · OPD**.
@@ -129,7 +156,7 @@ Do not resend the code: a second code is blocked for about a minute (**"Another 
 
 If you record on a later day, pick any day that is not marked **No times** (Sundays show **No times**).
 
-### Scene 6 · Bed management (3:58–4:11) · window C (admin)
+### Scene 6 · Beds and hospital branding (3:58–4:18) · window C (admin)
 1. On **Department operations**, find the bed card **Surgical Ward A · REC-11A** (**General Surgery · available**).
 2. In its **Patient** box choose **Sample Recording Patient · REC-2026-11** → click **Admit / transfer here**.
    **Success state:** **"Operation recorded."**; the card now reads **General Surgery · occupied** and **Sample Recording Patient · Dr. Meera Nair**, with a **Discharge from bed** button.
@@ -138,7 +165,9 @@ If you record on a later day, pick any day that is not marked **No times** (Sund
 
 Keep the yellow line **"Admin-operated department prototype. Dedicated department login is Planned."** visible; it is the honest label.
 
-### Scene 7 · Care document (4:11–4:25) · windows A and B
+Then open **App branding** (left menu, admin). **Success state:** **"Your hospital's own name and logo, shown at the top of the patient app after the patient logs in."** with a **What patients see** preview ("Dawnlight General Hospital with SpiroBuddy") and the list **What a hospital can not change** (safety messages, status labels).
+
+### Scene 7 · Care document (4:18–4:31) · windows A and B
 1. Window A, discharge editor (draft already in the form): click **Publish saved draft to patient**.
 2. A browser pop-up asks **"Publish the SAVED draft? The patient will be able to view this version…"** Click **OK**.
    **Success state:** **"Published version 1 · Dr. Meera Nair · <time>"** and **"Patient has not acknowledged this version."**
@@ -149,8 +178,9 @@ Keep the yellow line **"Admin-operated department prototype. Dedicated departmen
 
 If you want to show the preview: **Preview saved draft** opens a page marked **"DRAFT — staff preview only"**. Come back with the browser's **Back** button, because its only link goes to the patient page.
 
-### Scene 8 · Breathing session (4:25–4:45) · window B
+### Scene 8 · SpiroBuddy session (4:31–4:51) · window B
 1. On **My medicines**, tap **My breathing exercise (Simulated)**. Do not use the link on the care page (see Screen quirks, item 5).
+1b. Before starting, scroll to the bottom panel **Simulator (no device connected)** and hold on **Connect device (USB)** for a few seconds: this is where the SpiroBuddy unit will plug in. Scroll back up.
 2. Tap **Start my exercise**. The card shows **Breath 1 of 10**, **Finish now**, and buttons under **"No device connected: tap to make a simulated breath"**.
 3. Tap **Good breath**. Wait about 4 seconds.
    **Success state:** **"Great breath!"**, **Breath 2 of 10**, and a line like **"1,860 mL · Score 7.7 out of 10"**.
@@ -160,7 +190,7 @@ If you want to show the preview: **Preview saved draft** opens a page marked **"
 
 The bottom of the page says **"Simulator (no device connected)"**. Let it show for a moment. Numbers (mL and score) are simulated and change each time; do not read them as real measurements.
 
-### Scene 9 · Simulated call in Hindi, then nurse alert (4:45–5:20) · windows A and C
+### Scene 9 · Simulated call in Hindi, then nurse alert (4:51–5:25) · windows A and C
 1. Window A, **Demo panel**, section **Calls & WhatsApp – live simulators**. Show the status line **"AI check-in calls: simulated here · WhatsApp: dry run"**.
 2. **Patient**: choose **Ravi Kumar ★**. Click **AI check-in call – optional, where consent allows**.
    **Success state:** message **"AI check-in call ringing on the patient phone"**; the phone simulator shows an incoming call.
@@ -188,7 +218,7 @@ The other two answer buttons are **"मैं भूल गया था, अभ
 
 **Speaking Hindi yourself (optional):** the phone simulator also has **🎤 दबाएँ और बोलें** (press and speak), which uses the browser's speech recognition. It may mishear. Tapping the answer buttons is the reliable path, and the on-screen log labels the answer as "tapped answer" either way. If the browser reads the assistant's lines aloud in Hindi, let the first line play, then talk over the rest quietly to stay on time.
 
-### Scene 10 · Close (5:20–5:40) · clip 6
+### Scene 10 · Close (5:25–5:44) · clip 6
 Deck slide 17 (**Team Structure**: Sharon Shaju Augustine, Fathima Shifana). Slide 19 shows `spirobuddy.onrender.com` if you prefer to end on the URL.
 
 ---

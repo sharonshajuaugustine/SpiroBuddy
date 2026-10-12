@@ -2,15 +2,15 @@
 
 Goes with [VIDEO_NARRATION_FINAL.md](VIDEO_NARRATION_FINAL.md) (what to say) and [VIDEO_SHOT_LIST.md](VIDEO_SHOT_LIST.md) (what to click).
 
-Rules: under 6:00 (aim for 5:40), under 100 MB, your own voice, sample data only, no passwords or keys on screen.
+Rules: under 6:00 (the video is 5:44), under 100 MB, your own voice, sample data only, no passwords or keys on screen.
 
-## Fastest path: the ready-made video plus your voice (made 12 Oct 2026, 09:20–09:40 IST)
+## Fastest path: the ready-made video plus your voice (version 3, made 12 Oct 2026, 14:25–15:00 IST)
 
-The whole demo was run and screen-recorded on the **live site** with fictional patient `REC-2026-12`, and joined with the deck slides. Both files are in `output/video/` (not committed to git):
+The whole demo was run and screen-recorded on the **live site** with fictional patient `REC-2026-13`, and joined with the deck slides, animated problem-fact cards, chapter labels named after the official marks, a Doctor › Patient › Admin › Nurse journey tracker and zoom-ins on every success message. Both files are in `output/video/` (not committed to git):
 
 | File | What it is |
 |---|---|
-| `Aarogya_Saathi_video_SILENT.mp4` | **The video to submit, once your voice is added.** 5:40, 1920 × 1080, 13.6 MB, no sound. It has small labels ("Live site · fictional sample data", "SIMULATED" on the code, breathing and call) and English subtitles for the Hindi call. |
+| `Aarogya_Saathi_video_SILENT.mp4` | **The video to submit, once your voice is added.** 5:44, 1920 × 1080, about 45 MB, no sound. Honest tags (SIMULATED on the code, breathing input and call; DEVICE IN DEVELOPMENT on the device panel) and English subtitles for the Hindi call. |
 | `Aarogya_Saathi_video_TELEPROMPTER.mp4` | The same video with your script on screen and a yellow timer. **For reading only. Never upload it.** |
 
 Record your voice:
@@ -33,7 +33,7 @@ If a sentence runs long, just keep going. A second or two off is fine. If you fa
 | Live pages (`register`, `prescribe`, `patient-login`, `meds`, `patient-visits`, `doctor-day`, `department`, `hospital-overview`, `discharge-editor`, `my-care`, `demo`, `dashboard`, `login`) and their scripts | **Byte-for-byte the same** as the local files |
 | Live `/api/health` | OK; sample-data mode; Supabase database |
 | Live public login API (`/api/me/otp/hospitals`) | Returns the two Dawnlight sample hospitals |
-| Full click-through (register → prescribe → OTP → visit → bed → care document → breathing → call → nurse) | **Passed on the live site** (12 Oct, 09:20–09:25 IST, automated browser run, fictional patient `REC-2026-12`, patient id 1001), after a passing run on the isolated local copy. |
+| Full click-through (register → prescribe → OTP → visit → bed → care document → breathing → call → nurse) | **Passed on the live site** three times (latest 12 Oct, 14:25–14:30 IST, 17 shots, fictional patient `REC-2026-13`), each after a passing run on the isolated local copy. |
 
 Live-run notes: the draft line read "Manual-format draft. No AI consent recorded for this patient."; the visit used 9:30 AM (10:00 was taken by an earlier run); the first **Add bed** click did nothing while the page was still loading, and the second click worked. An earlier partial live run also left fictional patient `REC-2026-11` and bed `REC-11A` on the site.
 
@@ -82,7 +82,7 @@ Recording tools already in Windows 11:
 
 1. Open **Clipchamp** → create a new video → drag the six clips onto the timeline in order.
 2. Trim the dead time at the start and end of each clip. Keep the success messages.
-3. Check the total length on the timeline: **under 6:00, ideally about 5:40.**
+3. Check the total length on the timeline: **under 6:00** (the ready-made video is 5:44).
 4. **Export** → choose **1080p**.
 5. In File Explorer, right-click the exported file → **Properties** → check **Size**. It must be **under 100 MB**. If it is not, export again at **720p**.
 6. Play the exported file from start to end once. Check sound, length and that no password or key appears.
@@ -126,7 +126,7 @@ Then:
 
 ## I. Final check before you submit
 
-- [ ] Video length is **under 6:00** (aim 5:40).
+- [ ] Video length is **under 6:00** (ready-made: 5:44).
 - [ ] File is **under 100 MB**.
 - [ ] Narration is in your own words and your own voice; team **GuGu GaGa**, **Sharon Shaju Augustine** and **Fathima Shifana** are named.
 - [ ] Part 1 covers theme, problem, scope, personas, market fit, the two metrics with **illustrative** targets, scalability, roadmap and architecture.
