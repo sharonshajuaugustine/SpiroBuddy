@@ -7,7 +7,7 @@ Updated 12 October 2026. This document records the work after the initial projec
 ## Submission artifacts
 
 - Detailed assessment: `docs/AAROGYA_SAATHI_PROJECT_AUDIT.md`.
-- Canonical editable deck: `output/Aarogya_Saathi_DTI_Judge_Ready.pptx`. Seventeen slides based on the supplied DTI template, seven native editable tables and larger fonts; all slides visually checked with zero issues. The original template is preserved; three workflow screenshots and planned AI automation are included. Original and earlier generated decks remain intact; deliver the readable deck as the canonical file.
+- Canonical editable deck: `output/Aarogya_Saathi_DTI_With_SpiroBuddy.pptx`. Nineteen slides based on the supplied DTI template, seven native editable tables and larger fonts; all slides visually checked with zero issues. The original template is preserved; three workflow screenshots and planned AI automation are included. Original and earlier generated decks remain intact; deliver the readable deck as the canonical file.
 - Team: **GuGu GaGa**, **Sharon Shaju Augustine**, **Fathima Shifana**. Team details are editable. No employer, college spelling, contact, interviews, pilot outcomes or paying customers were invented.
 - Provider setup: `docs/HACKATHON_SETUP_CHECKLIST.md` and `docs/SARVAM_CALL_DEMO_SETUP.md`.
 - Recording sequence and fallback: `docs/HACKATHON_DEMO_RUNBOOK.md` (5:50 main walkthrough and optional separately labelled provider-chat clip).

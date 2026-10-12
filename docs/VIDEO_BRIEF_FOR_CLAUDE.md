@@ -51,3 +51,8 @@ Team: **GuGu GaGa**, **Sharon Shaju Augustine** and **Fathima Shifana**. Keep th
 ## Claude outputs
 
 Revise `docs/VIDEO_NARRATION_FINAL.md` and `docs/VIDEO_SHOT_LIST.md` around this timing. Supply exact clicks, role changes and visible success states, plus a practical rehearsal checklist. Include a final check for duration strictly below 6:00, video size below 100 MB, own narration, an accessible demo link, the working URL and fictional demonstration credentials. Keep credentials out of the screen recording itself. Do not alter code, deploy, change credentials, rent a phone number or remake slides. Codex handles software and will rate the resulting video.
+
+
+## SpiroBuddy explanation added to the deck
+
+The current deck is output/Aarogya_Saathi_DTI_With_SpiroBuddy.pptx, with two matching-template component/operation slides. Include a brief explanation within the existing 2:30 opening budget: the proposed laser sensor reads piston distance, a controller sends it over USB, per-model calibration estimates volume, and the app supports prescribed practice and nurse follow-up. Hardware is unbuilt/untested; the current demonstration uses simulated breaths. Battery/Bluetooth is future development. Do not extend the video beyond the time limit or imply diagnostic spirometry.

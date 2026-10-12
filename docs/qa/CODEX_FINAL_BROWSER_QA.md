@@ -62,7 +62,7 @@ Complete the bed discharge/ready browser-click sequence and inspect department/o
 
 The parent agent confirmed Sarvam's corrected greeting was committed as version 2. The approved API key and organisation/workspace/agent metadata, including version 2, were saved in Render with **Save only**. The user selected browser-only demonstration and **`CALL_PROVIDER=dry_run`** was saved. Checkpoint 6755f77 has since deployed with the saved settings. No outbound telephone call, phone connection or application webhook delivery is implied.
 
-The canonical readable deck is `output/Aarogya_Saathi_DTI_Judge_Ready.pptx`: 17 slides, seven native editable tables and larger fonts, with all slides visually checked and zero issues. The original template is preserved, with three actual workflow screenshots and planned AI automation. Claude owns the video with the team's own narration; target a complete video under six minutes and 100 MB, with approximately 2.5 minutes explaining the product. No completed video is claimed by this QA report.
+The canonical readable deck is `output/Aarogya_Saathi_DTI_With_SpiroBuddy.pptx`: 19 slides, seven native editable tables and larger fonts, with all slides visually checked and zero issues. The original template is preserved, with three actual workflow screenshots and planned AI automation. Claude owns the video with the team's own narration; target a complete video under six minutes and 100 MB, with approximately 2.5 minutes explaining the product. No completed video is claimed by this QA report.
 
 ## Live HTTP/readiness verification
 
