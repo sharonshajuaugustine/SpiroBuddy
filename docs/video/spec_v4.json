@@ -1,0 +1,846 @@
+{
+ "version": 4,
+ "part1": [
+  {
+   "start": "0:00",
+   "end": "0:31",
+   "chip": "PROBLEM SIGNIFICANCE",
+   "graphics": [
+    {
+     "type": "title",
+     "cue": null,
+     "name": "Aarogya Saathi",
+     "line1": "Connecting hospital care to",
+     "line2": "the patient's phone.",
+     "pill1": "Health & Well-being  ·  SDG 3",
+     "pill2": "Team GuGu GaGa",
+     "team": "Sharon Shaju Augustine  ·  Fathima Shifana",
+     "foot": "Dolphin Tank India  ·  Social Impact Hackathon 2026"
+    },
+    {
+     "type": "stats",
+     "cue": "India's public records",
+     "head": "After surgery: the numbers we rely on",
+     "cards": [
+      {
+       "big": "49 lakh",
+       "text": "major operations a year\nin India's public records",
+       "source": "Int J Surg 2024 · 2019 data\nan undercount",
+       "cue": "forty-nine lakh"
+      },
+      {
+       "big": "1 in 10",
+       "text": "adults having surgery\nhad a lung complication",
+       "source": "LAS VEGAS study, Eur J Anaesthesiol 2017\n9,864 patients, 29 countries, mostly Europe",
+       "cue": "one in ten"
+      },
+      {
+       "big": "6% → 72%",
+       "text": "used their spirometer properly on day 1;\n72% by day 3 with teaching (in hospital)",
+       "source": "Small Chennai study, 60 inpatients, 2024\nNo Indian home-use data found",
+       "cue": "six percent"
+      }
+     ],
+     "footer": "In hospital, not at home. After discharge: patients need a clear plan, nurses need to see who needs help.",
+     "footer_cue": "That was in hospital"
+    }
+   ]
+  },
+  {
+   "start": "0:31",
+   "end": "1:00",
+   "chip": "UNDERSTANDING OF USERS",
+   "graphics": [
+    {
+     "type": "cards",
+     "cue": null,
+     "head": "Who we design for",
+     "sub": "Illustrative personas, not real people. Fictional sample data only.",
+     "cards": [
+      {
+       "kicker": "Patient persona",
+       "title": "Savitri, 68",
+       "lines": [
+        "Home after lung surgery",
+        "Reads Hindi",
+        "Needs one clear screen, one action at a time",
+        "Illustrative persona, not a real patient"
+       ],
+       "tag": "Illustrative persona",
+       "accent": "teal",
+       "style": "solid",
+       "big": null,
+       "cue": null
+      },
+      {
+       "kicker": "Nurse persona",
+       "title": "Sister Anjali, ward nurse",
+       "lines": [
+        "Must know whom to call first, and why",
+        "Has limited time for repeated coaching",
+        "Illustrative persona, not a real nurse"
+       ],
+       "tag": "Illustrative persona",
+       "accent": "violet",
+       "style": "solid",
+       "big": null,
+       "cue": "Sister Anjali"
+      }
+     ],
+     "footer": null,
+     "footer_cue": null
+    },
+    {
+     "type": "cards",
+     "cue": "Informal feedback",
+     "head": "Informal nurse feedback",
+     "sub": "Second-hand and informal. Not an interview, not a study.",
+     "cards": [
+      {
+       "kicker": "Concerns raised",
+       "title": "What she reported",
+       "lines": [
+        "Painful breathing exercises may be skipped",
+        "Medicine instructions can be forgotten",
+        "Discharge paperwork can be confusing",
+        "Repeated coaching takes staff time"
+       ],
+       "tag": null,
+       "accent": "amber",
+       "style": "solid",
+       "big": null,
+       "cue": null
+      },
+      {
+       "kicker": "Source label",
+       "title": "How to read this",
+       "lines": [
+        "One nurse's informal feedback, relayed by a",
+        "team member; additional themes confirmed by",
+        "phone according to the team member,",
+        "12 October 2026."
+       ],
+       "tag": "Not a study",
+       "accent": "grey",
+       "style": "dashed",
+       "big": null,
+       "cue": null
+      }
+     ],
+     "footer": "Our response: a readable care plan, and check-ins that ask why, then bring concerns to the nurse.",
+     "footer_cue": null
+    },
+    {
+     "type": "strip",
+     "cue": "five steps",
+     "head": "One journey, five steps",
+     "steps": [
+      {
+       "title": "In hospital",
+       "text": "Doctor registers; admin admits to a bed",
+       "cue": "hospital, discharge"
+      },
+      {
+       "title": "Discharge",
+       "text": "Doctor sends medicines and care instructions",
+       "cue": "discharge, home"
+      },
+      {
+       "title": "At home",
+       "text": "Savitri reads her plan; breathing coach",
+       "cue": "home, follow-up"
+      },
+      {
+       "title": "Follow-up",
+       "text": "She asks for a visit; the doctor confirms",
+       "cue": "follow-up, and"
+      },
+      {
+       "title": "Concern",
+       "text": "Check-in asks why; rules alert the nurse",
+       "cue": "a concern reaching"
+      }
+     ],
+     "footer": "Next: this journey on our public site, with a fictional sample patient."
+    }
+   ]
+  },
+  {
+   "start": "1:00",
+   "end": "1:20",
+   "chip": "INNOVATION",
+   "graphics": [
+    {
+     "type": "cards",
+     "cue": null,
+     "head": "What we add: the combination",
+     "sub": "Record apps and breath trackers already exist. We do not claim to be the only one.",
+     "cards": [
+      {
+       "kicker": "Health-record apps",
+       "title": "e.g. Aarogya Setu 2.0, Eka Care",
+       "lines": [
+        "Hold health records and reminders"
+       ],
+       "tag": null,
+       "accent": "grey",
+       "style": "solid",
+       "big": null,
+       "cue": null
+      },
+      {
+       "kicker": "Hospital breath trackers",
+       "title": "e.g. InSee (US)",
+       "lines": [
+        "Base-mounted tracker, one spirometer model",
+        "FDA-cleared (510(k) K241152)",
+        "Cleared for hospital use only"
+       ],
+       "tag": null,
+       "accent": "grey",
+       "style": "solid",
+       "big": null,
+       "cue": "InSee"
+      },
+      {
+       "kicker": "Aarogya Saathi",
+       "title": "Joined on one hospital record",
+       "lines": [
+        "Doctor-approved plan + dose reports",
+        "Breathing coach (optional module)",
+        "Check-in that asks why (Simulated)",
+        "Each hospital's own name, logo, colour"
+       ],
+       "tag": "Clip-on unit: In development",
+       "accent": "teal",
+       "style": "solid",
+       "big": null,
+       "cue": "We join"
+      }
+     ],
+     "footer": "Sources: FDA 510(k) K241152 (InSee, Tidal Medical); record apps named as examples only.",
+     "footer_cue": null
+    }
+   ]
+  },
+  {
+   "start": "1:20",
+   "end": "1:45",
+   "chip": "SOLUTION QUALITY",
+   "graphics": [
+    {
+     "type": "image",
+     "cue": null,
+     "img": "slide7",
+     "tag": "3D concept render, not built",
+     "zoom": null
+    },
+    {
+     "type": "strip",
+     "head": "How the clip-on unit would connect",
+     "steps": [
+      {
+       "title": "Laser sensor",
+       "text": "Would read how high the piston rises",
+       "cue": null
+      },
+      {
+       "title": "Controller",
+       "text": "Small board; its firmware is written",
+       "cue": null
+      },
+      {
+       "title": "USB cable",
+       "text": "To Chrome or Edge on a laptop",
+       "cue": null
+      },
+      {
+       "title": "Web app",
+       "text": "The \"Connect device (USB)\" control",
+       "cue": null
+      },
+      {
+       "title": "Coach",
+       "text": "Calibration would estimate the volume",
+       "cue": null
+      }
+     ],
+     "footer": "USB unit: In development, no unit built or tested · Bluetooth: Planned · Today: built-in simulator (Simulated)",
+     "cue": "Firmware is written"
+    }
+   ]
+  },
+  {
+   "start": "1:45",
+   "end": "2:19",
+   "chip": "SOCIAL IMPACT",
+   "graphics": [
+    {
+     "type": "cards",
+     "cue": null,
+     "head": "Who gains · SDG 3",
+     "sub": "Intended impact. Nothing here is measured yet.",
+     "cards": [
+      {
+       "kicker": "Older patients",
+       "title": "The doctor's plan, on one screen",
+       "lines": [
+        "Large text, one action at a time",
+        "Screen labels in 4 languages (Hindi shown)",
+        "Voice coach: 10 Indian languages + English",
+        "Doctor's text is shown as typed"
+       ],
+       "tag": "Intended, not measured",
+       "accent": "teal",
+       "style": "solid",
+       "big": null,
+       "cue": "older patients"
+      },
+      {
+       "kicker": "Families",
+       "title": "Kept informed, with consent",
+       "lines": [
+        "A private family page for one member",
+        "Shown only with the patient's consent"
+       ],
+       "tag": "Intended, not measured",
+       "accent": "green",
+       "style": "solid",
+       "big": null,
+       "cue": "families follow"
+      },
+      {
+       "kicker": "Ward nurses",
+       "title": "Whom to call first",
+       "lines": [
+        "Fixed rules sort who needs a call",
+        "Alerts carry what the patient reported",
+        "Nurse minutes per day: to be measured"
+       ],
+       "tag": "Intended, not measured",
+       "accent": "violet",
+       "style": "solid",
+       "big": null,
+       "cue": "nurses see"
+      }
+     ],
+     "footer": "Tamil and Malayalam text still needs a native-speaker check.",
+     "footer_cue": null
+    },
+    {
+     "type": "cards",
+     "cue": "A one-ward pilot",
+     "head": "What a pilot would measure",
+     "sub": "Proposed: 1 ward, 20 patients, 14 days. Illustrative targets, not results.",
+     "cards": [
+      {
+       "kicker": "Activation",
+       "title": "Plan viewed within 48 hours",
+       "lines": [
+        "of enrolled patients"
+       ],
+       "tag": "Illustrative target",
+       "accent": "amber",
+       "style": "dashed",
+       "big": "80%",
+       "cue": "plan views"
+      },
+      {
+       "kicker": "Day-7 return",
+       "title": "Activated patients who return",
+       "lines": [
+        "of activated patients"
+       ],
+       "tag": "Illustrative target",
+       "accent": "amber",
+       "style": "dashed",
+       "big": "60%",
+       "cue": "day-seven return"
+      },
+      {
+       "kicker": "Nurse workload",
+       "title": "Nurse minutes per day",
+       "lines": [
+        "Unmeasured today",
+        "Counted in the pilot"
+       ],
+       "tag": "Not measured yet",
+       "accent": "grey",
+       "style": "dashed",
+       "big": null,
+       "cue": "nurse minutes"
+      },
+      {
+       "kicker": "Health benefit",
+       "title": "Not claimed",
+       "lines": [
+        "Evidence for the exercise alone is mixed",
+        "A study is required first"
+       ],
+       "tag": "Study required",
+       "accent": "grey",
+       "style": "dashed",
+       "big": null,
+       "cue": "Evidence that"
+      }
+     ],
+     "footer": "Mixed evidence: Cochrane review 2014; 2024 cardiac-surgery review. We measure follow-through first.",
+     "footer_cue": "Evidence that"
+    }
+   ]
+  },
+  {
+   "start": "2:19",
+   "end": "2:36",
+   "chip": "SUSTAINABILITY / BUSINESS MODEL  ·  SCALABILITY",
+   "graphics": [
+    {
+     "type": "cards",
+     "cue": null,
+     "head": "Who pays: the hospital",
+     "sub": "Proposed pricing, unvalidated. No paying customers.",
+     "cards": [
+      {
+       "kicker": "In a follow-up episode",
+       "title": "What the hospital gets",
+       "lines": [
+        "Approved plan on the patient's phone",
+        "Check-ins and the nurse's alert list",
+        "Hospital-scoped records and audit log"
+       ],
+       "tag": null,
+       "accent": "teal",
+       "style": "solid",
+       "big": null,
+       "cue": null
+      },
+      {
+       "kicker": "Proposed price",
+       "title": "Per care follow-up episode",
+       "lines": [
+        "Paid by the hospital",
+        "Unvalidated; no paying customers"
+       ],
+       "tag": "Proposed, unvalidated",
+       "accent": "amber",
+       "style": "dashed",
+       "big": "Rs 1,000",
+       "cue": "thousand rupees"
+      },
+      {
+       "kicker": "Patients",
+       "title": "We do not charge patients",
+       "lines": [
+        "No payments inside the patient,",
+        "nurse or hospital apps"
+       ],
+       "tag": null,
+       "accent": "green",
+       "style": "solid",
+       "big": null,
+       "cue": "We do not charge"
+      }
+     ],
+     "footer": null,
+     "footer_cue": null
+    },
+    {
+     "type": "cards",
+     "cue": "Every record carries",
+     "head": "Each hospital keeps its own records",
+     "sub": "Two fictional sample hospitals on the same service.",
+     "cards": [
+      {
+       "kicker": "Sample hospital",
+       "title": "Dawnlight General Hospital",
+       "lines": [
+        "Its own patients, staff and records",
+        "Its own app name and accent colour"
+       ],
+       "tag": "Fictional",
+       "accent": "teal",
+       "style": "solid",
+       "big": null,
+       "cue": null
+      },
+      {
+       "kicker": "Sample hospital",
+       "title": "Dawnlight Riverside Clinic",
+       "lines": [
+        "Its own patients, staff and records",
+        "Its own app name and accent colour"
+       ],
+       "tag": "Fictional",
+       "accent": "violet",
+       "style": "solid",
+       "big": null,
+       "cue": null
+      },
+      {
+       "kicker": "Modules",
+       "title": "Breathing: switched on per patient",
+       "lines": [
+        "The spirometer coach is module one",
+        "More modules and devices: Planned",
+        "Production scaling: not yet proven"
+       ],
+       "tag": "Expansion plan",
+       "accent": "grey",
+       "style": "dashed",
+       "big": null,
+       "cue": null
+      }
+     ],
+     "footer": "Next targets, not commitments: usability checks + device bench tests in 90 days; reviewed pilot by 6 months.",
+     "footer_cue": "Our plan"
+    }
+   ]
+  },
+  {
+   "start": "2:36",
+   "end": "2:57",
+   "chip": "RESPONSIBLE TECHNOLOGY",
+   "graphics": [
+    {
+     "type": "image",
+     "cue": null,
+     "img": "trust_icmr",
+     "tag": "Live site: Trust page, excerpts",
+     "zoom": null
+    },
+    {
+     "type": "cards",
+     "cue": "Before real use",
+     "head": "Before real use",
+     "sub": null,
+     "cards": [
+      {
+       "kicker": null,
+       "title": "Ethics committee review",
+       "lines": [
+        "Full ICMR assessment pending"
+       ],
+       "tag": "Planned",
+       "accent": "violet",
+       "style": "dashed",
+       "big": null,
+       "cue": "ethics committee review"
+      },
+      {
+       "kicker": null,
+       "title": "Database transactions",
+       "lines": [
+        "Plus real SMS (Planned)"
+       ],
+       "tag": "Not done yet",
+       "accent": "amber",
+       "style": "dashed",
+       "big": null,
+       "cue": "database transactions"
+      },
+      {
+       "kicker": null,
+       "title": "Ask CDSCO for a ruling",
+       "lines": [
+        "No approval claimed"
+       ],
+       "tag": "No ruling yet",
+       "accent": "grey",
+       "style": "dashed",
+       "big": null,
+       "cue": "a ruling from"
+      }
+     ],
+     "footer": null,
+     "footer_cue": null
+    }
+   ]
+  }
+ ],
+ "demo": {
+  "chip": "MVP / PROTOTYPE",
+  "journey": [
+   "In hospital",
+   "Discharge",
+   "At home",
+   "Follow-up",
+   "Concern"
+  ],
+  "scenes": [
+   {
+    "start": "2:57",
+    "end": "3:08",
+    "sub": "Doctor registers Savitri Devi",
+    "journey_step": 0,
+    "shots": [
+     {
+      "key": "s1_register",
+      "tracker": "Doctor",
+      "caption": "Our site runs under the module name SpiroBuddy · age 68, Hindi",
+      "tag": "FICTIONAL SAMPLE PATIENT"
+     }
+    ]
+   },
+   {
+    "start": "3:08",
+    "end": "3:17",
+    "sub": "Admin admits her to a bed",
+    "journey_step": 0,
+    "shots": [
+     {
+      "key": "s2a_admit",
+      "tracker": "Admin",
+      "caption": "Chest Ward bed: 'Admit / transfer here'; the bed shows occupied",
+      "tag": null
+     },
+     {
+      "key": "s2b_overview",
+      "tracker": "Admin",
+      "caption": "Overview (prototype): counts come from recorded bed operations",
+      "tag": null
+     }
+    ]
+   },
+   {
+    "start": "3:17",
+    "end": "3:36",
+    "sub": "Prescription: draft, review, send",
+    "journey_step": 1,
+    "shots": [
+     {
+      "key": "s3_prescribe",
+      "tracker": "Doctor",
+      "caption": "Manual-format draft · no AI · 'Needs review' until the doctor chooses",
+      "tag": "MANUAL DRAFT · NO AI"
+     }
+    ]
+   },
+   {
+    "start": "3:36",
+    "end": "3:42",
+    "sub": "Doctor publishes care instructions",
+    "journey_step": 1,
+    "shots": [
+     {
+      "key": "s4_publish",
+      "tracker": "Doctor",
+      "caption": "Instructions the doctor wrote herself, published as version 1",
+      "tag": null
+     }
+    ]
+   },
+   {
+    "start": "3:42",
+    "end": "4:11",
+    "sub": "Savitri's phone: login, medicines, pharmacy",
+    "journey_step": 2,
+    "shots": [
+     {
+      "key": "s5a_login",
+      "tracker": "Patient",
+      "phone_title": "Hospital number + code",
+      "phone_desc": "Real code · simulated delivery (no SMS). Single use, expires in 10 minutes. Her medicines open with Hindi labels.",
+      "tag": "SIMULATED DELIVERY"
+     },
+     {
+      "key": "s5b_meds",
+      "tracker": "Patient",
+      "phone_title": "Her medicines",
+      "phone_desc": "One tap changes the screen labels to English. Medicine names stay as the doctor typed them.",
+      "tag": null
+     },
+     {
+      "key": "s5c_pharmacy",
+      "tracker": "Patient",
+      "phone_title": "Show at the pharmacy",
+      "phone_desc": "A chemist can scan the QR to check the hospital's copy. Not for dispensing. Doctor's registration no. is a sample.",
+      "tag": null
+     }
+    ]
+   },
+   {
+    "start": "4:11",
+    "end": "4:18",
+    "sub": "Savitri reads the care instructions",
+    "journey_step": 2,
+    "shots": [
+     {
+      "key": "s6_ack",
+      "tracker": "Patient",
+      "phone_title": "Care instructions",
+      "phone_desc": "She taps 'I have read this version'. This records reading, not consent. This page is in English only.",
+      "tag": null
+     }
+    ]
+   },
+   {
+    "start": "4:18",
+    "end": "4:38",
+    "sub": "Breathing coach · simulated breaths",
+    "journey_step": 2,
+    "shots": [
+     {
+      "key": "s7a_device",
+      "tracker": "Patient",
+      "phone_title": "Connect device (USB)",
+      "phone_desc": "Where the clip-on unit would connect. No unit exists yet, so a simulator stands in.",
+      "tag": "DEVICE NOT BUILT YET"
+     },
+     {
+      "key": "s7b_breathing",
+      "tracker": "Patient",
+      "phone_title": "Breathing coach",
+      "phone_desc": "Simulated breaths · saved as partial (complete = 10 valid breaths). It coaches practice; it is not a lung test.",
+      "tag": "SIMULATED BREATHS"
+     }
+    ]
+   },
+   {
+    "start": "4:38",
+    "end": "4:55",
+    "sub": "Follow-up visit: asked and confirmed",
+    "journey_step": 3,
+    "shots": [
+     {
+      "key": "s8a_request",
+      "tracker": "Patient",
+      "phone_title": "Ask for a visit",
+      "phone_desc": "Tomorrow, a time, 'Check-up', then Send request. In the app only: no SMS or WhatsApp is sent.",
+      "tag": null
+     },
+     {
+      "key": "s8b_confirm",
+      "tracker": "Doctor",
+      "caption": "My day: the request waits under 'Needs your answer'; she confirms it",
+      "tag": null
+     },
+     {
+      "key": "s8c_confirmed",
+      "tracker": "Patient",
+      "phone_title": "Visit confirmed",
+      "phone_desc": "Savitri's visits page now shows Confirmed.",
+      "tag": null
+     }
+    ]
+   },
+   {
+    "start": "4:55",
+    "end": "5:29",
+    "sub": "Simulated check-in call · nurse alert",
+    "journey_step": 4,
+    "shots": [
+     {
+      "key": "s9a_call",
+      "tracker": "Doctor",
+      "caption": "Call simulator · scripted Hindi lines · preset answers · no real call",
+      "tag": "SIMULATED CALL"
+     },
+     {
+      "key": "s9b_nurse",
+      "tracker": "Nurse",
+      "caption": "Raised by fixed rules, not AI · she assigns it and acknowledges it",
+      "tag": null
+     }
+    ]
+   },
+   {
+    "start": "5:29",
+    "end": "5:38",
+    "sub": "Each hospital's own name, logo, colour",
+    "journey_step": 0,
+    "shots": [
+     {
+      "key": "s10_branding",
+      "tracker": "Admin",
+      "caption": "Preview only · not saved · safety text and status labels stay fixed",
+      "tag": "PREVIEW ONLY"
+     }
+    ]
+   }
+  ],
+  "call_subs": [
+   "Assistant (scripted): \"Namaste, SpiroBuddy's automated care assistant here.\nSavitri ji, you missed your exercise {missed} times. Are you okay? Why?\"",
+   "Savitri (sample answer): \"Mild pain near my stitches this morning.\"\nAssistant: \"If severe or breathless, get urgent help. Should your nurse call?\"",
+   "Savitri: \"Yes, please call me.\"\nAssistant: \"Request sent to your care team. In an emergency, call 112.\""
+  ],
+  "nurse_sub": "Fixed rules, not AI. \"Patient's own words\" here = the preset sample answer."
+ },
+ "outro": {
+  "start": "5:38",
+  "end": "5:54",
+  "chip": "",
+  "graphics": [
+   {
+    "type": "cards",
+    "cue": null,
+    "head": "Live · Simulated · In development · Planned",
+    "sub": "Every feature on our status list carries one of these labels.",
+    "cards": [
+     {
+      "kicker": "Works today, sample data",
+      "title": "Live",
+      "lines": [
+       "Register, beds, overview (prototype)",
+       "Prescription on the phone; pharmacy QR",
+       "Visit requests, My day, nurse alerts",
+       "Hospital branding; 4 screen languages"
+      ],
+      "tag": null,
+      "accent": "green",
+      "style": "solid",
+      "big": null,
+      "cue": null
+     },
+     {
+      "kicker": "Built-in simulator",
+      "title": "Simulated",
+      "lines": [
+       "Login-code delivery (no SMS sent)",
+       "Breaths and breath labels",
+       "Check-in call (scripted, no real call)",
+       "All patients and hospitals: fictional"
+      ],
+      "tag": null,
+      "accent": "amber",
+      "style": "solid",
+      "big": null,
+      "cue": "Simulated"
+     },
+     {
+      "kicker": "Partly built",
+      "title": "In development",
+      "lines": [
+       "Clip-on unit over USB: no unit built",
+       "Prescription notepad draft; AI drafting",
+       "A person confirms every line (review)"
+      ],
+      "tag": null,
+      "accent": "violet",
+      "style": "solid",
+      "big": null,
+      "cue": "The device is not built"
+     },
+     {
+      "kicker": "Not built",
+      "title": "Planned",
+      "lines": [
+       "Login code by real SMS",
+       "Bluetooth pairing",
+       "Database-level rules per hospital",
+       "Dedicated department login"
+      ],
+      "tag": null,
+      "accent": "grey",
+      "style": "dashed",
+      "big": null,
+      "cue": "Our ask"
+     }
+    ],
+    "footer": "Fictional patients only · Device not built · Our ask: one surgical ward to test this before any patient pilot",
+    "footer_cue": "one surgical ward"
+   }
+  ],
+  "link": "spirobuddy.onrender.com",
+  "team": "Team GuGu GaGa · Sharon Shaju Augustine · Fathima Shifana"
+ }
+}
