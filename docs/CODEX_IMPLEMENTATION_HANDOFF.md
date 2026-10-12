@@ -2,12 +2,12 @@
 
 Updated 12 October 2026. This document records the work after the initial project audit. The audit remains a historical snapshot; use this handoff for subsequent implementation changes. Appointments were handed over by Claude; Codex completed department/bed operations and discharge documents after those delegated sessions stopped. Preserve unrelated session work and use each module's handoff when integrating or changing it.
 
-**Publication boundary:** the changes described here are ready locally for commit; publication remains pending. The combined suite completed with **930 passed, zero failures and zero expected failures in 1151.77 seconds**, before the final startup/phone-preservation guards. Those guards subsequently passed **5 focused startup checks** and **28 phone-preservation/PIN checks**. All **55 JavaScript syntax checks** passed. These local results are not evidence that Render has this build; deployment verification remains pending.
+**Publication boundary:** source checkpoint **6755f77** is published and deployed on Render; live HTTP/readiness checks passed. The combined suite completed with **930 passed, zero failures and zero expected failures in 1151.77 seconds**, before the final startup/phone-preservation guards. Those guards subsequently passed **5 focused startup checks** and **28 phone-preservation/PIN checks**. All **55 JavaScript syntax checks** passed. The local full-workflow results remain separate from live HTTP readiness; complete live browser acceptance is not claimed.
 
 ## Submission artifacts
 
 - Detailed assessment: `docs/AAROGYA_SAATHI_PROJECT_AUDIT.md`.
-- Canonical editable deck: `output/Aarogya_Saathi_DTI_GuGu_GaGa_Readable.pptx`. Seventeen slides based on the supplied DTI template, seven native editable tables and larger fonts; all slides visually checked with zero issues. The cover is receiving a final refinement. Original and earlier generated decks remain intact; deliver the readable deck as the canonical file.
+- Canonical editable deck: `output/Aarogya_Saathi_DTI_Judge_Ready.pptx`. Seventeen slides based on the supplied DTI template, seven native editable tables and larger fonts; all slides visually checked with zero issues. The original template is preserved; three workflow screenshots and planned AI automation are included. Original and earlier generated decks remain intact; deliver the readable deck as the canonical file.
 - Team: **GuGu GaGa**, **Sharon Shaju Augustine**, **Fathima Shifana**. Team details are editable. No employer, college spelling, contact, interviews, pilot outcomes or paying customers were invented.
 - Provider setup: `docs/HACKATHON_SETUP_CHECKLIST.md` and `docs/SARVAM_CALL_DEMO_SETUP.md`.
 - Recording sequence and fallback: `docs/HACKATHON_DEMO_RUNBOOK.md` (5:50 main walkthrough and optional separately labelled provider-chat clip).
@@ -89,11 +89,11 @@ The user's saved Render `GEMINI_API_KEY` is an `AQ.` authorization key. One auth
 
 Google's current documentation supports authorization keys: https://ai.google.dev/gemini-api/docs/api-key . A prefix is not a valid reason to reject this credential. Successful local provider verification does not establish deployment of the new notepad UI or a completed patient/doctor browser journey on Render.
 
-Render now lists the saved Gemini environment variable. Codex did not trigger a redeploy. The live service and new local implementation must be verified separately after publication.
+Render deployed checkpoint **6755f77** with the saved environment configuration. The live health response reports `llm_enabled=true`, `data_backend=supabase`, `demo_mode=true` and `v2_missing=false`. This verifies configuration/readiness, not a new actual Gemini provider request from the deployed application.
 
 ## Calls and recording
 
-Existing communications code includes an AI conversation simulator, nurse-review alerts and a Sarvam outbound adapter. Google sign-in to the user's Sarvam Indus console succeeded. The corrected greeting was committed as **agent version 2**, and the real provider console chat was tested. With user approval, an API key was created and saved in Render using **Save only**, with organization/workspace metadata and version 2. The user's browser-only choice was saved as **`CALL_PROVIDER=dry_run`**. This saved configuration does not verify API authentication, redeployment, outbound calling or webhook delivery. No active phone connection or completed live outbound phone call is claimed. The user chose the browser/simulator demonstration instead of renting a number; phone rental/KYC is deferred.
+Existing communications code includes an AI conversation simulator, nurse-review alerts and a Sarvam outbound adapter. Google sign-in to the user's Sarvam Indus console succeeded. The corrected greeting was committed as **agent version 2**, and the real provider console chat was tested. With user approval, an API key was created and saved in Render using **Save only**, with organization/workspace metadata and version 2. The user's browser-only choice was saved as **`CALL_PROVIDER=dry_run`**. The saved configuration now applies to the deployed service; it does not verify outbound API authentication, calling or webhook delivery. No active phone connection or completed live outbound phone call is claimed. The user chose the browser/simulator demonstration instead of renting a number; phone rental/KYC is deferred.
 
 Demo-mode destinations are fenced to configured team routes rather than fictional patient numbers, including communications and legacy WhatsApp paths. Simulator endings use neutral acknowledgement/callback-request language rather than prescribing extra exercise after a reported concern or promising an unscheduled callback. The final combined suite passed. The recording walkthrough is in `docs/SARVAM_CALL_DEMO_SETUP.md`; keep simulator/provider mode visible in the video. A provider console chat, fixture replay and browser-phone simulator must remain separately labelled.
 
@@ -137,10 +137,18 @@ The complete local browser call simulator was verified: Ravi answered the simula
 
 1. Finish the readable deck's cover refinement and Claude-owned narrated video; review their final artifacts before submission.
 2. Complete the specific remaining browser checks in `docs/qa/CODEX_FINAL_BROWSER_QA.md`, including bed discharge/ready clicks, loaded session-source labels and any required PDF export. Department and discharge exist and are mounted; a dedicated department login remains Planned.
-3. Publish the tested build when authorized and verify the actual Render service. Preserve all schema and sample data; do not reset the live database as a setup shortcut. The final combined test run is complete.
+3. Complete any additional live browser smoke checks required for submission. Checkpoint 6755f77 is already published/deployed and its live HTTP readiness passed. Preserve all schema and sample data; do not reset the live database as a setup shortcut.
 4. Record the now browser-verified simulator call-to-nurse workflow honestly. A real Sarvam console chat can be shown as separate provider evidence; phone rental and live telephony are deferred.
 5. Real SMS OTP requires a delivery adapter and provider setup. Physical spirometer input requires firmware, transport, mounting/calibration and real-device validation. These cannot be certified by simulated tests.
 
 Locks, rate limits and consent/OTP serialization assume one application process. Production multi-worker operation needs database transactions/shared counters. Existing prescription publication is not fully transactional across replacement, dose refresh and audit writes; failures after approval can still need recovery. The reviewed-event guard is not a distributed idempotency solution. No clinical outcomes or production readiness are claimed.
 
 Department operations and discharge documents persist bounded/versioned app_settings aggregates protected by per-process locks. They need transactional database compare-and-swap/normalized tables before multiple workers. Bed operations update patient display fields separately with compensation; process termination between writes remains a risk. Discharge documents allow at most 100 history versions per patient in this prototype. Acknowledgement records reading only, not consent or clinical adherence.
+
+## Live deployment verification
+
+Render deployed **6755f77**. Live GET/readiness checks returned 200 for registration, OTP login, prescription print, patient visits, doctor day, department operations, patient care and the public hospital-choice endpoint. Health reports Supabase, demo mode true, v2 missing false and LLM enabled true. Live registry entries show bed operations Live, OTP Simulated, doctor My day Live, appointment booking Live and discharge print Live. These checks verify publication and HTTP readiness; the full local patient/doctor/nurse journeys and local sample Gemini SDK request are separate evidence. No complete live browser acceptance, new live Gemini request or Sarvam phone/API-webhook integration is claimed.
+
+## Additional live browser read checks
+
+On the deployed service, Try as Doctor opened the actual Dr. Meera My day view with the 12 October schedule loaded. Ravi's sample patient medicines screen loaded the approved schedule and print/care/visits/assigned-breathing links; AI consent was off by default. These observations verify live read/navigation behavior only. No new live prescription publication, dose report, care acknowledgement or Gemini provider request is claimed.

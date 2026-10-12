@@ -1,6 +1,6 @@
 # Final browser verification — 12 October 2026
 
-This record distinguishes observed browser behavior from automated tests. Browser observations below were reported by the parent Codex agent from the isolated local sample-data application; they do not establish that the Render deployment contains the same build.
+This record distinguishes observed browser behavior from automated tests. Browser observations below were reported by the parent Codex agent from the isolated local sample-data application; they are distinct from the live HTTP/readiness checks below; complete live browser acceptance is not claimed.
 
 ## Department operations observed in the browser
 
@@ -60,6 +60,14 @@ Complete the bed discharge/ready browser-click sequence and inspect department/o
 
 ## Provider configuration and submission artifact boundary
 
-The parent agent confirmed Sarvam's corrected greeting was committed as version 2. The approved API key and organisation/workspace/agent metadata, including version 2, were saved in Render with **Save only**. The user selected browser-only demonstration and **`CALL_PROVIDER=dry_run`** was saved. No redeploy, outbound telephone call, phone connection or application webhook delivery is implied by those saved settings.
+The parent agent confirmed Sarvam's corrected greeting was committed as version 2. The approved API key and organisation/workspace/agent metadata, including version 2, were saved in Render with **Save only**. The user selected browser-only demonstration and **`CALL_PROVIDER=dry_run`** was saved. Checkpoint 6755f77 has since deployed with the saved settings. No outbound telephone call, phone connection or application webhook delivery is implied.
 
-The canonical readable deck is `output/Aarogya_Saathi_DTI_GuGu_GaGa_Readable.pptx`: 17 slides, seven native editable tables and larger fonts, with all slides visually checked and zero issues. Its cover is receiving a final refinement. Claude owns the video with the team's own narration; target a complete video under six minutes and 100 MB, with approximately 2.5 minutes explaining the product. No completed video is claimed by this QA report.
+The canonical readable deck is `output/Aarogya_Saathi_DTI_Judge_Ready.pptx`: 17 slides, seven native editable tables and larger fonts, with all slides visually checked and zero issues. The original template is preserved, with three actual workflow screenshots and planned AI automation. Claude owns the video with the team's own narration; target a complete video under six minutes and 100 MB, with approximately 2.5 minutes explaining the product. No completed video is claimed by this QA report.
+
+## Live HTTP/readiness verification
+
+The parent agent confirmed Render deployed checkpoint **6755f77**. GET checks returned 200 for `/register.html`, `/patient-login.html`, `/prescription-print.html`, `/patient-visits.html`, `/doctor-day.html`, `/department.html`, `/my-care.html` and `/api/me/otp/hospitals`. Health reported Supabase, demo mode true, v2 missing false and LLM enabled true. Live features reported bed operations Live, OTP Simulated, doctor My day Live, appointment booking Live and discharge print Live. This is publication/readiness evidence, not complete live browser acceptance or a new actual Gemini provider request.
+
+## Additional live browser read checks
+
+On the deployed service, Try as Doctor opened the actual Dr. Meera My day view with the 12 October schedule loaded. Ravi's sample patient medicines screen loaded the approved schedule and print/care/visits/assigned-breathing links; AI consent was off by default. These observations verify live read/navigation behavior only. No new live prescription publication, dose report, care acknowledgement or Gemini provider request is claimed.
