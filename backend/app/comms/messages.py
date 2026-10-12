@@ -18,7 +18,7 @@ import re
 
 from .. import service, whatsapp
 from ..config import env, iso
-from .common import (call_name, disclosed, e164, first_name, honorific, log_event, now,
+from .common import (call_name, disclosed, e164, first_name, honorific, log_event, masked_number, now,
                      resolve_number, st, text_lang)
 
 log = logging.getLogger("spirobuddy.comms.messages")
@@ -241,6 +241,8 @@ CHEER_PRESETS = {
 # ----------------------------------------------------------------------------- intents
 
 RED_FLAG_RE = re.compile(
+    # Exact typed Tamil/Malayalam regression phrases; native review still needed.
+    r"\b(?:nenju\s+vali|moochu\s+thinaral|kaichal|nenchu\s+vedana|swasam\s+muttunnu|sahayam)\b|"
     r"chest\s*pain|can'?t\s*breathe|cannot\s*breathe|not\s*able\s*to\s*breathe|short(ness)?\s*of\s*breath|"
     r"breathless|fever|blood|bleed|faint|dizzy|unconscious|emergency|\bsos\b|\bhelp\b|"
     r"सीने में दर्द|छाती में दर्द|साँस नहीं|सांस नहीं|साँस फूल|सांस फूल|बुखार|खून|चक्कर|बेहोश|मदद|बचाओ|"
@@ -326,8 +328,8 @@ def send(patient: dict, role: str, stored_number: str | None, text: str, kind: s
          content_vars: dict | None = None) -> dict:
     """Send (or dry-run) one WhatsApp message, log it in `messages` and the timeline.
 
-    role: 'patient' | 'family' (guardian) | 'nurse'. Real sends go to the stored number if it is
-    real, otherwise to the DEMO_* number for that role (never to a placeholder).
+    role: 'patient' | 'family' (guardian) | 'nurse'. Demo sends go only to the configured
+    team route. Outside demo mode they use the recorded recipient number.
     """
     lang = text_lang(lang, "en")
     # AI disclosure first (reminders/alerts carry it in their own wording; replies get a short tag)
@@ -353,6 +355,9 @@ def send(patient: dict, role: str, stored_number: str | None, text: str, kind: s
                 res = whatsapp.send(to, real_body)      # throttles itself (≥3 s between sends)
                 mode = "text"
         _remember_result(res)
+    # messages.to_number identifies the logical recipient (guardian reply/STOP routing).
+    # This schema has no destination metadata; show the actual attempted route separately
+    # as a masked timeline hint rather than presenting the logical number as dialled.
     logged = service.log_message(patient, kind, role, stored_number or number, body,
                                  res.get("sent", False), res.get("dry_run", True))
     status = "sent" if res.get("sent") else ("dry_run" if res.get("dry_run") else "failed")
@@ -360,7 +365,9 @@ def send(patient: dict, role: str, stored_number: str | None, text: str, kind: s
     log_event(patient["id"], "guardian_whatsapp" if role == "family" else "whatsapp",
               f"WhatsApp to {to_name or who}: {kind.replace('_', ' ')}"
               + (" (would send – dry run)" if status == "dry_run" else " – failed" if status == "failed" else ""),
-              detail=text, channel="whatsapp", actor=who, to_name=to_name, status=status,
+              detail=text + "\nDelivery destination: " +
+                  (masked_number(number) or "none; simulator only"),
+              channel="whatsapp", actor=who, to_name=to_name, status=status,
               run_id=run_id, ref_id=logged.get("id"))
     out = {"sent": bool(res.get("sent")), "dry_run": bool(res.get("dry_run")), "text": body,
            "message_id": logged.get("id"), "mode": mode,

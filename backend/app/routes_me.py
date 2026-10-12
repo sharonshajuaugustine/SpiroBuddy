@@ -24,6 +24,44 @@ from .routes_auth import _end_session, _hospital, _start_session
 log = logging.getLogger("spirobuddy.me")
 router = APIRouter(tags=["patient-login"])
 
+@router.get("/api/me/otp/hospitals")
+def otp_hospitals(response: Response):
+    _no_store(response)
+    return service.store().select("hospitals", columns="id,name", order="name")
+
+
+@router.post("/api/me/otp/request")
+def otp_request(request: Request, response: Response, body: dict = Body(...)):
+    from . import patient_otp as otp
+    _no_store(response)
+    if not ratelimit.allow("otp_request", audit.client_ip(request) or "?", 20, 900):
+        raise HTTPException(429, "Please wait before requesting another code")
+    hid, number = otp.identity(body)
+    result = otp.request_code(hid, number)
+    audit.write("auth.otp_request", "hospital", hid, actor=None,
+                detail={"delivery": "simulated"}, request=request)
+    return result
+
+
+@router.post("/api/me/otp/verify")
+def otp_verify(request: Request, response: Response, body: dict = Body(...)):
+    from . import patient_otp as otp
+    _no_store(response)
+    if not ratelimit.allow("otp_verify", audit.client_ip(request) or "?", 40, 900):
+        raise HTTPException(429, "Please wait before trying again")
+    hid, number = otp.identity(body)
+    try:
+        p = otp.verify_code(hid, number, body.get("challenge_id"), body.get("code"))
+    except HTTPException:
+        audit.write("auth.otp_verify", "hospital", hid, actor=None,
+                    detail={"ok": False}, request=request)
+        raise
+    _end_session(request, authz.PATIENT_COOKIE, "patient")
+    _start_session(request, response, "patient", hid, patient_id=p["id"])
+    audit.write("auth.otp_verify", "patient", p["id"], patient_id=p["id"],
+                actor=authz.patient_actor(p), detail={"ok": True}, request=request)
+    return {"ok": True, "patient_id": p["id"], "name": p["name"], "language": p.get("language") or "en"}
+
 LOGIN_COLS = "id,name,language,hospital_id,mrn,pin_hash,pin_failed,pin_locked_until,programme_status"
 
 
@@ -129,6 +167,10 @@ def login_info(pid: int, response: Response):
     st = service.store()
     ready = pl.columns_ready(st)
     return {"patient_id": pid, "patient_name": p.get("name"),
+            "hospital_id": p.get("hospital_id") or authz.LEGACY_HOSPITAL_ID,
+            "phone_hint": "Ending " + str(p["phone"])[-2:] if p.get("phone") else "Phone number pending",
+            "breathing_enabled": (p.get("routine") or {}).get("breathing_enabled", True),
+            "can_plan_edit": authz.can(actor, "careplan.edit", pid),
             "hospital_name": _hospital(p.get("hospital_id") or authz.LEGACY_HOSPITAL_ID)["name"],
             "registration_no": pl.canonical_regno(p.get("mrn")) or None,
             "set_up": ready, "message": None if ready else pl.MSG_NOT_SET_UP,
@@ -136,6 +178,38 @@ def login_info(pid: int, response: Response):
             "locked": bool(ready and pl.is_locked(p)),
             "can_edit": authz.can(actor, "patient.edit", pid),
             "login_path": "/patient-login.html"}
+
+
+@router.put("/api/patients/{pid}/phone")
+def set_phone(pid: int, request: Request, body: dict = Body(...)):
+    import re
+    actor = authz.require("patient.edit", pid)
+    _patient_row(pid)
+    phone = body.get("phone")
+    if not isinstance(phone, str) or (phone and not re.fullmatch(r"\+?[0-9]{10,15}", phone)):
+        raise HTTPException(400, "Enter 10 to 15 digits, optionally starting with +, or leave empty")
+    from . import patient_otp as otp
+    with otp.LOCK:
+        service.store().update("patients", [("id", "eq", pid)], {"phone": phone or None})
+        p = _patient_row(pid)
+        service.store().delete("app_settings", [("key", "eq", otp._key(p.get("hospital_id") or 1, pl.canonical_regno(p.get("mrn"))))])
+    audit.write("patient.phone_update", "patient", pid, patient_id=pid, actor=actor,
+                detail={"phone_on_file": bool(phone)}, request=request)
+    return {"ok": True}
+
+
+@router.put("/api/patients/{pid}/breathing")
+def set_breathing(pid: int, request: Request, body: dict = Body(...)):
+    actor = authz.require("careplan.edit", pid)
+    p = _patient_row(pid)
+    enabled = body.get("enabled")
+    if not isinstance(enabled, bool):
+        raise HTTPException(400, "Choose whether breathing exercise is assigned")
+    routine = {**(p.get("routine") or {}), "breathing_enabled": enabled}
+    service.store().update("patients", [("id", "eq", pid)], {"routine": routine})
+    audit.write("patient.breathing_assignment", "patient", pid, patient_id=pid, actor=actor,
+                detail={"enabled": enabled}, request=request)
+    return {"ok": True, "breathing_enabled": enabled}
 
 
 @router.post("/api/patients/{pid}/pin")
@@ -171,8 +245,13 @@ def set_regno(pid: int, request: Request, body: dict = Body(...)):
     if pl.regno_taken(st, p.get("hospital_id"), number, except_pid=pid):
         raise HTTPException(400, "Another patient in this hospital already has that number")
     old = pl.canonical_regno(p.get("mrn")) or None
+    from . import patient_otp as otp
     try:
-        st.update("patients", [("id", "eq", pid)], {"mrn": number})
+        with otp.LOCK:
+            st.update("patients", [("id", "eq", pid)], {"mrn": number})
+            hid = p.get("hospital_id") or authz.LEGACY_HOSPITAL_ID
+            for changed_number in {old, number} - {None}:
+                st.delete("app_settings", [("key", "eq", otp._key(hid, changed_number))])
     except Exception as e:
         log.warning("registration number not saved: %s", str(e)[:200])
         raise HTTPException(400, "That number could not be saved - is it used by another patient?")

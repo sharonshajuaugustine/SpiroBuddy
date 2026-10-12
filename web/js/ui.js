@@ -18,6 +18,12 @@
     { group: 'Ward', href: 'dashboard.html', label: 'Dashboard', key: 'dashboard', icon: 'dashboard' },
     { group: 'Ward', href: 'dashboard.html#alerts', label: 'Alerts', key: 'alerts', icon: 'bell', count: true },
     { group: 'Ward', href: 'dashboard.html#patients-card', label: 'Patients', key: 'patient', icon: 'users' },
+    { group: 'Ward', href: 'register.html', label: 'Register patient', key: 'register', icon: 'user-check' },
+    { group: 'Ward', href: 'doctor-day.html', label: 'My day', key: 'doctor-day', icon: 'calendar', initialHidden: true },
+    { group: 'Ward', href: 'appointments.html', label: 'Appointments', key: 'appointments', icon: 'calendar', initialHidden: true },
+    { group: 'Ward', href: 'department.html', label: 'Department operations', key: 'department', icon: 'users', initialHidden: true },
+    { group: 'Ward', href: 'hospital-overview.html', label: 'Hospital overview', key: 'hospital-overview', icon: 'dashboard', initialHidden: true },
+    { group: 'Ward', href: 'branding.html', label: 'App branding', key: 'branding', icon: 'settings' },
     { group: 'Ward', href: 'units.html', label: 'Units', key: 'units', icon: 'database' },
     { group: 'Tools', href: 'demo.html', label: 'Demo panel', key: 'demo', icon: 'sliders' },
     { group: 'Tools', href: 'collect.html', label: 'Record breaths', key: 'collect', icon: 'activity' },
@@ -30,10 +36,12 @@
     { group: 'Care', key: 'home', href: '/hospital/index.html', label: 'Home', icon: 'dashboard', nurse: true },
     { group: 'Care', key: 'patients', href: '/hospital/patients.html', label: 'Patients', icon: 'users', nurse: true },
     { group: 'Care', key: 'review', href: '/hospital/review.html', label: 'Prescription review', icon: 'pill', nurse: 'confirm_prescriptions' },
-    { group: 'Care', key: 'appointments', href: '/hospital/appointments.html', label: 'Appointments', icon: 'calendar', nurse: 'manage_appointments' },
+    { group: 'Care', key: 'appointments', href: '/appointments.html', label: 'Appointments', icon: 'calendar', nurse: 'manage_appointments' },
     { group: 'Care', key: 'availability', href: '/hospital/availability.html', label: 'Availability', icon: 'clock' },
     { group: 'Hospital', key: 'keys', href: '/hospital/keys.html', label: 'Nurse keys', icon: 'key' },
     { group: 'Hospital', key: 'staff', href: '/hospital/staff.html', label: 'Staff', icon: 'user-check', roles: ['admin'] },
+    { group: 'Hospital', key: 'department', href: '/department.html', label: 'Department operations', icon: 'users', roles: ['admin'] },
+    { group: 'Hospital', key: 'hospital-overview', href: '/hospital-overview.html', label: 'Hospital overview', icon: 'dashboard', roles: ['admin'] },
     { group: 'Hospital', key: 'devices', href: '/hospital/devices.html', label: 'Devices', icon: 'cpu', nurse: true },
     { group: 'Hospital', key: 'settings', href: '/hospital/settings.html', label: 'Settings', icon: 'settings', roles: ['admin'] },
     { group: 'Hospital', key: 'governance', href: '/hospital/governance.html', label: 'Governance', icon: 'shield' },
@@ -345,7 +353,7 @@
     PAGES.forEach((p) => {
       if (p.group !== group) { html += `${group ? '</ul>' : ''}<div class="nav-group">${esc(p.group)}</div><ul>`; group = p.group; }
       const href = p.key === 'showcase' ? p.href : link(p.href);
-      html += `<li><a href="${href}" ${p.key === pageKey ? 'aria-current="page"' : ''}>${ic(p.icon)}<span>${p.label}</span>${p.count ? '<span class="nav-count" data-nav-count hidden></span>' : ''}${p.ext ? '<span class="sr-only"> (opens the 3D page)</span>' : ''}</a></li>`;
+      html += `<li${p.initialHidden ? ' hidden' : ''}><a href="${href}" ${p.key === pageKey ? 'aria-current="page"' : ''}>${ic(p.icon)}<span>${p.label}</span>${p.count ? '<span class="nav-count" data-nav-count hidden></span>' : ''}${p.ext ? '<span class="sr-only"> (opens the 3D page)</span>' : ''}</a></li>`;
     });
     return html + '</ul>';
   }
@@ -386,7 +394,7 @@
         </details>
         <span class="clock" id="ist-clock" title="India Standard Time">${ic('clock', { size: 16 })}<span id="ist-time">${istClock()}</span></span>
         <button class="icon-btn" id="theme-btn" type="button" aria-label="Switch light or dark theme" title="Light / dark theme">${themeIcon()}</button>
-        ${hosp ? '<div class="user-slot" id="user-slot"><span class="skeleton um-skel"></span></div>' : ''}
+        <div class="user-slot" id="user-slot"><span class="skeleton um-skel"></span></div>
       </div></div>${hosp ? '<div id="ribbon-slot"></div>' : ''}`;
     $('#theme-btn').addEventListener('click', () => {
       const next = currentTheme() === 'dark' ? 'light' : 'dark';
@@ -425,8 +433,18 @@
   /* hospital pages, after /api/auth/me: nav by role, user menu with Logout, hospital name, ribbon */
   function renderHospitalShell(pageKey, me, demo, loginError) {
     const nav = $('#side-nav');
-    if (nav) nav.innerHTML = hospNavHTML(pageKey, me, demo) + NAV_FOOT;
-    const siteH = $('#site-h');
+    if (nav && isHospitalPage()) nav.innerHTML = hospNavHTML(pageKey, me, demo) + NAV_FOOT;
+    if (nav && !isHospitalPage() && me) {
+      nav.querySelectorAll('a[href$="register.html"]').forEach(a => a.closest('li').hidden = !['admin','doctor'].includes(me.role));
+      nav.querySelectorAll('a[href$="branding.html"]').forEach(a => a.closest('li').hidden = me.role !== 'admin');
+      nav.querySelectorAll('a[href^="doctor-day.html"]').forEach(a => a.closest('li').hidden = me.role !== 'doctor');
+      nav.querySelectorAll('a[href^="appointments.html"]').forEach(a => a.closest('li').hidden =
+        !(['admin','doctor'].includes(me.role) || (me.role === 'nurse' && hasPerm(me, 'manage_appointments'))));
+      nav.querySelectorAll('a[href^="department.html"],a[href^="hospital-overview.html"]').forEach(a =>
+        a.closest('li').hidden = !(me.authenticated && me.kind !== 'patient' && me.role === 'admin'));
+      nav.querySelectorAll('a[href$="demo.html"],a[href$="collect.html"]').forEach(a => a.closest('li').hidden = me.role === 'nurse');
+    }
+    const siteH = $('#site-h') || $('.site-h');
     if (siteH) siteH.textContent = (me && me.hospital && me.hospital.name) || 'Hospital';
     const slot = $('#user-slot');
     if (slot) {
@@ -509,7 +527,7 @@
     SB.api.onChange((s) => { renderHealth(s); renderBanner(s); });
     await SB.api.init();
     if (document.querySelector('[data-feature]')) loadFeatures();
-    if (!hosp) return SB.api.state;
+    // All staff screens display the actual authenticated identity, including legacy pages.
     const me = await SB.auth.me();
     const staff = !!(me && me.authenticated && me.kind !== 'patient');
     if (!staff && !me.error && SB.auth.loginRedirect('/api/auth/me')) return new Promise(() => {});

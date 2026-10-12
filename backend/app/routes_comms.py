@@ -5,6 +5,7 @@ browser simulators). main.py includes `router` automatically. Docs: docs/COMMS.m
 """
 from __future__ import annotations
 
+import hmac
 import logging
 import threading
 import time
@@ -12,7 +13,7 @@ import time
 from fastapi import APIRouter, Body, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, PlainTextResponse, Response
 
-from . import llm, service, whatsapp
+from . import authz, llm, service, whatsapp
 from .comms import (alerts, audio, calls, cards, consent, escalation, guardians, messages,
                     progress, sarvam, script, seed_comms, trend)
 from .comms.common import (DISCLOSURE, call_name, consent_current, e164, first_name, has_consent, in_quiet,
@@ -40,6 +41,8 @@ def _ticker_loop():
     _ensure_seeded()
     while True:
         try:
+            from .meds import reminders
+            reminders.tick()
             escalation.tick()
             _ticker_last = time.time()
             pause = 1.0 if escalation.busy() else 4.0
@@ -214,7 +217,8 @@ def alert_action(aid: int, action: str, body: dict | None = Body(None)):
     body = body or {}
     _require_on_alert(aid)
     try:
-        a = alerts.act(aid, action, _txt(body.get("by")), body.get("minutes"), _txt(body.get("to")))
+        actor = authz.current_actor()
+        a = alerts.act(aid, action, actor.name, body.get("minutes"), actor.name if action == "assign" else None)
     except (ValueError, TypeError) as e:
         _bad(e)
     if a is None:
@@ -454,13 +458,17 @@ def call_script(pid: int):
 # ----- Twilio webhooks (TwiML)
 
 async def _twilio_form(request: Request) -> dict:
-    form = {k: v for k, v in (await request.form()).items()}
+    form = {} if request.method == "GET" else {k: v for k, v in (await request.form()).items()}
     token = env("TWILIO_AUTH_TOKEN")
-    if token and public_base() and env_flag("TWILIO_VALIDATE", "1"):
+    if token:
+        if not public_base():
+            raise HTTPException(403, "Twilio callback validation is not configured")
         from twilio.request_validator import RequestValidator
         url = public_base() + request.url.path + (f"?{request.url.query}" if request.url.query else "")
         if not RequestValidator(token).validate(url, form, request.headers.get("X-Twilio-Signature", "")):
             raise HTTPException(403, "bad Twilio signature")
+    elif not demo_mode():
+        raise HTTPException(403, "Twilio callback validation is not configured")
     return form
 
 
@@ -470,8 +478,7 @@ def _xml(s: str) -> Response:
 
 @router.api_route("/twilio/voice/{cid}", methods=["GET", "POST"])
 async def twilio_voice(cid: int, request: Request, retry: int = 0):
-    if request.method == "POST":
-        await _twilio_form(request)
+    await _twilio_form(request)
     c = calls.get_call(cid)
     if not c:
         return _xml("<Response><Hangup/></Response>")
@@ -499,7 +506,16 @@ async def twilio_status(cid: int, request: Request):
 
 # ----- Exotel webhooks (call flow applets point here with CustomField=<call id>)
 
+def _exotel_auth(request: Request) -> None:
+    """Our shared callback secret; this is not a claim of an Exotel signature format."""
+    secret = env("EXOTEL_WEBHOOK_SECRET")
+    supplied = request.headers.get("X-SpiroBuddy-Webhook-Token") or request.query_params.get("token") or ""
+    if not secret or not supplied or not hmac.compare_digest(secret.encode(), supplied.encode()):
+        raise HTTPException(403, "bad Exotel callback token")
+
+
 def _exo_call(request: Request) -> dict | None:
+    _exotel_auth(request)
     cid = request.query_params.get("CustomField") or request.query_params.get("customfield")
     try:
         return calls.get_call(int(str(cid).strip('"')))
@@ -546,6 +562,7 @@ def exotel_passthru(request: Request):
 
 @router.post("/exotel/status/{cid}")
 async def exotel_status(cid: int, request: Request):
+    _exotel_auth(request)
     form = {k: v for k, v in (await request.form()).items()}
     raw = (form.get("Status") or form.get("status") or "").lower()
     calls.provider_status(cid, {"completed": "completed", "busy": "busy", "failed": "failed",

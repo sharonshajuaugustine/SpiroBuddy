@@ -163,6 +163,13 @@ def wipe(st: Store) -> None:
     st.delete("slots", [("patient_id", "gte", 0)])
     st.delete("sessions", [("id", "gte", 0)])
     st.delete("messages", [("id", "gte", 0)])
+    if _v2_ok(st):
+        # Operational/document JSON refers to patient IDs that this reset is about to
+        # remove or reuse. Preserve unrelated application/hospital settings.
+        keys = [row["key"] for row in st.select("app_settings", columns="key")
+                if row["key"].startswith(("department_ops:", "discharge:v1:"))]
+        if keys:
+            st.delete("app_settings", [("key", "in", keys)])
     st.delete("patients", [("id", "gte", 0)])
     # breaths_labelled is real training data -> never wiped by a demo reset
 

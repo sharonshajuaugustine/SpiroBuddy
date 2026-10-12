@@ -1,5 +1,7 @@
 # Feature status – everything we discussed, checked against the code
 
+**Current status, 12 October 2026:** use [CODEX_IMPLEMENTATION_HANDOFF.md](CODEX_IMPLEMENTATION_HANDOFF.md) and the application's feature registry for the current local build. The rest of this file is the **10 October historical snapshot**, including its counts, missing artifacts and provider observations. Local completion does not establish deployment or real-provider verification.
+
 **Checked:** 10 Oct 2026, about 2:45 am IST, by the quality controller. **No code was changed.**
 
 ## Summary (5 lines)

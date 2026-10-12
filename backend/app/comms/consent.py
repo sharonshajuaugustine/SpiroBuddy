@@ -80,7 +80,7 @@ REPLY = {
 # "STOP it", "stop messages"); "I can't stop coughing" is NOT a stop. roko/ruko/band karo = typed Hindi.
 STOP_RE = re.compile(r"^\s*(?:(?:please|pls|kindly)\s+)?"
                      r"(stop|unsubscribe|रोको|रोकें|बंद करो|बंद|நிறுத்து|நிறுத்தவும்|നിർത്തുക|നിർത്തൂ|നിർത്ത്|"
-                     r"roko|ruko|band karo|bandh karo|⛔.*)"
+                     r"roko|ruko|band karo|bandh karo|niruthu|nirthu|niruththu|⛔.*)"
                      r"(?:\s+(?:please|pls|it|now|this|all|everything|messages?|calls?|sending))*"
                      r"\s*[.!।]*\s*$", re.I)
 

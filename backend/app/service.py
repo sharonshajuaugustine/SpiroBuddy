@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import csv
 import logging
+import math
 import threading
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -58,12 +59,14 @@ def norm_session(s: dict) -> dict:
 
 def public_patient(p: dict) -> dict:
     keys = ["id", "name", "age", "sex", "surgery", "surgery_date", "language", "target_ml",
-            "hold_target_s", "family_phone", "nurse_phone", "personal_best_ml"]
+            "hold_target_s", "family_phone", "nurse_phone", "personal_best_ml", "mrn", "phone",
+            "ward", "bed", "primary_doctor_id", "allergies_text"]
     out = {k: p.get(k) for k in keys}
     out["surgery_date"] = str(out["surgery_date"])[:10] if out["surgery_date"] else None
     out["personal_best_ml"] = round(_num(out["personal_best_ml"]), 1)
     out["target_ml"] = int(_num(out["target_ml"], 2000))
     out["hold_target_s"] = _num(out["hold_target_s"], 3.0)
+    out["breathing_enabled"] = (p.get("routine") or {}).get("breathing_enabled", True)
     return out
 
 
@@ -111,7 +114,15 @@ def compute_patient(p: dict, sessions: list[dict], slots: list[dict], now: datet
         by_day_sessions[s["slot_date"]].append(s)
 
     today_slots = rules.day_slots(by_day_slots.get(today, {}), today, now)
+    if not (p.get("routine") or {}).get("breathing_enabled", True):
+        today_slots = []
     basis = rules.status_day(now, today_slots)
+    if not today_slots:
+        basis = today
+    # A patient registered today has no yesterday's prescription to miss.
+    registered = parse_dt(p["created_at"]) if p.get("created_at") else None
+    if registered and registered.date().isoformat() == today:
+        basis = today
     basis_slots = today_slots if basis == today else rules.day_slots(
         by_day_slots.get(basis, {}), basis, now)
 
@@ -128,7 +139,7 @@ def compute_patient(p: dict, sessions: list[dict], slots: list[dict], now: datet
         history.append({
             "date": d,
             "best_ml": round(max([s["best_ml"] for s in ds], default=0.0), 1),
-            "sessions_done": len(ds),
+            "sessions_done": sum(1 for s in ds if (s.get("breaths_count") or 0) >= 10),
             "avg_score": round(sum(s["avg_score"] for s in ds) / len(ds), 1) if ds else None,
         })
     recent = [h["best_ml"] for h in history[4:] if h["best_ml"]]
@@ -165,7 +176,7 @@ def compute_patient(p: dict, sessions: list[dict], slots: list[dict], now: datet
 
 LIST_KEYS = ["id", "name", "age", "sex", "surgery", "surgery_date", "language", "target_ml",
              "status", "done_today", "due_today", "best_today", "personal_best_ml", "trend",
-             "last_session_at", "status_reasons", "status_basis", "hold_target_s", "red_flag_open"]
+             "last_session_at", "status_reasons", "status_basis", "hold_target_s", "red_flag_open", "mrn", "ward", "bed", "breathing_enabled"]
 
 
 def visible_ids() -> set[int] | None:
@@ -227,15 +238,21 @@ def record_session(patient: dict, started_at, breaths: list[dict], source: str =
     """Store a session + its breaths, tick the slot. Breaths without label/score get them here."""
     from . import models_ml
     st = store()
+    if not isinstance(breaths, list) or not 1 <= len(breaths) <= 100:
+        raise ValueError("a session needs 1 to 100 breaths; empty sessions cannot be saved")
     started = parse_dt(started_at)
+    if started > now_local() + timedelta(minutes=5):
+        raise ValueError("session time cannot be in the future")
     target = _num(patient.get("target_ml"), 2000) or 2000
     hold_t = _num(patient.get("hold_target_s"), 3) or 3
     clean = []
     for i, b in enumerate(breaths):
         feats = rules.clean_features(b.get("features") or {})
-        label = b.get("label") if b.get("label") in LABELS else models_ml.classify(feats)["label"]
-        sc = b.get("score")
-        sc = round(float(sc), 1) if isinstance(sc, (int, float)) else rules.score(feats, target, hold_t)
+        if any(not math.isfinite(v) or v < 0 for v in feats.values()) or feats["peak_ml"] <= 0 \
+                or feats["time_to_peak_s"] <= 0 or feats["duration_s"] < feats["time_to_peak_s"]:
+            raise ValueError("each breath needs finite, non-negative movement features and a valid duration")
+        label = models_ml.classify(feats)["label"]
+        sc = rules.score(feats, target, hold_t)
         t = b.get("t")
         t = int(t) if isinstance(t, (int, float)) else int(started.timestamp() * 1000) + i * 15000
         clean.append({"t": t, "features": feats, "label": label, "score": sc})
@@ -250,8 +267,11 @@ def record_session(patient: dict, started_at, breaths: list[dict], source: str =
     sid = sess["id"]
     if clean:
         st.insert("breaths", [{"session_id": sid, "patient_id": patient["id"], **b} for b in clean])
-    st.upsert("slots", [{"patient_id": patient["id"], "slot_date": slot_date,
-                         "slot_hour": slot_hour, "status": "done", "session_id": sid}])
+    # A partial exercise remains in the history but must not complete the hourly task.
+    complete = len(clean) >= 10
+    if complete:
+        st.upsert("slots", [{"patient_id": patient["id"], "slot_date": slot_date,
+                             "slot_hour": slot_hour, "status": "done", "session_id": sid}])
     # Compare with the value in the store NOW (under a lock), not the copy read when the request
     # started: two sessions arriving together must never lower the personal best (lost update).
     with _best_lock:
@@ -262,7 +282,7 @@ def record_session(patient: dict, started_at, breaths: list[dict], source: str =
     for b in clean:
         counts[b["label"]] += 1
     return {"session_id": sid, "slot_hour": slot_hour, "slot_date": slot_date,
-            "slot_status": "done", "best_ml": round(best, 1), "avg_score": avg,
+            "slot_status": "done" if complete else "partial", "best_ml": round(best, 1), "avg_score": avg,
             "label_counts": counts, "breaths": clean}
 
 

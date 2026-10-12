@@ -81,7 +81,7 @@ def test_landing_leads_with_the_hospital_to_patient_link_and_the_two_pillars():
 def test_landing_links_and_hero_follow_the_founder_overrides():
     html = _text(WEB / "index.html")
     assert 'href="/login.html?next=/dashboard.html"' in html
-    assert 'href="/app.html?id=1"' in html
+    assert 'href="/patient-login.html"' in html
     assert "Open the patient app</a>" in html and "Hospital login (sample logins shown)" in html
     assert "/showcase/videos/hero.mp4" in html and "Open the 3D showroom" in html and 'href="/showcase/"' in html
     assert "<iframe" not in html and "twin.html" not in html          # no twin page tonight
@@ -129,8 +129,9 @@ def test_vision_has_the_required_sections():
 def test_trust_has_the_verbatim_texts_and_the_demo_note():
     html = _text(WEB / "trust.html")
     assert DISCLAIMER in html
-    assert ("In the demo only sample prescriptions are sent to Google's Gemini API. Real-patient use needs ethics "
-            "approval, a paid or enterprise data agreement and a data-residency review (Planned).") in html
+    assert "with Gemini when a provider is configured and patient consent is recorded" in html
+    assert "Without either, staff use manual entry." in html
+    assert "Document uploads remain In development." in html
     assert "None of these steps has been done: a real pilot is Planned." in html
     data = json.loads(_text(WEB / "data" / "trust.json"))
     assert len(data["safe_rules"]) == 10 and len(data["checklist"]) == 14

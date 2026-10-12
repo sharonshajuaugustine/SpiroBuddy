@@ -12,7 +12,7 @@
   const QR_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const ic = (n, o) => (window.SB && SB.icon ? SB.icon(n, o) : '');
-  const loginUrl = () => location.origin + '/patient-login.html';
+  const loginUrl = () => location.origin + '/patient-pin.html';
 
   let info = null, fresh = null, busy = false, msg = null, ownOpen = false;
 
@@ -93,7 +93,11 @@
     const canMake = info.set_up && info.can_edit && !busy;
     host.innerHTML = `
       <div class="card-head"><h2 id="plc-h">${ic('lock')} Patient login</h2><div class="spacer"></div><span class="muted" id="plc-status">${esc(status)}</span></div>
-      <p class="plc-note" style="margin-top:0">The patient opens <b>/patient-login.html</b> and types this number and a 6-digit PIN.</p>
+      <p class="plc-note" style="margin-top:0">The patient uses their hospital number and a phone code. Delivery is <b>Simulated</b>. <a href="patient-login.html?hospital=${info.hospital_id || 1}">Open patient login</a></p>
+      <p>${esc(info.phone_hint || 'Phone number pending')}</p>
+      ${info.can_edit ? '<label>Registered phone number<input id="plc-phone" type="tel" placeholder="Enter a new number, or leave blank" maxlength="16"></label><button class="btn sm" id="plc-save-phone" type="button">Save registered phone</button>' : ''}
+      <p class="small">The reusable hospital PIN below is a fallback. It is not a one-time code.</p>
+      ${info.can_plan_edit ? `<label><input type="checkbox" id="plc-breathing"${info.breathing_enabled ? ' checked' : ''}> Breathing exercise assigned (Simulated input)</label><button class="btn sm" id="plc-save-breathing" type="button">Save breathing assignment</button>` : ''}
       <div class="plc-no"><span class="muted">Hospital registration number</span><b id="plc-no">${no ? esc(no) : 'not made yet'}</b></div>
       ${!info.set_up ? `<div class="form-msg bad plc-msg" role="alert">${esc(info.message || 'This login is not set up yet.')} The database update (supabase/schema_v2.sql) has not been run.</div>` : ''}
       <div class="plc-row">
@@ -113,6 +117,24 @@
             <button class="btn" id="plc-hide" type="button">Hide the PIN</button></div>
         </div>` : ''}`;
     const make = host.querySelector('#plc-make');
+    const phone = host.querySelector('#plc-save-phone');
+    const breathing = host.querySelector('#plc-save-breathing');
+    if (breathing) breathing.addEventListener('click', async () => {
+      if (busy) return;
+      const enabled = host.querySelector('#plc-breathing').checked;
+      busy = true; breathing.disabled = true;
+      try {await call('PUT', '/api/patients/' + encodeURIComponent(pid) + '/breathing', {enabled});await load();}
+      catch(e){msg=e.message;render();}
+      finally{busy=false;render();}
+    });
+    if (phone) phone.addEventListener('click', async () => {
+      if (busy) return;
+      const value = host.querySelector('#plc-phone').value.trim();
+      busy = true; phone.disabled = true;
+      try { await call('PUT', '/api/patients/' + encodeURIComponent(pid) + '/phone', {phone: value}); await load(); }
+      catch (e) { msg = e.message; render(); }
+      finally {busy = false; render();}
+    });
     if (make) make.addEventListener('click', makePin);
     const own = host.querySelector('#plc-own-btn');
     if (own) own.addEventListener('click', () => { ownOpen = !ownOpen; msg = null; render(); const i = host.querySelector('#plc-own-in'); if (i) i.focus(); });

@@ -19,13 +19,14 @@ _SECRET_KEYS = {"key", "code"}
 
 
 def client_ip(request) -> str | None:
-    """The caller's address: the first hop of X-Forwarded-For (Render's proxy), else the socket."""
+    """Authoritative socket address, after any server-configured trusted proxy handling.
+
+    Client-supplied forwarding headers must not create a new rate-limit identity.
+    Deployment proxy trust belongs in the ASGI server, not in application header parsing.
+    """
     if request is None:
         return None
     try:
-        fwd = (request.headers.get("x-forwarded-for") or "").split(",")[0].strip()
-        if fwd:
-            return fwd[:64]
         return request.client.host if request.client else None
     except Exception:
         return None

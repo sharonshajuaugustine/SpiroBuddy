@@ -299,12 +299,8 @@ def test_guardian_tokens_are_not_listed_where_they_are_not_needed(fresh):
         assert not leaked, f"{url} lists guardian link tokens: {leaked}"
 
 
-@pytest.mark.xfail(strict=True, reason="OPEN (fix before real patients): the nurse API has no login, so "
-                   "GET /api/comms/care/{pid} and /api/comms/patient/{pid} hand every family link token, "
-                   "phone number and health detail to anyone who can reach the server "
-                   "(backend/app/routes_comms.py care() and patient_comms()). Fine for a fake-patient demo.")
-def test_open_nurse_api_needs_a_login_before_real_patients(raw):
-    assert raw.get(f"{C}/care/1").status_code in (401, 403)
+def test_open_nurse_api_needs_a_login_before_real_patients(anon):
+    assert anon.get(f"{C}/care/1").status_code == 401
 
 
 # ----- webhooks: Sarvam voice agent
@@ -407,11 +403,6 @@ def test_twilio_webhooks_forged_are_refused_and_signed_ones_accepted(fresh, raw,
     assert fresh.get(f"{C}/care/1").json()["settings"]["consent_ok"] is False
 
 
-@pytest.mark.xfail(strict=True, reason="OPEN (should fix): with TWILIO_AUTH_TOKEN set but PUBLIC_BASE_URL empty "
-                   "the Twilio signature is not checked at all (backend/app/routes_comms.py _twilio_form, the "
-                   "`if token and public_base()` line). On Render PUBLIC_BASE_URL is filled in automatically, so "
-                   "this only bites a local run behind a tunnel. Not fixed: failing closed could break the live "
-                   "WhatsApp demo on a laptop.")
 def test_twilio_signature_is_checked_even_without_public_base_url(raw, monkeypatch):
     _twilio_env(monkeypatch, base="")
     try:
@@ -421,19 +412,12 @@ def test_twilio_signature_is_checked_even_without_public_base_url(raw, monkeypat
         raw.put(f"{C}/care/1", json={"consent": True})         # undo what the forged STOP did
 
 
-@pytest.mark.xfail(strict=True, reason="OPEN (fix before real patients): GET /api/comms/twilio/voice/{id} skips the "
-                   "signature check that the POST form has (backend/app/routes_comms.py twilio_voice, "
-                   "`if request.method == 'POST'`), so anyone can mark a ringing call as answered.")
 def test_twilio_voice_get_is_also_signature_checked(raw, monkeypatch):
     _twilio_env(monkeypatch)
     call = _ringing_patient_call(raw, 5)
     assert raw.get(f"{C}/twilio/voice/{call['id']}").status_code == 403
 
 
-@pytest.mark.xfail(strict=True, reason="OPEN (fix before real patients): the Exotel call webhooks have no secret or "
-                   "signature at all (backend/app/routes_comms.py exotel_greeting / exotel_gather / exotel_passthru / "
-                   "exotel_status). Call ids are small counting numbers, so a stranger can 'press 1' for a "
-                   "patient and stop a ladder. Exotel is not used in the demo.")
 def test_exotel_webhooks_need_a_secret(raw, monkeypatch):
     monkeypatch.setenv("EXOTEL_API_KEY", "k")
     monkeypatch.setenv("EXOTEL_API_TOKEN", "t")
@@ -601,7 +585,7 @@ ODD = [
     ("PUT", "/api/patients/99999999999999999999999", (400, 404, 422)),
     ("GET", "/api/patients/1/sessions?limit=0", (422,)), ("GET", "/api/patients/1/sessions?limit=abc", (422,)),
     ("GET", "/api/patients/1/sessions?limit=999999", (422,)), ("GET", "/api/patients/999999/sessions", (404,)),
-    ("DELETE", "/api/patients/1", (405,)), ("PATCH", "/api/patients/1", (405,)), ("POST", "/api/patients", (405,)),
+    ("DELETE", "/api/patients/1", (405,)), ("PATCH", "/api/patients/1", (405,)), ("POST", "/api/patients", (422,)),
     ("DELETE", "/api/health", (405,)), ("PUT", "/api/demo/reset", (405,)), ("DELETE", "/api/messages", (405,)),
     ("GET", "/api/messages?limit=-1", (422,)), ("GET", "/api/nope", (404,)), ("POST", "/api/nope", (404, 405)),
     ("POST", "/api/summary/999999", (404,)), ("POST", "/api/summary/abc", (422,)), ("POST", "/api/whatsapp/-1", (404,)),
@@ -691,14 +675,14 @@ def test_ordinary_replies_are_not_red_flags(text):
     assert messages.detect_intent(text, "patient") != "red_flag"
 
 
-@pytest.mark.xfail(strict=True, reason="OPEN (fix before real patients): Tamil and Malayalam typed in English letters "
-                   "('nenju vali', 'swasam muttunnu') are not in the red-flag lists; only typed Hindi is "
-                   "(backend/app/voice.py RED_FLAG_WORDS 'hi_latn', backend/app/comms/messages.py RED_FLAG_RE). "
-                   "Needs word lists from native speakers.")
 @pytest.mark.parametrize("text", ["nenju vali", "moochu thinaral", "kaichal", "nenchu vedana", "swasam muttunnu", "sahayam"])
 def test_typed_tamil_and_malayalam_red_flags(text):
+    from backend.app import voice
     from backend.app.comms import messages
+    assert voice.red_flag(text)
+    assert messages.RED_FLAG_RE.search(text)
     assert messages.detect_intent(text, "patient") == "red_flag"
+    assert messages.detect_intent(text, "guardian") == "red_flag"
 
 
 def test_red_flag_gets_the_fixed_message_and_an_alert_in_all_four_languages(fresh):
@@ -805,13 +789,11 @@ def test_stop_is_not_triggered_by_accident_and_never_hides_a_red_flag(text, expe
     assert messages.detect_intent(text, "patient") == expect
 
 
-@pytest.mark.xfail(strict=True, reason="OPEN (fix before real patients): STOP typed in English letters for Tamil / "
-                   "Malayalam ('niruthu', 'nirthu') is not understood (backend/app/comms/consent.py STOP_RE). "
-                   "Needs spellings from native speakers. The word STOP itself works for everyone.")
 @pytest.mark.parametrize("word", ["niruthu", "nirthu", "niruththu"])
 def test_typed_tamil_and_malayalam_stop_words(word):
     from backend.app.comms import messages
     assert messages.detect_intent(word, "patient") == "stop"
+    assert messages.detect_intent(word, "guardian") == "stop"
 
 
 def test_after_patient_stop_nothing_automated_reaches_the_patient(fresh):
@@ -1260,25 +1242,33 @@ def test_store_dying_mid_run_gives_a_json_error_and_recovers(raw, monkeypatch):
                               ("GET", f"{C}/guardian/{DEMO_TOKEN}", None),
                               ("POST", f"{C}/wa/reply", {"patient_id": 1, "text": "chest pain"})):
         r = raw.request(method, url, json=body)
-        assert r.status_code in (500, 503), f"{url}: {r.status_code}"
+        assert r.status_code == 503, f"{url}: {r.status_code}"
         err = r.json()                                       # still our JSON error shape, not a dead connection
-        assert err["status"] == r.status_code and "database connection lost" in err["error"]
+        assert err["status"] == r.status_code and "temporarily unavailable" in err["error"]
+        assert "database connection lost" not in r.text and "ConnectionError" not in r.text
     assert raw.get("/api/health").status_code == 200           # the health check never needs the database
     assert raw.get("/index.html").status_code == 200           # and the pages still load
     monkeypatch.setattr(service, "_store", good)
     assert len(raw.get("/api/patients").json()) == n            # back as soon as the store is back
 
 
-@pytest.mark.xfail(strict=True, reason="OPEN (fix before real patients): if the database drops while the server is "
-                   "running, requests answer HTTP 500 with the raw Python error text "
-                   "(backend/app/main.py server_error returns f'{type(exc).__name__}: {exc}'). It should be a 503 "
-                   "with a plain message, must not show internal details to the browser, and a red-flag message "
-                   "that arrives during the outage gets no '112' reply.")
 def test_store_outage_is_a_503_with_a_plain_message(raw, monkeypatch):
     from backend.app import service
     monkeypatch.setattr(service, "_store", _BrokenStore())
     r = raw.get("/api/patients")
     assert r.status_code == 503 and "ConnectionError" not in r.text
+    assert r.json()=={'error':'The service is temporarily unavailable. Please try again shortly.','status':503}
+
+
+def test_unexpected_handler_error_has_neutral_response(raw,monkeypatch):
+    from backend.app import service
+    def broken(): raise ValueError('private database path and credential details')
+    monkeypatch.setattr(service,'list_patients',broken)
+    r=raw.get('/api/patients')
+    assert r.status_code==500
+    assert r.json()=={'error':'Something went wrong. Please try again.','status':500}
+    assert 'private' not in r.text and 'ValueError' not in r.text
+    assert r.headers['X-Content-Type-Options']=='nosniff'
 
 
 # ----- malformed bodies on every write route
@@ -1514,7 +1504,8 @@ def test_two_sessions_arriving_together_never_lower_the_personal_best(raw):
     from backend.app import service
 
     def breath(peak):
-        return {"features": {"peak_ml": peak, "hold_s": 3, "max_rise_ml_s": 600, "pct_target": 0.9}}
+        return {"features": {"peak_ml": peak, "hold_s": 3, "max_rise_ml_s": 600, "pct_target": 0.9,
+                             "time_to_peak_s": 4, "duration_s": 9}}
     stale = service.get_patient_row(2)
     top = float(stale["personal_best_ml"]) + 900
     service.record_session(dict(stale), None, [breath(top)], source="device")
@@ -1528,7 +1519,8 @@ def test_same_patient_hammered_from_twenty_threads_keeps_every_write(raw):
     codes = []
 
     def post(i):
-        r = raw.post("/api/sessions", json={"patient_id": 3, "breaths": [{"features": {"peak_ml": base + i}}]})
+        r = raw.post("/api/sessions", json={"patient_id": 3, "breaths": [{"features": {
+            "peak_ml": base + i, "time_to_peak_s": 4, "duration_s": 9}}]})
         codes.append(r.status_code)
         return raw.post(f"{C}/wa/reply", json={"patient_id": 3, "role": "patient", "text": "status"}).status_code
     with ThreadPoolExecutor(max_workers=20) as pool:

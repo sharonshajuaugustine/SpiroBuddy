@@ -17,11 +17,12 @@ from __future__ import annotations
 
 import logging
 from datetime import timedelta
+from urllib.parse import urlencode
 
-from ..config import env, iso
+from ..config import demo_mode, env, iso
 from . import audio
 from .common import (call_name, first_name, lang_of, log_event, now, public_base,
-                     resolve_number, st, to_dt)
+                     masked_number, resolve_number, st, to_dt)
 
 log = logging.getLogger("spirobuddy.comms.calls")
 
@@ -42,7 +43,7 @@ def twilio_ready() -> bool:
 
 def exotel_ready() -> bool:
     return bool(env("EXOTEL_SID") and env("EXOTEL_API_KEY") and env("EXOTEL_API_TOKEN")
-                and env("EXOTEL_CALLER_ID"))
+                and env("EXOTEL_CALLER_ID") and env("EXOTEL_WEBHOOK_SECRET"))
 
 
 def sarvam_ready() -> bool:
@@ -194,7 +195,7 @@ def public_call(c: dict) -> dict:
                         if style == "agent" and not meta.get("result") else []),
             "id": c.get("id"), "patient_id": c.get("patient_id"), "run_id": c.get("run_id"),
             "guardian_id": c.get("guardian_id"), "to_role": c.get("to_role"),
-            "to_name": c.get("to_name"), "to_number": c.get("to_number"),
+            "to_name": c.get("to_name"), "to_number": masked_number(c.get("to_number")),
             "purpose": c.get("purpose"), "provider": c.get("provider"),
             "status": c.get("status"), "digits": c.get("digits"), "outcome": c.get("outcome"),
             "language": lang, "browser_lang": BROWSER_LANG[lang], "script": c.get("script"),
@@ -257,10 +258,11 @@ def place_call(patient: dict, purpose: str, to_role: str, to_name: str, stored_n
     audio_url = audio.tts_url(script, lang)
     row = {"patient_id": patient["id"], "run_id": run_id,
            "guardian_id": (guardian or {}).get("id"), "to_role": to_role, "to_name": to_name,
-           "to_number": stored_number or number, "purpose": purpose, "provider": prov,
+           "to_number": number, "purpose": purpose, "provider": prov,
            "provider_sid": None, "status": "ringing" if prov == "dry_run" else "queued",
            "digits": None, "outcome": None, "language": lang, "script": script,
-           "meta": {"audio_url": audio_url, "note": note, "missed": missed},
+           "meta": {"audio_url": audio_url, "note": note, "missed": missed,
+                    "stored_number": stored_number},
            "ring_until": iso(t + timedelta(seconds=ring_s)), "created_at": iso(t),
            "updated_at": iso(t)}
     call = st().insert("calls", [row])[0]
@@ -306,11 +308,12 @@ def _place_checkin(patient: dict, to_name: str, stored_number: str | None, lang:
         prov, note = "dry_run", "no real number for this person (demo placeholder) – simulator only"
     t = now()
     row = {"patient_id": patient["id"], "run_id": run_id, "guardian_id": None, "to_role": "patient",
-           "to_name": to_name, "to_number": stored_number or number, "purpose": "checkin",
+           "to_name": to_name, "to_number": number, "purpose": "checkin",
            "provider": prov, "provider_sid": None,
            "status": "ringing" if prov == "dry_run" else "queued", "digits": None, "outcome": None,
            "language": lang, "script": script,
            "meta": {"style": "agent", "note": note, "missed": missed, "stage": 0,
+                    "stored_number": stored_number,
                     "result_pending": True, "audio_url": audio.tts_url(script, lang)},
            "ring_until": iso(t + timedelta(seconds=ring_s if prov == "dry_run" else 90)),
            "created_at": iso(t), "updated_at": iso(t)}
@@ -360,16 +363,23 @@ def _exotel_base() -> str:
     return f"https://{sub}/v1/Accounts/{env('EXOTEL_SID')}"
 
 
+def _exotel_status_url(cid: int) -> str:
+    return f"{public_base()}/api/comms/exotel/status/{cid}?" + urlencode(
+        {"token": env("EXOTEL_WEBHOOK_SECRET")})
+
+
 def _exotel_call(cid: int, number: str, ring_s: int) -> str | None:
     """Exotel 'connect a number to a call flow': the flow's Greeting/Gather/Passthru applets
     call our /api/comms/exotel/* endpoints with CustomField=<call id>."""
     import httpx
+    if not env("EXOTEL_WEBHOOK_SECRET"):
+        return "Exotel callback authentication is not configured"
     base = public_base()
     data = {"From": number, "CallerId": env("EXOTEL_CALLER_ID"),
             "Url": f"http://my.exotel.com/{env('EXOTEL_SID')}/exoml/start_voice/{env('EXOTEL_APP_ID')}",
             "CallType": "trans", "TimeLimit": "300", "TimeOut": str(ring_s),
             "CustomField": str(cid),
-            "StatusCallback": f"{base}/api/comms/exotel/status/{cid}"}
+            "StatusCallback": _exotel_status_url(cid)}
     try:
         r = httpx.post(f"{_exotel_base()}/Calls/connect.json", data=data,
                        auth=(env("EXOTEL_API_KEY"), env("EXOTEL_API_TOKEN")), timeout=15)
@@ -579,7 +589,8 @@ def click_to_call(patient: dict, nurse_name: str, nurse_phone: str | None, cfg: 
     patient (nobody sees the other's personal number). Dry run: logged for the demo."""
     from .common import e164
     t = now()
-    nurse_num = e164(nurse_phone) or nurse_desk_number()
+    nurse_num = (resolve_number(nurse_phone, "nurse") if demo_mode()
+                 else e164(nurse_phone) or nurse_desk_number())
     pat_num = resolve_number(cfg.get("patient_phone"), "patient")
     prov, note = provider()
     if prov == "exotel" and (not nurse_num or not pat_num):
@@ -594,11 +605,13 @@ def click_to_call(patient: dict, nurse_name: str, nurse_phone: str | None, cfg: 
     lang = lang_of(patient.get("language"), "en")
     row = {"patient_id": patient["id"], "run_id": None, "guardian_id": None,
            "to_role": "patient", "to_name": patient["name"],
-           "to_number": cfg.get("patient_phone") or pat_num, "purpose": "nurse_bridge",
+           "to_number": pat_num, "purpose": "nurse_bridge",
            "provider": prov, "provider_sid": None,
            "status": "completed" if prov == "dry_run" else "queued", "digits": None,
            "outcome": "dry_run" if prov == "dry_run" else None, "language": lang,
-           "script": f"{nurse_name} → {patient['name']}", "meta": {"nurse": nurse_name, "note": note},
+           "script": f"{nurse_name} → {patient['name']}", "meta": {"nurse": nurse_name,
+                "note": note, "stored_number": cfg.get("patient_phone"),
+                "stored_nurse_number": nurse_phone, "nurse_destination": nurse_num},
            "ring_until": None, "created_at": iso(t), "updated_at": iso(t)}
     call = st().insert("calls", [row])[0]
     err = None
@@ -623,7 +636,7 @@ def click_to_call(patient: dict, nurse_name: str, nurse_phone: str | None, cfg: 
             data = {"From": nurse_num, "To": pat_num, "CallerId": env("EXOTEL_CALLER_ID"),
                     "CallType": "trans", "CustomField": str(call["id"])}
             if public_base():
-                data["StatusCallback"] = f"{public_base()}/api/comms/exotel/status/{call['id']}"
+                data["StatusCallback"] = _exotel_status_url(call['id'])
             r = httpx.post(f"{_exotel_base()}/Calls/connect.json", data=data,
                            auth=(env("EXOTEL_API_KEY"), env("EXOTEL_API_TOKEN")), timeout=15)
             if r.status_code >= 400:

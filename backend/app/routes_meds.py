@@ -3,7 +3,8 @@ medicines (Contract K /api/me/*). Logic lives in backend/app/meds/.
 
 The doctor types a prescription; saving it issues it. The patient sees it on their phone, shows a
 pharmacy screen at the counter, and the pharmacist can scan a QR to check the hospital's copy.
-There is no photo upload and no AI here.
+The optional notepad helper prepares a draft; the doctor explicitly reviews and issues it.
+There is no photo upload in these routes.
 
 Who may do what (REBUILD_PLAN 3.3): rx.create = doctors only (admins, nurses and patients get 403);
 reading = patient.view; a patient reports a dose with dose.report on their own id. The middleware
@@ -42,12 +43,43 @@ def _rx_body(rx_id: int) -> dict:
 
 # ---------------------------------------------------------------------------- staff
 
+@router.post("/api/patients/{pid}/prescriptions/draft-text")
+def notepad_draft(pid: int, request: Request, body: dict = Body(...)):
+    actor = authz.require("rx.create", pid)
+    patient = _patient(pid)
+    text = body.get("text")
+    if not isinstance(text, str) or not text.strip() or len(text) > 6000:
+        raise HTTPException(400, "Enter a prescription note of up to 6,000 characters")
+    from .meds import notepad
+    return notepad.draft(text, actor.hospital_id, pid, audit.client_ip(request))
+
 @router.post("/api/patients/{pid}/prescriptions")
 def issue_prescription(pid: int, request: Request, body: dict = Body(...)):
     """The doctor types the lines; saving issues it at once. -> {prescription, items, warnings}.
     `replaces` (a current prescription id) makes the old one history ("replaced")."""
     actor = authz.require("rx.create", pid)
     patient = _patient(pid)
+    draft_event = None
+    if body.get("draft_event_id") is not None:
+        try:
+            event_id = int(body["draft_event_id"])
+        except (TypeError, ValueError):
+            raise HTTPException(400, "Invalid draft reference")
+        events = core.store().select("ai_events", [("id", "eq", event_id),
+            ("patient_id", "eq", pid), ("hospital_id", "eq", actor.hospital_id),
+            ("purpose", "eq", "rx_notepad")], limit=1)
+        if not events or not events[0].get("ok"):
+            raise HTTPException(404, "Draft not found")
+        draft_event = events[0]
+        if draft_event.get("reviewed_by") is not None:
+            raise HTTPException(409, "This draft has already been issued. Prepare a new draft to prescribe again.")
+        lines = body.get("lines")
+        if not isinstance(lines, list) or not lines:
+            raise HTTPException(400, "Review each medicine before issuing the draft")
+        for line in lines:
+            if not isinstance(line, dict) or any(not isinstance(line.get(field), str) or not line[field].strip()
+                    for field in ("drug_name", "form", "dose_unit", "frequency_raw", "food_timing")):
+                raise HTTPException(400, "Review the medicine form, dose unit, timing and food instructions before issuing")
     try:
         rx, warnings = meds.create_prescription(
             patient, actor.id, body.get("lines"), prescribed_on=body.get("prescribed_on"),
@@ -63,6 +95,15 @@ def issue_prescription(pid: int, request: Request, body: dict = Body(...)):
     if rx["supersedes_id"]:
         audit.write("rx.replace", "prescription", rx["supersedes_id"], patient_id=pid, actor=actor,
                     request=request, detail={"replaced_by": rx["id"]})
+    if draft_event:
+        from . import ai_register
+        original = (draft_event.get("output") or {}).get("lines") or []
+        approved = body.get("lines") or []
+        fields = ("drug_name", "strength", "form", "dose_qty", "dose_unit", "frequency_raw", "duration_days", "food_timing", "instructions")
+        edited = sum(1 for i, line in enumerate(approved) if i >= len(original) or
+            any(str(line.get(f) or "") != str(original[i].get(f) or "") for f in fields))
+        ai_register.record_review(draft_event["id"], actor.id, "edited" if edited else "approved",
+            len(approved), edited, max(0, len(original)-len(approved)))
     return {"prescription": rx, "items": rx["lines"], "warnings": warnings, "document": None}
 
 
@@ -146,6 +187,8 @@ def me_medicines():
     authz.require("patient.view", pid)
     p = _patient(pid)
     meds.refresh_doses(pid)
+    from .meds import reminders
+    reminders.tick()
     m = meds.medicines_for(pid)
     newest = m["current"][0] if m["current"] else None
     hosp = meds._hospital(p.get("hospital_id") or authz.LEGACY_HOSPITAL_ID)
@@ -156,6 +199,7 @@ def me_medicines():
         "doctor": newest["doctor"]["name"] if newest else None,
         "has_prescription": bool(newest), "issued_on": newest["issued_on"] if newest else None,
         "today": meds.today_doses(pid), "active": m["active"], "as_needed": m["as_needed"],
+        "breathing_enabled": (p.get("routine") or {}).get("breathing_enabled", True),
         "now": iso(now_local()), "demo": demo_mode()}
 
 

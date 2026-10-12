@@ -35,7 +35,7 @@ os.environ.update({
 })
 for key in ("ANTHROPIC_API_KEY", "SARVAM_API_KEY", "TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN",
             "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "EXOTEL_API_KEY", "EXOTEL_API_TOKEN",
-            "SARVAM_AGENT_ID", "GEMINI_API_KEY"):
+            "SARVAM_AGENT_ID", "GEMINI_API_KEY", "EXOTEL_WEBHOOK_SECRET"):
     os.environ[key] = ""
 
 # A test that starts a whole new server process (test_critical.py) can't use the fixtures
@@ -140,10 +140,19 @@ def login_as(client):
 
 @pytest.fixture()
 def patient_client(client):
-    """patient_client(pid) -> a NEW client with a patient-app session (DEMO_MODE id shortcut)."""
+    """A patient client using a hospital-issued personal token, including newly registered rows."""
     def make(pid: int):
+        import secrets
+        from backend.app import authz, ratelimit, service
+        # The store keeps hashes only, so issue a fresh fixture token rather than guessing
+        # the doctor's original secret or relying on the public seeded-id demo shortcut.
+        token = secrets.token_urlsafe(32)
+        assert service.get_patient_row(pid), f"patient {pid} not found"
+        service.store().update("patients", [("id", "eq", pid)],
+            {"app_token_hash": authz.hash_token(token), "app_token_hint": token[-4:]})
+        ratelimit.reset("patient_session")  # fixture setup, like login_as resets its login bucket
         c = _new_client()
-        r = c.post("/api/me/session", json={"patient_id": pid})
+        r = c.post("/api/me/session", json={"token": token})
         assert r.status_code == 200, r.text
         return c
     return make

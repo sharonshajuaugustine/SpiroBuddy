@@ -88,11 +88,11 @@
     };
 
     /* After login go back to ?next – same-site paths only ("/x", never "//x" or "/\x"), so no open redirect. */
-    function nextPath() {
+    function nextPath(role) {
       const n = q.get('next') || '';
-      return /^\/(?![\/\\])\S*$/.test(n) && !/^\/login\.html/.test(n) ? n : '/dashboard.html';
+      return /^\/(?![\/\\])\S*$/.test(n) && !/^\/login\.html/.test(n) ? n : role === 'doctor' ? '/doctor-day.html' : '/dashboard.html';
     }
-    const go = () => location.assign(SB.ui.link(nextPath()));
+    const go = async () => { const me = await SB.auth.me(); location.assign(SB.ui.link(nextPath(me.role))); };
 
     /* ---------- messages ---------- */
     function errorText(e) {
@@ -133,7 +133,7 @@
       try {
         const res = await SB.auth.login(email, password);
         if (res && res.ok === false) throw new SB.api.ApiError(401, res.error || 'wrong email or password');
-        go();                                   // keep the button busy while the next page loads
+        await go();                             // keep the button busy while the next page loads
       } catch (e) {
         setBusy(btn, false);
         showError(errorText(e), e && e.status === 401 ? $('#password') : null);
@@ -191,7 +191,7 @@
       if (me.authenticated && me.kind === 'staff') {
         const box = $('#signed-in');
         box.innerHTML = ic('user-check', { size: 18 }) + `<span>You’re logged in as <b>${esc(me.name)}</b> (${esc(SB.ui.ROLE_TEXT[me.role] || me.role)}).
-          <a href="${esc(SB.ui.link(nextPath()))}">Continue</a> or <button class="btn sm" id="logout-here" type="button">Log out</button></span>`;
+          <a href="${esc(SB.ui.link(nextPath(me.role)))}">Continue</a> or <button class="btn sm" id="logout-here" type="button">Log out</button></span>`;
         box.hidden = false;
         $('#logout-here').addEventListener('click', () => SB.auth.logout());
       }

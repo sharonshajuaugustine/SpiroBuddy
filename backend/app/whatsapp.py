@@ -1,8 +1,8 @@
 """WhatsApp via Twilio (sandbox), or a dry run when credentials/numbers are missing.
 
 Every attempt (sent, dry run or failed) is stored in the `messages` table by the caller.
-For safety in DEMO mode, messages only ever go to the patient's own family/nurse number if
-one was set in the app, otherwise to DEMO_FAMILY_WHATSAPP / DEMO_NURSE_WHATSAPP.
+In DEMO mode, messages go only to an explicitly configured team route, never to a
+sample patient's family/nurse number. Missing team routes remain dry runs.
 """
 from __future__ import annotations
 
@@ -43,9 +43,10 @@ def _norm(number: str | None) -> str | None:
 
 
 def resolve_number(patient: dict, to_role: str) -> str | None:
-    if to_role == "nurse":
-        return _norm(patient.get("nurse_phone")) or _norm(env("DEMO_NURSE_WHATSAPP"))
-    return _norm(patient.get("family_phone")) or _norm(env("DEMO_FAMILY_WHATSAPP"))
+    from .comms.common import resolve_number as destination
+    role = "nurse" if to_role == "nurse" else "guardian"
+    stored = patient.get("nurse_phone" if role == "nurse" else "family_phone")
+    return _norm(destination(stored, role))
 
 
 def send(to_number: str | None, text: str) -> dict:

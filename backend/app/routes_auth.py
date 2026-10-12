@@ -429,7 +429,7 @@ def redeem(request: Request, response: Response, body: dict = Body(...)):
 
 @router.post("/api/me/session")
 def patient_session(request: Request, response: Response, body: dict = Body(...)):
-    """A personal link token (or, in DEMO_MODE only, a patient id) -> the sb_patient cookie."""
+    """Personal link token, or a known fictional seed profile's demo id, -> patient cookie."""
     ip = audit.client_ip(request) or "?"
     token = body.get("token")
     if token is not None:
@@ -454,6 +454,16 @@ def patient_session(request: Request, response: Response, body: dict = Body(...)
         p = service.get_patient_row(int(pid)) if abs(int(pid)) < 2 ** 62 else None
         if not p:
             raise HTTPException(404, f"patient {pid} not found")
+        from . import seed, seed_auth
+        profile = seed.PROFILES.get(p["id"])
+        hospital_id = seed_auth.DEMO_HOSPITAL_ID
+        if p["id"] == seed_auth.RIVERSIDE_PATIENT_ID:
+            # The explicitly seeded second-hospital isolation sample, not an id range.
+            profile = {"name": "Kiran Joseph", "age": 46, "sex": "M"}
+            hospital_id = seed_auth.RIVERSIDE_HOSPITAL_ID
+        if not profile or any(p.get(k) != profile[k] for k in ("name", "age", "sex")) \
+                or (p.get("hospital_id") or authz.LEGACY_HOSPITAL_ID) != hospital_id:
+            raise HTTPException(403, "Use your hospital login code or personal link to open the patient app")
     cur = authz.session_row(request.cookies.get(authz.PATIENT_COOKIE), "patient")
     if not cur or cur.get("patient_id") != p["id"]:          # reuse a live session for this patient
         _start_session(request, response, "patient", p.get("hospital_id") or authz.LEGACY_HOSPITAL_ID,

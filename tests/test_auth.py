@@ -504,7 +504,7 @@ def test_patient_session_sees_only_itself(fresh, patient_client, monkeypatch):
     assert p.put("/api/patients/1", json={"target_ml": 900}).status_code == 401
     assert p.get("/api/comms/care/1").status_code == 401 and p.get("/api/keys").status_code == 401
     assert p.post("/api/demo/reset").status_code == 401
-    assert p.post("/api/sessions", json={"patient_id": 1, "breaths": []}).status_code == 200
+    assert p.post("/api/sessions", json={"patient_id": 1, "breaths": []}).status_code == 400  # own scope, invalid empty exercise
     assert p.post("/api/sessions", json={"patient_id": 2, "breaths": []}).status_code == 404
     assert p.get("/api/voice/prefs/1").status_code == 200 and p.get("/api/voice/prefs/2").status_code == 404
     assert p.post("/api/comms/demo/red-flag/2", json={}).status_code == 404       # own id only
@@ -536,7 +536,7 @@ def test_doctor_tab_and_patient_app_in_the_same_browser(fresh, login_as):
     assert c.post("/api/me/session", json={"patient_id": 1}).status_code == 200     # + Ravi's patient app
     assert c.get("/api/auth/me").json()["kind"] == "staff"                          # the staff login wins
     assert _ids(c) == [3, 5]
-    assert c.post("/api/sessions", json={"patient_id": 1, "breaths": []}).status_code == 200   # Ravi's own session
+    assert c.post("/api/sessions", json={"patient_id": 1, "breaths": []}).status_code == 400   # own scope, invalid empty exercise
     assert c.get("/api/patients/1").status_code == 200                              # as the patient
     assert c.get("/api/patients/2").status_code == 404
     assert c.put("/api/patients/1", json={"target_ml": 900}).status_code == 404     # staff-only: the nurse can't see Ravi

@@ -16,6 +16,27 @@
   let data = null, failed = null, view = location.hash === '#all' ? 'all' : 'home';
   let cards = null, cardIdx = 0, reading = false, busy = false;
   let sessionTried = false;
+  let reminderToggle = null, remindEnabled = false;
+  const EXTRA = {
+    en: { print: 'Print / Save prescription as PDF', breathing: 'My breathing exercise (Simulated)', remindOn: 'Spoken reminders on. Tap to turn off.', remindOff: 'Enable spoken medicine reminders while this page is open', reminder: 'Your medicine report is pending. Please check the prescription on this screen. Ask your doctor or nurse if you have a question.' },
+    hi: { print: 'पर्ची प्रिंट करें / PDF में सहेजें', breathing: 'मेरा साँस का अभ्यास (सिमुलेशन)', remindOn: 'बोलकर याद दिलाना चालू है। बंद करने के लिए दबाएँ।', remindOff: 'यह पेज खुला रहने पर दवा की बोलकर याद दिलाना चालू करें', reminder: 'आपकी दवा की रिपोर्ट बाकी है। डॉक्टर की लिखी पर्ची देखिए। कोई सवाल हो तो डॉक्टर या नर्स से पूछिए।' },
+    ta: { print: 'மருந்துச் சீட்டை அச்சிடு / PDF ஆக சேமி', breathing: 'எனது மூச்சுப் பயிற்சி (உருவகப்படுத்தல்)', remindOn: 'குரல் நினைவூட்டல்கள் இயக்கத்தில் உள்ளன. நிறுத்தத் தட்டவும்.', remindOff: 'இந்தப் பக்கம் திறந்திருக்கும் போது மருந்துக்கான குரல் நினைவூட்டல்களை இயக்கவும்', reminder: 'மருந்து எடுத்ததற்கான உங்கள் பதிவு நிலுவையில் உள்ளது. இந்தத் திரையில் உள்ள மருந்துச் சீட்டைப் பார்க்கவும். சந்தேகம் இருந்தால் மருத்துவர் அல்லது செவிலியரிடம் கேளுங்கள்.' },
+    ml: { print: 'മരുന്ന് കുറിപ്പ് പ്രിന്റ് ചെയ്യുക / PDF ആയി സൂക്ഷിക്കുക', breathing: 'എന്റെ ശ്വസന വ്യായാമം (സിമുലേഷൻ)', remindOn: 'ശബ്ദ ഓർമ്മപ്പെടുത്തലുകൾ പ്രവർത്തിക്കുന്നു. നിർത്താൻ അമർത്തുക.', remindOff: 'ഈ പേജ് തുറന്നിരിക്കുമ്പോൾ മരുന്നിനുള്ള ശബ്ദ ഓർമ്മപ്പെടുത്തലുകൾ പ്രവർത്തിപ്പിക്കുക', reminder: 'മരുന്ന് എടുത്തതിന്റെ നിങ്ങളുടെ റിപ്പോർട്ട് ബാക്കിയുണ്ട്. ഈ സ്ക്രീനിലെ മരുന്ന് കുറിപ്പ് പരിശോധിക്കുക. സംശയമുണ്ടെങ്കിൽ ഡോക്ടറോടോ നഴ്സിനോടോ ചോദിക്കുക.' }
+  };
+  const extra = (key) => (EXTRA[lang] || EXTRA.en)[key];
+  const hasSpeech = () => 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+  function breathingLink() {
+    if (!data || !data.breathing_enabled) return '';
+    return `<a class="m-btn plain" href="app.html?id=${encodeURIComponent(data.patient.id)}&lang=${encodeURIComponent(lang)}">${esc(extra('breathing'))}</a>`;
+  }
+  function visitsLink() {
+    const labels = {en:'My visits',hi:'मेरी मुलाकातें',ta:'எனது சந்திப்புகள்',ml:'എന്റെ സന്ദർശനങ്ങൾ'};
+    return `<a class="m-btn plain" href="patient-visits.html?lang=${encodeURIComponent(lang)}">${esc(labels[lang] || labels.en)}</a>`;
+  }
+  function careLink() {
+    const labels = { en: 'My care instructions', hi: 'मेरे देखभाल निर्देश', ta: 'எனது பராமரிப்பு வழிமுறைகள்', ml: 'എന്റെ പരിചരണ നിർദ്ദേശങ്ങൾ' };
+    return `<a class="m-btn plain" href="my-care.html?lang=${encodeURIComponent(lang)}">${esc(labels[lang] || labels.en)}</a>`;
+  }
 
   function stored() { try { const v = localStorage.getItem(LS); return M.T[v] ? v : null; } catch (_) { return null; } }
   function pickLang() { const l = q.get('lang'); return (M.T[l] && l) || stored() || 'hi'; }
@@ -49,6 +70,7 @@
 
   /* ---------------------------------------------------------------- drawing */
   function paintStatic() {
+    if (reminderToggle) reminderToggle.textContent = extra(remindEnabled ? 'remindOn' : 'remindOff');
     document.documentElement.lang = lang;
     document.title = tr('title') + ' · SpiroBuddy';
     $('#m-title').textContent = tr('title');
@@ -90,7 +112,7 @@
     const p = data.patient;
     let h = `<h1 class="m-hello">${esc(tr('hello', { n: p.given_name || '' }))}</h1>`;
     if (!data.has_prescription) {
-      return h + `<div class="m-card m-empty">${ic('pill', { size: 56 })}<p>${esc(tr('none'))}</p>${backBtn()}</div>`;
+      return h + `<div class="m-card m-empty">${ic('pill', { size: 56 })}<p>${esc(tr('none'))}</p></div>` + careLink() + visitsLink() + breathingLink();
     }
     h += `<p class="m-sub">${esc(tr('issued', { d: data.doctor || '', date: M.dateText(data.issued_on, lang) }))}</p>`;
     h += `<h2 class="m-sec-h">${ic('calendar', { size: 30 })}<span>${esc(tr('today'))}</span></h2>`;
@@ -104,11 +126,13 @@
     h += `<div style="margin-top:var(--sp-6)">
       <button type="button" class="m-btn plain" data-act="all">${ic('pill', { size: 30 })}<span>${esc(tr('all'))}</span></button>
       <button type="button" class="m-btn" data-act="pharmacy">${ic('file', { size: 30 })}<span>${esc(tr('pharmacy'))}</span></button></div>`;
+    h += `<a class="m-btn plain" href="prescription-print.html">${esc(extra('print'))}</a>`;
+    h += careLink() + visitsLink() + breathingLink();
     return h;
   }
 
   function readBtn() {
-    if (!('speechSynthesis' in window)) return '';
+    if (!hasSpeech()) return '';
     return `<button type="button" class="m-btn outline small" data-act="read">${ic('volume', { size: 28 })}<span>${esc(tr(reading ? 'stopRead' : 'readAloud'))}</span></button>`;
   }
   const backBtn = () => `<a class="m-btn plain" href="app.html?id=${esc((data && data.patient && data.patient.id) || q.get('id') || '')}&lang=${esc(lang)}">${ic('arrow-left', { size: 28 })}<span>${esc(tr('back'))}</span></a>`;
@@ -141,7 +165,7 @@
 
   /* ---------------------------------------------------------------- reading aloud */
   function toggleRead() {
-    if (!('speechSynthesis' in window)) return;
+    if (!hasSpeech()) return;
     const was = reading;
     speechSynthesis.cancel();
     reading = false;
@@ -267,5 +291,22 @@
     try { SB.ui.loadFeatures(); } catch (_) { /* badges are optional */ }
     try { SB.ui.fakeRibbon({ into: '#m-ribbon', large: true, text: tr('fake') }); } catch (_) { /* optional */ }
     await load();
+    // Open-app reminder only. No promise of a push notification when the app is closed.
+    reminderToggle = document.createElement('button');
+    reminderToggle.type = 'button'; reminderToggle.className = 'm-btn plain';
+    reminderToggle.textContent = extra('remindOff');
+    if (hasSpeech()) $('#m-main').before(reminderToggle);
+    const announced = new Set();
+    function remind() {
+      if (!remindEnabled || failed || !data || document.hidden || reading || !hasSpeech() || speechSynthesis.speaking) return;
+      const due = (data.today || []).filter(d => d.status === 'due' || d.status === 'missed');
+      const group = due.find(d => !announced.has(String(d.id)));
+      if (!group) return;
+      const selected = due.filter(d => d.due_at === group.due_at);
+      selected.forEach(d => announced.add(String(d.id)));
+      const u = new SpeechSynthesisUtterance(extra('reminder'));u.lang = M.SPEECH[lang];u.rate=.85;speechSynthesis.speak(u);
+    }
+    reminderToggle.onclick = () => {remindEnabled=!remindEnabled;reminderToggle.textContent=extra(remindEnabled?'remindOn':'remindOff');if(!remindEnabled)speechSynthesis.cancel();else remind();};
+    setInterval(async () => {if(!document.hidden && !busy){await load();remind();}},30000);
   })();
 })();

@@ -43,8 +43,8 @@
         <section class="card card-flush" id="sessions-card" aria-labelledby="h-sessions">
           <div class="card-head"><h2 id="h-sessions">Recent sessions</h2></div>
           <div class="table-wrap" style="margin-top:.5rem"><table class="data-table">
-            <thead><tr><th scope="col">Time</th><th scope="col">Slot</th><th scope="col" class="num">Breaths</th><th scope="col" class="num">Best</th><th scope="col" class="num">Avg score</th><th scope="col">Breath quality</th></tr></thead>
-            <tbody id="sessions"><tr><td colspan="6"><span class="skeleton"></span></td></tr></tbody>
+            <thead><tr><th scope="col">Time</th><th scope="col">Slot</th><th scope="col">Source</th><th scope="col" class="num">Breaths</th><th scope="col" class="num">Best</th><th scope="col" class="num">Avg score</th><th scope="col">Breath quality</th></tr></thead>
+            <tbody id="sessions"><tr><td colspan="7"><span class="skeleton"></span></td></tr></tbody>
           </table></div>
         </section>
 
@@ -114,6 +114,7 @@
   <script src="js/comms.js"></script><!-- COMMS -->
   <script src="js/comms-patient.js"></script><!-- COMMS -->
   <script src="js/patient-login-card.js"></script><!-- PATIENT LOGIN -->
+  <script src="js/consultation.js"></script>
   <script>
   (function () {
     const { esc, $, ic, link, hourLabel, statusPill, redFlagPill, trendHTML, dateTimeLabel, initials, labelChips, fmtMl, meter, LANG, toast, busy, poll, istClock, istDate } = SB.ui;
@@ -200,11 +201,13 @@
     }
 
     function renderSessions(list) {
+      const sources = { demo: 'Simulated (browser)', simulator: 'Simulated (browser)', app: 'Patient app', device: 'Device source' };
       $('#sessions').innerHTML = list.length ? list.map((s) => `<tr>
         <td>${esc(dateTimeLabel(s.started_at))}</td><td>${s.slot_hour != null ? hourLabel(s.slot_hour) : '—'}</td>
+        <td>${esc(sources[s.source] || 'Not recorded')}</td>
         <td class="num">${esc(s.breaths_count)}</td><td class="num">${fmtMl(s.best_ml)}</td>
         <td class="num"><b>${s.avg_score != null ? Number(s.avg_score).toFixed(1) : '—'}</b> / 10</td><td>${labelChips(s.label_counts)}</td></tr>`).join('')
-        : `<tr><td colspan="6"><div class="empty" style="margin:.5rem 0">${ic('activity', { size: 26 })}<b>No sessions yet</b>Sessions appear here as soon as the patient breathes into the device.</div></td></tr>`;
+        : `<tr><td colspan="7"><div class="empty" style="margin:.5rem 0">${ic('activity', { size: 26 })}<b>No sessions yet</b>Recorded exercise sessions appear here with their source. Browser simulator sessions are labelled Simulated.</div></td></tr>`;
       const agg = {};
       list.forEach((s) => Object.entries(s.label_counts || {}).forEach(([k, v]) => (agg[k] = (agg[k] || 0) + (Number(v) || 0))));
       $('#quality-sub').textContent = list.length ? `all breaths in the last ${list.length} session${list.length === 1 ? '' : 's'}` : 'no sessions yet';

@@ -19,7 +19,7 @@
         <span class="chip" id="ai-mine" title="Assigned to you">${ic('user', { size: 13 })}<b>–</b>&nbsp;mine</span>
         <div class="spacer"></div>
         <label for="ai-me" class="small">I am</label>
-        <select id="ai-me" class="sm-select">${C.NURSES.map((n) => `<option ${n === C.me() ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select>
+        <select id="ai-me" class="sm-select" disabled><option>${esc(C.me())}</option></select>
       </div>
       <div class="seg" role="group" aria-label="Alert filter" id="ai-tabs">${TABS.map(([k, l]) => `<button type="button" data-tab="${k}" aria-pressed="${k === tab}">${l}</button>`).join('')}</div>
       <ul class="alerts" id="ai-list" aria-live="polite"><li><span class="skeleton" style="height:64px"></span></li><li><span class="skeleton" style="height:64px"></span></li></ul>

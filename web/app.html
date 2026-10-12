@@ -365,12 +365,12 @@
       paintStatic();
       if (!done.length) { setCoach('idle', 'idle'); return; }
       let ok = true;
-      try { await SB.api.post('/api/sessions', { patient_id: pid, started_at: startedAt.toISOString(), source: 'app', breaths: done }); } catch (e) { ok = false; console.warn(e); }
-      setCoach('session_complete', 'good');
-      V.say('session_complete'); V.say('encourage_1');
+      try { await SB.api.post('/api/sessions', { patient_id: pid, started_at: startedAt.toISOString(), source: source && source.kind === 'simulator' ? 'demo' : 'app', breaths: done }); } catch (e) { ok = false; console.warn(e); }
+      setCoach(done.length >= BREATHS ? 'session_complete' : 'idle', 'good');
+      if (done.length >= BREATHS) V.say('session_complete'); V.say('encourage_1');
       $('#result').className = 'pa-card pa-result';
       $('#result').classList.remove('hidden');
-      $('#result').innerHTML = `<div class="big">${ic('check', { size: 24 })} ${esc(tr(ok ? 'saved' : 'notSaved'))}</div><div>${esc(tr('savedSub', { g: good, n: done.length, b: Math.round(best).toLocaleString('en-IN') }))}</div>`;
+      $('#result').innerHTML = `<div class="big">${ic('check', { size: 24 })} ${esc(tr(ok ? 'saved' : 'notSaved'))}</div><div>${esc(tr('savedSub', { g: good, n: done.length, b: Math.round(best).toLocaleString('en-IN') }))}</div>${ok && done.length < BREATHS ? '<p>Partial exercise saved. Complete 10 breaths to finish the hourly task.</p>' : ''}`;
       await loadPatient(); paintStatic(); loadCheer();
     }
     function sim(label) {
@@ -458,6 +458,14 @@
         return;
       }
       await loadPatient();
+      if (P.breathing_enabled === false) {
+        setLang(q.get('lang') || P.language || 'en'); paintMute();
+        $('#no-unit').classList.remove('hidden');
+        $('#no-unit').innerHTML = '<div class="big">Breathing exercise is not assigned</div><p>Your hospital can add this module to your care plan.</p>';
+        ['#stage','#actions','#today','#demo'].forEach(s=>$(s).classList.add('hidden'));
+        $('#meds-link').textContent='My medicines';
+        return;
+      }
       setLang(q.get('lang') || P.language || 'hi');
       paintMute(); makeDetector();
       startSource('sim').catch(() => {});

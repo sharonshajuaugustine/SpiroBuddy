@@ -15,7 +15,7 @@
     ['3D showroom', '/showcase/'],
   ];
   const LOGIN = '/login.html?next=/dashboard.html';
-  const APP = '/app.html?id=1';
+  const APP = '/patient-login.html';
 
   function here() {
     const p = location.pathname.replace(/index\.html$/, '');
@@ -32,12 +32,12 @@
         <a class="logo" href="/" aria-label="SpiroBuddy home page">${ui.LOGO}<span class="logo-name">SpiroBuddy</span></a>
         <nav class="pub-nav" id="pub-nav" aria-label="Main">
           <ul>${links}
-            <li class="nav-cta"><a class="btn" href="${LOGIN}">Hospital login</a><a class="btn primary" href="${APP}">Patient app</a></li>
+            <li class="nav-cta"><a class="btn" href="${LOGIN}">Hospital login</a><a class="btn primary" href="${APP}">Patient login</a></li>
           </ul>
         </nav>
         <div class="pub-actions">
           <a class="btn sm" href="${LOGIN}">Hospital login</a>
-          <a class="btn sm primary" href="${APP}">Patient app</a>
+          <a class="btn sm primary" href="${APP}">Patient login</a>
           <button class="icon-btn" id="pub-theme" type="button" aria-label="Switch light or dark theme" title="Light / dark theme"></button>
           <button class="icon-btn pub-menu-btn" id="pub-menu" type="button" aria-expanded="false" aria-controls="pub-nav" aria-label="Open the menu">
             <svg class="i" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>

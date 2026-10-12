@@ -17,3 +17,8 @@ infffff/
 
 # Internal reviews (verdicts, candid scoring) - local only, never on the public repo
 docs/private/
+
+# Local artifact builds, isolated QA data and generated submission outputs
+.build/
+output/
+spirobuddy-test-*/

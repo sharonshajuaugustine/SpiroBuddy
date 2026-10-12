@@ -129,6 +129,7 @@ Exotel gives an Indian "ExoPhone" so calls don't show a foreign number. **Needs 
 1. Sign up at https://exotel.com, finish KYC, get an ExoPhone.
 2. Dashboard → API settings: copy SID, API key, API token into `EXOTEL_SID`, `EXOTEL_API_KEY`, `EXOTEL_API_TOKEN`; the ExoPhone into `EXOTEL_CALLER_ID`.
 3. **App Bazaar → create a flow:** Greeting (dynamic text, URL `…/api/comms/exotel/greeting`) → Gather (dynamic URL `…/api/comms/exotel/gather`) → Passthru (`…/api/comms/exotel/passthru`) → Hangup. Copy the flow's app id into `EXOTEL_APP_ID`.
+   Set a private `EXOTEL_WEBHOOK_SECRET` and append its URL-encoded value as `?token=<private secret>` to each Greeting/Gather/Passthru URL (use `&token=` when other query parameters already exist). All four Exotel callback handlers reject missing/wrong tokens. Automatically generated status callback URLs include the token; alternatively the handlers accept `X-SpiroBuddy-Webhook-Token` if your callback integration supplies that header. This is an application shared secret, not an asserted provider signature scheme. Do not record or share callback URLs. Without this setting the application will not select Exotel for a real outbound call.
 4. Set `PUBLIC_BASE_URL`, restart. Status should show "Exotel (Indian caller ID)".
 
 ---
@@ -143,7 +144,7 @@ Set `PUBLIC_BASE_URL=https://<your-app>.onrender.com` in Render → Environment.
 | Twilio WhatsApp "when a message comes in" | `https://<app>/api/comms/webhooks/whatsapp` |
 | Twilio WhatsApp status (optional) | `https://<app>/api/comms/webhooks/whatsapp/status` |
 | Twilio voice (set automatically per call) | `https://<app>/api/comms/twilio/voice/<call id>`, `/gather/…`, `/status/…` |
-| Exotel flow applets | `https://<app>/api/comms/exotel/greeting`, `/gather`, `/passthru`, `/status/<call id>` |
+| Exotel flow applets | `https://<app>/api/comms/exotel/greeting?token=<private secret>`, `/gather?token=…`, `/passthru?token=…`; status URL includes the token automatically |
 
 Render's free disk is temporary: in demo mode the data re-seeds on restart. Use Supabase (`DATA_BACKEND=supabase`) to keep call results.
 

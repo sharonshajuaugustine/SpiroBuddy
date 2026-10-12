@@ -117,7 +117,7 @@
     "A person confirms every prescription line before any reminder is sent: a named doctor, or a nurse the hospital has allowed. If an AI drafted the lines, each one is checked against the original. Handwriting is typed by a person, not read by the AI.",
     "Anything uncertain is left blank, not guessed. \"If needed\" medicines (SOS) are never scheduled as reminders.",
     "Reminders repeat the doctor's words and say who confirmed them. No \"you may skip\" and no \"take two now\".",
-    "A missed dose goes to the nurse, and to the family when the patient has agreed. The patient is never told to double up.",
+    "A missed dose raises a nurse follow-up alert after the grace period. Family delivery is Planned. The patient is never told to double up.",
     "Danger words (chest pain, breathless, bleeding, fainting, rash, \"took too many\" and the same in each language) get the fixed message: \"Please contact your nurse now. In an emergency call 112.\" No AI text.",
     "Questions about medicines (\"can I stop this?\") get \"Please ask your doctor or nurse\" plus a call-back button. No AI answer.",
     "Adherence is shown as \"reported\" unless a sensor measured it.",
@@ -147,7 +147,7 @@
       "text": "AI is a helper here, not the point. The doctor's own digital prescription needs no AI and goes straight to the patient's phone."
     },
     {
-      "text": "Where Gemini is used, it is optional: drafting typed prescription lines from a sample document, and suggesting the type, title and date of an uploaded paper.",
+      "text": "Gemini can prepare a draft from the doctor's notepad. Photo reading and document suggestions remain In development. A manual-format draft is available without an AI provider.",
       "keys": [
         "rx.ai_read",
         "docs.ai_suggest"

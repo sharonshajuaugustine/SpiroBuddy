@@ -54,7 +54,7 @@
 
   /* ---------- who am I (no login in the demo) ---------- */
   const NURSES = ['Sister Anjali', 'Dr. Mehta', 'Nurse Rakesh', 'Physio Kavya'];
-  function me() { try { return localStorage.getItem('sb_me') || NURSES[0]; } catch (_) { return NURSES[0]; } }
+  function me() { if (SB.ui && SB.ui.me && SB.ui.me.name) return SB.ui.me.name; try { return localStorage.getItem('sb_me') || NURSES[0]; } catch (_) { return NURSES[0]; } }
   function setMe(n) { try { localStorage.setItem('sb_me', n); } catch (_) { /* ignore */ } }
 
   /* ---------- speech ---------- */

@@ -52,7 +52,7 @@
    * Staff-only pages: anything under /hospital/, plus the old staff pages that still exist.
    * Everything else never redirects: / and /index.html (the public landing page from B7 on),
    * app.html, guardian.html, login/signup/redeem, impact/trust/vision/architecture/twin, /showcase/. */
-  const STAFF_PAGES = ['/dashboard.html', '/doctor.html', '/prescribe.html', '/patient.html', '/demo.html', '/units.html', '/collect.html', '/branding.html'];
+  const STAFF_PAGES = ['/dashboard.html', '/doctor.html', '/prescribe.html', '/patient.html', '/demo.html', '/units.html', '/collect.html', '/branding.html', '/register.html', '/doctor-day.html', '/appointments.html', '/department.html', '/hospital-overview.html', '/discharge-editor.html'];
   function needsLogin(pathname) {
     const p = pathname == null ? location.pathname : String(pathname);
     return p === '/hospital' || p.indexOf('/hospital/') === 0 || STAFF_PAGES.indexOf(p) >= 0;

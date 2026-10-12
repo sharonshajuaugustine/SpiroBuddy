@@ -11,7 +11,7 @@
   const $ = (s, r) => (r || document).querySelector(s);
   const pid = Number(new URLSearchParams(location.search).get('id')) || 0;
 
-  let patient = null, meds = null, role = null, rowSeq = 0, replacing = null, preLang = 'en', lastRx = null;
+  let patient = null, meds = null, role = null, rowSeq = 0, replacing = null, preLang = 'en', lastRx = null, draftEvent = null;
 
   const FORMS = [['tablet', 'Tablet'], ['capsule', 'Capsule'], ['syrup', 'Syrup'], ['drops', 'Drops'], ['injection', 'Injection'], ['inhaler', 'Inhaler'], ['cream', 'Cream or ointment'], ['other', 'Other']];
   const UNITS = [['tablet', 'tablet'], ['capsule', 'capsule'], ['ml', 'ml'], ['drop', 'drop'], ['puff', 'puff'], ['unit', 'unit'], ['sachet', 'sachet']];
@@ -103,6 +103,7 @@
       const chips = [...row.querySelectorAll('[data-slot][aria-pressed="true"]')].map((b) => b.dataset.slot);
       const l = { drug_name: val(row, 'drug_name'), strength: val(row, 'strength'), form: val(row, 'form'), dose_qty: val(row, 'dose_qty'), dose_unit: val(row, 'dose_unit'), food_timing: val(row, 'food_timing'), instructions: val(row, 'instructions'), as_needed: sos };
       if (!l.drug_name) errs.push(`Medicine ${n}: type the name.`);
+      if (!l.form || !l.dose_unit || !l.food_timing) errs.push(`Medicine ${n}: review the form, unit and food instructions.`);
       if (!(parseFloat(String(l.dose_qty).replace('½', '.5')) > 0) && !/^\d+\s*\/\s*\d+$/.test(l.dose_qty)) errs.push(`Medicine ${n}: the dose each time must be a number above 0.`);
       if (sos) { l.frequency_raw = 'SOS'; }
       else {
@@ -199,6 +200,7 @@
 
   async function send() {
     const body = { lines: pending };
+    if (draftEvent) body.draft_event_id = draftEvent;
     const rep = $('#replaces').value;
     if (rep) body.replaces = Number(rep);
     const btn = $('#send-ok');
@@ -211,7 +213,7 @@
       preLang = M.T[patient.language] ? patient.language : 'en';
       paintPreview();
       SB.ui.toast('Sent to ' + (patient.name || 'the patient') + "'s phone", 'good');
-      replacing = null; $('#rows').innerHTML = ''; addRow();
+      replacing = null; draftEvent = null; $('#rows').innerHTML = ''; addRow();
       await reload();
       $('#pre-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (e) {
@@ -294,7 +296,29 @@
       paintPatient();
       if (role !== 'doctor') {
         $('#write-card').innerHTML = `<div class="empty">${ic('lock', { size: 28 })}<b>Only doctors write prescriptions</b>You can see the medicines and the history. Ask the patient's doctor to write or change a prescription.</div>`;
-      } else addRow();
+      } else {
+        addRow();
+        const box = document.createElement('section');box.className='card';box.id='notepad-card';
+        $('#write-card').before(box);
+        box.innerHTML='<h2>Prescription notepad</h2><p>Draft only. Check every field below before you issue it. AI needs a configured provider and recorded patient consent.</p><label for="notepad-text">Doctor-written prescription</label><textarea id="notepad-text" rows="5" maxlength="6000" style="width:100%" placeholder="Medicine | strength | form | dose quantity | unit | frequency | days | instructions"></textarea><p class="small">Without AI, use one medicine per line in the shown format. Empty fields stay for you to review.</p><button class="btn" id="draft-text" type="button">Prepare draft for review</button><p id="draft-result" role="status"></p>';
+        $('#draft-text').onclick=async e=>{
+          const current=[...document.querySelectorAll('#rows [data-f="drug_name"]')].some(x=>x.value.trim());
+          if(current && !confirm('Replace the unsaved medicine fields with this draft?'))return;
+          try{await SB.ui.busy(e.currentTarget,async()=>{
+            const d=await SB.api.post(`/api/patients/${pid}/prescriptions/draft-text`,{text:$('#notepad-text').value});
+            $('#rows').innerHTML='';
+            d.lines.forEach(l=>{
+              const r=addRow({...l,code:l.frequency_raw||''});
+              ['strength','dose_qty','duration_days','instructions'].forEach(f=>{r.querySelector(`[data-f="${f}"]`).value=l[f]==null?'':String(l[f]);});
+              ['form','dose_unit','food_timing'].forEach(f=>{const el=r.querySelector(`[data-f="${f}"]`);if(!l[f] || ![...el.options].some(o=>o.value===l[f])){const o=document.createElement('option');o.value='';o.textContent='Needs review';el.prepend(o);el.value='';}else el.value=l[f];});
+              syncRow(r);
+            });
+            if(!d.lines.length)addRow();
+            $('#draft-result').textContent=(d.source==='gemini'?'AI draft. ':'Manual-format draft. ')+(d.reason||'Review every value before issuing.');
+            draftEvent=d.source==='gemini'?d.ai_event_id:null;
+          });}catch(e){$('#draft-result').textContent=e.message;}
+        };
+      }
       await reload();
     } catch (e) {
       $('#p-msg').innerHTML = `<div class="form-msg bad" role="alert">${ic('alert-triangle', { size: 18 })}<span>${esc((e && e.status === 404) ? 'This patient was not found, or is not one of your patients.' : ((e && e.message) || 'Could not load this page.'))}</span></div>`;

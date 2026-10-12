@@ -180,8 +180,19 @@ def demo_route(role: str) -> str | None:
 
 
 def resolve_number(stored: str | None, role: str) -> str | None:
-    """Real number to use: the stored one if it is real, else the DEMO_* route for this role."""
-    return e164(stored) or demo_route(role)
+    """Demo sends can reach only the explicitly configured team destination.
+
+    Sample patient/guardian records can contain valid-looking numbers. They must never
+    become a live destination in demo mode, even when the team route is missing.
+    Outside demo mode, use only the patient's recorded number.
+    """
+    return demo_route(role) if demo_mode() else e164(stored)
+
+
+def masked_number(number: str | None) -> str | None:
+    """A destination hint for public call JSON and timeline events."""
+    value = e164(number)
+    return "Ending " + value[-4:] if value else None
 
 
 def public_base() -> str:

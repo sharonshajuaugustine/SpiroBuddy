@@ -1,5 +1,7 @@
 # SpiroBuddy – instructions for every Claude session
 
+**Current Codex implementation:** read `docs/CODEX_IMPLEMENTATION_HANDOFF.md` alongside the historical notes below. Patient OTP delivery is simulated; the hospital PIN fallback is reusable, not a one-time desk code. The notepad prepares a draft for explicit doctor review and publication. Local implementation and deployed status must be checked separately. Other sessions own appointments, department operations and discharge documents; preserve their changes.
+
 SpiroBuddy is a hackathon project (Dolphin Tank India Social Impact Hackathon, Healthcare & Wellbeing track). It links the hospital to the patient at home: a clip-on smart unit for an ordinary incentive spirometer (proof the breathing exercise was done) plus an AI breathing coach, a patient web app, a nurse dashboard, WhatsApp updates, and the doctor's prescription on the patient's phone. **Submission closes Mon 12 Oct 2026, 11:00 AM IST; build freeze 03:00 IST. Speed and a working demo beat completeness.**
 
 ## Founder decisions (11–12 Oct 2026) – these override older docs

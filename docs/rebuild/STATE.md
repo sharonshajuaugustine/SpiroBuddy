@@ -1,4 +1,6 @@
 # SpiroBuddy 2.0 redesign – build state (resume from here)
+**Codex checkpoint — 12 October 2026:** ready locally for commit; publication/deployment verification pending. Department operations, discharge documents and appointments are integrated. The full suite passed **930 tests / 0 failures / 0 expected failures in 1151.77 seconds** before the final preservation guards; **5 focused startup checks** and **28 phone-preservation/PIN checks** passed afterward. **55 JavaScript syntax checks passed**. Lifespan never automatically resets populated storage. Canonical deck: `output/Aarogya_Saathi_DTI_GuGu_GaGa_Readable.pptx`, 17 slides/seven native editable tables, zero visual issues; final cover refinement underway. The complete local simulator callback-to-nurse browser flow is verified. Sarvam version 2/key metadata and browser-only `CALL_PROVIDER=dry_run` are saved in Render with Save only, without a redeploy or phone/API/webhook claim. Claude owns the narrated submission video. Earlier entries below are historical; read the implementation handoff and final QA report before resuming.
+
 
 **How to resume:** when the founder says "continue the redesign" (or similar), follow **§R** of the spec `docs/private/ULTRACODE_BUILD_PROMPT.md` (a local file, not on GitHub):
 1. Check the time.
@@ -16,6 +18,10 @@
 ---
 
 ## Now
+
+- **Latest pre-publication checkpoint:** ready locally for commit; publication/deployment verification pending. The **930-pass full run** preceded the final storage-preservation guards; **5 focused startup checks** and then **28 phone-preservation/PIN checks** passed afterward. Lifespan never automatically resets populated storage; empty storage receives non-destructive initial seeding. Canonical deck: `output/Aarogya_Saathi_DTI_GuGu_GaGa_Readable.pptx` (17 slides, seven native editable tables, larger fonts, zero visual issues; cover refinement underway). The full local simulator Ravi check-in → explicit callback request → neutral ending → Sister Anjali nurse inbox was browser-verified. This is not Sarvam phone/API/webhook evidence. Claude still owns the narrated video.
+
+- **Current verified state, 12 October 2026:** final suite **930 passed / 0 failed / 0 xfailed**, 1151.77 seconds; final syntax **55 passed**. Local module integration and the documented patient/doctor journeys are complete; remaining browser/deployment limits are in the final QA report. Sarvam version 2 and browser-only dry-run settings are saved, with no redeploy or phone-call claim. Deck simplification and Claude's narrated submission video remain active artifact tasks. The earlier takeover/workflow bullets below are retained as historical records, not instructions to restart stopped writers.
 
 - **Codex takeover, 12 Oct 04:46 IST:** appointments handoff reviewed and patient request → doctor confirm → patient confirmed flow checked locally. Department/bed and discharge-document workflows previously stopped for Claude usage are now owned by Codex sub-agents; do not relaunch a second writer against those files. Codex also owns final patient-access hardening and shared integration. Gemini AQ authorization key passed a real sample-only structured SDK request. Sarvam check-in agent configured and chat-tested; phone KYC/rental remains a user step. See `docs/CODEX_IMPLEMENTATION_HANDOFF.md` for current work; preserve historical rows below.
 

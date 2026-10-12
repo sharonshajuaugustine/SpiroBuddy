@@ -33,7 +33,7 @@ services:
       - key: TWILIO_WHATSAPP_FROM
         value: whatsapp:+14155238886
       - key: CALL_PROVIDER
-        value: auto
+        value: dry_run          # submission uses the explicitly selected browser simulator
       - key: QUIET_HOURS
         value: "21:00-07:00"
       # ---- 2.0 fixed settings (see .env.example)

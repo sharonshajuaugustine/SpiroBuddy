@@ -8,10 +8,11 @@ from datetime import timedelta
 from ..config import iso
 from .common import log_event, now, patient_names, st, to_dt
 
-KINDS = ("missed", "red_flag", "no_answer", "low_trend", "callback", "help", "question",
+KINDS = ("missed", "missed_dose", "red_flag", "no_answer", "low_trend", "callback", "help", "question",
          "call_review")
 SEVERITY_RANK = {"red": 0, "amber": 1, "info": 2}
 KIND_LABEL = {"missed": "Missed sessions", "red_flag": "Red flag", "no_answer": "No answer",
+              "missed_dose": "Medicine follow-up",
               "low_trend": "Lower than usual", "callback": "Call-back request",
               "help": "Asked for help", "question": "Question",
               "call_review": "Check-in call note"}

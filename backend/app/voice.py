@@ -451,6 +451,10 @@ def detect_language(text: str) -> str | None:
 # Words that must always reach a person. Deliberately broad: a false alarm is far safer than a
 # missed one. Romanised Hindi ("Hinglish") is included because many people type that way.
 RED_FLAG_WORDS: dict[str, list[str]] = {
+    # Exact romanized phrases from the existing critical regressions. This is limited
+    # deterministic coverage, not a complete vocabulary or native-speaker validation.
+    "ta_latn": ["nenju vali", "moochu thinaral", "kaichal"],
+    "ml_latn": ["nenchu vedana", "swasam muttunnu", "sahayam"],
     "en": ["chest pain", "pain in my chest", "pain in chest", "can't breathe", "cant breathe",
            "cannot breathe", "can not breathe", "unable to breathe", "not able to breathe",
            "difficulty breathing", "trouble breathing", "hard to breathe", "short of breath",

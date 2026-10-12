@@ -17,6 +17,8 @@ from .config import iso, now_local
 log = logging.getLogger("spirobuddy.ai_register")
 
 PURPOSE_RX = "rx_extract"        # prescription photo/PDF -> draft lines
+PURPOSE_RX_NOTEPAD = "rx_notepad"  # clinician text -> draft lines
+PRESCRIPTION_PURPOSES = frozenset((PURPOSE_RX, PURPOSE_RX_NOTEPAD))
 PURPOSE_DOC = "doc_suggest"      # document -> kind/title/date suggestion
 PURPOSE_SUMMARY = "summary"      # daily summary text
 DECISIONS = ("approved", "edited", "rejected")
@@ -110,7 +112,7 @@ def stats(hospital_id=None) -> dict:
     except Exception as e:
         log.warning("AI register stats failed: %s", e)
         rows = []
-    drafts = [r for r in rows if r.get("purpose") == PURPOSE_RX and r.get("ok")]
+    drafts = [r for r in rows if r.get("purpose") in PRESCRIPTION_PURPOSES and r.get("ok")]
     reviewed = [r for r in drafts if r.get("decision")]
     lines_total = sum(int(r.get("lines_total") or 0) for r in reviewed)
     lines_edited = sum(int(r.get("lines_edited") or 0) for r in reviewed)

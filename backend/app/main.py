@@ -32,10 +32,10 @@ async def lifespan(app: FastAPI):
     st = service.init_store()
     log.info("Data store: %s (%s)", st.name, service.store_note())
     try:
-        if demo_mode() and seed.needs_seed(st):
-            log.info("Seeding demo data...")
-            seed.reset(st)
-        elif st.count("patients") == 0:
+        # Restarting or deploying must not wipe registered patients merely because
+        # breathing history is old. Refresh/reset is an explicit staff operation.
+        if st.count("patients") == 0:
+            log.info("Seeding an empty data store...")
             seed.seed(st)
     except Exception as e:
         log.error("Seeding failed: %s", e)
@@ -238,7 +238,7 @@ async def _gate(request: Request, call_next):
         return _harden(_deny(400, "number out of range"), path)
     except Exception as exc:            # same JSON shape as server_error below
         log.exception("Unhandled error on %s", path)
-        return _harden(_deny(500, f"{type(exc).__name__}: {exc}"), path)
+        return _harden(_unexpected_error(exc), path)
     if err is not None:
         return _harden(err, path)
     tokens = authz.set_actor(actor, alt)
@@ -279,8 +279,17 @@ async def number_out_of_range(request: Request, exc: OverflowError):
 @app.exception_handler(Exception)
 async def server_error(request: Request, exc: Exception):
     log.exception("Unhandled error on %s", request.url.path)
-    return JSONResponse({"error": f"{type(exc).__name__}: {exc}", "status": 500},
-                        status_code=500)
+    return _harden(_unexpected_error(exc), request.url.path)
+
+
+def _unexpected_error(exc: Exception):
+    """Keep operational details in server logs, never in a browser error response."""
+    import httpx
+    unavailable = isinstance(exc, (ConnectionError, TimeoutError, httpx.TransportError))
+    status = 503 if unavailable else 500
+    message = ("The service is temporarily unavailable. Please try again shortly."
+               if unavailable else "Something went wrong. Please try again.")
+    return JSONResponse({"error": message, "status": status}, status_code=status)
 
 
 def jsonable_errors(exc: RequestValidationError) -> list:
@@ -602,8 +611,8 @@ def demo_reset(request: Request):
 # error in the log (and in SKIPPED_MODULES), so one broken feature can't take the site down.
 SKIPPED_MODULES: dict[str, str] = {}
 for _mod in ("routes_voice", "routes_comms", "routes_auth", "features", "routes_admin",
-             "routes_patients", "routes_meds", "routes_appointments", "routes_documents",
-             "routes_me", "routes_public", "routes_twin", "routes_devices", "routes_consent",
+             "routes_patients", "routes_meds", "routes_appointments", "routes_departments", "routes_discharge", "routes_documents",
+             "routes_me", "routes_ai_consent", "routes_public", "routes_twin", "routes_devices", "routes_consent",
              "routes_hospital", "routes_doctor"):
     try:
         app.include_router(__import__(f"{__package__}.{_mod}", fromlist=["router"]).router)
