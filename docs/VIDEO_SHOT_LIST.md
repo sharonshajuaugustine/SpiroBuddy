@@ -2,7 +2,7 @@
 
 Goes with [VIDEO_NARRATION_FINAL.md](VIDEO_NARRATION_FINAL.md) and [VIDEO_RECORDING_CHECKLIST.md](VIDEO_RECORDING_CHECKLIST.md).
 
-**How this was checked:** every click below was done once on 12 Oct 2026, 08:31–08:40 IST, on an isolated local copy (sample database, all provider keys blank, `CALL_PROVIDER=dry_run`). The words in **bold** are copied from the screen. The live site serves the same page files, but this click-through has **not** been run on the live site. Do the live check in the checklist first.
+**How this was checked:** every click below was done on 12 Oct 2026, first on an isolated local copy (08:31–08:40 IST), then by an automated browser on the **live site** (09:20–09:25 IST, fictional patient `REC-2026-12`). Both passed. The words in **bold** are copied from the screen. That live run is already recorded as `output/video/Aarogya_Saathi_video_SILENT.mp4`; see the checklist's "Fastest path". Use this shot list only if you want to record the screen yourself, and then use a new number (`REC-2026-13` or higher).
 
 `<site>` below means `https://spirobuddy.onrender.com` (or `http://127.0.0.1:8021` if you fall back to the local copy).
 
@@ -83,7 +83,7 @@ Hold every success state on screen for about 2 seconds before moving on.
 ### Scene 1 · Explain (0:00–2:30) · clip 1
 Slides only, as in the narration file: 1 → 2 → 5 → 4 → 11 → 3 → 10 → 14 → 7, then `<site>/architecture.html`, section **1. The system** (the diagram with Live / Simulated / In development / Planned badges). Do not scroll into the long text sections.
 
-### Scene 2 · Doctor registers a patient (2:30–2:52) · window A
+### Scene 2 · Doctor registers a patient (2:30–2:47) · window A
 1. In the left menu, click **Register patient**. Page title: **Register a patient**.
 2. Type **Hospital registration number**, **Full name**, **Age**, **Registered phone number** from the values table.
 3. Leave **Responsible doctor** as **Dr. Meera Nair**. Skip Ward and Bed.
@@ -94,7 +94,7 @@ Slides only, as in the narration file: 1 → 2 → 5 → 4 → 11 → 3 → 10 �
 
 Do not hover over the **Open patient app** link (its address contains a personal login token). Do not read out the hint "Bed occupancy management is planned" on this form; the bed module is shown later.
 
-### Scene 3 · Reviewed prescription (2:52–3:20) · window A
+### Scene 3 · Reviewed prescription (2:47–3:13) · window A
 1. Click **Write prescription**. Page: **Medicines for Sample Recording Patient**, with **No current prescription**.
 2. Click inside the **Prescription notepad** box and paste the notepad line (Ctrl+V).
 3. Click **Prepare draft for review**.
@@ -107,7 +107,7 @@ Do not hover over the **Open patient app** link (its address contains a personal
 
 On the live site the "Manual-format draft." line may give a different reason (for example, no AI consent recorded for this patient). Either way, call it a draft and do not say AI wrote it.
 
-### Scene 4 · Patient login and medicines (3:20–3:43) · window B
+### Scene 4 · Patient login and medicines (3:13–3:36) · window B
 1. **Hospital**: leave **Dawnlight General Hospital**. **Hospital registration number**: type `REC-2026-11`. Click **Send my code**.
 2. **Success state:** a dashed box **"Sample phone Simulated"** with a 6-digit code and **"This code appears here instead of an SMS."**
 3. Type that code into **6-digit code** → click **Open my medicines**.
@@ -119,7 +119,7 @@ On the live site the "Manual-format draft." line may give a different reason (fo
 
 Do not resend the code: a second code is blocked for about a minute (**"Another code available in 59s"**).
 
-### Scene 5 · Visit request and confirmation (3:43–4:03) · windows B and A
+### Scene 5 · Visit request and confirmation (3:36–3:58) · windows B and A
 1. Window B: scroll to **My visits** and tap it. Tap **Ask for a visit**.
 2. Under **Choose a day**, tap **Tue 13 · Tomorrow**. Under **Choose a time**, tap **10:00 AM**. Under **What is it about?**, tap **Check-up**. Tap **Send request**.
    **Success state:** **"Your request was sent. The hospital will answer here."** and a card **Requested · Tuesday, 13 October 2026, 10:00 AM · Dr. Meera Nair · OPD**.
@@ -129,7 +129,7 @@ Do not resend the code: a second code is blocked for about a minute (**"Another 
 
 If you record on a later day, pick any day that is not marked **No times** (Sundays show **No times**).
 
-### Scene 6 · Bed management (4:03–4:18) · window C (admin)
+### Scene 6 · Bed management (3:58–4:11) · window C (admin)
 1. On **Department operations**, find the bed card **Surgical Ward A · REC-11A** (**General Surgery · available**).
 2. In its **Patient** box choose **Sample Recording Patient · REC-2026-11** → click **Admit / transfer here**.
    **Success state:** **"Operation recorded."**; the card now reads **General Surgery · occupied** and **Sample Recording Patient · Dr. Meera Nair**, with a **Discharge from bed** button.
@@ -138,7 +138,7 @@ If you record on a later day, pick any day that is not marked **No times** (Sund
 
 Keep the yellow line **"Admin-operated department prototype. Dedicated department login is Planned."** visible; it is the honest label.
 
-### Scene 7 · Care document (4:18–4:33) · windows A and B
+### Scene 7 · Care document (4:11–4:25) · windows A and B
 1. Window A, discharge editor (draft already in the form): click **Publish saved draft to patient**.
 2. A browser pop-up asks **"Publish the SAVED draft? The patient will be able to view this version…"** Click **OK**.
    **Success state:** **"Published version 1 · Dr. Meera Nair · <time>"** and **"Patient has not acknowledged this version."**
@@ -149,8 +149,8 @@ Keep the yellow line **"Admin-operated department prototype. Dedicated departmen
 
 If you want to show the preview: **Preview saved draft** opens a page marked **"DRAFT — staff preview only"**. Come back with the browser's **Back** button, because its only link goes to the patient page.
 
-### Scene 8 · Breathing session (4:33–4:47) · window B
-1. On **My medicines**, tap **My breathing exercise (Simulated)**. (The **My breathing exercise** link on the care page also works.)
+### Scene 8 · Breathing session (4:25–4:45) · window B
+1. On **My medicines**, tap **My breathing exercise (Simulated)**. Do not use the link on the care page (see Screen quirks, item 5).
 2. Tap **Start my exercise**. The card shows **Breath 1 of 10**, **Finish now**, and buttons under **"No device connected: tap to make a simulated breath"**.
 3. Tap **Good breath**. Wait about 4 seconds.
    **Success state:** **"Great breath!"**, **Breath 2 of 10**, and a line like **"1,860 mL · Score 7.7 out of 10"**.
@@ -160,7 +160,7 @@ If you want to show the preview: **Preview saved draft** opens a page marked **"
 
 The bottom of the page says **"Simulator (no device connected)"**. Let it show for a moment. Numbers (mL and score) are simulated and change each time; do not read them as real measurements.
 
-### Scene 9 · Simulated call in Hindi, then nurse alert (4:47–5:20) · windows A and C
+### Scene 9 · Simulated call in Hindi, then nurse alert (4:45–5:20) · windows A and C
 1. Window A, **Demo panel**, section **Calls & WhatsApp – live simulators**. Show the status line **"AI check-in calls: simulated here · WhatsApp: dry run"**.
 2. **Patient**: choose **Ravi Kumar ★**. Click **AI check-in call – optional, where consent allows**.
    **Success state:** message **"AI check-in call ringing on the patient phone"**; the phone simulator shows an incoming call.
@@ -199,8 +199,9 @@ Deck slide 15 (**Team Structure**: GuGu GaGa, Sharon Shaju Augustine, Fathima Sh
 2. **Login page shows sample passwords.** Log in before recording; never show `/login.html`.
 3. **Reported at a morning time for the 9 PM dose.** The app lets the patient report the night dose early. Say "records the patient's own report"; do not say "on time".
 4. **Draft preview page** links only to the patient's "My care" page. Use the browser's **Back** button.
-5. **Registration form hint** says bed occupancy is planned, but the separate admin bed board works. Don't read the hint out.
-6. **Red "Reset demo data" button** at the top of the Demo panel. Never press it: it wipes the sample patients, bed operations and care documents (on the live site too).
+5. **"My breathing exercise" on the care page** has no patient number. In a fresh browser it opened the default sample patient ("Hello, Ravi"). Always use the link on **My medicines**.
+6. **Registration form hint** says bed occupancy is planned, but the separate admin bed board works. Don't read the hint out.
+7. **Red "Reset demo data" button** at the top of the Demo panel. Never press it: it wipes the sample patients, bed operations and care documents (on the live site too).
 
 ## 4. If something goes wrong while recording
 

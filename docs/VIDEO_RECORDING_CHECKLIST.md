@@ -4,6 +4,25 @@ Goes with [VIDEO_NARRATION_FINAL.md](VIDEO_NARRATION_FINAL.md) (what to say) and
 
 Rules: under 6:00 (aim for 5:40), under 100 MB, your own voice, sample data only, no passwords or keys on screen.
 
+## Fastest path: the ready-made video plus your voice (made 12 Oct 2026, 09:20–09:40 IST)
+
+The whole demo was run and screen-recorded on the **live site** with fictional patient `REC-2026-12`, and joined with the deck slides. Both files are in `output/video/` (not committed to git):
+
+| File | What it is |
+|---|---|
+| `Aarogya_Saathi_video_SILENT.mp4` | **The video to submit, once your voice is added.** 5:40, 1920 × 1080, 13.6 MB, no sound. It has small labels ("Live site · fictional sample data", "SIMULATED" on the code, breathing and call) and English subtitles for the Hindi call. |
+| `Aarogya_Saathi_video_TELEPROMPTER.mp4` | The same video with your script on screen and a yellow timer. **For reading only. Never upload it.** |
+
+Record your voice:
+1. Click Start, type **Sound Recorder**, and open it. Check the microphone shown at the bottom.
+2. Double-click `Aarogya_Saathi_video_TELEPROMPTER.mp4` so it opens in the Media Player. Pause it at 0:00.
+3. Press the red record button in Sound Recorder, then press play on the video.
+4. Read the white text as it appears. The yellow timer shows where you are. Start speaking as soon as the video starts.
+5. When the video ends, stop the recording. Sound Recorder saves it in **Documents → Sound recordings**.
+6. Copy that file into the `SpiroBuddy` folder and tell Claude its name. Claude joins it with the silent video, lines your first word up with 0:00, and checks the length and size. Or do it yourself in Clipchamp: put the silent video and the voice file on the timeline, both starting at 0:00, and export at 1080p.
+
+If a sentence runs long, just keep going. A second or two off is fine. If you fall badly behind, start again.
+
 ---
 
 ## A. Which site to record (checked 12 Oct 2026, 08:22–08:25 IST)
@@ -14,9 +33,11 @@ Rules: under 6:00 (aim for 5:40), under 100 MB, your own voice, sample data only
 | Live pages (`register`, `prescribe`, `patient-login`, `meds`, `patient-visits`, `doctor-day`, `department`, `hospital-overview`, `discharge-editor`, `my-care`, `demo`, `dashboard`, `login`) and their scripts | **Byte-for-byte the same** as the local files |
 | Live `/api/health` | OK; sample-data mode; Supabase database |
 | Live public login API (`/api/me/otp/hospitals`) | Returns the two Dawnlight sample hospitals |
-| Full click-through (register → prescribe → OTP → visit → bed → care document → breathing → call → nurse) | **Done on the isolated local copy only.** Not yet done on the live site. |
+| Full click-through (register → prescribe → OTP → visit → bed → care document → breathing → call → nurse) | **Passed on the live site** (12 Oct, 09:20–09:25 IST, automated browser run, fictional patient `REC-2026-12`, patient id 1001), after a passing run on the isolated local copy. |
 
-**Recommendation:** record on the live site (`https://spirobuddy.onrender.com`), because that is the URL the judges will open. First do the 5-minute live check below. If any step fails, record everything on the local copy instead (section F) and say so in the close.
+Live-run notes: the draft line read "Manual-format draft. No AI consent recorded for this patient."; the visit used 9:30 AM (10:00 was taken by an earlier run); the first **Add bed** click did nothing while the page was still loading, and the second click worked. An earlier partial live run also left fictional patient `REC-2026-11` and bed `REC-11A` on the site.
+
+**Recommendation:** the live site works for the whole demo. If you record the screen yourself instead of using the ready-made video, the 5-minute check below is still a good warm-up. Use a new number (`REC-2026-13` or higher).
 
 ### 5-minute live check (do this silently; it does not need to be recorded)
 1. Open `https://spirobuddy.onrender.com/api/health`. Wait until it shows `"ok":true`. The first load after a quiet period can take a minute.
@@ -120,5 +141,7 @@ Then:
 
 1. On **My medicines**, the **Optional AI processing** box loads in Hindi when the page is in English, until the **English** button is pressed.
 2. The draft preview page (`discharge-print.html`) offers only a patient "My care" link to staff.
-3. The registration form's bed hint ("Bed occupancy management is planned") contradicts the working admin bed board.
-4. The night dose can be reported in the morning ("Reported at 8:34 AM" for a 9:00 PM dose).
+3. In a fresh browser, the **My breathing exercise** link on **My care instructions** (`app.html` with no patient number) opens the default sample patient ("Hello, Ravi") instead of the signed-in patient. The link on **My medicines** carries the number and works. (An earlier note said this link was fine; that test browser still remembered the previous patient.)
+4. The registration form's bed hint ("Bed occupancy management is planned") contradicts the working admin bed board.
+5. On the bed board, the first **Add bed** click can do nothing if pressed before the page has finished loading.
+6. The night dose can be reported in the morning ("Reported at 8:34 AM" for a 9:00 PM dose).

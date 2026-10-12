@@ -6,7 +6,7 @@ Team **GuGu GaGa** · Sharon Shaju Augustine and Fathima Shifana · 12 October 2
 
 Read this with [VIDEO_SHOT_LIST.md](VIDEO_SHOT_LIST.md) (what to click) and [VIDEO_RECORDING_CHECKLIST.md](VIDEO_RECORDING_CHECKLIST.md) (before and after recording).
 
-How this script was checked: every click and on-screen message in the demo part was run through once on 12 Oct 2026 (08:31–08:40 IST) on an isolated local copy with sample data only. The live site serves the same page files (checked byte for byte), but the full click-through was **not** run on the live site. Do the 5-minute live check in the checklist before you record there.
+How this script was checked: every click and on-screen message in the demo part was run on 12 Oct 2026, first on an isolated local copy, then on the **live site** (09:20–09:25 IST, fictional patient `REC-2026-12`). Both passed. The ready-made silent video in `output/video/` follows these exact times, and its teleprompter copy shows this text on screen.
 
 ---
 
@@ -58,33 +58,33 @@ Source for the last line: *J Pharm Bioallied Sci* 2024, PMID 39346353, 60 genera
 
 Each block matches a scene in the shot list. Talk **while** you click. Stop talking for one beat when a success message appears, so viewers can read it.
 
-### 2:30–2:52 · Doctor registers a patient (scene 2)
+### 2:30–2:47 · Doctor registers a patient (scene 2)
 > ★ Now the working product, with sample patients only. Doctor Meera Nair registers a new patient with the hospital's own registration number and phone number, and switches on the breathing module.
 > The patient is registered.
 
-### 2:52–3:20 · Reviewed prescription (scene 3)
+### 2:47–3:13 · Reviewed prescription (scene 3)
 > She types the prescription in the notepad and prepares a draft. ★ It is only a draft. Anything unclear stays blank for her to decide, like "after food".
 > She checks each line and sends it to the patient's phone. It is now issued.
 
-### 3:20–3:43 · Patient login and medicines (scene 4)
+### 3:13–3:36 · Patient login and medicines (scene 4)
 > On the patient's phone: hospital, registration number, and a one-time code. ★ The code is simulated here. It appears on screen instead of an SMS.
 > The patient sees the doctor's prescription, and taps "I took it". ★ That records the patient's own report.
 
-### 3:43–4:03 · Visit request and confirmation (scene 5)
+### 3:36–3:58 · Visit request and confirmation (scene 5)
 > The patient asks for a visit and picks a free time.
 > The doctor sees the request on My day, and confirms it.
 > The patient's phone now shows Confirmed.
 
-### 4:03–4:18 · Bed management (scene 6)
+### 3:58–4:11 · Bed management (scene 6)
 > The hospital admin admits the patient to a bed. The hospital overview updates its counts from these recorded bed operations.
 
-### 4:18–4:33 · Care document (scene 7)
+### 4:11–4:25 · Care document (scene 7)
 > The doctor publishes the saved discharge instructions. The patient reads them and taps "I have read this version". ★ That records reading, not consent.
 
-### 4:33–4:47 · Breathing session (scene 8)
+### 4:25–4:45 · Breathing session (scene 8)
 > SpiroBuddy coaches the breathing exercise. ★ No device is connected, so these breaths come from a simulator. It gives feedback on each breath, and a short session is saved as partial, not complete.
 
-### 4:47–5:20 · Simulated call in Hindi and nurse alert (scene 9)
+### 4:45–5:20 · Simulated call in Hindi and nurse alert (scene 9)
 > ★ Next, a simulated check-in call in Hindi, to Ravi, a sample patient who agreed to automated calls.
 > The assistant asks why he missed his exercise. He reports mild pain near his stitches, and asks for a nurse to call back.
 > ★ Fixed rules, not the AI, send this to the nurse.
