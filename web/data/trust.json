@@ -13,7 +13,7 @@
         },
         {
           "rule": "Vulnerable participants",
-          "does": "The people we serve are older, unwell and often cannot read English. So the patient screens speak, take no typing, and offer a \"no AI\" choice with the same care. Children are left out of any pilot.",
+          "does": "The people we serve are older, unwell and often cannot read English. So the patient screens use large text and one step at a time, the medicines page and the breathing coach speak aloud, and typing is kept to the login: the hospital registration number and a 6-digit code. AI help stays off unless the patient switches it on, and they can switch it off again. Children are left out of any pilot.",
           "keys": [
             "consent.ai_optout",
             "app.patient"
