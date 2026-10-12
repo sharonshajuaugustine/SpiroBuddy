@@ -1,7 +1,11 @@
 # SpiroBuddy
 
+## ICMR ethical guidance
+
+Aarogya Saathi's design is informed by ICMR's [healthcare AI ethical guidance (2023)](https://www.icmr.gov.in/ethical-guidelines-for-application-of-artificial-intelligence-in-biomedical-research-and-healthcare) and [human-participant research guidelines (2017)](https://ethics.ncdirindia.org/icmr_ethical_guidelines.aspx/Default.aspx). The prototype includes optional AI consent, clinician approval of prescriptions, scoped access and transparent simulation. **Full guideline assessment, independent validation and applicable institutional ethics review remain pending. No ICMR approval, certification or full compliance is claimed.** See [the safeguards and remaining-work mapping](docs/ICMR_ETHICS_CONTEXT.md).
+
 **After big surgery, the hospital stays connected to the patient at home.**
-SpiroBuddy is a clip-on unit for an ordinary incentive spirometer, a voice breathing coach, a patient app, a nurse dashboard and family updates. It shows that the breathing exercise was really done, and it puts the doctor's prescription on the patient's own phone, so the patient can show that screen at the pharmacy counter instead of paper.
+SpiroBuddy combines a proposed clip-on incentive-spirometer unit, a voice breathing coach, a patient app, a nurse dashboard and family updates. The physical attachment remains unbuilt and untested; demo breaths are simulated and reported sessions do not prove exercise completion. The app puts the doctor's approved prescription on the patient's phone for reference.
 
 Healthcare & Wellbeing track. **Fake patients only. Not a medical device. Not for clinical use.**
 
